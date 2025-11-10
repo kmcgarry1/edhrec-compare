@@ -16,6 +16,9 @@
           :key="commander.id"
           @click="emitUpName(commander.name)"
           class="commander-item"
+          tabindex="0"
+          @keydown.enter="emitUpName(commander.name)"
+          @keydown.space="emitUpName(commander.name)"
         >
           {{ commander.name }}
         </li>
