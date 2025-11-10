@@ -22,28 +22,6 @@
         <button @click.stop="removeFile">Remove</button>
       </div>
     </div>
-    <div v-if="csvData.length > 0" class="preview">
-      <div class="preview-header">
-        <h3>Preview:</h3>
-        <button class="clear-button" @click="removeFile">
-          Clear saved data
-        </button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th v-for="header in headers" :key="header">{{ header }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(row, index) in csvData" :key="index">
-            <td v-for="(cell, cellIndex) in row" :key="cellIndex">
-              {{ cell }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 </template>
 
