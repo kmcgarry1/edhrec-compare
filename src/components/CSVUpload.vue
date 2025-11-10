@@ -75,7 +75,11 @@ const handleFileSelect = (event: Event) => {
 const handleDrop = (event: DragEvent) => {
   event.preventDefault();
   const droppedFile = event.dataTransfer?.files[0];
-  if (droppedFile && droppedFile.type === "text/csv") {
+  if (
+    droppedFile &&
+    (droppedFile.type === "text/csv" ||
+      droppedFile.name.toLowerCase().endsWith(".csv"))
+  ) {
     processFile(droppedFile);
   }
 };
