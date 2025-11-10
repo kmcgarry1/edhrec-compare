@@ -4,6 +4,7 @@
       type="text"
       placeholder="Search Commanders..."
       v-model="searchQuery"
+      class="search-input"
       aria-label="Search Commanders"
     />
     <div v-if="loading">Loading...</div>
