@@ -42,3 +42,26 @@ export async function getCardImage(cardName: string): Promise<string | null> {
   const card = await getCard(cardName);
   return card?.image_uris?.normal || null;
 }
+
+export async function searchCardNames(partialName: string): Promise<string[]> {
+  try {
+    const response = await fetch(
+      `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
+        `name:${partialName} is:commander`
+      )}`
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return [];
+      }
+      throw new Error(`Scryfall API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data?.map((card: ScryfallCard) => card.name) || [];
+  } catch (error) {
+    console.error("Error searching card names from Scryfall:", error);
+    return [];
+  }
+}

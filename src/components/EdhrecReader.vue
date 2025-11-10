@@ -4,13 +4,7 @@
     <div v-else-if="error">Error: {{ error }}</div>
 
     <div>
-      <input
-        type="text"
-        placeholder="Search commanders..."
-        class="search-input"
-        v-model="searchQuery"
-        @input="searchCommander(searchQuery)"
-      />
+      <commander-search @commanderSelected="searchCommander" />
     </div>
     <div
       class="cardlists"
@@ -52,9 +46,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useLocalStorage, useDebounceFn } from "@vueuse/core";
 import { getCardImage } from "../api/scryfallApi";
+import { CommanderSearch } from ".";
 
 interface EdhrecData {
   container?: {
@@ -177,6 +172,10 @@ const searchCommander = useDebounceFn((query: string) => {
     `https://json.edhrec.com/pages/commanders/${removeApostrophes}.json`
   );
 }, 300);
+
+watch(searchQuery, (newQuery) => {
+  searchCommander(newQuery);
+});
 
 onMounted(() => {
   fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
