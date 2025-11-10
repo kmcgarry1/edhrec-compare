@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useLocalStorage } from "@vueuse/core";
+import { useLocalStorage, useDebounceFn } from "@vueuse/core";
 
 interface EdhrecData {
   container?: {
@@ -114,13 +114,13 @@ const isCardInUpload = (cardName: string) => {
   return uploadedCardNameSet.value.has(cardName.trim().toLowerCase());
 };
 
-const searchCommander = (query: string) => {
+const searchCommander = useDebounceFn((query: string) => {
   const formattedQuery = query.toLowerCase().replace(/[\s,]+/g, "-");
-  const removeApostraphes = formattedQuery.replace(/'/g, "");
+  const removeApostrophes = formattedQuery.replace(/'/g, "");
   fetchJsonData(
-    `https://json.edhrec.com/pages/commanders/${removeApostraphes}.json`
+    `https://json.edhrec.com/pages/commanders/${removeApostrophes}.json`
   );
-};
+}, 300);
 
 onMounted(() => {
   fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
