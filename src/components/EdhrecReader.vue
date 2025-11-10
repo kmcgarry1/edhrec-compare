@@ -173,10 +173,6 @@ const searchCommander = useDebounceFn((query: string) => {
   );
 }, 300);
 
-watch(searchQuery, (newQuery) => {
-  searchCommander(newQuery);
-});
-
 onMounted(() => {
   fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
 });
