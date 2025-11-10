@@ -4,13 +4,7 @@
     <div v-else-if="error">Error: {{ error }}</div>
 
     <div>
-      <input
-        type="text"
-        placeholder="Search commanders..."
-        class="search-input"
-        v-model="searchQuery"
-        @input="searchCommander(searchQuery)"
-      />
+      <commander-search @commanderSelected="searchCommander" />
     </div>
     <div
       class="cardlists"
@@ -26,6 +20,9 @@
           :key="card.id"
           class="card-entry"
           :class="{ 'card-entry--present': isCardInUpload(card.name) }"
+          @mouseenter="handleCardHover(card.name, $event)"
+          @mouseleave="hideCardImage"
+          @mousemove="updateImagePosition($event)"
         >
           <input
             type="checkbox"
@@ -38,11 +35,21 @@
         </label>
       </div>
     </div>
+
+    <div
+      v-if="hoveredCardImage"
+      class="card-hover-image"
+      :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
+    >
+      <img :src="hoveredCardImage" alt="Card preview" />
+    </div>
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useLocalStorage, useDebounceFn } from "@vueuse/core";
+import { getCardImage } from "../api/scryfallApi";
+import { CommanderSearch } from ".";
 
 interface EdhrecData {
   container?: {
@@ -92,6 +99,8 @@ const uploadedNameIndex = computed(() => {
   return idx >= 0 ? idx : 0;
 });
 
+const normalizeCardName = (value: string) => value.trim().toLowerCase();
+
 const uploadedCardNameSet = computed(() => {
   if (!uploadedRows.value.length) {
     return new Set<string>();
@@ -102,7 +111,7 @@ const uploadedCardNameSet = computed(() => {
   return new Set(
     uploadedRows.value
       .map((row) => row[idx] ?? row[0] ?? "")
-      .map((value) => value.trim().toLowerCase())
+      .map((value) => normalizeCardName(value))
       .filter((value) => value.length > 0)
   );
 });
@@ -112,7 +121,48 @@ const isCardInUpload = (cardName: string) => {
     return false;
   }
 
-  return uploadedCardNameSet.value.has(cardName.trim().toLowerCase());
+  return uploadedCardNameSet.value.has(normalizeCardName(cardName));
+};
+
+const hoveredCardImage = ref<string | null>(null);
+const imagePosition = ref({ x: 0, y: 0 });
+const pendingImageKey = ref<string | null>(null);
+const imageCache = new Map<string, string>();
+
+const updateImagePosition = (event: MouseEvent) => {
+  imagePosition.value = {
+    x: event.clientX + 20,
+    y: event.clientY + 20,
+  };
+};
+
+const handleCardHover = async (cardName: string, event: MouseEvent) => {
+  const normalized = normalizeCardName(cardName);
+  pendingImageKey.value = normalized;
+  updateImagePosition(event);
+
+  if (imageCache.has(normalized)) {
+    hoveredCardImage.value = imageCache.get(normalized) ?? null;
+    return;
+  }
+
+  hoveredCardImage.value = null;
+  try {
+    const imageUrl = await getCardImage(cardName);
+    if (imageUrl) {
+      imageCache.set(normalized, imageUrl);
+      if (pendingImageKey.value === normalized) {
+        hoveredCardImage.value = imageUrl;
+      }
+    }
+  } catch (err) {
+    console.error("Unable to fetch card image:", err);
+  }
+};
+
+const hideCardImage = () => {
+  pendingImageKey.value = null;
+  hoveredCardImage.value = null;
 };
 
 const searchCommander = useDebounceFn((query: string) => {
@@ -166,5 +216,24 @@ onMounted(() => {
   border-radius: 4px;
   width: 300px;
   margin-bottom: 1rem;
+}
+
+.card-hover-image {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.85);
+  padding: 0.35rem;
+}
+
+.card-hover-image img {
+  width: 220px;
+  height: auto;
+  display: block;
+  border-radius: 6px;
 }
 </style>
