@@ -1,8 +1,17 @@
 <template>
   <div>
-    <h2>EdhrecReader Component</h2>
-    <p>This is the EdhrecReader component.</p>
+    <div v-if="loading">Loading commander data...</div>
+    <div v-else-if="error">Error: {{ error }}</div>
 
+    <div>
+      <input
+        type="text"
+        placeholder="Search commanders..."
+        class="search-input"
+        v-model="searchQuery"
+        @input="searchCommander(searchQuery)"
+      />
+    </div>
     <div
       class="cardlists"
       v-for="cardlist in cardlists"
@@ -10,11 +19,13 @@
       style="margin-bottom: 20px"
     >
       <h2>{{ cardlist.header }}</h2>
+
       <div class="cardviews">
         <label
           v-for="card in cardlist.cardviews"
           :key="card.id"
           class="card-entry"
+          :class="{ 'card-entry--present': isCardInUpload(card.name) }"
         >
           <input
             type="checkbox"
@@ -31,7 +42,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
-import { useLocalStorage } from "@vueuse/core";
+import { useLocalStorage, useDebounceFn } from "@vueuse/core";
 
 interface EdhrecData {
   container?: {
@@ -47,6 +58,7 @@ interface EdhrecData {
 const data = ref<EdhrecData | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
+const searchQuery = ref("");
 
 const fetchJsonData = async (url: string) => {
   loading.value = true;
@@ -102,11 +114,17 @@ const isCardInUpload = (cardName: string) => {
 
   return uploadedCardNameSet.value.has(cardName.trim().toLowerCase());
 };
-// Example usage
-onMounted(() => {
+
+const searchCommander = useDebounceFn((query: string) => {
+  const formattedQuery = query.toLowerCase().replace(/[\s,]+/g, "-");
+  const removeApostrophes = formattedQuery.replace(/'/g, "");
   fetchJsonData(
-    "https://json.edhrec.com/pages/commanders/teysa-karlov/aristocrats/budget.json"
+    `https://json.edhrec.com/pages/commanders/${removeApostrophes}.json`
   );
+}, 300);
+
+onMounted(() => {
+  fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
 });
 </script>
 <style scoped>
@@ -128,11 +146,25 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 0.25rem 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #818181;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #414141;
 }
 .card-entry input {
   pointer-events: none;
+}
+
+.card-entry--present {
+  border-color: #4caf50;
+  background-color: #2e7d32;
+}
+
+.search-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 300px;
+  margin-bottom: 1rem;
 }
 </style>
