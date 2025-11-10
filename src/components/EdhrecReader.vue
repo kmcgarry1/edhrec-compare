@@ -65,9 +65,8 @@ const fetchJsonData = async (url: string) => {
   }
 };
 
-const jsonData = computed(() => data.value);
 const cardlists = computed(
-  () => jsonData.value?.container?.json_dict?.cardlists || []
+  () => data.value?.container?.json_dict?.cardlists || []
 );
 
 const uploadedRows = useLocalStorage<string[][]>("csv-upload-data", []);
