@@ -1,5 +1,5 @@
 <template>
-  <h2>Dashboard Component</h2>
+  <h2>EDHREC CSV Compare</h2>
   <p>Welcome to the dashboard!</p>
   <div class="app">
     <EdhrecReader />

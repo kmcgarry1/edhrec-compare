@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h2>EdhrecReader Component</h2>
-    <p>This is the EdhrecReader component.</p>
+    <div v-if="loading">Loading commander data...</div>
+    <div v-else-if="error">Error: {{ error }}</div>
+
     <div>
       <input
         type="text"
@@ -156,5 +157,14 @@ onMounted(() => {
 .card-entry--present {
   border-color: #4caf50;
   background-color: #2e7d32;
+}
+
+.search-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 300px;
+  margin-bottom: 1rem;
 }
 </style>
