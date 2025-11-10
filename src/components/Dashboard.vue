@@ -2,7 +2,7 @@
   <h2>Dashboard Component</h2>
   <p>Welcome to the dashboard!</p>
   <div class="app">
-    <edhrec-reader />
+    <EdhrecReader />
     <CSVUpload />
   </div>
 </template>
