@@ -1,9 +1,10 @@
 <template>
-  <div>
+  <div role="search">
     <input
       type="text"
       placeholder="Search Commanders..."
       v-model="searchQuery"
+      aria-label="Search Commanders"
     />
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">Error: {{ error }}</div>
