@@ -115,9 +115,10 @@ const isCardInUpload = (cardName: string) => {
 };
 
 const searchCommander = (query: string) => {
-  const formattedQuery = query.toLowerCase().replace(/\s+/g, "-");
+  const formattedQuery = query.toLowerCase().replace(/[\s,]+/g, "-");
+  const removeApostraphes = formattedQuery.replace(/'/g, "");
   fetchJsonData(
-    `https://json.edhrec.com/pages/commanders/${formattedQuery}.json`
+    `https://json.edhrec.com/pages/commanders/${removeApostraphes}.json`
   );
 };
 
