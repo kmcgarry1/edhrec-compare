@@ -368,7 +368,7 @@ const handleCommanderSelection = (slug: string) => {
   fetchJsonData(buildCommanderUrl(slug));
 };
 
-watch([chosenPageType, chosenBracket, chosenModifier], () => {
+watch([chosenPageType, chosenBracket, chosenModifier, chosenCompanion], () => {
   if (currentCommanderSlug.value) {
     fetchJsonData(buildCommanderUrl(currentCommanderSlug.value));
   }
