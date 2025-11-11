@@ -82,7 +82,7 @@
         class="flex flex-col gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300 sm:flex-row sm:items-center"
       >
         <code
-          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm md:whitespace-pre"
+          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm"
         >
           {{ previewUrl }}
         </code>
