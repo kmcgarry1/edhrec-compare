@@ -19,7 +19,12 @@
       Error: {{ error }}
     </Card>
 
-    <GlobalLoadingBanner v-else-if="bulkCardLoading" scope="scryfall-bulk">
+    <GlobalLoadingBanner
+      v-else-if="bulkCardLoading"
+      scope="scryfall-bulk"
+      inline
+      placementClass="w-full flex justify-center"
+    >
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
@@ -29,7 +34,7 @@
       class="space-y-5"
     >
       <div class="space-y-2">
-        <commander-search @commanderSelected="searchCommander" />
+        <commander-search @commanderSelected="handleCommanderSelection" />
         <p class="text-xs text-slate-500 dark:text-slate-400">
           Start typing to search EDHREC commanders, then refine the results with
           the filters below.
@@ -82,7 +87,7 @@
         class="flex flex-col gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300 sm:flex-row sm:items-center"
       >
         <code
-          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm"
+          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm md:whitespace-pre"
         >
           {{ previewUrl }}
         </code>
@@ -119,9 +124,7 @@
             {{ cardlist.header }}
           </h2>
         </div>
-        <div
-          class="flex flex-wrap gap-2 text-sm font-semibold"
-        >
+        <div class="flex flex-wrap gap-2 text-sm font-semibold">
           <button
             type="button"
             class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
@@ -181,7 +184,6 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useDebounceFn } from "@vueuse/core";
 import { getCardsByNames } from "../api/scryfallApi";
 import {
   EDHRECBracket,
@@ -333,14 +335,13 @@ const copyPreviewUrl = async () => {
   }
 };
 
-const searchCommander = useDebounceFn((query: string) => {
-  const slug = slugifyCommander(query);
+const handleCommanderSelection = (slug: string) => {
   if (!slug) {
     return;
   }
   currentCommanderSlug.value = slug;
   fetchJsonData(buildCommanderUrl(slug));
-}, 300);
+};
 
 watch([chosenPageType, chosenBracket, chosenModifier], () => {
   if (currentCommanderSlug.value) {
@@ -462,11 +463,4 @@ onMounted(() => {
   fetchJsonData(buildCommanderUrl(defaultCommanderSlug));
 });
 
-function slugifyCommander(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/['’]/g, "")
-    .replace(/[\s,]+/g, "-");
-}
 </script>

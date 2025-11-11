@@ -1,48 +1,58 @@
-import { computed, reactive, ref } from "vue";
+import { computed, reactive } from "vue";
 
 type Scope = string;
 
-const pendingRequests = ref(0);
-const message = ref<string | null>(null);
-const scopeCounts = reactive<Record<Scope, number>>({});
+const DEFAULT_SCOPE: Scope = "global";
 
-const adjustScopeCount = (scope: Scope, delta: number) => {
-  scopeCounts[scope] = (scopeCounts[scope] ?? 0) + delta;
-  if (scopeCounts[scope] <= 0) {
-    delete scopeCounts[scope];
-  }
+type ScopeState = {
+  count: number;
+  message: string | null;
 };
 
-const startLoading = (status?: string, scope: Scope = "global") => {
-  pendingRequests.value += 1;
-  adjustScopeCount(scope, 1);
+const scopeStates = reactive<Record<Scope, ScopeState>>({});
+
+const ensureScopeState = (scope: Scope) => {
+  if (!scopeStates[scope]) {
+    scopeStates[scope] = { count: 0, message: null };
+  }
+  return scopeStates[scope];
+};
+
+const startLoading = (status?: string, scope: Scope = DEFAULT_SCOPE) => {
+  const state = ensureScopeState(scope);
+  state.count += 1;
   if (status) {
-    message.value = status;
-  } else if (!message.value) {
-    message.value = "Loading...";
+    state.message = status;
+  } else if (!state.message) {
+    state.message = "Loading...";
   }
 };
 
-const stopLoading = (scope: Scope = "global") => {
-  if (pendingRequests.value > 0) {
-    pendingRequests.value -= 1;
+const stopLoading = (scope: Scope = DEFAULT_SCOPE) => {
+  const state = scopeStates[scope];
+  if (!state) {
+    return;
   }
-  adjustScopeCount(scope, -1);
-  if (pendingRequests.value === 0) {
-    message.value = null;
+  state.count = Math.max(0, state.count - 1);
+  if (state.count === 0) {
+    state.message = null;
+    delete scopeStates[scope];
   }
 };
-
-const isLoading = computed(() => pendingRequests.value > 0);
-const loadingMessage = computed(() => message.value ?? "Loading...");
 
 const getScopeLoading = (scope: Scope) =>
-  computed(() => (scopeCounts[scope] ?? 0) > 0);
+  computed(() => (scopeStates[scope]?.count ?? 0) > 0);
+
+const getScopeMessage = (scope: Scope) =>
+  computed(() => scopeStates[scope]?.message ?? "Loading...");
+
+const isLoading = getScopeLoading(DEFAULT_SCOPE);
+const loadingMessage = getScopeMessage(DEFAULT_SCOPE);
 
 const withLoading = async <T>(
   action: () => Promise<T>,
   status?: string,
-  scope: Scope = "global"
+  scope: Scope = DEFAULT_SCOPE
 ) => {
   startLoading(status, scope);
   try {
@@ -59,4 +69,5 @@ export const useGlobalLoading = () => ({
   stopLoading,
   withLoading,
   getScopeLoading,
+  getScopeMessage,
 });
