@@ -72,10 +72,6 @@ const ensureStackContainer = () => {
 
 const shouldUseStack = computed(() => !props.inline);
 
-if (typeof document !== "undefined" && shouldUseStack.value) {
-  ensureStackContainer();
-}
-
 onMounted(() => {
   if (shouldUseStack.value) {
     ensureStackContainer();
