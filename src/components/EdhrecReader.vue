@@ -67,7 +67,7 @@
             :options="pageTypeOptions"
             @update:modelValue="setPageType"
             :modelValue="chosenPageType"
-            placeholder="Select Commander"
+            placeholder="Select Page Type"
           />
         </div>
       </div>
