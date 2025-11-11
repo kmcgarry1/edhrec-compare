@@ -1,3 +1,19 @@
+interface CardFaceImageUris {
+  small?: string;
+  normal?: string;
+  large?: string;
+}
+
+interface CardFace {
+  name: string;
+  mana_cost?: string;
+  type_line?: string;
+  oracle_text?: string;
+  power?: string;
+  toughness?: string;
+  image_uris?: CardFaceImageUris;
+}
+
 interface ScryfallCard {
   id: string;
   name: string;
@@ -8,11 +24,19 @@ interface ScryfallCard {
   colors: string[];
   set: string;
   rarity: string;
-  image_uris?: {
-    small: string;
-    normal: string;
-    large: string;
+  image_uris?: CardFaceImageUris;
+  card_faces?: CardFace[];
+  prices: {
+    usd?: string;
+    usd_foil?: string;
+    eur?: string;
+    eur_foil?: string;
   };
+}
+
+export interface ScryfallSymbol {
+  symbol: string;
+  svg_uri: string;
 }
 
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
@@ -40,7 +64,18 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
 
 export async function getCardImage(cardName: string): Promise<string | null> {
   const card = await getCard(cardName);
-  return card?.image_uris?.normal || null;
+  if (!card) {
+    return null;
+  }
+
+  if (card.image_uris?.normal) {
+    return card.image_uris.normal;
+  }
+
+  const faceWithImage = card.card_faces?.find(
+    (face) => face.image_uris?.normal
+  );
+  return faceWithImage?.image_uris?.normal ?? null;
 }
 
 export async function searchCardNames(partialName: string): Promise<string[]> {
@@ -63,5 +98,65 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
   } catch (error) {
     console.error("Error searching card names from Scryfall:", error);
     return [];
+  }
+}
+
+export async function getCardsByNames(
+  cardNames: { name: string }[]
+): Promise<ScryfallCard[]> {
+  try {
+    const allCards: ScryfallCard[] = [];
+    const batchSize = 75;
+
+    for (let i = 0; i < cardNames.length; i += batchSize) {
+      const batch = cardNames.slice(i, i + batchSize);
+
+      const response = await fetch(
+        `https://api.scryfall.com/cards/collection`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifiers: batch.map((nameObj) => ({ name: nameObj.name })),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      allCards.push(...(result.data as ScryfallCard[]));
+
+      // Wait 300ms before next batch (except for the last batch)
+      if (i + batchSize < cardNames.length) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+    }
+
+    return allCards;
+  } catch (error) {
+    console.error("Error fetching cards by names from Scryfall:", error);
+    throw error;
+  }
+}
+
+export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
+  try {
+    const response = await fetch(`https://api.scryfall.com/symbology`);
+    if (!response.ok) {
+      throw new Error(`Scryfall API error: ${response.status}`);
+    }
+    const result = await response.json();
+    return result.data.map((symbol: any) => ({
+      symbol: symbol.symbol,
+      svg_uri: symbol.svg_uri,
+    }));
+  } catch (error) {
+    console.error("Error fetching symbols from Scryfall:", error);
+    throw error;
   }
 }
