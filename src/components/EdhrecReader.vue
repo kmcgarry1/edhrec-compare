@@ -303,8 +303,8 @@ const handlePointerDown = (cardName: string, event: PointerEvent) => {
   lastTapTimestamp = now;
 };
 
-const handlePointerUp = (event: PointerEvent) => {
-  if (canHover.value || event.pointerType === "mouse") {
+const handlePointerUp = (_event: PointerEvent) => {
+  if (canHover.value || _event.pointerType === "mouse") {
     return;
   }
 
