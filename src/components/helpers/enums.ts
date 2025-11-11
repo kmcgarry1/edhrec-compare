@@ -25,3 +25,18 @@ export const EDHRECBracket = {
 } as const;
 
 export type EDHRECBracket = (typeof EDHRECBracket)[keyof typeof EDHRECBracket];
+
+export const EDHRECCompanion = {
+  NONE: { value: "", label: "None" },
+  GYRUDA: { value: "gyruda-companion", label: "Gyruda" },
+  JEGANTHA: { value: "jegantha-companion", label: "Jegantha" },
+  KAHEERA: { value: "kaheera-companion", label: "Kaheera" },
+  KERUGA: { value: "keruga-companion", label: "Keruga" },
+  LURRUS: { value: "lurrus-companion", label: "Lurrus" },
+  OBOSH: { value: "obosh-companion", label: "Obosh" },
+  UMORI: { value: "umori-companion", label: "Umori" },
+  ZIRDA: { value: "zirda-companion", label: "Zirda" },
+} as const;
+
+export type EDHRECCompanion =
+  (typeof EDHRECCompanion)[keyof typeof EDHRECCompanion];

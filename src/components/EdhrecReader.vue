@@ -81,6 +81,19 @@
             placeholder="Select Page Type"
           />
         </div>
+        <div class="space-y-1">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
+            Companion
+          </p>
+          <dropdown-select
+            :options="Object.values(EDHRECCompanion)"
+            @update:modelValue="setCompanion"
+            :modelValue="chosenCompanion"
+            placeholder="Select Companion"
+          />
+        </div>
       </div>
 
       <div
@@ -189,6 +202,7 @@ import {
   EDHRECBracket,
   EDHRECPageType,
   EDHRECPageModifier,
+  EDHRECCompanion,
 } from "./helpers/enums";
 import {
   Card,
@@ -219,6 +233,7 @@ const showOwned = ref<boolean | null>(null);
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
 const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
 const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
+const chosenCompanion = ref<string>(EDHRECCompanion.NONE.value);
 const bracketOptions = Object.values(EDHRECBracket);
 const modifierOptions = Object.values(EDHRECPageModifier);
 const pageTypeOptions = Object.values(EDHRECPageType);
@@ -230,6 +245,9 @@ const setModifier = (value: string | number) => {
 };
 const setPageType = (value: string | number) => {
   chosenPageType.value = String(value);
+};
+const setCompanion = (value: string | number) => {
+  chosenCompanion.value = String(value);
 };
 
 const activeFilterClass =
@@ -312,9 +330,16 @@ const buildCommanderUrl = (slug: string) => {
   if (chosenBracket.value) {
     segments.push(chosenBracket.value);
   }
+  if (
+    chosenCompanion.value &&
+    chosenCompanion.value !== EDHRECCompanion.NONE.value
+  ) {
+    segments.push(chosenCompanion.value);
+  }
   if (chosenModifier.value) {
     segments.push(chosenModifier.value);
   }
+
   return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
 };
 
@@ -343,7 +368,7 @@ const handleCommanderSelection = (slug: string) => {
   fetchJsonData(buildCommanderUrl(slug));
 };
 
-watch([chosenPageType, chosenBracket, chosenModifier], () => {
+watch([chosenPageType, chosenBracket, chosenModifier, chosenCompanion], () => {
   if (currentCommanderSlug.value) {
     fetchJsonData(buildCommanderUrl(currentCommanderSlug.value));
   }
@@ -462,5 +487,4 @@ const getTableRows = (cardlist: {
 onMounted(() => {
   fetchJsonData(buildCommanderUrl(defaultCommanderSlug));
 });
-
 </script>
