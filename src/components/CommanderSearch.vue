@@ -1,24 +1,42 @@
 <template>
-  <div role="search">
-    <input
-      type="text"
-      placeholder="Search Commanders..."
-      v-model="searchQuery"
-      class="search-input"
-      aria-label="Search Commanders"
-    />
-    <div v-if="loading">Loading...</div>
-    <div v-else-if="error">Error: {{ error }}</div>
-    <div v-else class="commander-list">
-      <ul>
+  <div
+    role="search"
+    class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/90 p-6 text-slate-900 shadow-xl shadow-slate-900/5 dark:border-slate-700/80 dark:bg-slate-900/60 dark:text-slate-100 dark:shadow-black/40"
+  >
+    <label
+      class="flex flex-col gap-2 text-sm font-medium text-slate-600 dark:text-slate-300"
+    >
+      Search commanders
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Teysa Karlov, Atraxa..."
+        aria-label="Search Commanders"
+        class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
+      />
+    </label>
+
+    <p v-if="loading" class="mt-4 text-sm text-slate-500 dark:text-slate-400">
+      Loading...
+    </p>
+    <p v-else-if="error" class="mt-4 text-sm text-rose-600 dark:text-rose-300">
+      Error: {{ error }}
+    </p>
+
+    <div
+      v-else
+      class="mt-4 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 shadow-inner shadow-slate-900/5 dark:border-slate-700/70 dark:bg-slate-900/50 dark:shadow-black/50"
+      aria-live="polite"
+    >
+      <ul class="divide-y divide-slate-200 dark:divide-slate-800/70">
         <li
           v-for="commander in filteredCommanders"
           :key="commander.id"
-          @click="emitUpName(commander.name)"
-          class="commander-item"
           tabindex="0"
+          @click="emitUpName(commander.name)"
           @keydown.enter="emitUpName(commander.name)"
-          @keydown.space="emitUpName(commander.name)"
+          @keydown.space.prevent="emitUpName(commander.name)"
+          class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
         >
           {{ commander.name }}
         </li>
@@ -69,20 +87,3 @@ function emitUpName(name: string) {
   emit("commanderSelected", name);
 }
 </script>
-
-<style scoped>
-.commander-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border-radius: 4px;
-  margin-top: 10px;
-}
-.commander-item {
-  padding: 8px;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-.commander-item:hover {
-  background-color: #a5a5a5;
-}
-</style>
