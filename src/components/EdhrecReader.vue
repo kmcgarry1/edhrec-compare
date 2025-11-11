@@ -1,28 +1,43 @@
 <template>
   <section class="space-y-8 text-slate-900 dark:text-slate-100">
-    <div
-      v-if="loading"
-      class="rounded-2xl border border-slate-200 bg-white/90 p-6 text-sm text-slate-500 shadow-lg shadow-slate-900/5 dark:border-slate-700/80 dark:bg-slate-900/70 dark:text-slate-400 dark:shadow-black/40"
+    <Card
+      v-if="readerLoading"
+      rounded="rounded-2xl"
+      shadow="shadow-lg shadow-slate-900/5 dark:shadow-black/40"
+      class="text-sm text-slate-500 dark:text-slate-400"
     >
       Loading commander data...
-    </div>
-    <div
+    </Card>
+    <Card
       v-else-if="error"
-      class="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 shadow-lg shadow-rose-200/40 dark:border-rose-500/30 dark:bg-rose-950/30 dark:text-rose-200 dark:shadow-rose-900/40"
+      rounded="rounded-2xl"
+      shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
+      border="border border-rose-200 dark:border-rose-500/30"
+      background="bg-rose-50 dark:bg-rose-950/30"
+      class="text-sm text-rose-700 dark:text-rose-200"
     >
       Error: {{ error }}
-    </div>
+    </Card>
 
-    <div
-      class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-900/5 dark:border-slate-700/70 dark:bg-slate-900/70 dark:shadow-black/40"
+    <GlobalLoadingBanner
+      v-else-if="bulkCardLoading"
+      scope="scryfall-bulk"
     >
-      <commander-search @commanderSelected="searchCommander" />
-    </div>
+      Loading Scryfall data...
+    </GlobalLoadingBanner>
 
-    <article
+    <Card padding="p-6">
+      <commander-search @commanderSelected="searchCommander" />
+    </Card>
+
+    <Card
       v-for="cardlist in cardlists"
       :key="cardlist.header"
-      class="space-y-6 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-2xl shadow-slate-900/5 dark:border-slate-700/70 dark:bg-slate-900/60 dark:shadow-black/50"
+      as="article"
+      class="space-y-6 flex flex-col flex-wrap"
+      padding="p-6"
+      background="bg-white/95 dark:bg-slate-900/60"
+      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
     >
       <header
         class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -41,7 +56,9 @@
           <button
             type="button"
             class="rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-            :class="showOwned === true ? activeFilterClass : inactiveFilterClass"
+            :class="
+              showOwned === true ? activeFilterClass : inactiveFilterClass
+            "
             @click="showOwned = true"
           >
             Owned
@@ -59,7 +76,9 @@
           <button
             type="button"
             class="rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-            :class="showOwned === null ? activeFilterClass : inactiveFilterClass"
+            :class="
+              showOwned === null ? activeFilterClass : inactiveFilterClass
+            "
             @click="showOwned = null"
           >
             Show All
@@ -67,55 +86,32 @@
         </div>
       </header>
 
-      <div class="flex flex-wrap gap-3" aria-live="polite">
-        <label
-          v-for="card in filteredCards(cardlist.cardviews)"
+      <div class="flex flex-col flex-wrap gap-3" aria-live="polite">
+        <scryfall-card-row
+          v-for="card in scryfallCardData.filter(
+            (c) =>
+              c.name &&
+              filteredCards(cardlist.cardviews).some((fc) => fc.name === c.name)
+          )"
           :key="card.id"
-          class="group flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-400/70 sm:w-auto"
-          :class="[
-            isCardInUpload(card.name)
-              ? 'border-emerald-500/70 bg-emerald-50 text-emerald-900 shadow-inner shadow-emerald-200 dark:border-emerald-400/70 dark:bg-emerald-500/10 dark:text-emerald-100 dark:shadow-emerald-600/30'
-              : 'border-slate-200 bg-white text-slate-700 hover:border-emerald-400 hover:bg-emerald-50/40 dark:border-slate-700/70 dark:bg-slate-900/70 dark:text-slate-200 dark:hover:border-emerald-400/40 dark:hover:bg-slate-900'
-          ]"
-          @mouseenter="handleCardHover(card.name, $event)"
-          @mouseleave="hideCardImage"
-          @mousemove="updateImagePosition($event)"
-          @pointerdown="handlePointerDown(card.name, $event)"
-          @pointerup="handlePointerUp"
-          @pointerleave="handlePointerLeave"
-          @pointercancel="handlePointerLeave"
-        >
-          <input
-            type="checkbox"
-            class="h-4 w-4 rounded border-slate-400 bg-transparent text-emerald-500 focus:ring-emerald-400 dark:border-slate-600 dark:text-emerald-400 dark:focus:ring-emerald-300"
-            :checked="isCardInUpload(card.name)"
-            disabled
-            :aria-checked="isCardInUpload(card.name)"
-            aria-label="Card present in uploaded list"
-          />
-          <span class="font-medium">{{ card.name }}</span>
-        </label>
+          :card="card"
+          :have="isCardInUpload(card.name)"
+        />
       </div>
-    </article>
-
-    <div
-      v-if="hoveredCardImage"
-      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white/95 p-1.5 text-slate-900 shadow-2xl shadow-slate-900/15 dark:border-slate-700/70 dark:bg-slate-900/80 dark:text-slate-100 dark:shadow-black/60"
-      :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
-    >
-      <img
-        :src="hoveredCardImage"
-        alt="Card preview"
-        class="w-56 rounded-lg shadow-lg shadow-slate-900/15 dark:shadow-black/40"
-      />
-    </div>
+    </Card>
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useLocalStorage, useDebounceFn } from "@vueuse/core";
-import { getCardImage } from "../api/scryfallApi";
-import { CommanderSearch } from ".";
+import { getCardsByNames } from "../api/scryfallApi";
+import {
+  Card,
+  CommanderSearch,
+  GlobalLoadingBanner,
+  ScryfallCardRow,
+} from ".";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
 
 interface EdhrecData {
   container?: {
@@ -129,32 +125,39 @@ interface EdhrecData {
 }
 
 const data = ref<EdhrecData | null>(null);
-const loading = ref(false);
 const error = ref<string | null>(null);
 const searchQuery = ref("");
 const showOwned = ref<boolean | null>(null);
-const canHover = ref(true);
 
 const activeFilterClass =
   "border-emerald-500/80 bg-emerald-100 text-emerald-900 shadow-inner shadow-emerald-200 dark:border-emerald-400/70 dark:bg-emerald-400/20 dark:text-emerald-100 dark:shadow-emerald-500/30";
 const inactiveFilterClass =
   "border-slate-200 bg-white text-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-emerald-400/40 dark:hover:text-white";
 
+const { withLoading, getScopeLoading } = useGlobalLoading();
+const readerScope = "edhrec-reader";
+const bulkCardScope = "scryfall-bulk";
+const readerLoading = getScopeLoading(readerScope);
+const bulkCardLoading = getScopeLoading(bulkCardScope);
+
 const fetchJsonData = async (url: string) => {
-  loading.value = true;
   error.value = null;
 
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    data.value = await response.json();
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : "An error occurred";
-  } finally {
-    loading.value = false;
-  }
+  await withLoading(
+    async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        data.value = await response.json();
+      } catch (err) {
+        error.value = err instanceof Error ? err.message : "An error occurred";
+      }
+    },
+    "Fetching commander data...",
+    readerScope
+  );
 };
 
 const cardlists = computed(
@@ -197,131 +200,6 @@ const isCardInUpload = (cardName: string) => {
   return uploadedCardNameSet.value.has(normalizeCardName(cardName));
 };
 
-const hoveredCardImage = ref<string | null>(null);
-const imagePosition = ref({ x: 0, y: 0 });
-const pendingImageKey = ref<string | null>(null);
-const imageCache = new Map<string, string>();
-const hoverMediaQueryState = {
-  query: null as MediaQueryList | null,
-  listener: null as ((event: MediaQueryListEvent) => void) | null,
-};
-const DOUBLE_TAP_THRESHOLD = 300;
-let lastTapCard: string | null = null;
-let lastTapTimestamp = 0;
-let mobilePreviewPinned = false;
-let mobileDismissListener: ((event: PointerEvent) => void) | null = null;
-
-const updateImagePosition = (event: MouseEvent | PointerEvent) => {
-  imagePosition.value = {
-    x: event.clientX + 20,
-    y: event.clientY + 20,
-  };
-};
-
-const handleCardHover = async (
-  cardName: string,
-  event: MouseEvent | PointerEvent
-) => {
-  const normalized = normalizeCardName(cardName);
-  pendingImageKey.value = normalized;
-  updateImagePosition(event);
-
-  if (imageCache.has(normalized)) {
-    hoveredCardImage.value = imageCache.get(normalized) ?? null;
-    return;
-  }
-
-  hoveredCardImage.value = null;
-  try {
-    const imageUrl = await getCardImage(cardName);
-    if (imageUrl) {
-      imageCache.set(normalized, imageUrl);
-      if (pendingImageKey.value === normalized) {
-        hoveredCardImage.value = imageUrl;
-      }
-    }
-  } catch (err) {
-    console.error("Unable to fetch card image:", err);
-  }
-};
-
-const hideCardImage = () => {
-  pendingImageKey.value = null;
-  hoveredCardImage.value = null;
-  mobilePreviewPinned = false;
-  detachMobileDismissListener();
-};
-
-const detachMobileDismissListener = () => {
-  if (mobileDismissListener && typeof window !== "undefined") {
-    window.removeEventListener("pointerdown", mobileDismissListener);
-    mobileDismissListener = null;
-  }
-};
-
-const scheduleMobileDismissListener = () => {
-  if (mobileDismissListener || typeof window === "undefined") {
-    return;
-  }
-
-  mobileDismissListener = (event: PointerEvent) => {
-    if (canHover.value || event.pointerType === "mouse") {
-      return;
-    }
-    hideCardImage();
-  };
-
-  window.setTimeout(() => {
-    if (mobileDismissListener) {
-      window.addEventListener("pointerdown", mobileDismissListener, {
-        once: true,
-      });
-    }
-  }, 0);
-};
-
-const handlePointerDown = (cardName: string, event: PointerEvent) => {
-  if (canHover.value || event.pointerType === "mouse") {
-    return;
-  }
-
-  const now = performance.now();
-  if (
-    lastTapCard === cardName &&
-    now - lastTapTimestamp <= DOUBLE_TAP_THRESHOLD
-  ) {
-    mobilePreviewPinned = true;
-    lastTapCard = null;
-    lastTapTimestamp = 0;
-    event.preventDefault();
-    handleCardHover(cardName, event);
-    scheduleMobileDismissListener();
-    return;
-  }
-
-  lastTapCard = cardName;
-  lastTapTimestamp = now;
-};
-
-const handlePointerUp = (_event: PointerEvent) => {
-  if (canHover.value || _event.pointerType === "mouse") {
-    return;
-  }
-
-  if (mobilePreviewPinned) {
-    return;
-  }
-
-  hideCardImage();
-};
-
-const handlePointerLeave = (event: PointerEvent) => {
-  if (mobilePreviewPinned && !(canHover.value || event.pointerType === "mouse")) {
-    return;
-  }
-  hideCardImage();
-};
-
 const searchCommander = useDebounceFn((query: string) => {
   const formattedQuery = query.toLowerCase().replace(/[\s,]+/g, "-");
   const removeApostrophes = formattedQuery.replace(/'/g, "");
@@ -340,37 +218,41 @@ const filteredCards = (cardviews: { id: string; name: string }[]) => {
   );
 };
 
-const setupHoverDetection = () => {
-  if (typeof window === "undefined" || !("matchMedia" in window)) {
-    canHover.value = false;
+const allCards = computed(() => {
+  const cards: { name: string }[] = [];
+  cardlists.value.forEach((cardlist) => {
+    cardlist.cardviews.forEach((card) => {
+      cards.push({ name: card.name });
+    });
+  });
+  return cards;
+});
+
+const scryfallCardData = ref<any[]>([]);
+
+const fetchAllCardData = async () => {
+  if (allCards.value.length === 0) {
+    scryfallCardData.value = [];
     return;
   }
 
-  const query = window.matchMedia("(hover: hover)");
-  hoverMediaQueryState.query = query;
-  canHover.value = query.matches;
-  hoverMediaQueryState.listener = (event: MediaQueryListEvent) => {
-    canHover.value = event.matches;
-  };
-  query.addEventListener("change", hoverMediaQueryState.listener);
+  await withLoading(
+    async () => {
+      try {
+        const scryfallData = await getCardsByNames(allCards.value);
+        scryfallCardData.value = scryfallData;
+      } catch (err) {
+        console.error("Failed to fetch card data from Scryfall:", err);
+      }
+    },
+    "Fetching detailed card data...",
+    bulkCardScope
+  );
 };
 
-onMounted(() => {
-  setupHoverDetection();
-  fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
-});
+watch(allCards, fetchAllCardData, { immediate: true });
 
-onBeforeUnmount(() => {
-  detachMobileDismissListener();
-  if (
-    hoverMediaQueryState.query &&
-    hoverMediaQueryState.listener &&
-    "removeEventListener" in hoverMediaQueryState.query
-  ) {
-    hoverMediaQueryState.query.removeEventListener(
-      "change",
-      hoverMediaQueryState.listener
-    );
-  }
+onMounted(() => {
+  fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
 });
 </script>

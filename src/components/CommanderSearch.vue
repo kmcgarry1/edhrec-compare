@@ -1,7 +1,9 @@
 <template>
-  <div
+  <Card
     role="search"
-    class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white/90 p-6 text-slate-900 shadow-xl shadow-slate-900/5 dark:border-slate-700/80 dark:bg-slate-900/60 dark:text-slate-100 dark:shadow-black/40"
+    as="section"
+    rounded="rounded-2xl"
+    class="w-full max-w-2xl text-slate-900 dark:text-slate-100"
   >
     <label
       class="flex flex-col gap-2 text-sm font-medium text-slate-600 dark:text-slate-300"
@@ -16,16 +18,24 @@
       />
     </label>
 
-    <p v-if="loading" class="mt-4 text-sm text-slate-500 dark:text-slate-400">
-      Loading...
-    </p>
+    <template v-if="isSearchLoading">
+      <GlobalLoadingBanner scope="commander-search" class="mt-4">
+        Searching commanders...
+      </GlobalLoadingBanner>
+    </template>
     <p v-else-if="error" class="mt-4 text-sm text-rose-600 dark:text-rose-300">
       Error: {{ error }}
     </p>
 
-    <div
+    <Card
       v-else
-      class="mt-4 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 shadow-inner shadow-slate-900/5 dark:border-slate-700/70 dark:bg-slate-900/50 dark:shadow-black/50"
+      as="div"
+      padding="p-0"
+      rounded="rounded-xl"
+      border="border border-slate-200 dark:border-slate-700/70"
+      background="bg-slate-50 dark:bg-slate-900/50"
+      shadow="shadow-inner shadow-slate-900/5 dark:shadow-black/50"
+      class="mt-4 max-h-72 overflow-y-auto"
       aria-live="polite"
     >
       <ul class="divide-y divide-slate-200 dark:divide-slate-800/70">
@@ -41,42 +51,52 @@
           {{ commander.name }}
         </li>
       </ul>
-    </div>
-  </div>
+    </Card>
+  </Card>
 </template>
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { searchCardNames } from "../api/scryfallApi";
+import { Card, GlobalLoadingBanner } from ".";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
+
+const searchScope = "commander-search";
 
 const searchQuery = ref("");
 const filteredCommanders = ref<Array<{ id: string; name: string }>>([]);
-const loading = ref(false);
 const error = ref("");
+
+const { withLoading, getScopeLoading } = useGlobalLoading();
+const isSearchLoading = getScopeLoading(searchScope);
 
 const emit = defineEmits(["commanderSelected"]);
 
 const debouncedSearch = useDebounceFn(async (query: string) => {
   if (query.length <= 3) {
     filteredCommanders.value = [];
+    error.value = "";
     return;
   }
 
-  loading.value = true;
   error.value = "";
 
-  try {
-    const commanders = await searchCardNames(query);
-    filteredCommanders.value = commanders
-      .slice(0, 20)
-      .map((name, index) => ({ id: `${index}-${name}`, name }));
-  } catch (err) {
-    error.value =
-      err instanceof Error ? err.message : "Failed to fetch commanders";
-    filteredCommanders.value = [];
-  } finally {
-    loading.value = false;
-  }
+  await withLoading(
+    async () => {
+      try {
+        const commanders = await searchCardNames(query);
+        filteredCommanders.value = commanders
+          .slice(0, 20)
+          .map((name, index) => ({ id: `${index}-${name}`, name }));
+      } catch (err) {
+        error.value =
+          err instanceof Error ? err.message : "Failed to fetch commanders";
+        filteredCommanders.value = [];
+      }
+    },
+    "Searching commanders...",
+    searchScope
+  );
 }, 300);
 
 watch(searchQuery, (newQuery) => {
