@@ -5,7 +5,8 @@ const normalize = (value: string) =>
     .replace(/['’]/g, "")
     .replace(/&/g, "and")
     .replace(/[\s,]+/g, "-")
-    .replace(/-+/g, "-");
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export const slugifyCommander = (value: string) => {
   if (!value) {
