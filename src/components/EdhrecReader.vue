@@ -295,14 +295,10 @@ const edhrecUrlSuffix = ".json";
 const defaultCommanderSlug = "teysa-karlov";
 const currentCommanderSlug = ref<string>(defaultCommanderSlug);
 
-const normalizedPageType = computed(() =>
-  chosenPageType.value === EDHRECPageType.AVERAGE_DECK.value
-    ? "average-decks"
-    : "commanders"
-);
+// Use chosenPageType.value directly now that enum values match URL segments
 
 const buildCommanderUrl = (slug: string) => {
-  const segments = [normalizedPageType.value, slug];
+  const segments = [chosenPageType.value, slug];
   if (chosenBracket.value) {
     segments.push(chosenBracket.value);
   }
