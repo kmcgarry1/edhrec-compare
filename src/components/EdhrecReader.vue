@@ -316,15 +316,9 @@ const handlePointerUp = (_event: PointerEvent) => {
 };
 
 const handlePointerLeave = (event: PointerEvent) => {
-  if (canHover.value || event.pointerType === "mouse") {
-    hideCardImage();
+  if (mobilePreviewPinned && !(canHover.value || event.pointerType === "mouse")) {
     return;
   }
-
-  if (mobilePreviewPinned) {
-    return;
-  }
-
   hideCardImage();
 };
 
