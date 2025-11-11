@@ -131,7 +131,7 @@ export async function getCardsByNames(
       const result = await response.json();
       allCards.push(...(result.data as ScryfallCard[]));
 
-      // Wait 100ms before next batch (except for the last batch)
+      // Wait 300ms before next batch (except for the last batch)
       if (i + batchSize < cardNames.length) {
         await new Promise((resolve) => setTimeout(resolve, 300));
       }
