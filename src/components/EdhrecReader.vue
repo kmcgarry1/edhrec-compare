@@ -24,7 +24,7 @@
     </GlobalLoadingBanner>
 
     <Card
-      padding="p-6"
+      padding="p-4 sm:p-6"
       shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
       class="space-y-5"
     >
@@ -36,9 +36,11 @@
         </p>
       </div>
 
-      <div class="grid w-full gap-3 md:grid-cols-3">
+      <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Bracket
           </p>
           <dropdown-select
@@ -49,7 +51,9 @@
           />
         </div>
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Budget
           </p>
           <dropdown-select
@@ -60,7 +64,9 @@
           />
         </div>
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Page Type
           </p>
           <dropdown-select
@@ -73,14 +79,16 @@
       </div>
 
       <div
-        class="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300"
+        class="flex flex-col gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300 sm:flex-row sm:items-center"
       >
-        <code class="flex-1 overflow-hidden text-ellipsis whitespace-pre">
+        <code
+          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm"
+        >
           {{ previewUrl }}
         </code>
         <button
           type="button"
-          class="rounded-full border border-emerald-400/50 px-3 py-1 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-white"
+          class="w-full rounded-full border border-emerald-400/50 px-3 py-1 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-white sm:w-auto sm:self-stretch"
           @click="copyPreviewUrl"
           aria-label="Copy EDHREC URL to clipboard"
         >
@@ -93,8 +101,8 @@
       v-for="cardlist in cardlists"
       :key="cardlist.header"
       as="article"
-      class="space-y-6 flex flex-col flex-wrap"
-      padding="p-6"
+      class="space-y-6"
+      padding="p-4 sm:p-6"
       background="bg-white/95 dark:bg-slate-900/60"
       shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
     >
@@ -111,10 +119,12 @@
             {{ cardlist.header }}
           </h2>
         </div>
-        <div class="flex flex-wrap gap-2 text-sm font-semibold">
+        <div
+          class="flex flex-wrap gap-2 text-sm font-semibold"
+        >
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
             :class="
               showOwned === true ? activeFilterClass : inactiveFilterClass
             "
@@ -124,7 +134,7 @@
           </button>
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
             :class="
               showOwned === false ? activeFilterClass : inactiveFilterClass
             "
@@ -134,7 +144,7 @@
           </button>
           <button
             type="button"
-            class="rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
             :class="
               showOwned === null ? activeFilterClass : inactiveFilterClass
             "
@@ -204,8 +214,8 @@ const error = ref<string | null>(null);
 
 const showOwned = ref<boolean | null>(null);
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
-const chosenBracket = ref<string>(EDHRECBracket.CORE.value);
-const chosenModifier = ref<string>(EDHRECPageModifier.BUDGET.value);
+const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
+const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
 const bracketOptions = Object.values(EDHRECBracket);
 const modifierOptions = Object.values(EDHRECPageModifier);
 const pageTypeOptions = Object.values(EDHRECPageType);
@@ -406,6 +416,7 @@ const fetchAllCardData = async () => {
 watch(allCards, fetchAllCardData, { immediate: true });
 
 const getTableRows = (cardlist: {
+  header: string;
   cardviews: { id: string; name: string }[];
 }) =>
   filteredCards(cardlist.cardviews).map((cardview) => {

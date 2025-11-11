@@ -1,8 +1,8 @@
 <template>
-  <div class="w-full max-w-xl space-y-4 text-slate-900 dark:text-slate-100">
+  <div class="w-full space-y-4 text-slate-900 dark:text-slate-100 lg:max-w-xl">
     <Card
       as="div"
-      padding="p-10"
+      padding="p-6 sm:p-8 lg:p-10"
       rounded="rounded-3xl"
       border="border-2 border-dashed border-slate-300 dark:border-slate-600/80"
       background="bg-white/90 dark:bg-slate-900/50"

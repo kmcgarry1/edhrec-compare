@@ -1,15 +1,15 @@
 <template>
-  <section class="space-y-8 text-slate-900 dark:text-slate-100">
+  <section
+    class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 text-slate-900 dark:text-slate-100 sm:px-6 lg:px-8"
+  >
     <GlobalLoadingBanner />
     <Card
       as="header"
-      padding="p-8"
+      padding="p-5 sm:p-8"
       shadow="shadow-2xl shadow-slate-900/10 dark:shadow-black/50"
     >
-      <div
-        class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between"
-      >
-        <div>
+      <div class="flex flex-col gap-6">
+        <div class="space-y-2">
           <p class="text-sm uppercase tracking-[0.4em] text-emerald-500/80">
             Toolkit
           </p>
@@ -23,24 +23,26 @@
             which cards you already own by uploading a deck CSV.
           </p>
         </div>
-        <button
-          type="button"
-          class="inline-flex items-center gap-3 rounded-full border border-slate-300 bg-white/80 px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
-          :aria-pressed="theme === 'dark'"
-          @click="toggleTheme"
-        >
-          <span class="text-lg" aria-hidden="true">
-            {{ theme === "dark" ? "☀️" : "🌙" }}
-          </span>
-          <span>{{ theme === "dark" ? "Light mode" : "Dark mode" }}</span>
-        </button>
-        <CSVUpload />
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <button
+            type="button"
+            class="inline-flex w-full items-center justify-center gap-3 rounded-full border border-slate-300 bg-white/80 px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200 sm:w-auto sm:justify-start"
+            :aria-pressed="theme === 'dark'"
+            @click="toggleTheme"
+          >
+            <span class="text-lg" aria-hidden="true">
+              {{ theme === "dark" ? "☀️" : "🌙" }}
+            </span>
+            <span>{{ theme === "dark" ? "Light mode" : "Dark mode" }}</span>
+          </button>
+          <div class="w-full flex-1">
+            <CSVUpload />
+          </div>
+        </div>
       </div>
     </Card>
 
-    <div class="grid gap-8">
-      <EdhrecReader />
-    </div>
+    <EdhrecReader />
   </section>
 </template>
 <script setup lang="ts">
