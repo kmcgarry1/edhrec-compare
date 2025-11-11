@@ -291,13 +291,9 @@ const scheduleMobileDismissListener = () => {
     hideCardImage();
   };
 
-  window.setTimeout(() => {
-    if (mobileDismissListener) {
-      window.addEventListener("pointerdown", mobileDismissListener, {
-        once: true,
-      });
-    }
-  }, 0);
+  window.addEventListener("pointerdown", mobileDismissListener, {
+    once: true,
+  });
 };
 
 const handlePointerDown = (cardName: string, event: PointerEvent) => {
