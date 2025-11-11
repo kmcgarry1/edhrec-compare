@@ -1,7 +1,7 @@
 <template>
-  <div class="csv-upload">
+  <div class="w-full max-w-xl space-y-4 text-slate-900 dark:text-slate-100">
     <div
-      class="upload-area"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-slate-300 bg-white/90 p-10 text-center shadow-2xl shadow-slate-900/5 transition hover:border-emerald-400/70 hover:bg-emerald-50/50 dark:border-slate-600/80 dark:bg-slate-900/50 dark:text-slate-100 dark:shadow-black/40 dark:hover:bg-slate-900/70"
       @click="triggerFileInput"
       @drop="handleDrop"
       @dragover.prevent
@@ -11,17 +11,41 @@
         ref="fileInput"
         type="file"
         accept=".csv"
+        class="sr-only"
         @change="handleFileSelect"
-        style="display: none"
       />
-      <div v-if="!file" class="upload-placeholder">
-        <p>Click to upload or drag and drop a CSV file</p>
+      <div v-if="!file" class="space-y-2">
+        <p class="text-lg font-semibold text-slate-900 dark:text-white">
+          Upload your deck CSV
+        </p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
+          Drag and drop or click to browse files. CSV only.
+        </p>
       </div>
-      <div v-else class="file-info">
-        <p>{{ file.name }}</p>
-        <button @click.stop="removeFile">Remove</button>
+      <div
+        v-else
+        class="flex w-full flex-col items-center gap-3 rounded-2xl bg-white/80 p-4 text-left text-slate-700 shadow-inner shadow-slate-900/5 dark:bg-slate-900/80 dark:text-slate-200 sm:flex-row sm:justify-between"
+      >
+        <div>
+          <p class="font-semibold">{{ file.name }}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ csvData.length }} rows detected
+          </p>
+        </div>
+        <button
+          type="button"
+          @click.stop="removeFile"
+          class="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-600 dark:text-slate-200 dark:hover:text-rose-200"
+        >
+          Remove
+        </button>
       </div>
     </div>
+
+    <p class="text-xs text-slate-500 dark:text-slate-400">
+      We only store your data in local storage for quick comparisons—refresh to
+      clear it anytime.
+    </p>
   </div>
 </template>
 
@@ -155,66 +179,3 @@ const removeFile = () => {
   }
 };
 </script>
-
-<style scoped>
-.upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.3s;
-}
-
-.upload-area:hover {
-  border-color: #007bff;
-}
-
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.preview {
-  margin-top: 1rem;
-}
-
-.preview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.clear-button {
-  border: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 4px;
-  padding: 0.35rem 0.75rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.clear-button:hover {
-  background-color: #f5f5f5;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.5rem;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  text-align: left;
-}
-
-th {
-  background-color: #f5f5f5;
-}
-</style>
