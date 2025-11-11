@@ -22,7 +22,7 @@
       />
       <div v-if="!file" class="space-y-2">
         <p class="text-lg font-semibold text-slate-900 dark:text-white">
-          Upload your deck CSV
+          Upload your collection CSV
         </p>
         <p class="text-sm text-slate-500 dark:text-slate-400">
           Drag and drop or click to browse files. CSV only.
@@ -41,7 +41,7 @@
         <div>
           <p class="font-semibold">{{ file.name }}</p>
           <p class="text-xs text-slate-500 dark:text-slate-400">
-            {{ csvData.length }} rows detected
+            {{ csvRows.length }} rows detected
           </p>
         </div>
         <button
@@ -63,22 +63,26 @@
     </GlobalLoadingBanner>
 
     <p class="text-xs text-slate-500 dark:text-slate-400">
-      We only store your data in local storage for quick comparisons—refresh to
-      clear it anytime.
+      Your deck data stays in this browser session only and clears automatically
+      on refresh.
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useLocalStorage } from "@vueuse/core";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { Card, GlobalLoadingBanner } from ".";
+import { useCsvUpload } from "../composables/useCsvUpload";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
-const csvData = useLocalStorage<string[][]>("csv-upload-data", []);
-const headers = useLocalStorage<string[]>("csv-upload-headers", []);
+const {
+  rows: csvRows,
+  headers: csvHeaders,
+  setCsvData,
+  clearCsvData,
+} = useCsvUpload();
 const csvScope = "csv-upload";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
@@ -138,9 +142,8 @@ const parseCSV = (csv: string) => {
   const data = parseCSVContent(csv);
 
   if (data.length > 0 && data[0]) {
-    headers.value = data[0];
-    csvData.value = data.slice(1);
-    emit("upload", csvData.value, headers.value);
+    setCsvData(data.slice(1), data[0]);
+    emit("upload", csvRows.value, csvHeaders.value);
   }
 };
 
@@ -210,8 +213,7 @@ const parseCSVContent = (csv: string): string[][] => {
 
 const removeFile = () => {
   file.value = null;
-  csvData.value = [];
-  headers.value = [];
+  clearCsvData();
   if (fileInput.value) {
     fileInput.value.value = "";
   }

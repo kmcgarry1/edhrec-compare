@@ -181,7 +181,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
-import { useLocalStorage, useDebounceFn } from "@vueuse/core";
+import { useDebounceFn } from "@vueuse/core";
 import { getCardsByNames } from "../api/scryfallApi";
 import {
   EDHRECBracket,
@@ -197,6 +197,7 @@ import {
   DropdownSelect,
 } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
+import { useCsvUpload } from "../composables/useCsvUpload";
 
 interface EdhrecData {
   container?: {
@@ -264,8 +265,7 @@ const cardlists = computed(
   () => data.value?.container?.json_dict?.cardlists || []
 );
 
-const uploadedRows = useLocalStorage<string[][]>("csv-upload-data", []);
-const uploadedHeaders = useLocalStorage<string[]>("csv-upload-headers", []);
+const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
 
 const uploadedNameIndex = computed(() => {
   const headers = uploadedHeaders.value;
