@@ -57,7 +57,8 @@
     <GlobalLoadingBanner
       v-if="csvLoading"
       scope="csv-upload"
-      class="text-center text-sm"
+      inline
+      placementClass="w-full text-center text-sm"
     >
       Processing CSV data...
     </GlobalLoadingBanner>
