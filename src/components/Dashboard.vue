@@ -55,10 +55,5 @@ import { useTheme } from "../composables/useTheme";
 
 import { getAllSymbols } from "../api/scryfallApi";
 
-onMounted(async () => {
-  const symbols = await getAllSymbols();
-  localStorage.setItem("scryfall-symbols", JSON.stringify(symbols));
-});
-
 const { theme, toggleTheme } = useTheme();
 </script>
