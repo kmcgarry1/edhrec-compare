@@ -49,7 +49,9 @@
       <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
         {{ props.card.type_line || "—" }}
       </td>
-      <td class="px-3 py-2 font-mono text-sm text-slate-700 dark:text-slate-200">
+      <td
+        class="px-3 py-2 font-mono text-sm text-slate-700 dark:text-slate-200"
+      >
         <span v-if="props.card.power && props.card.toughness">
           {{ props.card.power }}/{{ props.card.toughness }}
         </span>
@@ -60,10 +62,7 @@
           {{ (props.card.set || "").toUpperCase() || "—" }}
         </span>
       </td>
-      <td
-        class="px-3 py-2 capitalize"
-        :class="rarityClass(props.card.rarity)"
-      >
+      <td class="px-3 py-2 capitalize" :class="rarityClass(props.card.rarity)">
         {{ props.card.rarity || "—" }}
       </td>
       <td class="px-3 py-2 text-xs">
@@ -111,7 +110,9 @@
         <p class="truncate text-sm font-semibold">
           {{ props.card.name }}
         </p>
-        <p class="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">
+        <p
+          class="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400"
+        >
           {{ props.card.type_line || "—" }} ·
           <span class="uppercase">{{
             (props.card.set || "").toUpperCase() || "—"
@@ -166,15 +167,38 @@
   </template>
 
   <Teleport to="body">
+    <div
+      v-if="hoveredCardImage && isFullscreenPreview"
+      class="fixed inset-0 z-[60] flex flex-col bg-slate-950/90 px-4 py-6 text-white backdrop-blur"
+      @click.self="hideCardImage"
+    >
+      <div class="flex justify-end">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-1.5 text-sm font-semibold transition hover:bg-white/10"
+          @click="hideCardImage"
+        >
+          Close
+        </button>
+      </div>
+      <div class="flex flex-1 items-center justify-center">
+        <img
+          :src="hoveredCardImage"
+          alt="Card preview"
+          class="max-h-[80vh] w-auto rounded-2xl shadow-2xl shadow-black/60"
+        />
+      </div>
+    </div>
     <Card
-      v-if="hoveredCardImage"
+      v-else-if="hoveredCardImage"
       as="div"
       padding="p-1.5"
       rounded="rounded-xl"
       border="border border-slate-200 dark:border-slate-700/70"
       background="bg-white/95 dark:bg-slate-900/80"
       shadow="shadow-2xl shadow-slate-900/15 dark:shadow-black/60"
-      class="fixed w-auto pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-slate-900 dark:text-slate-100"
+      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-slate-900 dark:text-slate-100"
+      :fullWidth="false"
       :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
     >
       <img
@@ -211,6 +235,7 @@ let mobileDismissListener: ((event: PointerEvent) => void) | null = null;
 const hoveredCardImage = ref<string | null>(null);
 const imagePosition = ref({ x: 0, y: 0 });
 const isCardLoading = ref(false);
+const isFullscreenPreview = ref(false);
 const { withLoading } = useGlobalLoading();
 const cardPreviewScope = "card-preview";
 const {
@@ -225,6 +250,9 @@ const handleCardHover = async (
   cardName: string,
   event: MouseEvent | PointerEvent
 ) => {
+  if (!(event instanceof PointerEvent) || event.pointerType === "mouse") {
+    isFullscreenPreview.value = false;
+  }
   const normalized = normalizeCardName(cardName);
   pendingImageKey.value = normalized;
   updateImagePosition(event);
@@ -269,6 +297,7 @@ const hideCardImage = () => {
   pendingImageKey.value = null;
   hoveredCardImage.value = null;
   mobilePreviewPinned = false;
+  isFullscreenPreview.value = false;
   isCardLoading.value = false;
   detachMobileDismissListener();
 };
@@ -308,6 +337,7 @@ const handlePointerDown = (cardName: string, event: PointerEvent) => {
     now - lastTapTimestamp <= DOUBLE_TAP_THRESHOLD
   ) {
     mobilePreviewPinned = true;
+    isFullscreenPreview.value = true;
     lastTapCard = null;
     lastTapTimestamp = 0;
     event.preventDefault();
@@ -318,6 +348,7 @@ const handlePointerDown = (cardName: string, event: PointerEvent) => {
 
   lastTapCard = cardName;
   lastTapTimestamp = now;
+  isFullscreenPreview.value = false;
 };
 
 const handlePointerUp = (_event: PointerEvent) => {
