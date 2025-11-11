@@ -191,6 +191,8 @@ import { getCardImage } from "../api/scryfallApi";
 import { Card } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
+const cardImageCache = new Map<string, string>();
+
 const props = defineProps<{
   card: any;
   have?: boolean;
@@ -200,7 +202,6 @@ const props = defineProps<{
 const variant = computed(() => props.variant ?? "table");
 
 const pendingImageKey = ref<string | null>(null);
-const imageCache = new Map<string, string>();
 const canHover = ref(true);
 const DOUBLE_TAP_THRESHOLD = 300;
 let lastTapCard: string | null = null;
@@ -228,8 +229,8 @@ const handleCardHover = async (
   pendingImageKey.value = normalized;
   updateImagePosition(event);
 
-  if (imageCache.has(normalized)) {
-    hoveredCardImage.value = imageCache.get(normalized) ?? null;
+  if (cardImageCache.has(normalized)) {
+    hoveredCardImage.value = cardImageCache.get(normalized) ?? null;
     isCardLoading.value = false;
     return;
   }
@@ -241,7 +242,7 @@ const handleCardHover = async (
       async () => {
         const imageUrl = await getCardImage(cardName);
         if (imageUrl) {
-          imageCache.set(normalized, imageUrl);
+          cardImageCache.set(normalized, imageUrl);
           if (pendingImageKey.value === normalized) {
             hoveredCardImage.value = imageUrl;
           }

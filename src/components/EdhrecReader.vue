@@ -38,7 +38,9 @@
 
       <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Bracket
           </p>
           <dropdown-select
@@ -49,7 +51,9 @@
           />
         </div>
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Budget
           </p>
           <dropdown-select
@@ -60,7 +64,9 @@
           />
         </div>
         <div class="space-y-1">
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+          >
             Page Type
           </p>
           <dropdown-select
@@ -208,8 +214,8 @@ const error = ref<string | null>(null);
 
 const showOwned = ref<boolean | null>(null);
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
-const chosenBracket = ref<string>(EDHRECBracket.CORE.value);
-const chosenModifier = ref<string>(EDHRECPageModifier.BUDGET.value);
+const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
+const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
 const bracketOptions = Object.values(EDHRECBracket);
 const modifierOptions = Object.values(EDHRECPageModifier);
 const pageTypeOptions = Object.values(EDHRECPageType);
