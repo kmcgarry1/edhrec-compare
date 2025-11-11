@@ -431,22 +431,10 @@ const getTableRows = (cardlist: {
       card: {
         id: info?.id ?? cardview.id,
         name: displayName,
-        mana_cost:
-          statsSource?.mana_cost ??
-          info?.mana_cost ??
-          matchedFace?.mana_cost ??
-          "",
-        type_line:
-          statsSource?.type_line ??
-          info?.type_line ??
-          matchedFace?.type_line ??
-          "",
-        power: statsSource?.power ?? info?.power ?? matchedFace?.power ?? null,
-        toughness:
-          statsSource?.toughness ??
-          info?.toughness ??
-          matchedFace?.toughness ??
-          null,
+        mana_cost: statsSource?.mana_cost ?? "",
+        type_line: statsSource?.type_line ?? "",
+        power: statsSource?.power ?? null,
+        toughness: statsSource?.toughness ?? null,
         set: info?.set ?? "",
         rarity: info?.rarity ?? "",
         prices: info?.prices ?? {
