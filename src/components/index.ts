@@ -5,3 +5,5 @@ export { default as CommanderSearch } from "./CommanderSearch.vue";
 export { default as Card } from "./Card.vue";
 export { default as GlobalLoadingBanner } from "./GlobalLoadingBanner.vue";
 export { default as ScryfallCardRow } from "./ScryfallCardRow.vue";
+export { default as CardTable } from "./CardTable.vue";
+export { default as DropdownSelect } from "./DropdownSelect.vue";

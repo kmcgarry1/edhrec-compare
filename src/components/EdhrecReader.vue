@@ -19,15 +19,74 @@
       Error: {{ error }}
     </Card>
 
-    <GlobalLoadingBanner
-      v-else-if="bulkCardLoading"
-      scope="scryfall-bulk"
-    >
+    <GlobalLoadingBanner v-else-if="bulkCardLoading" scope="scryfall-bulk">
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <Card padding="p-6">
-      <commander-search @commanderSelected="searchCommander" />
+    <Card
+      padding="p-6"
+      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
+      class="space-y-5"
+    >
+      <div class="space-y-2">
+        <commander-search @commanderSelected="searchCommander" />
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Start typing to search EDHREC commanders, then refine the results with
+          the filters below.
+        </p>
+      </div>
+
+      <div class="grid w-full gap-3 md:grid-cols-3">
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Bracket
+          </p>
+          <dropdown-select
+            :options="bracketOptions"
+            @update:modelValue="setBracket"
+            :modelValue="chosenBracket"
+            placeholder="Select Bracket"
+          />
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Budget
+          </p>
+          <dropdown-select
+            :options="modifierOptions"
+            @update:modelValue="setModifier"
+            :modelValue="chosenModifier"
+            placeholder="Select Modifier"
+          />
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Page Type
+          </p>
+          <dropdown-select
+            :options="pageTypeOptions"
+            @update:modelValue="setPageType"
+            :modelValue="chosenPageType"
+            placeholder="Select Commander"
+          />
+        </div>
+      </div>
+
+      <div
+        class="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300"
+      >
+        <code class="flex-1 overflow-hidden text-ellipsis whitespace-pre">
+          {{ previewUrl }}
+        </code>
+        <button
+          type="button"
+          class="rounded-full border border-emerald-400/50 px-3 py-1 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-white"
+          @click="copyPreviewUrl"
+          aria-label="Copy EDHREC URL to clipboard"
+        >
+          {{ copyState === "copied" ? "Copied!" : "Copy URL" }}
+        </button>
+      </div>
     </Card>
 
     <Card
@@ -86,16 +145,25 @@
         </div>
       </header>
 
-      <div class="flex flex-col flex-wrap gap-3" aria-live="polite">
-        <scryfall-card-row
-          v-for="card in scryfallCardData.filter(
-            (c) =>
-              c.name &&
-              filteredCards(cardlist.cardviews).some((fc) => fc.name === c.name)
-          )"
-          :key="card.id"
-          :card="card"
-          :have="isCardInUpload(card.name)"
+      <div class="hidden md:block">
+        <CardTable
+          :columns="cardTableColumns"
+          :rows="getTableRows(cardlist)"
+          row-key="id"
+          aria-live="polite"
+        >
+          <template #default="{ row }">
+            <ScryfallCardRow :card="row.card" :have="Boolean(row.have)" />
+          </template>
+        </CardTable>
+      </div>
+      <div class="md:hidden space-y-3">
+        <ScryfallCardRow
+          v-for="row in getTableRows(cardlist)"
+          :key="row.id + '-mobile'"
+          :card="row.card"
+          :have="Boolean(row.have)"
+          variant="card"
         />
       </div>
     </Card>
@@ -106,10 +174,17 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useLocalStorage, useDebounceFn } from "@vueuse/core";
 import { getCardsByNames } from "../api/scryfallApi";
 import {
+  EDHRECBracket,
+  EDHRECPageType,
+  EDHRECPageModifier,
+} from "./helpers/enums";
+import {
   Card,
+  CardTable,
   CommanderSearch,
   GlobalLoadingBanner,
   ScryfallCardRow,
+  DropdownSelect,
 } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 
@@ -126,8 +201,23 @@ interface EdhrecData {
 
 const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
-const searchQuery = ref("");
+
 const showOwned = ref<boolean | null>(null);
+const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
+const chosenBracket = ref<string>(EDHRECBracket.CORE.value);
+const chosenModifier = ref<string>(EDHRECPageModifier.BUDGET.value);
+const bracketOptions = Object.values(EDHRECBracket);
+const modifierOptions = Object.values(EDHRECPageModifier);
+const pageTypeOptions = Object.values(EDHRECPageType);
+const setBracket = (value: string | number) => {
+  chosenBracket.value = String(value);
+};
+const setModifier = (value: string | number) => {
+  chosenModifier.value = String(value);
+};
+const setPageType = (value: string | number) => {
+  chosenPageType.value = String(value);
+};
 
 const activeFilterClass =
   "border-emerald-500/80 bg-emerald-100 text-emerald-900 shadow-inner shadow-emerald-200 dark:border-emerald-400/70 dark:bg-emerald-400/20 dark:text-emerald-100 dark:shadow-emerald-500/30";
@@ -200,16 +290,54 @@ const isCardInUpload = (cardName: string) => {
   return uploadedCardNameSet.value.has(normalizeCardName(cardName));
 };
 
+const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
+const edhrecUrlSuffix = ".json";
+const defaultCommanderSlug = "teysa-karlov";
+const currentCommanderSlug = ref<string>(defaultCommanderSlug);
+
+// Use chosenPageType.value directly now that enum values match URL segments
+
+const buildCommanderUrl = (slug: string) => {
+  const segments = [chosenPageType.value, slug];
+  if (chosenBracket.value) {
+    segments.push(chosenBracket.value);
+  }
+  if (chosenModifier.value) {
+    segments.push(chosenModifier.value);
+  }
+  return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
+};
+
+const previewUrl = computed(() =>
+  buildCommanderUrl(currentCommanderSlug.value ?? defaultCommanderSlug)
+);
+const copyState = ref<"idle" | "copied">("idle");
+
+const copyPreviewUrl = async () => {
+  try {
+    await navigator.clipboard.writeText(previewUrl.value);
+    copyState.value = "copied";
+    setTimeout(() => {
+      copyState.value = "idle";
+    }, 1600);
+  } catch (err) {
+    console.error("Unable to copy URL:", err);
+  }
+};
+
 const searchCommander = useDebounceFn((query: string) => {
-  const formattedQuery = query.toLowerCase().replace(/[\s,]+/g, "-");
-  const removeApostrophes = formattedQuery.replace(/'/g, "");
-  fetchJsonData(
-    `https://json.edhrec.com/pages/commanders/${removeApostrophes}.json`
-  );
+  const slug = slugifyCommander(query);
+  if (!slug) {
+    return;
+  }
+  currentCommanderSlug.value = slug;
+  fetchJsonData(buildCommanderUrl(slug));
 }, 300);
 
-watch(searchQuery, (newQuery) => {
-  searchCommander(newQuery);
+watch([chosenPageType, chosenBracket, chosenModifier], () => {
+  if (currentCommanderSlug.value) {
+    fetchJsonData(buildCommanderUrl(currentCommanderSlug.value));
+  }
 });
 const filteredCards = (cardviews: { id: string; name: string }[]) => {
   if (showOwned.value === null) return cardviews;
@@ -229,6 +357,33 @@ const allCards = computed(() => {
 });
 
 const scryfallCardData = ref<any[]>([]);
+const scryfallIndex = computed(() => {
+  const map = new Map<string, any>();
+  scryfallCardData.value.forEach((card) => {
+    map.set(normalizeCardName(card.name), card);
+  });
+  return map;
+});
+
+type TableColumn = {
+  key: string;
+  label: string;
+  align?: "left" | "center" | "right";
+  class?: string;
+};
+
+const cardTableColumns: TableColumn[] = [
+  { key: "owned", label: "Owned", align: "center", class: "w-14" },
+  { key: "name", label: "Card" },
+  { key: "mana", label: "Mana", class: "w-28" },
+  { key: "type", label: "Type" },
+  { key: "stats", label: "P/T", align: "center", class: "w-16" },
+  { key: "set", label: "Set", align: "center", class: "w-16" },
+  { key: "rarity", label: "Rarity", class: "w-20" },
+  { key: "status", label: "", align: "center", class: "w-24" },
+  { key: "usd", label: "USD", align: "right", class: "w-20" },
+  { key: "eur", label: "EUR", align: "right", class: "w-20" },
+];
 
 const fetchAllCardData = async () => {
   if (allCards.value.length === 0) {
@@ -252,7 +407,57 @@ const fetchAllCardData = async () => {
 
 watch(allCards, fetchAllCardData, { immediate: true });
 
+const getTableRows = (cardlist: {
+  cardviews: { id: string; name: string }[];
+}) =>
+  filteredCards(cardlist.cardviews).map((cardview) => {
+    const info =
+      scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
+    const requestedNames = cardview.name.split("//").map((n) => n.trim());
+    const faces = info?.card_faces ?? [];
+    const matchedFace =
+      faces.find((face: any) => requestedNames.includes(face.name)) ?? faces[0];
+    const statsSource = matchedFace ?? info;
+    const displayName =
+      requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
+
+    return {
+      id: info?.id ?? `${cardlist.header}-${cardview.id}`,
+      have: isCardInUpload(cardview.name),
+      card: {
+        id: info?.id ?? `${cardlist.header}-${cardview.id}`,
+        name: displayName,
+        mana_cost: statsSource?.mana_cost ?? "",
+        type_line: statsSource?.type_line ?? "",
+        power: statsSource?.power ?? null,
+        toughness: statsSource?.toughness ?? null,
+        set: info?.set ?? "",
+        rarity: info?.rarity ?? "",
+        prices: info?.prices ?? {
+          usd: null,
+          eur: null,
+        },
+        faces:
+          faces.length > 1
+            ? faces.map((face: any) => ({
+                name: face.name,
+                mana_cost: face.mana_cost,
+                type_line: face.type_line,
+              }))
+            : undefined,
+      },
+    };
+  });
+
 onMounted(() => {
-  fetchJsonData("https://json.edhrec.com/pages/commanders/teysa-karlov.json");
+  fetchJsonData(buildCommanderUrl(defaultCommanderSlug));
 });
+
+function slugifyCommander(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/['’]/g, "")
+    .replace(/[\s,]+/g, "-");
+}
 </script>

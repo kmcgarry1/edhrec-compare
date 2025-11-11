@@ -1,3 +1,19 @@
+interface CardFaceImageUris {
+  small?: string;
+  normal?: string;
+  large?: string;
+}
+
+interface CardFace {
+  name: string;
+  mana_cost?: string;
+  type_line?: string;
+  oracle_text?: string;
+  power?: string;
+  toughness?: string;
+  image_uris?: CardFaceImageUris;
+}
+
 interface ScryfallCard {
   id: string;
   name: string;
@@ -8,10 +24,13 @@ interface ScryfallCard {
   colors: string[];
   set: string;
   rarity: string;
-  image_uris?: {
-    small: string;
-    normal: string;
-    large: string;
+  image_uris?: CardFaceImageUris;
+  card_faces?: CardFace[];
+  prices: {
+    usd?: string;
+    usd_foil?: string;
+    eur?: string;
+    eur_foil?: string;
   };
 }
 
@@ -45,7 +64,18 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
 
 export async function getCardImage(cardName: string): Promise<string | null> {
   const card = await getCard(cardName);
-  return card?.image_uris?.normal || null;
+  if (!card) {
+    return null;
+  }
+
+  if (card.image_uris?.normal) {
+    return card.image_uris.normal;
+  }
+
+  const faceWithImage = card.card_faces?.find(
+    (face) => face.image_uris?.normal
+  );
+  return faceWithImage?.image_uris?.normal ?? null;
 }
 
 export async function searchCardNames(partialName: string): Promise<string[]> {
