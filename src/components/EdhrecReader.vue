@@ -426,10 +426,10 @@ const getTableRows = (cardlist: {
       requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
 
     return {
-      id: info?.id ?? cardview.id,
+      id: info?.id ?? `${cardlist.header}-${cardview.id}`,
       have: isCardInUpload(cardview.name),
       card: {
-        id: info?.id ?? cardview.id,
+        id: info?.id ?? `${cardlist.header}-${cardview.id}`,
         name: displayName,
         mana_cost: statsSource?.mana_cost ?? "",
         type_line: statsSource?.type_line ?? "",
