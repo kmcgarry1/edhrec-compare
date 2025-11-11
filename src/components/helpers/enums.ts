@@ -1,5 +1,5 @@
 export const EDHRECPageType = {
-  COMMANDER: { value: "commander", label: "Commander" },
+  COMMANDER: { value: "commanders", label: "Commander" },
   AVERAGE_DECK: { value: "average-decks", label: "Average Decks" },
 } as const;
 

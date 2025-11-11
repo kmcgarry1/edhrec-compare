@@ -28,6 +28,7 @@ const props = withDefaults(
 
 const computedClasses = computed(() =>
   [
+    "block w-full",
     props.rounded,
     props.border,
     props.background,
