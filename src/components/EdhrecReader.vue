@@ -82,6 +82,7 @@
           type="button"
           class="rounded-full border border-emerald-400/50 px-3 py-1 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-white"
           @click="copyPreviewUrl"
+          aria-label="Copy EDHREC URL to clipboard"
         >
           {{ copyState === "copied" ? "Copied!" : "Copy URL" }}
         </button>
