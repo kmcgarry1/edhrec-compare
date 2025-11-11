@@ -27,7 +27,7 @@ interface Option {
 }
 
 defineProps<{
-  modelValue: string | number;
+  modelValue?: string | number;
   options: Option[];
   placeholder?: string;
   disabled?: boolean;
