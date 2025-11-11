@@ -256,7 +256,7 @@ const emitCommanderSelection = () => {
 
   const slug = buildCommanderSlug(
     primarySelection.value,
-    partnerSelection.value || undefined
+    partnerSelection.value
   );
 
   emit("commanderSelected", slug);
