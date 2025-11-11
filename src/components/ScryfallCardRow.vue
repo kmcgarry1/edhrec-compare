@@ -174,7 +174,7 @@
       border="border border-slate-200 dark:border-slate-700/70"
       background="bg-white/95 dark:bg-slate-900/80"
       shadow="shadow-2xl shadow-slate-900/15 dark:shadow-black/60"
-      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-slate-900 dark:text-slate-100"
+      class="fixed w-auto pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-slate-900 dark:text-slate-100"
       :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
     >
       <img
