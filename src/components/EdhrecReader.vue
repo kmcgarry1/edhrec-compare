@@ -120,7 +120,7 @@
           </h2>
         </div>
         <div
-          class="grid grid-cols-3 gap-2 text-sm font-semibold md:flex md:flex-wrap md:gap-2"
+          class="flex flex-wrap gap-2 text-sm font-semibold"
         >
           <button
             type="button"
