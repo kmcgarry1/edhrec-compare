@@ -44,6 +44,7 @@
   </section>
 </template>
 <script setup lang="ts">
+import { onMounted } from "vue";
 import {
   Card,
   EdhrecReader,
@@ -51,6 +52,13 @@ import {
   GlobalLoadingBanner,
 } from "../components";
 import { useTheme } from "../composables/useTheme";
+
+import { getAllSymbols } from "../api/scryfallApi";
+
+onMounted(async () => {
+  const symbols = await getAllSymbols();
+  localStorage.setItem("scryfall-symbols", JSON.stringify(symbols));
+});
 
 const { theme, toggleTheme } = useTheme();
 </script>

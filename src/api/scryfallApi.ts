@@ -15,6 +15,11 @@ interface ScryfallCard {
   };
 }
 
+export interface ScryfallSymbol {
+  symbol: string;
+  svg_uri: string;
+}
+
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
   try {
     const response = await fetch(
@@ -109,14 +114,17 @@ export async function getCardsByNames(
   }
 }
 
-export async function getAllSymbols(): Promise<string[]> {
+export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
   try {
     const response = await fetch(`https://api.scryfall.com/symbology`);
     if (!response.ok) {
       throw new Error(`Scryfall API error: ${response.status}`);
     }
     const result = await response.json();
-    return result.data.map((symbol: any) => symbol.symbol);
+    return result.data.map((symbol: any) => ({
+      symbol: symbol.symbol,
+      svg_uri: symbol.svg_uri,
+    }));
   } catch (error) {
     console.error("Error fetching symbols from Scryfall:", error);
     throw error;

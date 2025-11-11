@@ -23,11 +23,28 @@
       :aria-checked="props.have"
       aria-label="Card present in uploaded list"
     />
-    <div class="dense p-2">
-      {{ props.card.name }}
+    <div class="dense flex flex-wrap items-center gap-1 p-2">
+      <template v-if="manaSymbols.length">
+        <img
+          v-for="symbol in manaSymbols"
+          :key="symbol.token + props.card.id"
+          :src="symbol.svg"
+          :alt="symbol.token"
+          class="h-5 w-5"
+          loading="lazy"
+        />
+      </template>
+      <template v-else-if="symbolsLoading">
+        <span class="text-xs text-slate-500 dark:text-slate-400">
+          Loading symbols...
+        </span>
+      </template>
+      <template v-else>
+        {{ props.card.mana_cost }}
+      </template>
     </div>
-    <div class="dense p-2">
-      {{ props.card.mana_cost }}
+    <div class="dense font-semibold p-2 flex-grow">
+      {{ props.card.name }}
     </div>
     <div class="dense p-2">
       {{ props.card.type_line }}
@@ -64,10 +81,11 @@
   </Card>
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, computed } from "vue";
 import { getCardImage } from "../api/scryfallApi";
 import { Card } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
+import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 const props = defineProps<{
   card: any;
   have?: boolean;
@@ -86,6 +104,11 @@ const imagePosition = ref({ x: 0, y: 0 });
 const isCardLoading = ref(false);
 const { withLoading } = useGlobalLoading();
 const cardPreviewScope = "card-preview";
+const {
+  ensureSymbolsLoaded,
+  getSvgForSymbol,
+  isLoading: symbolsLoading,
+} = useScryfallSymbols();
 
 const normalizeCardName = (value: string) => value.trim().toLowerCase();
 
@@ -234,8 +257,29 @@ const hoverMediaQueryState = {
   listener: null as ((event: MediaQueryListEvent) => void) | null,
 };
 
+const manaSymbols = computed(() => {
+  if (!props.card.mana_cost) {
+    return [] as Array<{ token: string; svg: string }>;
+  }
+  const matches = props.card.mana_cost.match(/\{[^}]+\}/g) ?? [];
+  return matches
+    .map((token: string) => {
+      const svg = getSvgForSymbol(token);
+      return svg ? { token, svg } : null;
+    })
+    .filter(
+      (
+        entry: { token: string; svg: string } | null
+      ): entry is {
+        token: string;
+        svg: string;
+      } => entry !== null
+    );
+});
+
 onMounted(() => {
   setupHoverDetection();
+  void ensureSymbolsLoaded();
 });
 
 onBeforeUnmount(() => {
