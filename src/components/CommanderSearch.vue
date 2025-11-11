@@ -189,7 +189,7 @@ const createSearchField = (label: string, disabled?: () => boolean) => {
     }
 
     const trimmed = value.trim();
-    if (trimmed.length <= 2) {
+    if (trimmed.length <= 3) {
       results.value = [];
       error.value = "";
       return;
