@@ -8,3 +8,4 @@ export { default as ScryfallCardRow } from "./ScryfallCardRow.vue";
 export { default as CardTable } from "./CardTable.vue";
 export { default as DropdownSelect } from "./DropdownSelect.vue";
 export { default as SiteNotice } from "./SiteNotice.vue";
+export { default as CommanderDisplay } from "./CommanderDisplay.vue";

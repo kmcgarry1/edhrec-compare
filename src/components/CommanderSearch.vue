@@ -82,9 +82,30 @@
               </li>
             </ul>
           </Card>
+          <CommanderDisplay
+            v-if="primarySelection"
+            class="mt-4"
+            :commanderName="primarySelection"
+            label="Primary Commander"
+            description="Preview of the selected primary commander."
+          />
+          <div class="flex items-center gap-2 mt-4">
+            <input
+              id="has-partner-toggle"
+              v-model="hasPartner"
+              type="checkbox"
+              class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800"
+            />
+            <label
+              for="has-partner-toggle"
+              class="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+            >
+              This commander has partner
+            </label>
+          </div>
         </div>
 
-        <div class="space-y-2">
+        <div v-show="hasPartner" class="space-y-2">
           <label
             class="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
           >
@@ -148,6 +169,13 @@
               </li>
             </ul>
           </Card>
+          <CommanderDisplay
+            v-if="partnerSelection"
+            class="mt-4"
+            :commanderName="partnerSelection"
+            label="Partner Commander"
+            description="Optional partner preview."
+          />
         </div>
       </div>
     </div>
@@ -160,6 +188,7 @@ import { searchCardNames } from "../api/scryfallApi";
 import { Card, GlobalLoadingBanner } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
+import { CommanderDisplay } from ".";
 
 const searchScope = "commander-search";
 
@@ -173,6 +202,7 @@ const emit = defineEmits<{
 
 const primarySelection = ref("");
 const partnerSelection = ref("");
+const hasPartner = ref(false);
 
 const partnerDisabled = computed(() => !primarySelection.value);
 
