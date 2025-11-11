@@ -1,7 +1,13 @@
 <template>
   <div class="w-full max-w-xl space-y-4 text-slate-900 dark:text-slate-100">
-    <div
-      class="group flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-slate-300 bg-white/90 p-10 text-center shadow-2xl shadow-slate-900/5 transition hover:border-emerald-400/70 hover:bg-emerald-50/50 dark:border-slate-600/80 dark:bg-slate-900/50 dark:text-slate-100 dark:shadow-black/40 dark:hover:bg-slate-900/70"
+    <Card
+      as="div"
+      padding="p-10"
+      rounded="rounded-3xl"
+      border="border-2 border-dashed border-slate-300 dark:border-slate-600/80"
+      background="bg-white/90 dark:bg-slate-900/50"
+      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/40"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-emerald-400/70 hover:bg-emerald-50/50 dark:text-slate-100 dark:hover:bg-slate-900/70"
       @click="triggerFileInput"
       @drop="handleDrop"
       @dragover.prevent
@@ -22,9 +28,15 @@
           Drag and drop or click to browse files. CSV only.
         </p>
       </div>
-      <div
+      <Card
         v-else
-        class="flex w-full flex-col items-center gap-3 rounded-2xl bg-white/80 p-4 text-left text-slate-700 shadow-inner shadow-slate-900/5 dark:bg-slate-900/80 dark:text-slate-200 sm:flex-row sm:justify-between"
+        as="div"
+        padding="p-4"
+        rounded="rounded-2xl"
+        border="border border-slate-200/50 dark:border-slate-700/70"
+        background="bg-white/80 dark:bg-slate-900/80"
+        shadow="shadow-inner shadow-slate-900/5"
+        class="flex w-full flex-col items-center gap-3 text-left text-slate-700 dark:text-slate-200 sm:flex-row sm:justify-between"
       >
         <div>
           <p class="font-semibold">{{ file.name }}</p>
@@ -39,8 +51,16 @@
         >
           Remove
         </button>
-      </div>
-    </div>
+      </Card>
+    </Card>
+
+    <GlobalLoadingBanner
+      v-if="csvLoading"
+      scope="csv-upload"
+      class="text-center text-sm"
+    >
+      Processing CSV data...
+    </GlobalLoadingBanner>
 
     <p class="text-xs text-slate-500 dark:text-slate-400">
       We only store your data in local storage for quick comparisons—refresh to
@@ -52,11 +72,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useLocalStorage } from "@vueuse/core";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
+import { Card, GlobalLoadingBanner } from ".";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
 const csvData = useLocalStorage<string[][]>("csv-upload-data", []);
 const headers = useLocalStorage<string[]>("csv-upload-headers", []);
+const csvScope = "csv-upload";
+
+const { withLoading, getScopeLoading } = useGlobalLoading();
+const csvLoading = getScopeLoading(csvScope);
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
@@ -88,12 +114,24 @@ const handleDrop = (event: DragEvent) => {
 
 const processFile = (selectedFile: File) => {
   file.value = selectedFile;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const csv = e.target?.result as string;
-    parseCSV(csv);
-  };
-  reader.readAsText(selectedFile);
+  void withLoading(
+    () =>
+      new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const csv = e.target?.result as string;
+          parseCSV(csv);
+          resolve();
+        };
+        reader.onerror = () => {
+          console.error("Unable to read CSV file");
+          resolve();
+        };
+        reader.readAsText(selectedFile);
+      }),
+    "Processing CSV upload...",
+    csvScope
+  );
 };
 
 const parseCSV = (csv: string) => {
