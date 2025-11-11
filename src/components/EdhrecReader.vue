@@ -295,8 +295,6 @@ const edhrecUrlSuffix = ".json";
 const defaultCommanderSlug = "teysa-karlov";
 const currentCommanderSlug = ref<string>(defaultCommanderSlug);
 
-// Use chosenPageType.value directly now that enum values match URL segments
-
 const buildCommanderUrl = (slug: string) => {
   const segments = [chosenPageType.value, slug];
   if (chosenBracket.value) {
