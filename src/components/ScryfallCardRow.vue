@@ -296,6 +296,7 @@ import { getCardImage } from "../api/scryfallApi";
 import { Card } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
+import { useGlobalNotices } from "../composables/useGlobalNotices";
 const cardImageCache = new Map<string, string>();
 
 const props = defineProps<{
@@ -318,6 +319,7 @@ const modalLoading = ref(false);
 const modalCard = ref<any | null>(null);
 let hoverLoadTimeout: ReturnType<typeof setTimeout> | null = null;
 const TAP_MOVE_THRESHOLD = 12;
+const HOVER_LOAD_DELAY = 150;
 const touchTracking = ref({
   active: false,
   startX: 0,
@@ -325,9 +327,8 @@ const touchTracking = ref({
   moved: false,
 });
 
-const HOVER_LOAD_DELAY = 1000;
-
 const { withLoading } = useGlobalLoading();
+const { notifyError } = useGlobalNotices();
 const cardPreviewScope = "card-preview";
 const {
   ensureSymbolsLoaded,
@@ -597,8 +598,15 @@ const openMobileModal = async () => {
   modalCard.value = { ...props.card };
   isMobileModalOpen.value = true;
   modalLoading.value = true;
-  modalImageUrl.value = await loadCardImage(props.card.name, false);
-  modalLoading.value = false;
+  try {
+    modalImageUrl.value = await loadCardImage(props.card.name, false);
+  } catch (error) {
+    console.error("Unable to load modal image:", error);
+    notifyError("Unable to load that card image from Scryfall.");
+    modalImageUrl.value = null;
+  } finally {
+    modalLoading.value = false;
+  }
 };
 
 const closeMobileModal = () => {
@@ -624,6 +632,7 @@ const scheduleHoverLoad = (cardName: string, normalized: string) => {
       }
     } catch (error) {
       console.error("Unable to fetch card image:", error);
+      notifyError("Unable to load that card image from Scryfall.");
     } finally {
       isCardLoading.value = false;
       clearHoverLoadTimeout();
