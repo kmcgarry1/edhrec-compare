@@ -164,38 +164,6 @@
             {{ cardlist.header }}
           </h2>
         </div>
-        <div class="flex flex-wrap gap-2 text-sm font-semibold">
-          <button
-            type="button"
-            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
-            :class="
-              showOwned === true ? activeFilterClass : inactiveFilterClass
-            "
-            @click="showOwned = true"
-          >
-            Owned
-          </button>
-          <button
-            type="button"
-            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
-            :class="
-              showOwned === false ? activeFilterClass : inactiveFilterClass
-            "
-            @click="showOwned = false"
-          >
-            Unowned
-          </button>
-          <button
-            type="button"
-            class="w-full rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 md:w-auto"
-            :class="
-              showOwned === null ? activeFilterClass : inactiveFilterClass
-            "
-            @click="showOwned = null"
-          >
-            Show All
-          </button>
-        </div>
       </header>
 
       <div class="hidden md:block">
@@ -243,6 +211,7 @@ import {
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { getCardlistIcon } from "./helpers/cardlistIconMap";
+import { useOwnedFilter } from "../composables/useOwnedFilter";
 
 interface EdhrecData {
   container?: {
@@ -258,7 +227,7 @@ interface EdhrecData {
 const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
 
-const showOwned = ref<boolean | null>(null);
+const { showOwned } = useOwnedFilter();
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
 const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
 const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
@@ -278,11 +247,6 @@ const setPageType = (value: string | number) => {
 const setCompanion = (value: string | number) => {
   chosenCompanion.value = String(value);
 };
-
-const activeFilterClass =
-  "border-emerald-500/80 bg-emerald-100 text-emerald-900 shadow-inner shadow-emerald-200 dark:border-emerald-400/70 dark:bg-emerald-400/20 dark:text-emerald-100 dark:shadow-emerald-500/30";
-const inactiveFilterClass =
-  "border-slate-200 bg-white text-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-300 dark:hover:border-emerald-400/40 dark:hover:text-white";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
 const readerScope = "edhrec-reader";

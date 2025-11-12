@@ -70,6 +70,46 @@
           Match your collection against live commander recommendations, then tag
           owned cards by uploading your CSV.
         </p>
+        <div
+          class="flex flex-wrap gap-2 text-[0.7rem] font-semibold"
+        >
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === true
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(true)"
+          >
+            Owned
+          </button>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === false
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(false)"
+          >
+            Unowned
+          </button>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === null
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(null)"
+          >
+            Show All
+          </button>
+        </div>
       </Card>
     </div>
 
@@ -140,8 +180,10 @@ import {
   SiteNotice,
 } from "../components";
 import { useTheme } from "../composables/useTheme";
+import { useOwnedFilter } from "../composables/useOwnedFilter";
 
 const { theme, toggleTheme } = useTheme();
+const { showOwned, setOwnedFilter } = useOwnedFilter();
 const showUploadModal = ref(false);
 const headerCollapsed = ref(false);
 

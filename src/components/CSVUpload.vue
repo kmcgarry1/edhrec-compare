@@ -63,10 +63,33 @@
       Processing CSV data...
     </GlobalLoadingBanner>
 
-    <p class="text-xs text-slate-500 dark:text-slate-400">
-      Your deck data stays in this browser session only and clears automatically
-      on refresh.
-    </p>
+    <div class="flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <p>
+        Your deck data stays in this browser session only and clears
+        automatically on refresh.
+      </p>
+      <div
+        class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-emerald-300/60 px-3 py-2 text-[0.75rem] text-slate-600 dark:border-emerald-400/40 dark:text-slate-300"
+      >
+        <span class="font-semibold text-emerald-600 dark:text-emerald-300">
+          Don't have one?
+        </span>
+        <button
+          type="button"
+          class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+          @click="loadSampleInventory"
+        >
+          Use mine
+        </button>
+        <a
+          :href="sampleCsvUrl"
+          download="inventory.csv"
+          class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
+        >
+          Download sample CSV
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -138,6 +161,8 @@ const processFile = (selectedFile: File) => {
     csvScope
   );
 };
+
+const sampleCsvUrl = new URL("../assets/inventory.csv", import.meta.url).href;
 
 const parseCSV = (csv: string) => {
   const data = parseCSVContent(csv);
@@ -217,6 +242,27 @@ const removeFile = () => {
   clearCsvData();
   if (fileInput.value) {
     fileInput.value.value = "";
+  }
+};
+
+const loadSampleInventory = async () => {
+  try {
+    await withLoading(
+      async () => {
+        const response = await fetch(sampleCsvUrl);
+        const csv = await response.text();
+        parseCSV(csv);
+        if (typeof File !== "undefined") {
+          file.value = new File([csv], "inventory.csv", { type: "text/csv" });
+        } else {
+          file.value = null;
+        }
+      },
+      "Loading sample CSV...",
+      csvScope
+    );
+  } catch (error) {
+    console.error("Unable to load sample inventory:", error);
   }
 };
 </script>
