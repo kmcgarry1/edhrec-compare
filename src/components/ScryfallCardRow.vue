@@ -325,6 +325,8 @@ const touchTracking = ref({
   moved: false,
 });
 
+const HOVER_LOAD_DELAY = 1000;
+
 const { withLoading } = useGlobalLoading();
 const cardPreviewScope = "card-preview";
 const {
@@ -626,7 +628,7 @@ const scheduleHoverLoad = (cardName: string, normalized: string) => {
       isCardLoading.value = false;
       clearHoverLoadTimeout();
     }
-  }, 150);
+  }, HOVER_LOAD_DELAY);
 };
 
 const resetTouchTracking = () => {
