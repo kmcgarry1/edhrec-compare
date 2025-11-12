@@ -273,7 +273,7 @@ const downloadDecklistFromHeader = () => {
   }
   const filename = `commander-scout-${decklistExport.value.filterLabel
     .toLowerCase()
-    .replace(/\\s+/g, "-")}.txt`;
+    .replace(/\s+/g, "-")}.txt`;
   downloadTextFile(decklistExport.value.text, filename);
 };
 
