@@ -70,6 +70,66 @@
           Match your collection against live commander recommendations, then tag
           owned cards by uploading your CSV.
         </p>
+        <div class="flex flex-wrap gap-2 text-[0.7rem] font-semibold">
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === true
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(true)"
+          >
+            Owned
+          </button>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === false
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(false)"
+          >
+            Unowned
+          </button>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+            :class="
+              showOwned === null
+                ? 'border-emerald-500 bg-emerald-100 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100'
+                : 'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            @click="setOwnedFilter(null)"
+          >
+            Show All
+          </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-[0.7rem] font-semibold">
+          <span class="text-slate-500 dark:text-slate-300">Export:</span>
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:cursor-not-allowed disabled:opacity-50"
+            :class="
+              'border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300'
+            "
+            :disabled="!decklistExport?.text"
+            @click="copyDecklistFromHeader"
+          >
+            {{ decklistCopied ? "Copied!" : "Copy Decklist" }}
+          </button>
+          <button
+            type="button"
+            class="rounded-full border border-emerald-400 px-3 py-1.5 text-emerald-700 transition hover:bg-emerald-500/10 focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+            :disabled="!decklistExport?.text"
+            @click="downloadDecklistFromHeader"
+          >
+            Download decklist.txt
+          </button>
+        </div>
       </Card>
     </div>
 
@@ -125,13 +185,13 @@
       </div>
     </Teleport>
 
-    <EdhrecReader />
+    <EdhrecReader @decklistUpdate="handleDecklistUpdate" />
 
     <SiteNotice />
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import {
   Card,
   EdhrecReader,
@@ -140,10 +200,22 @@ import {
   SiteNotice,
 } from "../components";
 import { useTheme } from "../composables/useTheme";
+import { useOwnedFilter } from "../composables/useOwnedFilter";
+import { downloadTextFile } from "../utils/downloadTextFile";
+
+type DecklistPayload = {
+  text: string;
+  filterLabel: string;
+  sections: Array<{ id: string; label: string; text: string }>;
+};
 
 const { theme, toggleTheme } = useTheme();
+const { showOwned, setOwnedFilter } = useOwnedFilter();
 const showUploadModal = ref(false);
 const headerCollapsed = ref(false);
+const decklistExport = ref<DecklistPayload | null>(null);
+const decklistCopied = ref(false);
+let decklistCopyHandle: ReturnType<typeof setTimeout> | null = null;
 
 const collapseHeader = () => {
   headerCollapsed.value = true;
@@ -160,5 +232,52 @@ onMounted(() => {
       headerCollapsed.value = true;
     }
   }
+});
+
+const clearDecklistCopiedState = () => {
+  if (decklistCopyHandle) {
+    clearTimeout(decklistCopyHandle);
+    decklistCopyHandle = null;
+  }
+  decklistCopied.value = false;
+};
+
+const handleDecklistUpdate = (payload: DecklistPayload) => {
+  decklistExport.value = payload;
+};
+
+const copyDecklistFromHeader = async () => {
+  if (!decklistExport.value?.text) {
+    return;
+  }
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+    console.warn("Clipboard API unavailable in this environment.");
+    return;
+  }
+  try {
+    clearDecklistCopiedState();
+    decklistCopied.value = true;
+    await navigator.clipboard.writeText(decklistExport.value.text);
+    decklistCopyHandle = setTimeout(() => {
+      decklistCopied.value = false;
+      decklistCopyHandle = null;
+    }, 1600);
+  } catch (error) {
+    console.error("Unable to copy decklist:", error);
+  }
+};
+
+const downloadDecklistFromHeader = () => {
+  if (!decklistExport.value?.text) {
+    return;
+  }
+  const filename = `commander-scout-${decklistExport.value.filterLabel
+    .toLowerCase()
+    .replace(/\s+/g, "-")}.txt`;
+  downloadTextFile(decklistExport.value.text, filename);
+};
+
+onBeforeUnmount(() => {
+  clearDecklistCopiedState();
 });
 </script>
