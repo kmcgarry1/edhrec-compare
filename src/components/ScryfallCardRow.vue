@@ -399,7 +399,7 @@ const tableRowClass = computed(() => {
     : "bg-white text-slate-800 dark:bg-slate-900/60 dark:text-slate-100";
   const hover = props.have
     ? "hover:bg-emerald-200/70 dark:hover:bg-emerald-800/60"
-    : "hover:bg-emerald-50/40 dark:hover:bg-slate-800/70";
+    : "hover:bg-slate-100/80 dark:hover:bg-slate-800/70";
   return `${base} ${hover}`;
 });
 
