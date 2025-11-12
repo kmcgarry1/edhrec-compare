@@ -17,7 +17,7 @@
             : 'border-transparent text-slate-500 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-200',
         ]"
         @click="handleNavigate(section.id)"
-        >
+      >
         <svg
           :viewBox="section.icon?.viewBox ?? VIEW_BOX"
           class="h-5 w-5"
@@ -36,7 +36,12 @@
       aria-label="Open cardlist navigation"
       @click="mobileOpen = true"
     >
-      <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true">
+      <svg
+        viewBox="0 0 24 24"
+        class="h-5 w-5"
+        fill="currentColor"
+        aria-hidden="true"
+      >
         <path
           d="M4 7h16M4 12h16M4 17h16"
           stroke="currentColor"
@@ -123,7 +128,12 @@ import {
 } from "@mdi/js";
 
 const props = defineProps<{
-  sections: Array<{ id: string; label: string; iconPath?: string; iconColor?: string }>;
+  sections: Array<{
+    id: string;
+    label: string;
+    iconPath?: string;
+    iconColor?: string;
+  }>;
   activeId?: string | null;
 }>();
 
@@ -153,13 +163,14 @@ const ICONS = ICON_PATHS.map((path) => ({
   viewBox: VIEW_BOX,
   path,
 }));
-const defaultIconPath = ICONS[0].path;
+const defaultIconPath = ICONS[0]?.path ?? mdiCards;
 
 const activeId = computed(() => props.activeId ?? null);
 
 const sectionsWithIcons = computed(() =>
   props.sections.map((section, index) => {
-    const iconPath = section.iconPath ?? ICONS[index % ICONS.length].path;
+    const iconPath =
+      section.iconPath ?? ICONS[index % ICONS.length]?.path ?? defaultIconPath;
     return {
       ...section,
       icon: {
