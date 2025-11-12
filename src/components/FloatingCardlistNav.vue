@@ -18,14 +18,14 @@
         ]"
         @click="handleNavigate(section.id)"
         >
-          <svg
-            :viewBox="section.icon.viewBox"
-            class="h-5 w-5"
-            :style="{ color: section.icon.color || 'currentColor' }"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path :d="section.icon.path" />
+        <svg
+          :viewBox="section.icon?.viewBox ?? VIEW_BOX"
+          class="h-5 w-5"
+          :style="{ color: section.icon?.color || 'currentColor' }"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path :d="section.icon?.path ?? defaultIconPath" />
         </svg>
       </button>
     </nav>
@@ -83,13 +83,13 @@
               @click="handleMobileNavigate(section.id)"
             >
               <svg
-                :viewBox="section.icon.viewBox"
+                :viewBox="section.icon?.viewBox ?? VIEW_BOX"
                 class="h-5 w-5 flex-shrink-0"
-                :style="{ color: section.icon.color || 'currentColor' }"
+                :style="{ color: section.icon?.color || 'currentColor' }"
                 fill="currentColor"
                 aria-hidden="true"
               >
-                <path :d="section.icon.path" />
+                <path :d="section.icon?.path ?? defaultIconPath" />
               </svg>
               <span class="flex-1 text-left text-[0.8rem] font-medium">
                 {{ section.label }}
@@ -153,6 +153,7 @@ const ICONS = ICON_PATHS.map((path) => ({
   viewBox: VIEW_BOX,
   path,
 }));
+const defaultIconPath = ICONS[0].path;
 
 const activeId = computed(() => props.activeId ?? null);
 
