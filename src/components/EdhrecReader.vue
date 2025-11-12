@@ -164,6 +164,26 @@
             {{ cardlist.header }}
           </h2>
         </div>
+        <div class="flex flex-wrap gap-2 text-xs font-semibold">
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-300"
+            :disabled="!(cardlistDecklists[index]?.length)"
+            @click="handleCopyDecklist(cardlist, index)"
+          >
+            {{ decklistCopySectionId === cardlistSections[index]?.id
+              ? "Copied!"
+              : "Copy for Archidekt/Moxfield" }}
+          </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-emerald-400 px-3 py-1.5 text-emerald-700 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+            :disabled="!(cardlistDecklists[index]?.length)"
+            @click="handleDownloadDecklist(cardlist, index)"
+          >
+            Download decklist.txt
+          </button>
+        </div>
       </header>
 
       <div class="hidden md:block">
@@ -191,7 +211,15 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount } from "vue";
+import {
+  ref,
+  onMounted,
+  computed,
+  watch,
+  nextTick,
+  onBeforeUnmount,
+  watchEffect,
+} from "vue";
 import { getCardsByNames } from "../api/scryfallApi";
 import {
   EDHRECBracket,
@@ -212,6 +240,7 @@ import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
+import { downloadTextFile } from "../utils/downloadTextFile";
 
 interface EdhrecData {
   container?: {
@@ -228,6 +257,22 @@ const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
 
 const { showOwned } = useOwnedFilter();
+
+type DecklistSection = {
+  id: string;
+  label: string;
+  text: string;
+};
+
+type DecklistPayload = {
+  text: string;
+  filterLabel: string;
+  sections: DecklistSection[];
+};
+
+const emit = defineEmits<{
+  decklistUpdate: [payload: DecklistPayload];
+}>();
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
 const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
 const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
@@ -300,6 +345,8 @@ const cardlistSections = computed(() =>
 );
 
 const activeSectionId = ref<string>("");
+const decklistCopySectionId = ref<string | null>(null);
+let decklistCopyResetHandle: ReturnType<typeof setTimeout> | null = null;
 
 let scrollListener: (() => void) | null = null;
 
@@ -362,6 +409,7 @@ watch(
 
 onBeforeUnmount(() => {
   detachScrollListener();
+  clearDecklistCopyState();
 });
 
 const scrollToSection = (id: string) => {
@@ -482,6 +530,110 @@ const filteredCards = (cardviews: { id: string; name: string }[]) => {
   return cardviews.filter(
     (card) => isCardInUpload(card.name) === showOwned.value
   );
+};
+
+const getDeckFilterLabel = () => {
+  if (showOwned.value === true) {
+    return "Owned cards";
+  }
+  if (showOwned.value === false) {
+    return "Unowned cards";
+  }
+  return "All cards";
+};
+
+const buildDecklistText = (
+  cardlist: { header: string; cardviews: { id: string; name: string }[] },
+  _sectionMeta?: { id: string; label: string }
+) => {
+  const cards = filteredCards(cardlist.cardviews);
+  if (cards.length === 0) {
+    return "";
+  }
+  return cards.map((card) => `1 ${card.name}`).join("\n");
+};
+
+const cardlistDecklists = computed(() =>
+  cardlists.value.map((cardlist, index) =>
+    buildDecklistText(cardlist, cardlistSections.value[index])
+  )
+);
+
+const clearDecklistCopyState = () => {
+  if (decklistCopyResetHandle) {
+    clearTimeout(decklistCopyResetHandle);
+    decklistCopyResetHandle = null;
+  }
+  decklistCopySectionId.value = null;
+};
+
+const buildDecklistPayload = (): DecklistPayload | null => {
+  if (!cardlists.value.length) {
+    return null;
+  }
+  const sections: DecklistSection[] = cardlists.value.map((cardlist, index) => {
+    const sectionMeta = cardlistSections.value[index];
+    const text = cardlistDecklists.value[index] ?? "";
+    return {
+      id: sectionMeta?.id ?? slugifyHeader(cardlist.header, index),
+      label: sectionMeta?.label ?? cardlist.header ?? `Cardlist ${index + 1}`,
+      text,
+    };
+  });
+  const nonEmpty = sections.filter((section) => section.text.length > 0);
+  const text = nonEmpty.map((section) => section.text).join("\n\n");
+  return {
+    text,
+    filterLabel: getDeckFilterLabel(),
+    sections,
+  };
+};
+
+watchEffect(() => {
+  const payload = buildDecklistPayload();
+  if (payload) {
+    emit("decklistUpdate", payload);
+  }
+});
+
+const handleCopyDecklist = async (
+  cardlist: { header: string; cardviews: { id: string; name: string }[] },
+  index: number
+) => {
+  const text = cardlistDecklists.value[index] ?? "";
+  if (!text) {
+    return;
+  }
+  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+    console.warn("Clipboard API is unavailable in this environment.");
+    return;
+  }
+  const sectionMeta = cardlistSections.value[index];
+  try {
+    clearDecklistCopyState();
+    decklistCopySectionId.value =
+      sectionMeta?.id ?? slugifyHeader(cardlist.header, index);
+    await navigator.clipboard.writeText(text);
+    decklistCopyResetHandle = setTimeout(() => {
+      decklistCopySectionId.value = null;
+      decklistCopyResetHandle = null;
+    }, 1600);
+  } catch (error) {
+    console.error("Unable to copy decklist:", error);
+  }
+};
+
+const handleDownloadDecklist = (
+  cardlist: { header: string; cardviews: { id: string; name: string }[] },
+  index: number
+) => {
+  const sectionMeta = cardlistSections.value[index];
+  const text = cardlistDecklists.value[index] ?? "";
+  if (!text) {
+    return;
+  }
+  const filename = `${sectionMeta?.id ?? slugifyHeader(cardlist.header, index)}.txt`;
+  downloadTextFile(text, filename);
 };
 
 const allCards = computed(() => {
