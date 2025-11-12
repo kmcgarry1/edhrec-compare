@@ -22,7 +22,7 @@
       />
       <div v-if="!file" class="space-y-2">
         <p class="text-lg font-semibold text-slate-900 dark:text-white">
-          Upload your collection CSV
+          Upload your collection
         </p>
         <p class="text-sm text-slate-500 dark:text-slate-400">
           Drag and drop or click to browse files. CSV only.

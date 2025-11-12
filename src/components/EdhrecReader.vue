@@ -47,7 +47,7 @@
         </p>
       </div>
 
-      <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+      <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
         <div class="space-y-1">
           <p
             class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
@@ -101,30 +101,6 @@
           />
         </div>
       </div>
-
-      <div
-        class="flex flex-col gap-3 rounded-2xl border border-slate-700/40 bg-slate-900/40 px-4 py-3 text-xs text-slate-400 dark:text-slate-300 sm:flex-row sm:items-center"
-      >
-        <code
-          class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm md:whitespace-pre"
-        >
-          {{ previewUrl ?? "Select a commander to build a URL" }}
-        </code>
-        <button
-          type="button"
-          class="w-full rounded-full border px-3 py-1 font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 sm:w-auto sm:self-stretch"
-          :class="
-            previewUrl
-              ? 'border-emerald-400/50 text-emerald-200 hover:border-emerald-300 hover:text-white'
-              : 'cursor-not-allowed border-slate-600/40 text-slate-500 dark:border-slate-600 dark:text-slate-400'
-          "
-          :disabled="!previewUrl"
-          aria-label="Copy EDHREC URL to clipboard"
-          @click="copyPreviewUrl"
-        >
-          {{ copyState === "copied" ? "Copied!" : "Copy URL" }}
-        </button>
-      </div>
     </Card>
 
     <Card
@@ -168,17 +144,19 @@
           <button
             type="button"
             class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-300"
-            :disabled="!(cardlistDecklists[index]?.length)"
+            :disabled="!cardlistDecklists[index]?.length"
             @click="handleCopyDecklist(cardlist, index)"
           >
-            {{ decklistCopySectionId === cardlistSections[index]?.id
-              ? "Copied!"
-              : "Copy for Archidekt/Moxfield" }}
+            {{
+              decklistCopySectionId === cardlistSections[index]?.id
+                ? "Copied!"
+                : "Copy for Archidekt/Moxfield"
+            }}
           </button>
           <button
             type="button"
             class="inline-flex items-center gap-2 rounded-full border border-emerald-400 px-3 py-1.5 text-emerald-700 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
-            :disabled="!(cardlistDecklists[index]?.length)"
+            :disabled="!cardlistDecklists[index]?.length"
             @click="handleDownloadDecklist(cardlist, index)"
           >
             Download decklist.txt
@@ -488,24 +466,6 @@ const buildCommanderUrl = (slug: string | null | undefined) => {
   return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
 };
 
-const previewUrl = computed(() => buildCommanderUrl(currentCommanderSlug.value));
-const copyState = ref<"idle" | "copied">("idle");
-
-const copyPreviewUrl = async () => {
-  if (!previewUrl.value) {
-    return;
-  }
-  try {
-    await navigator.clipboard.writeText(previewUrl.value);
-    copyState.value = "copied";
-    setTimeout(() => {
-      copyState.value = "idle";
-    }, 1600);
-  } catch (err) {
-    console.error("Unable to copy URL:", err);
-  }
-};
-
 const handleCommanderSelection = (slug: string) => {
   if (!slug) {
     currentCommanderSlug.value = null;
@@ -632,7 +592,9 @@ const handleDownloadDecklist = (
   if (!text) {
     return;
   }
-  const filename = `${sectionMeta?.id ?? slugifyHeader(cardlist.header, index)}.txt`;
+  const filename = `${
+    sectionMeta?.id ?? slugifyHeader(cardlist.header, index)
+  }.txt`;
   downloadTextFile(text, filename);
 };
 

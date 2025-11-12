@@ -1,9 +1,12 @@
 <template>
   <div class="space-y-4">
-    <div>
-      <p class="text-sm font-medium text-slate-600 dark:text-slate-300">
-        Find commanders
-      </p>
+    <div class="flex flex-col gap-1">
+      <div class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+        <svg viewBox="0 0 24 24" class="h-4 w-4 text-emerald-500" fill="currentColor" aria-hidden="true">
+          <path d="M12 1l3 4 4 1-3 3 .5 4.5L12 12l-4.5 1.5L8 9 5 6l4-1 3-4z" />
+        </svg>
+        <span>Find commanders</span>
+      </div>
       <p class="text-xs text-slate-500 dark:text-slate-400">
         Pick a primary commander, then (optionally) add a partner to fetch the
         combined EDHREC page.
@@ -26,13 +29,18 @@
           Primary commander
         </label>
         <div class="flex gap-2">
-          <input
-            v-model="primaryQuery"
-            type="text"
-            placeholder="Atraxa, Grand Unifier..."
-            aria-label="Search primary commander"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
-          />
+          <div class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400">
+            <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="currentColor" aria-hidden="true">
+              <path d="M9.5 3A6.5 6.5 0 0116 9.5a6.47 6.47 0 01-1.17 3.72l5.47 5.47-1.06 1.06-5.47-5.47A6.47 6.47 0 019.5 16 6.5 6.5 0 113 9.5 6.5 6.5 0 019.5 3m0 2A4.5 4.5 0 005 9.5 4.5 4.5 0 109.5 5z" />
+            </svg>
+            <input
+              v-model="primaryQuery"
+              type="text"
+              placeholder="Atraxa, Grand Unifier..."
+              aria-label="Search primary commander"
+              class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
+            />
+          </div>
           <button
             v-if="primarySelection"
             type="button"
@@ -103,14 +111,22 @@
           Partner commander (optional)
         </label>
         <div class="flex gap-2">
-          <input
-            v-model="partnerQuery"
-            type="text"
-            placeholder="Choose a partner..."
-            aria-label="Search partner commander"
-            :disabled="partnerDisabled"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400"
-          />
+          <div
+            class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed"
+            :class="partnerDisabled ? 'opacity-60' : ''"
+          >
+            <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="currentColor" aria-hidden="true">
+              <path d="M12 13c2.7 0 5.8 1.29 6 3.89V19H6v-2.11C6.2 14.29 9.3 13 12 13m0-2a4 4 0 114-4 4 4 0 01-4 4m0 6c-3.33 0-8 1.66-8 5v2h16v-2c0-3.34-4.67-5-8-5z" />
+            </svg>
+            <input
+              v-model="partnerQuery"
+              type="text"
+              placeholder="Choose a partner..."
+              aria-label="Search partner commander"
+              :disabled="partnerDisabled"
+              class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed dark:text-slate-100 dark:placeholder:text-slate-500"
+            />
+          </div>
           <button
             v-if="partnerSelection"
             type="button"

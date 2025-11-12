@@ -1,15 +1,16 @@
 <template>
   <template v-if="variant === 'table'">
     <tr
-      class="transition"
+      class="transition cursor-pointer"
       :class="tableRowClass"
       @mouseenter="handleCardHover(props.card.name, $event)"
       @mouseleave="hideCardImage"
-      @mousemove="updateImagePosition($event)"
+      @pointermove="handlePointerMove"
       @pointerdown="handlePointerDown(props.card.name, $event)"
       @pointerup="handlePointerUp"
       @pointerleave="handlePointerLeave"
       @pointercancel="handlePointerLeave"
+      @click="handleRowClick"
     >
       <td class="px-3 py-2 text-center">
         <input
@@ -93,11 +94,14 @@
       :class="props.have ? 'ring-1 ring-emerald-400/60' : ''"
       @mouseenter="handleCardHover(props.card.name, $event)"
       @mouseleave="hideCardImage"
-      @mousemove="updateImagePosition($event)"
+      @pointermove="handlePointerMove"
       @pointerdown="handlePointerDown(props.card.name, $event)"
       @pointerup="handlePointerUp"
       @pointerleave="handlePointerLeave"
       @pointercancel="handlePointerLeave"
+      @click="handleMobileRowClick"
+      role="button"
+      tabindex="0"
     >
       <input
         type="checkbox"
@@ -208,6 +212,83 @@
       />
     </Card>
   </Teleport>
+  <Teleport to="body">
+    <div
+      v-if="isMobileModalOpen"
+      class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-950/70 px-4 py-8 backdrop-blur-sm"
+      @click.self="closeMobileModal"
+    >
+      <Card
+        as="div"
+        padding="p-4 sm:p-6"
+        rounded="rounded-3xl"
+        border="border border-slate-200 dark:border-slate-700"
+        background="bg-white dark:bg-slate-900"
+        shadow="shadow-2xl shadow-slate-900/60 dark:shadow-black/70"
+        class="w-full max-w-md space-y-4"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-emerald-500/80">
+              Card Preview
+            </p>
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">
+              {{ modalCard?.name }}
+            </h3>
+            <p class="text-sm text-slate-500 dark:text-slate-300">
+              {{ modalCard?.type_line }}
+            </p>
+          </div>
+          <button
+            type="button"
+            class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60"
+            @click="closeMobileModal"
+          >
+            Close
+          </button>
+        </div>
+        <div class="flex justify-center">
+          <div
+            v-if="modalLoading"
+            class="h-64 w-44 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+          ></div>
+          <img
+            v-else-if="modalImageUrl"
+            :src="modalImageUrl"
+            :alt="modalCard?.name ?? 'Card'"
+            class="w-44 rounded-2xl shadow-lg shadow-slate-900/20 dark:shadow-black/40"
+          />
+          <div
+            v-else
+            class="h-64 w-44 rounded-2xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-300"
+          >
+            Image unavailable
+          </div>
+        </div>
+        <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+          <p>
+            <span class="font-semibold">Set:</span>
+            {{ (modalCard?.set || "").toUpperCase() || "—" }}
+          </p>
+          <p>
+            <span class="font-semibold">Prices:</span>
+            ${{ modalCard?.prices?.usd ?? "—" }} / €{{
+              modalCard?.prices?.eur ?? "—"
+            }}
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:text-emerald-200"
+            @click="openScryfallPage"
+          >
+            View on Scryfall
+          </button>
+        </div>
+      </Card>
+    </div>
+  </Teleport>
 </template>
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, computed } from "vue";
@@ -227,15 +308,23 @@ const variant = computed(() => props.variant ?? "table");
 
 const pendingImageKey = ref<string | null>(null);
 const canHover = ref(true);
-const DOUBLE_TAP_THRESHOLD = 300;
-let lastTapCard: string | null = null;
-let lastTapTimestamp = 0;
-let mobilePreviewPinned = false;
-let mobileDismissListener: ((event: PointerEvent) => void) | null = null;
 const hoveredCardImage = ref<string | null>(null);
 const imagePosition = ref({ x: 0, y: 0 });
 const isCardLoading = ref(false);
 const isFullscreenPreview = ref(false);
+const isMobileModalOpen = ref(false);
+const modalImageUrl = ref<string | null>(null);
+const modalLoading = ref(false);
+const modalCard = ref<any | null>(null);
+let hoverLoadTimeout: ReturnType<typeof setTimeout> | null = null;
+const TAP_MOVE_THRESHOLD = 12;
+const touchTracking = ref({
+  active: false,
+  startX: 0,
+  startY: 0,
+  moved: false,
+});
+
 const { withLoading } = useGlobalLoading();
 const cardPreviewScope = "card-preview";
 const {
@@ -245,6 +334,29 @@ const {
 } = useScryfallSymbols();
 
 const normalizeCardName = (value: string) => value.trim().toLowerCase();
+
+const loadCardImage = async (
+  cardName: string,
+  useGlobalLoader = false
+): Promise<string | null> => {
+  const normalized = normalizeCardName(cardName);
+  if (cardImageCache.has(normalized)) {
+    return cardImageCache.get(normalized) ?? null;
+  }
+
+  const fetchImage = async () => {
+    const imageUrl = await getCardImage(cardName);
+    if (imageUrl) {
+      cardImageCache.set(normalized, imageUrl);
+    }
+    return imageUrl ?? null;
+  };
+
+  if (useGlobalLoader) {
+    return withLoading(fetchImage, "Loading card preview...", cardPreviewScope);
+  }
+  return fetchImage();
+};
 
 const handleCardHover = async (
   cardName: string,
@@ -264,26 +376,7 @@ const handleCardHover = async (
   }
 
   hoveredCardImage.value = null;
-  isCardLoading.value = true;
-  try {
-    await withLoading(
-      async () => {
-        const imageUrl = await getCardImage(cardName);
-        if (imageUrl) {
-          cardImageCache.set(normalized, imageUrl);
-          if (pendingImageKey.value === normalized) {
-            hoveredCardImage.value = imageUrl;
-          }
-        }
-      },
-      "Loading card preview...",
-      cardPreviewScope
-    );
-  } catch (err) {
-    console.error("Unable to fetch card image:", err);
-  } finally {
-    isCardLoading.value = false;
-  }
+  scheduleHoverLoad(cardName, normalized);
 };
 
 const updateImagePosition = (event: MouseEvent | PointerEvent) => {
@@ -293,84 +386,59 @@ const updateImagePosition = (event: MouseEvent | PointerEvent) => {
   };
 };
 
+const handlePointerMove = (event: PointerEvent | MouseEvent) => {
+  updateImagePosition(event);
+  if (
+    event instanceof PointerEvent &&
+    !canHover.value &&
+    event.pointerType !== "mouse" &&
+    touchTracking.value.active
+  ) {
+    const dx = Math.abs(event.clientX - touchTracking.value.startX);
+    const dy = Math.abs(event.clientY - touchTracking.value.startY);
+    if (dx > TAP_MOVE_THRESHOLD || dy > TAP_MOVE_THRESHOLD) {
+      touchTracking.value.moved = true;
+    }
+  }
+};
+
 const hideCardImage = () => {
   pendingImageKey.value = null;
   hoveredCardImage.value = null;
-  mobilePreviewPinned = false;
   isFullscreenPreview.value = false;
   isCardLoading.value = false;
-  detachMobileDismissListener();
+  clearHoverLoadTimeout();
 };
 
-const detachMobileDismissListener = () => {
-  if (mobileDismissListener && typeof window !== "undefined") {
-    window.removeEventListener("pointerdown", mobileDismissListener);
-    mobileDismissListener = null;
-  }
-};
-
-const scheduleMobileDismissListener = () => {
-  if (mobileDismissListener || typeof window === "undefined") {
+const handlePointerDown = (_cardName: string, event: PointerEvent) => {
+  if (event.pointerType === "mouse" || canHover.value) {
     return;
   }
-
-  mobileDismissListener = (event: PointerEvent) => {
-    if (canHover.value || event.pointerType === "mouse") {
-      return;
-    }
-    hideCardImage();
+  touchTracking.value = {
+    active: true,
+    startX: event.clientX,
+    startY: event.clientY,
+    moved: false,
   };
-
-  window.addEventListener("pointerdown", mobileDismissListener, {
-    once: true,
-  });
-};
-
-const handlePointerDown = (cardName: string, event: PointerEvent) => {
-  if (canHover.value || event.pointerType === "mouse") {
-    return;
-  }
-
-  const now = performance.now();
-  if (
-    lastTapCard === cardName &&
-    now - lastTapTimestamp <= DOUBLE_TAP_THRESHOLD
-  ) {
-    mobilePreviewPinned = true;
-    isFullscreenPreview.value = true;
-    lastTapCard = null;
-    lastTapTimestamp = 0;
-    event.preventDefault();
-    handleCardHover(cardName, event);
-    scheduleMobileDismissListener();
-    return;
-  }
-
-  lastTapCard = cardName;
-  lastTapTimestamp = now;
-  isFullscreenPreview.value = false;
 };
 
 const handlePointerUp = (_event: PointerEvent) => {
   if (canHover.value || _event.pointerType === "mouse") {
     return;
   }
-
-  if (mobilePreviewPinned) {
-    return;
+  if (
+    touchTracking.value.active &&
+    !touchTracking.value.moved &&
+    !modalLoading.value
+  ) {
+    openMobileModal();
   }
-
-  hideCardImage();
+  resetTouchTracking();
 };
 
-const handlePointerLeave = (event: PointerEvent) => {
-  if (
-    mobilePreviewPinned &&
-    !(canHover.value || event.pointerType === "mouse")
-  ) {
-    return;
-  }
+const handlePointerLeave = (_event: PointerEvent) => {
   hideCardImage();
+  resetTouchTracking();
 };
 
 const setupHoverDetection = () => {
@@ -482,7 +550,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  detachMobileDismissListener();
   if (
     hoverMediaQueryState.query &&
     hoverMediaQueryState.listener &&
@@ -494,4 +561,80 @@ onBeforeUnmount(() => {
     );
   }
 });
+
+const openScryfallPage = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const url =
+    props.card?.scryfall_uri ||
+    (props.card?.name
+      ? `https://scryfall.com/search?q=${encodeURIComponent(props.card.name)}`
+      : null);
+  if (url) {
+    window.open(url, "_blank", "noopener");
+  }
+};
+
+const handleRowClick = () => {
+  if (!canHover.value) {
+    return;
+  }
+  openScryfallPage();
+};
+
+const handleMobileRowClick = () => {
+  if (canHover.value) {
+    openScryfallPage();
+    return;
+  }
+  openMobileModal();
+};
+
+const openMobileModal = async () => {
+  modalCard.value = { ...props.card };
+  isMobileModalOpen.value = true;
+  modalLoading.value = true;
+  modalImageUrl.value = await loadCardImage(props.card.name, false);
+  modalLoading.value = false;
+};
+
+const closeMobileModal = () => {
+  isMobileModalOpen.value = false;
+  modalImageUrl.value = null;
+};
+
+const clearHoverLoadTimeout = () => {
+  if (hoverLoadTimeout) {
+    clearTimeout(hoverLoadTimeout);
+    hoverLoadTimeout = null;
+  }
+};
+
+const scheduleHoverLoad = (cardName: string, normalized: string) => {
+  clearHoverLoadTimeout();
+  hoverLoadTimeout = setTimeout(async () => {
+    isCardLoading.value = true;
+    try {
+      const imageUrl = await loadCardImage(cardName, true);
+      if (imageUrl && pendingImageKey.value === normalized) {
+        hoveredCardImage.value = imageUrl;
+      }
+    } catch (error) {
+      console.error("Unable to fetch card image:", error);
+    } finally {
+      isCardLoading.value = false;
+      clearHoverLoadTimeout();
+    }
+  }, 150);
+};
+
+const resetTouchTracking = () => {
+  touchTracking.value = {
+    active: false,
+    startX: 0,
+    startY: 0,
+    moved: false,
+  };
+};
 </script>
