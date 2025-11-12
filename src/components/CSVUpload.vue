@@ -98,6 +98,7 @@ import { ref } from "vue";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { Card, GlobalLoadingBanner } from ".";
 import { useCsvUpload } from "../composables/useCsvUpload";
+import { useGlobalNotices } from "../composables/useGlobalNotices";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
@@ -111,6 +112,7 @@ const csvScope = "csv-upload";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
 const csvLoading = getScopeLoading(csvScope);
+const { notifyError, notifySuccess } = useGlobalNotices();
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
@@ -152,7 +154,7 @@ const processFile = (selectedFile: File) => {
           resolve();
         };
         reader.onerror = () => {
-          console.error("Unable to read CSV file");
+          notifyError("We couldn't read that CSV. Please try again.");
           resolve();
         };
         reader.readAsText(selectedFile);
@@ -167,9 +169,12 @@ const sampleCsvUrl = new URL("../assets/inventory.csv", import.meta.url).href;
 const parseCSV = (csv: string) => {
   const data = parseCSVContent(csv);
 
-  if (data.length > 0 && data[0]) {
+  if (data.length > 1 && data[0]) {
     setCsvData(data.slice(1), data[0]);
     emit("upload", csvRows.value, csvHeaders.value);
+    notifySuccess("CSV loaded successfully.");
+  } else {
+    notifyError("That CSV doesn't appear to contain any card rows.");
   }
 };
 
@@ -250,6 +255,9 @@ const loadSampleInventory = async () => {
     await withLoading(
       async () => {
         const response = await fetch(sampleCsvUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
         const csv = await response.text();
         parseCSV(csv);
         if (typeof File !== "undefined") {
@@ -263,6 +271,7 @@ const loadSampleInventory = async () => {
     );
   } catch (error) {
     console.error("Unable to load sample inventory:", error);
+    notifyError("Unable to load the sample inventory. Please try again.");
   }
 };
 </script>

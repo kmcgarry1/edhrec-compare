@@ -11,6 +11,12 @@ if (import.meta.env.PROD) {
     .catch((error) => {
       console.error("Failed to initialize Vercel Analytics", error);
     });
+
+  import("@vercel/speed-insights")
+    .then(({ injectSpeedInsights }) => injectSpeedInsights())
+    .catch((error) => {
+      console.error("Failed to initialize Vercel Speed Insights", error);
+    });
 }
 
 createApp(App).mount("#app");
