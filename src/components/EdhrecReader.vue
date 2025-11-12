@@ -219,6 +219,7 @@ import { useCsvUpload } from "../composables/useCsvUpload";
 import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
+import { useGlobalNotices } from "../composables/useGlobalNotices";
 
 interface EdhrecData {
   container?: {
@@ -235,6 +236,7 @@ const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
 
 const { showOwned } = useOwnedFilter();
+const { notifyError } = useGlobalNotices();
 
 type DecklistSection = {
   id: string;
@@ -290,6 +292,10 @@ const fetchJsonData = async (url: string) => {
         data.value = await response.json();
       } catch (err) {
         error.value = err instanceof Error ? err.message : "An error occurred";
+        notifyError(
+          error.value ?? "Unable to fetch commander data.",
+          "EDHREC request failed"
+        );
       }
     },
     "Fetching commander data...",
@@ -580,6 +586,7 @@ const handleCopyDecklist = async (
     }, 1600);
   } catch (error) {
     console.error("Unable to copy decklist:", error);
+    notifyError("Unable to copy the decklist to your clipboard.");
   }
 };
 
@@ -595,7 +602,12 @@ const handleDownloadDecklist = (
   const filename = `${
     sectionMeta?.id ?? slugifyHeader(cardlist.header, index)
   }.txt`;
-  downloadTextFile(text, filename);
+  try {
+    downloadTextFile(text, filename);
+  } catch (error) {
+    console.error("Unable to download decklist:", error);
+    notifyError("Unable to download the decklist file.");
+  }
 };
 
 const allCards = computed(() => {
@@ -650,6 +662,7 @@ const fetchAllCardData = async () => {
         scryfallCardData.value = scryfallData;
       } catch (err) {
         console.error("Failed to fetch card data from Scryfall:", err);
+        notifyError("Unable to fetch detailed card data from Scryfall.");
       }
     },
     "Fetching detailed card data...",

@@ -195,12 +195,14 @@ import { Card, GlobalLoadingBanner } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
 import { CommanderDisplay } from ".";
+import { useGlobalNotices } from "../composables/useGlobalNotices";
 
 const searchScope = "commander-search";
 
 type CommanderOption = { id: string; name: string };
 
 const { withLoading } = useGlobalLoading();
+const { notifyError } = useGlobalNotices();
 
 const emit = defineEmits<{
   commanderSelected: [slug: string];
@@ -245,6 +247,10 @@ const createSearchField = (label: string, disabled?: () => boolean) => {
           error.value =
             err instanceof Error ? err.message : "Failed to fetch commanders";
           results.value = [];
+          notifyError(
+            err instanceof Error ? err.message : "Failed to fetch commanders.",
+            `${label} search failed`
+          );
         }
       },
       `Searching ${label.toLowerCase()} commanders...`,
