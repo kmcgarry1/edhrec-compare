@@ -1,5 +1,11 @@
 <template>
   <section class="space-y-8 text-slate-900 dark:text-slate-100">
+    <FloatingCardlistNav
+      v-if="cardlistSections.length"
+      :sections="cardlistSections"
+      :active-id="activeSectionId"
+      @navigate="scrollToSection"
+    />
     <Card
       v-if="readerLoading"
       rounded="rounded-2xl"
@@ -102,13 +108,19 @@
         <code
           class="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs md:text-sm md:whitespace-pre"
         >
-          {{ previewUrl }}
+          {{ previewUrl ?? "Select a commander to build a URL" }}
         </code>
         <button
           type="button"
-          class="w-full rounded-full border border-emerald-400/50 px-3 py-1 font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-white sm:w-auto sm:self-stretch"
-          @click="copyPreviewUrl"
+          class="w-full rounded-full border px-3 py-1 font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 sm:w-auto sm:self-stretch"
+          :class="
+            previewUrl
+              ? 'border-emerald-400/50 text-emerald-200 hover:border-emerald-300 hover:text-white'
+              : 'cursor-not-allowed border-slate-600/40 text-slate-500 dark:border-slate-600 dark:text-slate-400'
+          "
+          :disabled="!previewUrl"
           aria-label="Copy EDHREC URL to clipboard"
+          @click="copyPreviewUrl"
         >
           {{ copyState === "copied" ? "Copied!" : "Copy URL" }}
         </button>
@@ -116,23 +128,38 @@
     </Card>
 
     <Card
-      v-for="cardlist in cardlists"
+      v-for="(cardlist, index) in cardlists"
       :key="cardlist.header"
       as="article"
       class="space-y-6"
       padding="p-4 sm:p-6"
       background="bg-white/95 dark:bg-slate-900/60"
       shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
+      :id="cardlistSections[index]?.id"
     >
       <header
         class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
       >
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500/80 dark:text-emerald-300/70"
-          >
-            EDHREC Cardlist
-          </p>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-3">
+            <svg
+              v-if="cardlistSections[index]?.iconPath"
+              viewBox="0 0 24 24"
+              class="h-7 w-7 rounded-2xl bg-slate-100 p-1 text-emerald-600 dark:bg-slate-800"
+              :style="{
+                color: cardlistSections[index]?.iconColor || undefined,
+              }"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path :d="cardlistSections[index]?.iconPath" />
+            </svg>
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500/80 dark:text-emerald-300/70"
+            >
+              EDHREC Cardlist
+            </p>
+          </div>
           <h2 class="text-2xl font-semibold text-slate-900 dark:text-white">
             {{ cardlist.header }}
           </h2>
@@ -196,7 +223,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount } from "vue";
 import { getCardsByNames } from "../api/scryfallApi";
 import {
   EDHRECBracket,
@@ -211,9 +238,11 @@ import {
   GlobalLoadingBanner,
   ScryfallCardRow,
   DropdownSelect,
+  FloatingCardlistNav,
 } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
+import { getCardlistIcon } from "./helpers/cardlistIconMap";
 
 interface EdhrecData {
   container?: {
@@ -285,6 +314,108 @@ const cardlists = computed(
   () => data.value?.container?.json_dict?.cardlists || []
 );
 
+const slugifyHeader = (value: string, index: number) => {
+  const base = (value || `section-${index + 1}`)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return base.length ? base : `section-${index + 1}`;
+};
+
+const cardlistSections = computed(() =>
+  cardlists.value.map((cardlist, index) => {
+    const id = slugifyHeader(cardlist.header, index);
+    const iconConfig = getCardlistIcon(id);
+    return {
+      id,
+      label: cardlist.header || `Cardlist ${index + 1}`,
+      iconPath: iconConfig?.path,
+      iconColor: iconConfig?.color,
+    };
+  })
+);
+
+const activeSectionId = ref<string>("");
+
+let scrollListener: (() => void) | null = null;
+
+const updateActiveSectionFromScroll = () => {
+  if (typeof window === "undefined" || !cardlistSections.value.length) {
+    activeSectionId.value = "";
+    return;
+  }
+  const scrollPosition = window.scrollY + 120;
+  let currentId = cardlistSections.value[0]?.id ?? "";
+
+  for (const section of cardlistSections.value) {
+    const el = document.getElementById(section.id);
+    if (!el) {
+      continue;
+    }
+    if (el.offsetTop <= scrollPosition) {
+      currentId = section.id;
+    } else {
+      break;
+    }
+  }
+
+  activeSectionId.value = currentId;
+};
+
+const detachScrollListener = () => {
+  if (scrollListener && typeof window !== "undefined") {
+    window.removeEventListener("scroll", scrollListener);
+    scrollListener = null;
+  }
+};
+
+const attachScrollListener = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  detachScrollListener();
+  scrollListener = () => {
+    window.requestAnimationFrame(updateActiveSectionFromScroll);
+  };
+  window.addEventListener("scroll", scrollListener, { passive: true });
+  updateActiveSectionFromScroll();
+};
+
+watch(
+  cardlistSections,
+  (sections) => {
+    nextTick(() => {
+      if (!sections.length) {
+        activeSectionId.value = "";
+        detachScrollListener();
+        return;
+      }
+      attachScrollListener();
+    });
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(() => {
+  detachScrollListener();
+});
+
+const scrollToSection = (id: string) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const el = document.getElementById(id);
+  if (!el) {
+    return;
+  }
+  const offset = 80;
+  const targetTop = el.getBoundingClientRect().top + window.scrollY - offset;
+  window.scrollTo({
+    top: targetTop,
+    behavior: "smooth",
+  });
+};
+
 const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
 
 const uploadedNameIndex = computed(() => {
@@ -322,10 +453,12 @@ const isCardInUpload = (cardName: string) => {
 
 const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
 const edhrecUrlSuffix = ".json";
-const defaultCommanderSlug = "teysa-karlov";
-const currentCommanderSlug = ref<string>(defaultCommanderSlug);
+const currentCommanderSlug = ref<string | null>(null);
 
-const buildCommanderUrl = (slug: string) => {
+const buildCommanderUrl = (slug: string | null | undefined) => {
+  if (!slug) {
+    return null;
+  }
   const segments = [chosenPageType.value, slug];
   if (chosenBracket.value) {
     segments.push(chosenBracket.value);
@@ -343,12 +476,13 @@ const buildCommanderUrl = (slug: string) => {
   return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
 };
 
-const previewUrl = computed(() =>
-  buildCommanderUrl(currentCommanderSlug.value ?? defaultCommanderSlug)
-);
+const previewUrl = computed(() => buildCommanderUrl(currentCommanderSlug.value));
 const copyState = ref<"idle" | "copied">("idle");
 
 const copyPreviewUrl = async () => {
+  if (!previewUrl.value) {
+    return;
+  }
   try {
     await navigator.clipboard.writeText(previewUrl.value);
     copyState.value = "copied";
@@ -362,15 +496,21 @@ const copyPreviewUrl = async () => {
 
 const handleCommanderSelection = (slug: string) => {
   if (!slug) {
+    currentCommanderSlug.value = null;
+    data.value = null;
     return;
   }
   currentCommanderSlug.value = slug;
-  fetchJsonData(buildCommanderUrl(slug));
+  const url = buildCommanderUrl(slug);
+  if (url) {
+    fetchJsonData(url);
+  }
 };
 
 watch([chosenPageType, chosenBracket, chosenModifier, chosenCompanion], () => {
-  if (currentCommanderSlug.value) {
-    fetchJsonData(buildCommanderUrl(currentCommanderSlug.value));
+  const url = buildCommanderUrl(currentCommanderSlug.value);
+  if (url) {
+    fetchJsonData(url);
   }
 });
 const filteredCards = (cardviews: { id: string; name: string }[]) => {
@@ -485,6 +625,6 @@ const getTableRows = (cardlist: {
   });
 
 onMounted(() => {
-  fetchJsonData(buildCommanderUrl(defaultCommanderSlug));
+  // No default fetch; wait for explicit commander selection.
 });
 </script>
