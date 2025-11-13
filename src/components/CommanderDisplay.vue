@@ -1,6 +1,6 @@
 <template>
   <Card
-    v-if="cardImageUrl || isLoading"
+    v-if="shouldRenderCard"
     as="div"
     padding="p-4"
     rounded="rounded-2xl"
@@ -10,15 +10,122 @@
       class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     >
       <div class="flex-1">
-        <p class="text-xs uppercase tracking-[0.3em] text-emerald-500/80">
+        <CText
+          tag="p"
+          variant="overline"
+          tone="inherit"
+          class="tracking-[0.3em] text-emerald-500/80"
+        >
           {{ label }}
-        </p>
-        <h3 class="mt-1 text-xl font-semibold">
+        </CText>
+        <CText tag="h3" variant="title" class="mt-1 text-xl">
           {{ commanderName || "Commander pending" }}
-        </h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
-          {{ description }}
-        </p>
+        </CText>
+        <div
+          class="mt-4 space-y-3 rounded-2xl border border-slate-200/60 bg-white/50 p-3 text-sm text-slate-600 shadow-inner shadow-white/50 dark:border-slate-800/70 dark:bg-slate-900/40 dark:text-slate-300"
+          v-if="currentPrinting"
+        >
+          <div class="grid gap-2 sm:grid-rows-3 lg:grid-rows-3">
+            <div class="min-w-[100px] space-y-1">
+              <CText
+                variant="helper"
+                tone="muted"
+                class="uppercase tracking-wide"
+              >
+                Set
+              </CText>
+              <CText variant="body" weight="semibold">
+                {{ setLabel }}
+              </CText>
+            </div>
+            <div class="min-w-[100px] space-y-1">
+              <CText
+                variant="helper"
+                tone="muted"
+                class="uppercase tracking-wide"
+              >
+                Collector #
+              </CText>
+              <CText variant="body" weight="semibold">
+                {{ collectorNumber }}
+              </CText>
+            </div>
+            <div class="min-w-[100px] space-y-1">
+              <CText
+                variant="helper"
+                tone="muted"
+                class="uppercase tracking-wide"
+              >
+                Release
+              </CText>
+              <CText variant="body" weight="semibold">
+                {{ releaseDate }}
+              </CText>
+            </div>
+            <div>
+              <div class="min-w-[100px] space-y-1">
+                <CText
+                  variant="helper"
+                  tone="muted"
+                  class="uppercase tracking-wide"
+                >
+                  USD Price
+                </CText>
+                <PriceColour
+                  :price="currentPrinting.prices?.usd ?? null"
+                  currency="$"
+                  align="start"
+                  class="w-full sm:w-auto"
+                />
+              </div>
+              <div class="min-w-[100px] space-y-1">
+                <CText
+                  variant="helper"
+                  tone="muted"
+                  class="uppercase tracking-wide"
+                >
+                  EUR Price
+                </CText>
+                <PriceColour
+                  :price="currentPrinting.prices?.eur ?? null"
+                  currency="€"
+                  align="start"
+                  class="w-full sm:w-auto"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-wrap items-center gap-3 pt-2"
+            v-if="printingsLoading"
+          >
+            <CText variant="helper" tone="muted">
+              Loading other printings...
+            </CText>
+          </div>
+          <div
+            v-else-if="canCyclePrintings"
+            class="flex flex-wrap items-center gap-3 pt-2"
+          >
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-emerald-200"
+              @click="showPreviousPrinting"
+            >
+              < Prev
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-emerald-200"
+              @click="showNextPrinting"
+            >
+              Next >
+            </button>
+            <CText variant="helper" tone="muted">
+              Printing {{ printingPosition }} of {{ totalPrintings }}
+            </CText>
+          </div>
+        </div>
       </div>
       <div class="flex items-center justify-center">
         <template v-if="isLoading">
@@ -37,9 +144,15 @@
   </Card>
 </template>
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
-import { getCardImage } from "../api/scryfallApi";
-import { Card } from ".";
+import { ref, watch, computed, onBeforeUnmount } from "vue";
+import {
+  getCard,
+  getCardPrintings,
+  type ScryfallCard,
+} from "../api/scryfallApi";
+import { Card, PriceColour } from ".";
+import { CText } from "./core";
+import { useCommanderColors } from "../composables/useCommanderColors";
 
 const props = defineProps<{
   commanderName: string;
@@ -47,34 +160,183 @@ const props = defineProps<{
   description?: string;
 }>();
 
-const cardImageUrl = ref<string>("");
+const { setCommanderColors, clearCommanderColors } = useCommanderColors();
+const colorSourceKey = `commander-display-${Math.random()
+  .toString(36)
+  .slice(2, 9)}`;
+
+const printings = ref<ScryfallCard[]>([]);
+const currentPrintingIndex = ref(0);
 const isLoading = ref(false);
+const printingsLoading = ref(false);
+let activeRequestId: symbol | null = null;
 
 const label = computed(() => props.label ?? "Commander Preview");
-const description = computed(
-  () =>
-    props.description ??
-    "Preview pulled from Scryfall when you pick a commander."
+
+const shouldRenderCard = computed(
+  () => isLoading.value || printings.value.length > 0
 );
 
-const loadImage = async () => {
-  if (!props.commanderName) {
-    cardImageUrl.value = "";
+const currentPrinting = computed<ScryfallCard | null>(() => {
+  const entries = printings.value;
+  if (!entries.length) {
+    return null;
+  }
+  const active = entries[currentPrintingIndex.value];
+  if (active) {
+    return active;
+  }
+  return entries[0]!;
+});
+
+watch(
+  currentPrinting,
+  (card) => {
+    setCommanderColors(colorSourceKey, card?.colors ?? []);
+  },
+  { immediate: true }
+);
+
+onBeforeUnmount(() => {
+  clearCommanderColors(colorSourceKey);
+});
+
+const cardImageUrl = computed(() => {
+  const card = currentPrinting.value;
+  if (!card) {
+    return "";
+  }
+  if (card.image_uris?.normal) {
+    return card.image_uris.normal;
+  }
+  const faceWithImage = card.card_faces?.find(
+    (face) => face.image_uris?.normal
+  );
+  return faceWithImage?.image_uris?.normal ?? "";
+});
+
+const setLabel = computed(() => {
+  const card = currentPrinting.value;
+  if (!card) {
+    return "—";
+  }
+  const code = card.set ? card.set.toUpperCase() : null;
+  if (card.set_name && code) {
+    return `${card.set_name} (${code})`;
+  }
+  return card.set_name ?? code ?? "—";
+});
+
+const collectorNumber = computed(
+  () => currentPrinting.value?.collector_number ?? "—"
+);
+
+const releaseDate = computed(() => {
+  const date = currentPrinting.value?.released_at;
+  if (!date) {
+    return "—";
+  }
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(date));
+  } catch {
+    return date;
+  }
+});
+
+const totalPrintings = computed(() => printings.value.length);
+const printingPosition = computed(() =>
+  totalPrintings.value ? currentPrintingIndex.value + 1 : 0
+);
+const canCyclePrintings = computed(() => totalPrintings.value > 1);
+
+const showNextPrinting = () => {
+  if (!printings.value.length) {
     return;
   }
+  currentPrintingIndex.value =
+    (currentPrintingIndex.value + 1) % printings.value.length;
+};
+
+const showPreviousPrinting = () => {
+  if (!printings.value.length) {
+    return;
+  }
+  currentPrintingIndex.value =
+    (currentPrintingIndex.value - 1 + printings.value.length) %
+    printings.value.length;
+};
+
+const loadCommanderData = async () => {
+  if (!props.commanderName) {
+    printings.value = [];
+    currentPrintingIndex.value = 0;
+    clearCommanderColors(colorSourceKey);
+    return;
+  }
+
+  const requestId = Symbol("commander-load");
+  activeRequestId = requestId;
   isLoading.value = true;
   try {
-    const imageUrl = await getCardImage(props.commanderName);
-    cardImageUrl.value = imageUrl ?? "";
+    const card = await getCard(props.commanderName);
+    if (!card) {
+      if (activeRequestId === requestId) {
+        printings.value = [];
+        currentPrintingIndex.value = 0;
+        clearCommanderColors(colorSourceKey);
+      }
+      return;
+    }
+
+    let nextPrintings: ScryfallCard[] = [card];
+
+    if (card.prints_search_uri) {
+      if (activeRequestId === requestId) {
+        printingsLoading.value = true;
+      }
+      try {
+        const allPrints = await getCardPrintings(card.prints_search_uri);
+        if (allPrints.length) {
+          nextPrintings = allPrints;
+        }
+      } catch (error) {
+        console.error("Unable to load card printings:", error);
+      } finally {
+        if (activeRequestId === requestId) {
+          printingsLoading.value = false;
+        }
+      }
+    }
+
+    if (activeRequestId !== requestId) {
+      return;
+    }
+
+    printings.value = nextPrintings;
+    currentPrintingIndex.value = 0;
+    setCommanderColors(colorSourceKey, nextPrintings[0]?.colors ?? []);
+  } catch (error) {
+    console.error("Unable to load commander data:", error);
+    if (activeRequestId === requestId) {
+      printings.value = [];
+      currentPrintingIndex.value = 0;
+      clearCommanderColors(colorSourceKey);
+    }
   } finally {
-    isLoading.value = false;
+    if (activeRequestId === requestId) {
+      isLoading.value = false;
+    }
   }
 };
 
 watch(
   () => props.commanderName,
   () => {
-    void loadImage();
+    void loadCommanderData();
   },
   { immediate: true }
 );

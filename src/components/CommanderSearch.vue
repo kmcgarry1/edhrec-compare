@@ -1,16 +1,18 @@
 <template>
   <div class="space-y-4">
     <div class="flex flex-col gap-1">
-      <div class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+      <div class="inline-flex items-center gap-2">
         <svg viewBox="0 0 24 24" class="h-4 w-4 text-emerald-500" fill="currentColor" aria-hidden="true">
           <path d="M12 1l3 4 4 1-3 3 .5 4.5L12 12l-4.5 1.5L8 9 5 6l4-1 3-4z" />
         </svg>
-        <span>Find commanders</span>
+        <CText tag="span" variant="body" weight="semibold">
+          Find commanders
+        </CText>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
+      <CText variant="helper" tone="muted">
         Pick a primary commander, then (optionally) add a partner to fetch the
         combined EDHREC page.
-      </p>
+      </CText>
     </div>
 
     <GlobalLoadingBanner
@@ -23,11 +25,14 @@
 
     <div class="grid gap-6 lg:grid-cols-2">
       <div class="space-y-2">
-        <label
-          class="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+        <CText
+          tag="label"
+          variant="label"
+          tone="default"
+          class="text-slate-600 dark:text-slate-300"
         >
           Primary commander
-        </label>
+        </CText>
         <div class="flex gap-2">
           <div class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400">
             <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="currentColor" aria-hidden="true">
@@ -50,12 +55,16 @@
             Clear
           </button>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
+        <CText variant="helper" tone="muted">
           Select the main deck commander.
-        </p>
-        <p v-if="primaryError" class="text-xs text-rose-600 dark:text-rose-300">
+        </CText>
+        <CText
+          v-if="primaryError"
+          variant="helper"
+          tone="danger"
+        >
           {{ primaryError }}
-        </p>
+        </CText>
         <Card
           v-if="primaryResults.length"
           as="div"
@@ -95,21 +104,27 @@
             type="checkbox"
             class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-800"
           />
-          <label
+          <CText
+            tag="label"
             for="has-partner-toggle"
-            class="text-sm text-slate-700 dark:text-slate-300 cursor-pointer"
+            variant="body"
+            tone="default"
+            class="cursor-pointer text-sm text-slate-700 dark:text-slate-300"
           >
             This commander has partner
-          </label>
+          </CText>
         </div>
       </div>
 
       <div v-show="hasPartner" class="space-y-2">
-        <label
-          class="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+        <CText
+          tag="label"
+          variant="label"
+          tone="default"
+          class="text-slate-600 dark:text-slate-300"
         >
           Partner commander (optional)
-        </label>
+        </CText>
         <div class="flex gap-2">
           <div
             class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed"
@@ -136,21 +151,23 @@
             Clear
           </button>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Optional—add a partner to build a combined decklist.
-        </p>
-        <p
+        <CText variant="helper" tone="muted">
+          Optional - add a partner to build a combined decklist.
+        </CText>
+        <CText
           v-if="partnerDisabled"
-          class="text-xs text-amber-600 dark:text-amber-300"
+          variant="helper"
+          tone="warn"
         >
           Select a primary commander before choosing a partner.
-        </p>
-        <p
+        </CText>
+        <CText
           v-else-if="partnerError"
-          class="text-xs text-rose-600 dark:text-rose-300"
+          variant="helper"
+          tone="danger"
         >
           {{ partnerError }}
-        </p>
+        </CText>
         <Card
           v-if="partnerResults.length"
           as="div"
@@ -191,11 +208,11 @@
 import { computed, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { searchCardNames } from "../api/scryfallApi";
-import { Card, GlobalLoadingBanner } from ".";
+import { Card, GlobalLoadingBanner, CommanderDisplay } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
-import { CommanderDisplay } from ".";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import { CText } from "./core";
 
 const searchScope = "commander-search";
 

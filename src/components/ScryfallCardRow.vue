@@ -74,18 +74,20 @@
           Loading preview…
         </span>
       </td>
-      <td
+      <PriceColour
+        tag="td"
+        :pill="false"
+        :price="props.card.prices?.usd ?? null"
+        currency="$"
         class="px-3 py-2 text-right font-mono text-sm rounded-lg"
-        :class="priceClass(props.card.prices?.usd)"
-      >
-        {{ formatPrice(props.card.prices?.usd, "$") }}
-      </td>
-      <td
+      />
+      <PriceColour
+        tag="td"
+        :pill="false"
+        :price="props.card.prices?.eur ?? null"
+        currency="€"
         class="px-3 py-2 text-right font-mono text-sm rounded-lg"
-        :class="priceClass(props.card.prices?.eur)"
-      >
-        {{ formatPrice(props.card.prices?.eur, "€") }}
-      </td>
+      />
     </tr>
   </template>
   <template v-else>
@@ -147,18 +149,16 @@
           </template>
         </div>
         <div class="flex items-center gap-1 font-mono">
-          <span
-            class="inline-flex rounded px-1.5 py-0.5"
-            :class="priceClass(props.card.prices?.usd)"
-          >
-            {{ formatPrice(props.card.prices?.usd, "$") }}
-          </span>
-          <span
-            class="inline-flex rounded px-1.5 py-0.5"
-            :class="priceClass(props.card.prices?.eur)"
-          >
-            {{ formatPrice(props.card.prices?.eur, "€") }}
-          </span>
+          <PriceColour
+            :price="props.card.prices?.usd ?? null"
+            currency="$"
+            class="text-[11px]"
+          />
+          <PriceColour
+            :price="props.card.prices?.eur ?? null"
+            currency="€"
+            class="text-[11px]"
+          />
         </div>
         <p
           class="text-[10px] text-slate-500 dark:text-slate-400 transition-opacity duration-150"
@@ -293,7 +293,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, computed } from "vue";
 import { getCardImage } from "../api/scryfallApi";
-import { Card } from ".";
+import { Card, PriceColour } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
@@ -507,44 +507,6 @@ const rarityClass = (rarity?: string | null) => {
     default:
       return "text-slate-600 dark:text-slate-300";
   }
-};
-
-const priceClass = (price?: string | null) => {
-  const value = Number(price);
-  if (!Number.isFinite(value)) {
-    return "bg-slate-100/60 text-slate-600 dark:bg-slate-800/40 dark:text-slate-200";
-  }
-
-  if (value <= 0.5) {
-    return "bg-cyan-100/70 text-cyan-900 dark:bg-cyan-600/30 dark:text-cyan-100";
-  }
-  if (value <= 1) {
-    return "bg-emerald-100/70 text-emerald-900 dark:bg-emerald-600/30 dark:text-emerald-100";
-  }
-  if (value <= 2.5) {
-    return "bg-lime-100/70 text-lime-900 dark:bg-lime-600/30 dark:text-lime-100";
-  }
-  if (value <= 5) {
-    return "bg-yellow-100/70 text-yellow-900 dark:bg-yellow-600/30 dark:text-yellow-100";
-  }
-  if (value <= 10) {
-    return "bg-amber-100/70 text-amber-900 dark:bg-amber-600/30 dark:text-amber-100";
-  }
-  if (value <= 20) {
-    return "bg-orange-100/70 text-orange-900 dark:bg-orange-600/30 dark:text-orange-100";
-  }
-  if (value <= 50) {
-    return "bg-red-100/70 text-red-900 dark:bg-red-600/30 dark:text-red-100";
-  }
-  return "bg-rose-200/70 text-rose-900 dark:bg-rose-600/40 dark:text-rose-100";
-};
-
-const formatPrice = (price?: string | null, currency = "$") => {
-  const value = Number(price);
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
-  return `${currency}${value.toFixed(2)}`;
 };
 
 onMounted(() => {

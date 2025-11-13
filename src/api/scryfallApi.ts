@@ -14,7 +14,7 @@ interface CardFace {
   image_uris?: CardFaceImageUris;
 }
 
-interface ScryfallCard {
+export interface ScryfallCard {
   id: string;
   name: string;
   mana_cost?: string;
@@ -23,7 +23,14 @@ interface ScryfallCard {
   oracle_text?: string;
   colors: string[];
   set: string;
+  set_name?: string;
+  collector_number?: string;
   rarity: string;
+  released_at?: string;
+  lang?: string;
+  scryfall_uri?: string;
+  prints_search_uri?: string;
+  digital?: boolean;
   image_uris?: CardFaceImageUris;
   card_faces?: CardFace[];
   prices: {
@@ -37,6 +44,12 @@ interface ScryfallCard {
 export interface ScryfallSymbol {
   symbol: string;
   svg_uri: string;
+}
+
+interface ScryfallListResponse<T> {
+  data: T[];
+  has_more: boolean;
+  next_page?: string;
 }
 
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
@@ -157,6 +170,43 @@ export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
     }));
   } catch (error) {
     console.error("Error fetching symbols from Scryfall:", error);
+    throw error;
+  }
+}
+
+const PRINTINGS_PAGE_DELAY = 150;
+const MAX_PRINTING_RESULTS = 60;
+
+export async function getCardPrintings(
+  printsSearchUri: string
+): Promise<ScryfallCard[]> {
+  try {
+    let nextPage: string | null = printsSearchUri;
+    const allPrintings: ScryfallCard[] = [];
+
+    while (nextPage) {
+      const response = await fetch(nextPage);
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status}`);
+      }
+
+      const result: ScryfallListResponse<ScryfallCard> = await response.json();
+      allPrintings.push(...result.data);
+
+      if (!result.has_more || allPrintings.length >= MAX_PRINTING_RESULTS) {
+        break;
+      }
+
+      nextPage = result.next_page ?? null;
+
+      if (nextPage) {
+        await new Promise((resolve) => setTimeout(resolve, PRINTINGS_PAGE_DELAY));
+      }
+    }
+
+    return allPrintings;
+  } catch (error) {
+    console.error("Error fetching card printings from Scryfall:", error);
     throw error;
   }
 }

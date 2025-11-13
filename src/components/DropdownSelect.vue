@@ -39,22 +39,23 @@
           </template>
         </div>
         <div class="min-w-0">
-          <p
-            class="truncate text-sm"
-            :class="
-              selectedOption
-                ? 'text-slate-700 dark:text-slate-100'
-                : 'text-slate-400 dark:text-slate-500'
-            "
+          <CText
+            tag="p"
+            class="truncate"
+            variant="body"
+            :tone="selectedOption ? 'default' : 'subtle'"
           >
             {{ selectedOption?.label ?? placeholderText }}
-          </p>
-          <p
+          </CText>
+          <CText
             v-if="selectedOption?.description"
-            class="truncate text-xs text-slate-500 dark:text-slate-400"
+            tag="p"
+            class="truncate"
+            variant="helper"
+            tone="muted"
           >
             {{ selectedOption.description }}
-          </p>
+          </CText>
         </div>
       </div>
       <svg
@@ -130,16 +131,19 @@
                     </span>
                   </template>
                 </div>
-                <span class="truncate">
+                <CText tag="span" class="truncate" tone="inherit">
                   {{ option.label }}
-                </span>
+                </CText>
               </div>
-              <p
+              <CText
                 v-if="option.description"
-                class="mt-0.5 text-xs text-slate-500 dark:text-slate-400"
+                tag="p"
+                class="mt-0.5"
+                variant="helper"
+                tone="inherit"
               >
                 {{ option.description }}
-              </p>
+              </CText>
             </div>
             <svg
               v-if="selectedIndex === index"
@@ -172,6 +176,7 @@ import {
 } from "vue";
 import type { ComponentPublicInstance } from "vue";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
+import { CText } from "./core";
 
 interface Option {
   value: string | number;
