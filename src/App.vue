@@ -6,9 +6,9 @@ import { Analytics } from "@vercel/analytics/vue";
 
 <template>
   <SpeedInsights />
+  <Analytics />
   <Dashboard />
   <GlobalNoticeStack />
-  <Analytics />
 </template>
 
 <style scoped></style>
