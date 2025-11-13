@@ -177,7 +177,7 @@ interface Option {
   value: string | number;
   label: string;
   description?: string;
-  colors?: string[];
+  colors?: ReadonlyArray<string>;
 }
 
 const props = defineProps<{
@@ -237,7 +237,7 @@ const toSymbolToken = (color: string) => {
   return `{${normalized}}`;
 };
 
-const buildColorSymbols = (colors?: string[]): ColorSymbol[] =>
+const buildColorSymbols = (colors?: ReadonlyArray<string>): ColorSymbol[] =>
   (colors ?? [])
     .map((color) => {
       const normalized = normalizeColorKey(color);
