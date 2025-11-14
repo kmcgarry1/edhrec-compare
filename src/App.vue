@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { Dashboard, GlobalNoticeStack } from "./components";
+import { Dashboard, GlobalNoticeStack, NebulaBackground } from "./components";
 import { SpeedInsights } from "@vercel/speed-insights/vue";
 import { Analytics } from "@vercel/analytics/vue";
 const environment = ref<boolean>(import.meta.env.PROD);
@@ -9,6 +9,7 @@ const environment = ref<boolean>(import.meta.env.PROD);
 <template>
   <SpeedInsights v-if="environment" />
   <Analytics v-if="environment" />
+  <NebulaBackground />
   <Dashboard />
   <GlobalNoticeStack />
 </template>

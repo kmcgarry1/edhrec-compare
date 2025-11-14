@@ -15,7 +15,7 @@
       Loading commander data...
     </Card>
     <Card
-      v-else-if="error"
+      v-if="error"
       rounded="rounded-2xl"
       shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
       border="border border-rose-200 dark:border-rose-500/30"
@@ -25,84 +25,88 @@
       Error: {{ error }}
     </Card>
 
-    <GlobalLoadingBanner
-      v-else-if="bulkCardLoading"
-      scope="scryfall-bulk"
-      inline
-      placementClass="w-full flex justify-center"
-    >
-      Loading Scryfall data...
-    </GlobalLoadingBanner>
+    <div class="min-h-[40px]">
+      <GlobalLoadingBanner
+        scope="scryfall-bulk"
+        inline
+        placementClass="w-full flex justify-center"
+      >
+        Loading Scryfall data...
+      </GlobalLoadingBanner>
+    </div>
 
     <Card
       padding="p-4 sm:p-6"
       shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
-      class="space-y-5"
+      :class="[
+        'space-y-5 transition-opacity duration-200',
+        readerLoading ? 'opacity-60' : '',
+      ]"
+      :aria-busy="readerLoading"
     >
-      <div class="space-y-2">
-        <commander-search @commanderSelected="handleCommanderSelection" />
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Start typing to search EDHREC commanders, then refine the results with
-          the filters below.
-        </p>
-      </div>
+        <div class="space-y-2">
+          <commander-search @commanderSelected="handleCommanderSelection" />
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Start typing to search EDHREC commanders, then refine the results with
+            the filters below.
+          </p>
+        </div>
 
-      <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-        <div class="space-y-1">
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-          >
-            Bracket
-          </p>
-          <dropdown-select
-            :options="bracketOptions"
-            @update:modelValue="setBracket"
-            :modelValue="chosenBracket"
-            placeholder="Select Bracket"
-          />
+        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+          <div class="space-y-1">
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              Bracket
+            </p>
+            <dropdown-select
+              :options="bracketOptions"
+              @update:modelValue="setBracket"
+              :modelValue="chosenBracket"
+              placeholder="Select Bracket"
+            />
+          </div>
+          <div class="space-y-1">
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              Budget
+            </p>
+            <dropdown-select
+              :options="modifierOptions"
+              @update:modelValue="setModifier"
+              :modelValue="chosenModifier"
+              placeholder="Select Modifier"
+            />
+          </div>
+          <div class="space-y-1">
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              Page Type
+            </p>
+            <dropdown-select
+              :options="pageTypeOptions"
+              @update:modelValue="setPageType"
+              :modelValue="chosenPageType"
+              placeholder="Select Page Type"
+            />
+          </div>
+          <div class="space-y-1">
+            <p
+              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+            >
+              Companion
+            </p>
+            <dropdown-select
+              :options="Object.values(EDHRECCompanion)"
+              @update:modelValue="setCompanion"
+              :modelValue="chosenCompanion"
+              placeholder="Select Companion"
+            />
+          </div>
         </div>
-        <div class="space-y-1">
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-          >
-            Budget
-          </p>
-          <dropdown-select
-            :options="modifierOptions"
-            @update:modelValue="setModifier"
-            :modelValue="chosenModifier"
-            placeholder="Select Modifier"
-          />
-        </div>
-        <div class="space-y-1">
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-          >
-            Page Type
-          </p>
-          <dropdown-select
-            :options="pageTypeOptions"
-            @update:modelValue="setPageType"
-            :modelValue="chosenPageType"
-            placeholder="Select Page Type"
-          />
-        </div>
-        <div class="space-y-1">
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-          >
-            Companion
-          </p>
-          <dropdown-select
-            :options="Object.values(EDHRECCompanion)"
-            @update:modelValue="setCompanion"
-            :modelValue="chosenCompanion"
-            placeholder="Select Companion"
-          />
-        </div>
-      </div>
-    </Card>
-
+      </Card>
     <Card
       v-for="(cardlist, index) in cardlists"
       :key="cardlist.header"
@@ -277,7 +281,6 @@ const { withLoading, getScopeLoading } = useGlobalLoading();
 const readerScope = "edhrec-reader";
 const bulkCardScope = "scryfall-bulk";
 const readerLoading = getScopeLoading(readerScope);
-const bulkCardLoading = getScopeLoading(bulkCardScope);
 
 const fetchJsonData = async (url: string) => {
   error.value = null;
