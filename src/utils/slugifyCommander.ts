@@ -2,7 +2,7 @@ const normalize = (value: string) =>
   value
     .toLowerCase()
     .trim()
-    .replace(/['’]/g, "")
+    .replace(/[\u2018\u2019'??T]/g, "")
     .replace(/&/g, "and")
     .replace(/[\s,]+/g, "-")
     .replace(/-+/g, "-")
