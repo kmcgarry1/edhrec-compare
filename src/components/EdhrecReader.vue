@@ -658,7 +658,7 @@ const scryfallIndex = computed(() => {
       map.set(normalizedFullName, card);
     }
 
-    card.card_faces?.forEach((face) => {
+    card.card_faces?.forEach((face: any) => {
       const normalizedFaceName = normalizeCardName(face.name);
       if (normalizedFaceName && !map.has(normalizedFaceName)) {
         map.set(normalizedFaceName, card);
