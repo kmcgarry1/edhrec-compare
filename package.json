@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vue-tsc -b && vite build",
+    "build:analyze": "vue-tsc -b && cross-env ANALYZE=true vite build",
+    "bundle:analyze": "cross-env ANALYZE=true vite build",
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:unit": "vitest",
@@ -15,6 +17,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --fix",
     "format": "prettier --write .",
+    "size": "size-limit",
     "prepare": "husky"
   },
   "dependencies": {
@@ -26,16 +29,17 @@
     "vue": "^3.5.24"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.0",
     "@typescript-eslint/eslint-plugin": "^8.47.0",
     "@typescript-eslint/parser": "^8.47.0",
-    "@eslint/eslintrc": "^3.3.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-v8": "^4.0.12",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.22",
+    "cross-env": "^7.0.3",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^9.30.0",
@@ -44,6 +48,9 @@
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.49",
     "prettier": "^3.6.2",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "@size-limit/preset-app": "^11.2.0",
+    "size-limit": "^11.2.0",
     "tailwindcss": "^3.4.13",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.2.2",
@@ -61,5 +68,17 @@
     "*.{cjs,mjs,json,md,css,scss,html,yml,yaml}": [
       "prettier --write"
     ]
-  }
+  },
+  "size-limit": [
+    {
+      "path": "dist/assets/index-*.js",
+      "limit": "200 KB",
+      "gzip": true
+    },
+    {
+      "path": "dist/assets/index-*.css",
+      "limit": "50 KB",
+      "gzip": true
+    }
+  ]
 }
