@@ -297,31 +297,8 @@ import { Card, PriceColour } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import type { DisplayCard } from "../types/cards";
 const cardImageCache = new Map<string, string>();
-
-type CardFaceSummary = {
-  name: string;
-  mana_cost?: string;
-  type_line?: string;
-};
-
-type CardPriceSummary = {
-  usd: string | null;
-  eur: string | null;
-};
-
-type DisplayCard = {
-  id: string;
-  name: string;
-  mana_cost?: string;
-  type_line?: string;
-  power?: string | null;
-  toughness?: string | null;
-  set?: string;
-  rarity?: string;
-  prices?: CardPriceSummary;
-  faces?: CardFaceSummary[];
-};
 
 const props = defineProps<{
   card: DisplayCard;

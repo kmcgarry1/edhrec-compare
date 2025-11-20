@@ -84,6 +84,8 @@ import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import type { CardTableRow } from "../types/cards";
+import type { ColumnDefinition } from "./CardTable.vue";
 
 interface EdhrecData {
   container?: {
@@ -522,14 +524,7 @@ const scryfallIndex = computed(() => {
   return map;
 });
 
-type TableColumn = {
-  key: string;
-  label: string;
-  align?: "left" | "center" | "right";
-  class?: string;
-};
-
-const cardTableColumns: TableColumn[] = [
+const cardTableColumns: ColumnDefinition[] = [
   { key: "owned", label: "Owned", align: "center", class: "w-14" },
   { key: "name", label: "Card" },
   { key: "mana", label: "Mana", class: "w-28" },
@@ -565,29 +560,6 @@ const fetchAllCardData = async () => {
 
 watch(allCards, fetchAllCardData, { immediate: true });
 
-type CardTableRow = {
-  id: string;
-  have: boolean;
-  card: {
-    id: string;
-    name: string;
-    mana_cost: string;
-    type_line: string;
-    power: string | null;
-    toughness: string | null;
-    set: string;
-    rarity: string;
-    prices: { usd: string | null; eur: string | null };
-    faces?:
-      | {
-          name: string;
-          mana_cost?: string;
-          type_line?: string;
-        }[]
-      | undefined;
-  };
-};
-
 const getTableRows = (cardlist: {
   header: string;
   cardviews: { id: string; name: string }[];
@@ -615,10 +587,11 @@ const getTableRows = (cardlist: {
         toughness: statsSource?.toughness ?? null,
         set: info?.set ?? "",
         rarity: info?.rarity ?? "",
-        prices: info?.prices ?? {
-          usd: null,
-          eur: null,
+        prices: {
+          usd: info?.prices?.usd ?? null,
+          eur: info?.prices?.eur ?? null,
         },
+        scryfall_uri: info?.scryfall_uri,
         faces:
           faces.length > 1
             ? faces.map((face) => ({

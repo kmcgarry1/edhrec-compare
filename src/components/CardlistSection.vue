@@ -51,7 +51,10 @@
     <div class="hidden md:block">
       <CardTable :columns="columns" :rows="rows" row-key="id" aria-live="polite">
         <template #default="{ row }">
-          <ScryfallCardRow :card="row.card" :have="Boolean(row.have)" />
+          <ScryfallCardRow
+            :card="(row as CardTableRow).card"
+            :have="Boolean((row as CardTableRow).have)"
+          />
         </template>
       </CardTable>
     </div>
@@ -71,12 +74,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Card, CardTable, ScryfallCardRow } from ".";
-
-type CardRow = {
-  id: string;
-  have: boolean;
-  card: Record<string, unknown>;
-};
+import type { CardTableRow } from "../types/cards";
+import type { ColumnDefinition } from "./CardTable.vue";
 
 type SectionMeta = {
   id: string;
@@ -88,8 +87,8 @@ type SectionMeta = {
 const props = defineProps<{
   cardlist: { header: string; cardviews: { id: string; name: string }[] };
   sectionMeta: SectionMeta;
-  rows: CardRow[];
-  columns: Array<Record<string, unknown>>;
+  rows: CardTableRow[];
+  columns: ColumnDefinition[];
   decklistText: string;
   copiedSectionId: string | null;
 }>();

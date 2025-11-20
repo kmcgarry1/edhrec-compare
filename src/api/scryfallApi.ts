@@ -22,6 +22,8 @@ export interface ScryfallCard {
   type_line: string;
   oracle_text?: string;
   colors: string[];
+  power?: string;
+  toughness?: string;
   set: string;
   set_name?: string;
   collector_number?: string;
@@ -34,10 +36,10 @@ export interface ScryfallCard {
   image_uris?: CardFaceImageUris;
   card_faces?: CardFace[];
   prices: {
-    usd?: string;
-    usd_foil?: string;
-    eur?: string;
-    eur_foil?: string;
+    usd: string | null;
+    usd_foil?: string | null;
+    eur: string | null;
+    eur_foil?: string | null;
   };
 }
 
