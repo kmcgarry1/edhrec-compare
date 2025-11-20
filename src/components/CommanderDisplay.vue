@@ -22,8 +22,8 @@
           {{ commanderName || "Commander pending" }}
         </CText>
         <div
-          class="mt-4 space-y-3 rounded-2xl border border-slate-200/60 bg-white/50 p-3 text-sm text-slate-600 shadow-inner shadow-white/50 dark:border-slate-800/70 dark:bg-slate-900/40 dark:text-slate-300"
           v-if="currentPrinting"
+          class="mt-4 space-y-3 rounded-2xl border border-slate-200/60 bg-white/50 p-3 text-sm text-slate-600 shadow-inner shadow-white/50 dark:border-slate-800/70 dark:bg-slate-900/40 dark:text-slate-300"
         >
           <div class="grid gap-2 sm:grid-rows-3 lg:grid-rows-3">
             <div class="min-w-[100px] space-y-1">
@@ -96,8 +96,8 @@
             </div>
           </div>
           <div
-            class="flex flex-wrap items-center gap-3 pt-2"
             v-if="printingsLoading"
+            class="flex flex-wrap items-center gap-3 pt-2"
           >
             <CText variant="helper" tone="muted">
               Loading other printings...

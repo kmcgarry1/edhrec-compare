@@ -76,19 +76,19 @@
           class="max-h-64 overflow-y-auto"
           aria-live="polite"
         >
-          <ul class="divide-y divide-slate-200 dark:divide-slate-800/70">
-            <li
-              v-for="option in primaryResults"
-              :key="option.id"
-              tabindex="0"
-              @click="handleSelection('primary', option.name)"
-              @keydown.enter="handleSelection('primary', option.name)"
-              @keydown.space.prevent="handleSelection('primary', option.name)"
-              class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
-            >
-              {{ option.name }}
-            </li>
-          </ul>
+      <ul class="divide-y divide-slate-200 dark:divide-slate-800/70">
+        <li
+          v-for="option in primaryResults"
+          :key="option.id"
+          tabindex="0"
+          class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
+          @click="handleSelection('primary', option.name)"
+          @keydown.enter="handleSelection('primary', option.name)"
+          @keydown.space.prevent="handleSelection('primary', option.name)"
+        >
+          {{ option.name }}
+        </li>
+      </ul>
         </Card>
         <CommanderDisplay
           v-if="primarySelection"
@@ -180,18 +180,18 @@
           aria-live="polite"
         >
           <ul class="divide-y divide-slate-200 dark:divide-slate-800/70">
-            <li
-              v-for="option in partnerResults"
-              :key="option.id"
-              tabindex="0"
-              @click="handleSelection('partner', option.name)"
-              @keydown.enter="handleSelection('partner', option.name)"
-              @keydown.space.prevent="handleSelection('partner', option.name)"
-              class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
-            >
-              {{ option.name }}
-            </li>
-          </ul>
+          <li
+            v-for="option in partnerResults"
+            :key="option.id"
+            tabindex="0"
+            class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
+            @click="handleSelection('partner', option.name)"
+            @keydown.enter="handleSelection('partner', option.name)"
+            @keydown.space.prevent="handleSelection('partner', option.name)"
+          >
+            {{ option.name }}
+          </li>
+        </ul>
         </Card>
         <CommanderDisplay
           v-if="partnerSelection"

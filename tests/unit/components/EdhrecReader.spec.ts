@@ -1,8 +1,6 @@
-/* eslint-disable vue/one-component-per-file */
-
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
-import { ref, defineComponent, h } from "vue";
+import { ref } from "vue";
 import EdhrecReader from "../../../src/components/EdhrecReader.vue";
 
 const downloadTextFile = vi.hoisted(() => vi.fn());
@@ -61,54 +59,6 @@ vi.mock("../../../src/api/scryfallApi", () => ({
   getCardsByNames,
 }));
 
-const CardTableStub = defineComponent({
-  name: "CardTableStub",
-  props: {
-    columns: {
-      type: Array as () => Array<Record<string, unknown>>,
-      default: () => [],
-    },
-    rows: {
-      type: Array as () => Array<Record<string, unknown>>,
-      default: () => [],
-    },
-    rowKey: {
-      type: [String, Function] as () => string | ((row: unknown, index: number) => string),
-      default: "id",
-    },
-  },
-  setup(props, { slots }) {
-    return () =>
-      h(
-        "div",
-        { class: "table-stub" },
-        props.rows.map((row, index) =>
-          slots.default ? slots.default({ row, index }) : null
-        )
-      );
-  },
-});
-
-const DropdownSelectStub = defineComponent({
-  name: "DropdownSelectStub",
-  props: {
-    options: {
-      type: Array as () => Array<Record<string, unknown>>,
-      default: () => [],
-    },
-    modelValue: {
-      type: [String, Number] as () => string | number | null,
-      default: "",
-    },
-    placeholder: {
-      type: String,
-      default: "",
-    },
-  },
-  emits: ["update:modelValue"],
-  template: "<div class='dropdown-stub'><slot /></div>",
-});
-
 type CommandSelectionHandler = {
   handleCommanderSelection: (slug: string) => Promise<void>;
   handleDownloadDecklist: (
@@ -122,16 +72,11 @@ const mountComponent = () =>
     global: {
       stubs: {
         Card: { template: "<div class='card-stub'><slot /></div>" },
-        CardTable: CardTableStub,
-        CommanderSearch: {
-          template: "<div class='search-stub'></div>",
-        },
+        CommanderSearch: { template: "<div class='search-stub'></div>" },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
-        ScryfallCardRow: { template: "<div class='row-stub'></div>" },
-        DropdownSelect: DropdownSelectStub,
-        FloatingCardlistNav: {
-          template: "<nav class='nav-stub'></nav>",
-        },
+        CardlistSection: { template: "<div class='cardlist-section-stub'></div>" },
+        CommanderFilters: { template: "<div class='filters-stub'></div>" },
+        FloatingCardlistNav: { template: "<nav class='nav-stub'></nav>" },
       },
     },
   });
@@ -168,12 +113,10 @@ describe("EdhrecReader", () => {
     getCardsByNames.mockClear();
     csvRows.value = [];
     csvHeaders.value = ["Name"];
-    (globalThis.fetch as unknown) = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockResponse),
-      } as Response);
+    (globalThis.fetch as unknown) = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResponse),
+    } as Response);
   });
 
   it("fetches EDHREC data when a commander is selected", async () => {

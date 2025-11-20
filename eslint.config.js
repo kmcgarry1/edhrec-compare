@@ -1,56 +1,80 @@
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
+import globals from "globals";
+import vuePlugin from "eslint-plugin-vue";
+import tsParser from "@typescript-eslint/parser";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import vueParser from "vue-eslint-parser";
+import eslintConfigPrettier from "eslint-config-prettier";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const commonRules = {
+  "@typescript-eslint/no-unused-vars": [
+    "warn",
+    { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+  ],
+  "no-undef": "off",
+  "no-redeclare": "off",
+};
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+const sharedLanguageOptions = {
+  ecmaVersion: "latest",
+  sourceType: "module",
+  globals: {
+    ...globals.browser,
+    ...globals.node,
+  },
+};
 
 export default [
-  ...compat.config({
-    root: true,
-    env: {
-      browser: true,
-      es2024: true,
-      node: true,
-    },
-    extends: [
-      "eslint:recommended",
-      "plugin:vue/vue3-recommended",
-      "plugin:@typescript-eslint/recommended",
-      "prettier",
+  {
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "playwright-report/**",
+      "test-results/**",
+      "node_modules/**",
     ],
-    parser: "vue-eslint-parser",
-    parserOptions: {
-      parser: "@typescript-eslint/parser",
-      ecmaVersion: "latest",
-      sourceType: "module",
-      extraFileExtensions: [".vue"],
+  },
+  {
+    files: ["**/*.vue"],
+    languageOptions: {
+      ...sharedLanguageOptions,
+      parser: vueParser,
+      parserOptions: {
+        parser: {
+          ts: tsParser,
+        },
+        ecmaVersion: "latest",
+        sourceType: "module",
+        extraFileExtensions: [".vue"],
+      },
+    },
+    plugins: {
+      vue: vuePlugin,
+      "@typescript-eslint": tsPlugin,
     },
     rules: {
+      ...js.configs.recommended.rules,
+      ...vuePlugin.configs["vue3-recommended"].rules,
+      ...tsPlugin.configs.recommended.rules,
       "vue/multi-word-component-names": "off",
       "vue/script-setup-uses-vars": "error",
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-      ],
+      ...commonRules,
     },
-    overrides: [
-      {
-        files: ["*.cjs"],
-        env: {
-          node: true,
-        },
-        parserOptions: {
-          sourceType: "script",
-        },
-      },
-    ],
-  }),
+  },
+  {
+    files: ["**/*.{ts,tsx,js,jsx,cjs,mjs}"],
+    languageOptions: {
+      ...sharedLanguageOptions,
+      parser: tsParser,
+    },
+    plugins: {
+      "@typescript-eslint": tsPlugin,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      ...tsPlugin.configs.recommended.rules,
+      ...commonRules,
+    },
+  },
+  eslintConfigPrettier,
 ];
