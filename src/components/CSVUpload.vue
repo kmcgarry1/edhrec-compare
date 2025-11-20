@@ -13,17 +13,9 @@
       @dragover.prevent
       @dragenter.prevent
     >
-      <input
-        ref="fileInput"
-        type="file"
-        accept=".csv"
-        class="sr-only"
-        @change="handleFileSelect"
-      />
+      <input ref="fileInput" type="file" accept=".csv" class="sr-only" @change="handleFileSelect" />
       <div v-if="!file" class="space-y-2">
-        <p class="text-lg font-semibold text-slate-900 dark:text-white">
-          Upload your collection
-        </p>
+        <p class="text-lg font-semibold text-slate-900 dark:text-white">Upload your collection</p>
         <p class="text-sm text-slate-500 dark:text-slate-400">
           Drag and drop or click to browse files. CSV only.
         </p>
@@ -46,8 +38,8 @@
         </div>
         <button
           type="button"
-          @click.stop="removeFile"
           class="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-600 dark:text-slate-200 dark:hover:text-rose-200"
+          @click.stop="removeFile"
         >
           Remove
         </button>
@@ -58,22 +50,24 @@
       v-if="csvLoading"
       scope="csv-upload"
       inline
-      placementClass="w-full text-center text-sm"
+      placement-class="upload-progress w-full text-center text-sm"
     >
       Processing CSV data...
     </GlobalLoadingBanner>
 
+    <p
+      v-if="errorMessage"
+      class="rounded-2xl border border-rose-200/70 bg-rose-50/70 px-4 py-2 text-sm font-medium text-rose-700 shadow-sm shadow-rose-100 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
+    >
+      {{ errorMessage }}
+    </p>
+
     <div class="flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400">
-      <p>
-        Your deck data stays in this browser session only and clears
-        automatically on refresh.
-      </p>
+      <p>Your deck data stays in this browser session only and clears automatically on refresh.</p>
       <div
         class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-emerald-300/60 px-3 py-2 text-[0.75rem] text-slate-600 dark:border-emerald-400/40 dark:text-slate-300"
       >
-        <span class="font-semibold text-emerald-600 dark:text-emerald-300">
-          Don't have one?
-        </span>
+        <span class="font-semibold text-emerald-600 dark:text-emerald-300"> Don't have one? </span>
         <button
           type="button"
           class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
@@ -95,19 +89,15 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { Card, GlobalLoadingBanner } from ".";
+import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
-const {
-  rows: csvRows,
-  headers: csvHeaders,
-  setCsvData,
-  clearCsvData,
-} = useCsvUpload();
+const errorMessage = ref<string | null>(null);
+const { rows: csvRows, headers: csvHeaders, setCsvData, clearCsvData } = useCsvUpload();
 const csvScope = "csv-upload";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
@@ -116,16 +106,32 @@ const { notifyError, notifySuccess } = useGlobalNotices();
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
+  "file-uploaded": [data: string[][], headers: string[]];
 }>();
 
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
+const invalidFileMessage = "Please select a valid CSV file";
+
+const isCsvFile = (candidate: File) =>
+  candidate.type === "text/csv" || candidate.name.toLowerCase().endsWith(".csv");
+
+const markInvalidFile = () => {
+  errorMessage.value = invalidFileMessage;
+  notifyError(invalidFileMessage);
+};
+
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const selectedFile = target.files?.[0];
   if (selectedFile) {
+    if (!isCsvFile(selectedFile)) {
+      markInvalidFile();
+      target.value = "";
+      return;
+    }
     processFile(selectedFile);
   }
 };
@@ -133,16 +139,19 @@ const handleFileSelect = (event: Event) => {
 const handleDrop = (event: DragEvent) => {
   event.preventDefault();
   const droppedFile = event.dataTransfer?.files[0];
-  if (
-    droppedFile &&
-    (droppedFile.type === "text/csv" ||
-      droppedFile.name.toLowerCase().endsWith(".csv"))
-  ) {
+  if (!droppedFile) {
+    return;
+  }
+
+  if (isCsvFile(droppedFile)) {
     processFile(droppedFile);
+  } else {
+    markInvalidFile();
   }
 };
 
 const processFile = (selectedFile: File) => {
+  errorMessage.value = null;
   file.value = selectedFile;
   void withLoading(
     () =>
@@ -172,6 +181,7 @@ const parseCSV = (csv: string) => {
   if (data.length > 1 && data[0]) {
     setCsvData(data.slice(1), data[0]);
     emit("upload", csvRows.value, csvHeaders.value);
+    emit("file-uploaded", csvRows.value, csvHeaders.value);
     notifySuccess("CSV loaded successfully.");
   } else {
     notifyError("That CSV doesn't appear to contain any card rows.");
@@ -244,6 +254,7 @@ const parseCSVContent = (csv: string): string[][] => {
 
 const removeFile = () => {
   file.value = null;
+  errorMessage.value = null;
   clearCsvData();
   if (fileInput.value) {
     fileInput.value.value = "";
@@ -274,4 +285,16 @@ const loadSampleInventory = async () => {
     notifyError("Unable to load the sample inventory. Please try again.");
   }
 };
+
+const __templateBindings = {
+  Card,
+  GlobalLoadingBanner,
+  csvLoading,
+  triggerFileInput,
+  handleFileSelect,
+  handleDrop,
+  removeFile,
+  loadSampleInventory,
+};
+void __templateBindings;
 </script>
