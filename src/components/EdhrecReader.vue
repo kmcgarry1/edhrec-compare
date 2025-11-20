@@ -24,16 +24,12 @@
     >
       Error: {{ error }}
     </Card>
-
-    <div class="min-h-[40px]">
-      <GlobalLoadingBanner
-        scope="scryfall-bulk"
-        inline
-        placementClass="w-full flex justify-center"
-      >
-        Loading Scryfall data...
-      </GlobalLoadingBanner>
-    </div>
+    <GlobalLoadingBanner
+      scope="scryfall-bulk"
+      placementClass="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
+    >
+      Loading Scryfall data...
+    </GlobalLoadingBanner>
 
     <Card
       padding="p-4 sm:p-6"
@@ -425,21 +421,49 @@ const uploadedNameIndex = computed(() => {
   return idx >= 0 ? idx : 0;
 });
 
-const normalizeCardName = (value: string) => value.trim().toLowerCase();
+const normalizeCardName = (value: string) =>
+  value
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+
+const cardNameVariants = (value: string) => {
+  if (!value) {
+    return [] as string[];
+  }
+  const variants = new Set<string>();
+  const normalizedFull = normalizeCardName(value);
+  if (normalizedFull) {
+    variants.add(normalizedFull);
+  }
+
+  value
+    .split("//")
+    .map((part) => normalizeCardName(part))
+    .filter((part) => part.length > 0)
+    .forEach((part) => variants.add(part));
+
+  return Array.from(variants);
+};
 
 const uploadedCardNameSet = computed(() => {
+  const set = new Set<string>();
   if (!uploadedRows.value.length) {
-    return new Set<string>();
+    return set;
   }
 
   const idx = uploadedNameIndex.value;
 
-  return new Set(
-    uploadedRows.value
-      .map((row) => row[idx] ?? row[0] ?? "")
-      .map((value) => normalizeCardName(value))
-      .filter((value) => value.length > 0)
-  );
+  uploadedRows.value.forEach((row) => {
+    const raw = row[idx] ?? row[0] ?? "";
+    cardNameVariants(raw).forEach((variant) => {
+      if (variant.length > 0) {
+        set.add(variant);
+      }
+    });
+  });
+
+  return set;
 });
 
 const isCardInUpload = (cardName: string) => {
@@ -447,7 +471,9 @@ const isCardInUpload = (cardName: string) => {
     return false;
   }
 
-  return uploadedCardNameSet.value.has(normalizeCardName(cardName));
+  return cardNameVariants(cardName).some((variant) =>
+    uploadedCardNameSet.value.has(variant)
+  );
 };
 
 const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
@@ -627,7 +653,17 @@ const scryfallCardData = ref<any[]>([]);
 const scryfallIndex = computed(() => {
   const map = new Map<string, any>();
   scryfallCardData.value.forEach((card) => {
-    map.set(normalizeCardName(card.name), card);
+    const normalizedFullName = normalizeCardName(card.name);
+    if (normalizedFullName) {
+      map.set(normalizedFullName, card);
+    }
+
+    card.card_faces?.forEach((face) => {
+      const normalizedFaceName = normalizeCardName(face.name);
+      if (normalizedFaceName && !map.has(normalizedFaceName)) {
+        map.set(normalizedFaceName, card);
+      }
+    });
   });
   return map;
 });

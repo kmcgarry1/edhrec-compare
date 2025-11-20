@@ -52,11 +52,22 @@ interface ScryfallListResponse<T> {
   next_page?: string;
 }
 
+function sanitizeCardName(cardName: string): string {
+  const trimmedName = cardName.trim();
+  if (!trimmedName.includes("//")) {
+    return trimmedName;
+  }
+
+  const [frontFace] = trimmedName.split("//");
+  return frontFace.trim() || trimmedName;
+}
+
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
   try {
+    const sanitizedName = sanitizeCardName(cardName);
     const response = await fetch(
       `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
-        cardName
+        sanitizedName
       )}`
     );
 
@@ -93,9 +104,15 @@ export async function getCardImage(cardName: string): Promise<string | null> {
 
 export async function searchCardNames(partialName: string): Promise<string[]> {
   try {
+    const trimmed = partialName.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    const searchTerm = sanitizeCardName(trimmed) || trimmed;
     const response = await fetch(
       `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
-        `name:${partialName} is:commander`
+        `name:${searchTerm} is:commander`
       )}`
     );
 
@@ -107,7 +124,22 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
     }
 
     const result = await response.json();
-    return result.data?.map((card: ScryfallCard) => card.name) || [];
+    const seen = new Set<string>();
+
+    return (
+      result.data
+        ?.map(
+          (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
+        )
+        .filter((name: string) => {
+          const normalized = name.trim().toLowerCase();
+          if (!normalized || seen.has(normalized)) {
+            return false;
+          }
+          seen.add(normalized);
+          return true;
+        }) || []
+    );
   } catch (error) {
     console.error("Error searching card names from Scryfall:", error);
     return [];
@@ -132,7 +164,9 @@ export async function getCardsByNames(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            identifiers: batch.map((nameObj) => ({ name: nameObj.name })),
+            identifiers: batch.map((nameObj) => ({
+              name: sanitizeCardName(nameObj.name),
+            })),
           }),
         }
       );
