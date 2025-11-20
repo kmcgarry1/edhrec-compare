@@ -83,7 +83,14 @@
               class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-500 shadow-sm transition hover:border-slate-400 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300"
               @click="collapseHeader"
             >
-              <span class="text-xs" aria-hidden="true">✕</span>
+              <svg
+                viewBox="0 0 24 24"
+                class="h-4 w-4"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path :d="mdiClose" />
+              </svg>
               <span class="hidden sm:inline">Hide</span>
             </button>
             <button
@@ -101,6 +108,22 @@
                 <path :d="theme === 'dark' ? mdiSunCompass : mdiMoonWaningCrescent" />
               </svg>
               <span>{{ theme === "dark" ? "Light" : "Dark" }}</span>
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
+              :aria-pressed="backgroundEnabled"
+              @click="toggleBackground"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                class="h-4 w-4"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path :d="backgroundEnabled ? mdiPalette : mdiPaletteOutline" />
+              </svg>
+              <span>{{ backgroundEnabled ? "Hide BG" : "Show BG" }}</span>
             </button>
             <button
               type="button"
@@ -281,6 +304,7 @@ import { useTheme } from "../composables/useTheme";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { useCsvUpload } from "../composables/useCsvUpload";
+import { useBackgroundPreference } from "../composables/useBackgroundPreference";
 import {
   mdiUploadOutline,
   mdiMoonWaningCrescent,
@@ -290,6 +314,9 @@ import {
   mdiCardsOutline,
   mdiCheckDecagram,
   mdiBookmarkOffOutline,
+  mdiPalette,
+  mdiPaletteOutline,
+  mdiClose,
 } from "@mdi/js";
 
 type DecklistPayload = {
@@ -299,6 +326,7 @@ type DecklistPayload = {
 };
 
 const { theme, toggleTheme } = useTheme();
+const { backgroundEnabled, toggleBackground } = useBackgroundPreference();
 const { rows: csvRows } = useCsvUpload();
 const hasCsvData = computed(() => csvRows.value.length > 0);
 const { showOwned, setOwnedFilter } = useOwnedFilter();
