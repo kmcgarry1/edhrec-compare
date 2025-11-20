@@ -22,6 +22,8 @@ export interface ScryfallCard {
   type_line: string;
   oracle_text?: string;
   colors: string[];
+  power?: string;
+  toughness?: string;
   set: string;
   set_name?: string;
   collector_number?: string;
@@ -34,10 +36,10 @@ export interface ScryfallCard {
   image_uris?: CardFaceImageUris;
   card_faces?: CardFace[];
   prices: {
-    usd?: string;
-    usd_foil?: string;
-    eur?: string;
-    eur_foil?: string;
+    usd: string | null;
+    usd_foil?: string | null;
+    eur: string | null;
+    eur_foil?: string | null;
   };
 }
 
@@ -198,9 +200,11 @@ export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
       throw new Error(`Scryfall API error: ${response.status}`);
     }
     const result = await response.json();
-    return result.data.map((symbol: any) => ({
-      symbol: symbol.symbol,
-      svg_uri: symbol.svg_uri,
+    const symbols =
+      (result.data as Array<{ symbol: string; svg_uri: string }>) ?? [];
+    return symbols.map(({ symbol, svg_uri }) => ({
+      symbol,
+      svg_uri,
     }));
   } catch (error) {
     console.error("Error fetching symbols from Scryfall:", error);

@@ -53,7 +53,7 @@ describe("CommanderSearch", () => {
     ).handleSelection("primary", "Atraxa, Grand Unifier");
     await flushPromises();
 
-    expect(wrapper.emitted("commanderSelected")?.[0][0]).toBe("atraxa-grand-unifier");
+    expect(wrapper.emitted("commander-selected")?.[0][0]).toBe("atraxa-grand-unifier");
   });
 
   it("combines partner selection into slug", async () => {
@@ -67,7 +67,7 @@ describe("CommanderSearch", () => {
     await flushPromises();
 
     // partner + primary should be sorted alphabetically
-    expect(wrapper.emitted("commanderSelected")?.pop()?.[0]).toBe(
+    expect(wrapper.emitted("commander-selected")?.pop()?.[0]).toBe(
       "rograkh-son-of-rohgahh-silas-renn-seeker-adept"
     );
   });
@@ -88,6 +88,6 @@ describe("CommanderSearch", () => {
     ).clearSelection("primary");
     await flushPromises();
 
-    expect(wrapper.emitted("commanderSelected")?.pop()?.[0]).toBe("");
+    expect(wrapper.emitted("commander-selected")?.pop()?.[0]).toBe("");
   });
 });

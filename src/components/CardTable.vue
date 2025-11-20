@@ -58,12 +58,12 @@
 <script setup lang="ts">
 type Alignment = "left" | "center" | "right";
 
-interface ColumnDefinition {
+export type ColumnDefinition = {
   key: string;
   label: string;
   align?: Alignment;
   class?: string;
-}
+};
 
 const props = withDefaults(
   defineProps<{

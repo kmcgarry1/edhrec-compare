@@ -92,6 +92,8 @@
   </template>
   <template v-else>
     <div
+      role="button"
+      tabindex="0"
       class="flex items-center gap-2 border border-slate-200/70 bg-white px-3 py-2 text-xs dark:border-slate-800 dark:bg-slate-900/70"
       :class="props.have ? 'ring-1 ring-emerald-400/60' : ''"
       @mouseenter="handleCardHover(props.card.name, $event)"
@@ -102,8 +104,6 @@
       @pointerleave="handlePointerLeave"
       @pointercancel="handlePointerLeave"
       @click="handleMobileRowClick"
-      role="button"
-      tabindex="0"
     >
       <input
         type="checkbox"
@@ -297,10 +297,11 @@ import { Card, PriceColour } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import type { DisplayCard } from "../types/cards";
 const cardImageCache = new Map<string, string>();
 
 const props = defineProps<{
-  card: any;
+  card: DisplayCard;
   have?: boolean;
   variant?: "table" | "card";
 }>();
@@ -316,7 +317,7 @@ const isFullscreenPreview = ref(false);
 const isMobileModalOpen = ref(false);
 const modalImageUrl = ref<string | null>(null);
 const modalLoading = ref(false);
-const modalCard = ref<any | null>(null);
+const modalCard = ref<DisplayCard | null>(null);
 let hoverLoadTimeout: ReturnType<typeof setTimeout> | null = null;
 const TAP_MOVE_THRESHOLD = 12;
 const HOVER_LOAD_DELAY = 150;

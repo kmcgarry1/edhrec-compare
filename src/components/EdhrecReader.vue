@@ -7,14 +7,6 @@
       @navigate="scrollToSection"
     />
     <Card
-      v-if="readerLoading"
-      rounded="rounded-2xl"
-      shadow="shadow-lg shadow-slate-900/5 dark:shadow-black/40"
-      class="text-sm text-slate-500 dark:text-slate-400"
-    >
-      Loading commander data...
-    </Card>
-    <Card
       v-if="error"
       rounded="rounded-2xl"
       shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
@@ -26,7 +18,7 @@
     </Card>
     <GlobalLoadingBanner
       scope="scryfall-bulk"
-      placementClass="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
+      placement-class="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
     >
       Loading Scryfall data...
     </GlobalLoadingBanner>
@@ -34,171 +26,44 @@
     <Card
       padding="p-4 sm:p-6"
       shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
-      :class="[
-        'space-y-5 transition-opacity duration-200',
-        readerLoading ? 'opacity-60' : '',
-      ]"
+      :class="['space-y-5 transition-opacity duration-200', readerLoading ? 'opacity-60' : '']"
       :aria-busy="readerLoading"
     >
-        <div class="space-y-2">
-          <commander-search @commanderSelected="handleCommanderSelection" />
-          <p class="text-xs text-slate-500 dark:text-slate-400">
-            Start typing to search EDHREC commanders, then refine the results with
-            the filters below.
-          </p>
-        </div>
-
-        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-          <div class="space-y-1">
-            <p
-              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-            >
-              Bracket
-            </p>
-            <dropdown-select
-              :options="bracketOptions"
-              @update:modelValue="setBracket"
-              :modelValue="chosenBracket"
-              placeholder="Select Bracket"
-            />
-          </div>
-          <div class="space-y-1">
-            <p
-              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-            >
-              Budget
-            </p>
-            <dropdown-select
-              :options="modifierOptions"
-              @update:modelValue="setModifier"
-              :modelValue="chosenModifier"
-              placeholder="Select Modifier"
-            />
-          </div>
-          <div class="space-y-1">
-            <p
-              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-            >
-              Page Type
-            </p>
-            <dropdown-select
-              :options="pageTypeOptions"
-              @update:modelValue="setPageType"
-              :modelValue="chosenPageType"
-              placeholder="Select Page Type"
-            />
-          </div>
-          <div class="space-y-1">
-            <p
-              class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
-            >
-              Companion
-            </p>
-            <dropdown-select
-              :options="Object.values(EDHRECCompanion)"
-              @update:modelValue="setCompanion"
-              :modelValue="chosenCompanion"
-              placeholder="Select Companion"
-            />
-          </div>
-        </div>
-      </Card>
-    <Card
-      v-for="(cardlist, index) in cardlists"
-      :key="cardlist.header"
-      as="article"
-      class="space-y-6"
-      padding="p-4 sm:p-6"
-      background="bg-white/95 dark:bg-slate-900/60"
-      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
-      :id="cardlistSections[index]?.id"
-    >
-      <header
-        class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-      >
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-3">
-            <svg
-              v-if="cardlistSections[index]?.iconPath"
-              viewBox="0 0 24 24"
-              class="h-7 w-7 rounded-2xl bg-slate-100 p-1 text-emerald-600 dark:bg-slate-800"
-              :style="{
-                color: cardlistSections[index]?.iconColor || undefined,
-              }"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path :d="cardlistSections[index]?.iconPath" />
-            </svg>
-            <p
-              class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500/80 dark:text-emerald-300/70"
-            >
-              EDHREC Cardlist
-            </p>
-          </div>
-          <h2 class="text-2xl font-semibold text-slate-900 dark:text-white">
-            {{ cardlist.header }}
-          </h2>
-        </div>
-        <div class="flex flex-wrap gap-2 text-xs font-semibold">
-          <button
-            type="button"
-            class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-300"
-            :disabled="!cardlistDecklists[index]?.length"
-            @click="handleCopyDecklist(cardlist, index)"
-          >
-            {{
-              decklistCopySectionId === cardlistSections[index]?.id
-                ? "Copied!"
-                : "Copy for Archidekt/Moxfield"
-            }}
-          </button>
-          <button
-            type="button"
-            class="inline-flex items-center gap-2 rounded-full border border-emerald-400 px-3 py-1.5 text-emerald-700 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
-            :disabled="!cardlistDecklists[index]?.length"
-            @click="handleDownloadDecklist(cardlist, index)"
-          >
-            Download decklist.txt
-          </button>
-        </div>
-      </header>
-
-      <div class="hidden md:block">
-        <CardTable
-          :columns="cardTableColumns"
-          :rows="getTableRows(cardlist)"
-          row-key="id"
-          aria-live="polite"
-        >
-          <template #default="{ row }">
-            <ScryfallCardRow :card="row.card" :have="Boolean(row.have)" />
-          </template>
-        </CardTable>
+      <div class="space-y-2">
+        <commander-search @commander-selected="handleCommanderSelection" />
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+          Start typing to search EDHREC commanders, then refine the results with the filters below.
+        </p>
       </div>
-      <div class="md:hidden space-y-3">
-        <ScryfallCardRow
-          v-for="row in getTableRows(cardlist)"
-          :key="row.id + '-mobile'"
-          :card="row.card"
-          :have="Boolean(row.have)"
-          variant="card"
-        />
-      </div>
+
+      <CommanderFilters
+        :bracket="chosenBracket"
+        :modifier="chosenModifier"
+        :page-type="chosenPageType"
+        :companion="chosenCompanion"
+        @update:bracket="setBracket"
+        @update:modifier="setModifier"
+        @update:page-type="setPageType"
+        @update:companion="setCompanion"
+      />
     </Card>
+    <template v-for="entry in cardlistEntries" :key="entry.key">
+      <CardlistSection
+        :cardlist="entry.cardlist"
+        :section-meta="entry.sectionMeta"
+        :rows="getTableRows(entry.cardlist)"
+        :columns="cardTableColumns"
+        :decklist-text="entry.decklistText"
+        :copied-section-id="decklistCopySectionId"
+        @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+        @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+      />
+    </template>
   </section>
 </template>
 <script setup lang="ts">
-import {
-  ref,
-  onMounted,
-  computed,
-  watch,
-  nextTick,
-  onBeforeUnmount,
-  watchEffect,
-} from "vue";
-import { getCardsByNames } from "../api/scryfallApi";
+import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount, watchEffect } from "vue";
+import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
 import {
   EDHRECBracket,
   EDHRECPageType,
@@ -207,11 +72,10 @@ import {
 } from "./helpers/enums";
 import {
   Card,
-  CardTable,
   CommanderSearch,
+  CommanderFilters,
+  CardlistSection,
   GlobalLoadingBanner,
-  ScryfallCardRow,
-  DropdownSelect,
   FloatingCardlistNav,
 } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
@@ -220,6 +84,8 @@ import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import type { CardTableRow } from "../types/cards";
+import type { ColumnDefinition } from "./CardTable.vue";
 
 interface EdhrecData {
   container?: {
@@ -257,9 +123,6 @@ const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
 const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
 const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
 const chosenCompanion = ref<string>(EDHRECCompanion.NONE.value);
-const bracketOptions = Object.values(EDHRECBracket);
-const modifierOptions = Object.values(EDHRECPageModifier);
-const pageTypeOptions = Object.values(EDHRECPageType);
 const setBracket = (value: string | number) => {
   chosenBracket.value = String(value);
 };
@@ -291,10 +154,7 @@ const fetchJsonData = async (url: string) => {
         data.value = await response.json();
       } catch (err) {
         error.value = err instanceof Error ? err.message : "An error occurred";
-        notifyError(
-          error.value ?? "Unable to fetch commander data.",
-          "EDHREC request failed"
-        );
+        notifyError(error.value ?? "Unable to fetch commander data.", "EDHREC request failed");
       }
     },
     "Fetching commander data...",
@@ -302,9 +162,7 @@ const fetchJsonData = async (url: string) => {
   );
 };
 
-const cardlists = computed(
-  () => data.value?.container?.json_dict?.cardlists || []
-);
+const cardlists = computed(() => data.value?.container?.json_dict?.cardlists || []);
 
 const slugifyHeader = (value: string, index: number) => {
   const base = (value || `section-${index + 1}`)
@@ -326,6 +184,7 @@ const cardlistSections = computed(() =>
     };
   })
 );
+
 
 const activeSectionId = ref<string>("");
 const decklistCopySectionId = ref<string | null>(null);
@@ -415,17 +274,11 @@ const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
 
 const uploadedNameIndex = computed(() => {
   const headers = uploadedHeaders.value;
-  const idx = headers.findIndex(
-    (header) => header.trim().toLowerCase() === "name"
-  );
+  const idx = headers.findIndex((header) => header.trim().toLowerCase() === "name");
   return idx >= 0 ? idx : 0;
 });
 
-const normalizeCardName = (value: string) =>
-  value
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
+const normalizeCardName = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
 
 const cardNameVariants = (value: string) => {
   if (!value) {
@@ -471,9 +324,7 @@ const isCardInUpload = (cardName: string) => {
     return false;
   }
 
-  return cardNameVariants(cardName).some((variant) =>
-    uploadedCardNameSet.value.has(variant)
-  );
+  return cardNameVariants(cardName).some((variant) => uploadedCardNameSet.value.has(variant));
 };
 
 const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
@@ -488,10 +339,7 @@ const buildCommanderUrl = (slug: string | null | undefined) => {
   if (chosenBracket.value) {
     segments.push(chosenBracket.value);
   }
-  if (
-    chosenCompanion.value &&
-    chosenCompanion.value !== EDHRECCompanion.NONE.value
-  ) {
+  if (chosenCompanion.value && chosenCompanion.value !== EDHRECCompanion.NONE.value) {
     segments.push(chosenCompanion.value);
   }
   if (chosenModifier.value) {
@@ -522,9 +370,7 @@ watch([chosenPageType, chosenBracket, chosenModifier, chosenCompanion], () => {
 });
 const filteredCards = (cardviews: { id: string; name: string }[]) => {
   if (showOwned.value === null) return cardviews;
-  return cardviews.filter(
-    (card) => isCardInUpload(card.name) === showOwned.value
-  );
+  return cardviews.filter((card) => isCardInUpload(card.name) === showOwned.value);
 };
 
 const getDeckFilterLabel = () => {
@@ -552,6 +398,19 @@ const cardlistDecklists = computed(() =>
   cardlists.value.map((cardlist, index) =>
     buildDecklistText(cardlist, cardlistSections.value[index])
   )
+);
+
+const cardlistEntries = computed(() =>
+  cardlists.value.map((cardlist, index) => {
+    const sectionMeta = cardlistSections.value[index] ?? null;
+    return {
+      key: sectionMeta?.id ?? `${index}`,
+      cardlist,
+      sectionMeta,
+      decklistText: cardlistDecklists.value[index] ?? "",
+      index,
+    };
+  })
 );
 
 const clearDecklistCopyState = () => {
@@ -606,8 +465,7 @@ const handleCopyDecklist = async (
   const sectionMeta = cardlistSections.value[index];
   try {
     clearDecklistCopyState();
-    decklistCopySectionId.value =
-      sectionMeta?.id ?? slugifyHeader(cardlist.header, index);
+    decklistCopySectionId.value = sectionMeta?.id ?? slugifyHeader(cardlist.header, index);
     await navigator.clipboard.writeText(text);
     decklistCopyResetHandle = setTimeout(() => {
       decklistCopySectionId.value = null;
@@ -628,9 +486,7 @@ const handleDownloadDecklist = (
   if (!text) {
     return;
   }
-  const filename = `${
-    sectionMeta?.id ?? slugifyHeader(cardlist.header, index)
-  }.txt`;
+  const filename = `${sectionMeta?.id ?? slugifyHeader(cardlist.header, index)}.txt`;
   try {
     downloadTextFile(text, filename);
   } catch (error) {
@@ -649,16 +505,16 @@ const allCards = computed(() => {
   return cards;
 });
 
-const scryfallCardData = ref<any[]>([]);
+const scryfallCardData = ref<ScryfallCard[]>([]);
 const scryfallIndex = computed(() => {
-  const map = new Map<string, any>();
+  const map = new Map<string, ScryfallCard>();
   scryfallCardData.value.forEach((card) => {
     const normalizedFullName = normalizeCardName(card.name);
     if (normalizedFullName) {
       map.set(normalizedFullName, card);
     }
 
-    card.card_faces?.forEach((face: any) => {
+    card.card_faces?.forEach((face) => {
       const normalizedFaceName = normalizeCardName(face.name);
       if (normalizedFaceName && !map.has(normalizedFaceName)) {
         map.set(normalizedFaceName, card);
@@ -668,14 +524,7 @@ const scryfallIndex = computed(() => {
   return map;
 });
 
-type TableColumn = {
-  key: string;
-  label: string;
-  align?: "left" | "center" | "right";
-  class?: string;
-};
-
-const cardTableColumns: TableColumn[] = [
+const cardTableColumns: ColumnDefinition[] = [
   { key: "owned", label: "Owned", align: "center", class: "w-14" },
   { key: "name", label: "Card" },
   { key: "mana", label: "Mana", class: "w-28" },
@@ -714,14 +563,14 @@ watch(allCards, fetchAllCardData, { immediate: true });
 const getTableRows = (cardlist: {
   header: string;
   cardviews: { id: string; name: string }[];
-}) =>
+}): CardTableRow[] =>
   filteredCards(cardlist.cardviews).map((cardview) => {
-    const info =
-      scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
+    const info = scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
     const requestedNames = cardview.name.split("//").map((n) => n.trim());
-    const faces = info?.card_faces ?? [];
+    type CardFace = NonNullable<ScryfallCard["card_faces"]>[number];
+    const faces: CardFace[] = info?.card_faces ?? [];
     const matchedFace =
-      faces.find((face: any) => requestedNames.includes(face.name)) ?? faces[0];
+      faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
     const statsSource = matchedFace ?? info;
     const displayName =
       requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
@@ -738,13 +587,14 @@ const getTableRows = (cardlist: {
         toughness: statsSource?.toughness ?? null,
         set: info?.set ?? "",
         rarity: info?.rarity ?? "",
-        prices: info?.prices ?? {
-          usd: null,
-          eur: null,
+        prices: {
+          usd: info?.prices?.usd ?? null,
+          eur: info?.prices?.eur ?? null,
         },
+        scryfall_uri: info?.scryfall_uri,
         faces:
           faces.length > 1
-            ? faces.map((face: any) => ({
+            ? faces.map((face) => ({
                 name: face.name,
                 mana_cost: face.mana_cost,
                 type_line: face.type_line,
@@ -757,4 +607,36 @@ const getTableRows = (cardlist: {
 onMounted(() => {
   // No default fetch; wait for explicit commander selection.
 });
+
+const __templateBindings = {
+  FloatingCardlistNav,
+  cardlistSections,
+  activeSectionId,
+  scrollToSection,
+  Card,
+  error,
+  GlobalLoadingBanner,
+  readerLoading,
+  CommanderSearch,
+  handleCommanderSelection,
+  CommanderFilters,
+  chosenBracket,
+  chosenModifier,
+  chosenPageType,
+  chosenCompanion,
+  setBracket,
+  setModifier,
+  setPageType,
+  setCompanion,
+  CardlistSection,
+  cardlists,
+  getTableRows,
+  cardTableColumns,
+  cardlistDecklists,
+  cardlistEntries,
+  decklistCopySectionId,
+  handleCopyDecklist,
+  handleDownloadDecklist,
+};
+void __templateBindings;
 </script>

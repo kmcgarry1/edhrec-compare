@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" ref="rootRef" @keydown="handleKeydown">
+  <div ref="rootRef" class="relative" @keydown="handleKeydown">
     <button
       ref="buttonRef"
       type="button"
@@ -83,8 +83,8 @@
     >
       <div v-if="isOpen" class="absolute left-0 z-40 mt-1 w-full">
         <ul
-          ref="listRef"
           :id="listboxId"
+          ref="listRef"
           role="listbox"
           tabindex="-1"
           class="max-h-64 w-full overflow-auto rounded-2xl border border-slate-200 bg-white/95 p-1 shadow-2xl ring-1 ring-black/5 focus:outline-none dark:border-slate-700 dark:bg-slate-900/95"
@@ -92,16 +92,16 @@
         >
           <li
             v-for="(option, index) in options"
-            :key="option.value"
             :id="getOptionId(index)"
+            :key="option.value"
+            :ref="(el) => setOptionRef(el, index)"
             role="option"
             :aria-selected="selectedIndex === index"
+            class="flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm transition"
+            :class="getOptionClasses(index)"
             @click="selectOption(option)"
             @mouseenter="highlightedIndex = index"
             @mouseleave="highlightedIndex = -1"
-            :ref="(el) => setOptionRef(el, index)"
-            class="flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm transition"
-            :class="getOptionClasses(index)"
           >
             <div class="min-w-0">
               <div class="flex items-center gap-2">
