@@ -222,7 +222,7 @@ const { withLoading } = useGlobalLoading();
 const { notifyError } = useGlobalNotices();
 
 const emit = defineEmits<{
-  commanderSelected: [slug: string];
+  "commander-selected": [slug: string];
 }>();
 
 const primarySelection = ref("");
@@ -309,7 +309,7 @@ const partnerError = partnerField.error;
 
 const emitCommanderSelection = () => {
   if (!primarySelection.value) {
-    emit("commanderSelected", "");
+    emit("commander-selected", "");
     return;
   }
 
@@ -318,7 +318,7 @@ const emitCommanderSelection = () => {
     partnerSelection.value
   );
 
-  emit("commanderSelected", slug);
+  emit("commander-selected", slug);
 };
 
 const handleSelection = (
