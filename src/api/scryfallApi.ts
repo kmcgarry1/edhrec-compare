@@ -59,7 +59,7 @@ function sanitizeCardName(cardName: string): string {
   }
 
   const [frontFace] = trimmedName.split("//");
-  return frontFace.trim() || trimmedName;
+  return frontFace?.trim() || trimmedName;
 }
 
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
