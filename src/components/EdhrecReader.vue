@@ -554,8 +554,12 @@ const fetchAllCardData = async () => {
 
   await withLoading(
     async () => {
-      const scryfallData = await getCardsByNames(allCards.value);
-      scryfallCardData.value = scryfallData;
+      const scryfallData = await getCardsByNames(allCards.value).catch(
+        () => null
+      );
+      if (scryfallData) {
+        scryfallCardData.value = scryfallData;
+      }
     },
     "Fetching detailed card data...",
     bulkCardScope

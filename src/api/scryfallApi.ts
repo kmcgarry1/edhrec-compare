@@ -148,10 +148,14 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
       );
     },
     "Unable to search Scryfall for commander names.",
-    { context: "searchCardNames" }
+    {
+      context: "searchCardNames",
+      suppressError: true,
+      fallbackValue: [],
+    }
   );
 
-  return result ?? [];
+  return result;
 }
 
 export async function getCardsByNames(
@@ -202,7 +206,7 @@ export async function getCardsByNames(
     { context: "getCardsByNames" }
   );
 
-  return result ?? [];
+  return result;
 }
 
 export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
@@ -224,7 +228,7 @@ export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
     { context: "getAllSymbols" }
   );
 
-  return result ?? [];
+  return result;
 }
 
 const PRINTINGS_PAGE_DELAY = 150;
@@ -266,5 +270,5 @@ export async function getCardPrintings(
     { context: "getCardPrintings" }
   );
 
-  return result ?? [];
+  return result;
 }

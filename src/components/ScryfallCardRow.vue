@@ -511,7 +511,9 @@ const rarityClass = (rarity?: string | null) => {
 
 onMounted(() => {
   setupHoverDetection();
-  void ensureSymbolsLoaded();
+  ensureSymbolsLoaded().catch(() => {
+    /* handled globally */
+  });
 });
 
 onBeforeUnmount(() => {

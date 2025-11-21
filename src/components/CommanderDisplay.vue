@@ -317,6 +317,12 @@ const loadCommanderData = async () => {
     printings.value = nextPrintings;
     currentPrintingIndex.value = 0;
     setCommanderColors(colorSourceKey, nextPrintings[0]?.colors ?? []);
+  } catch {
+    if (activeRequestId === requestId) {
+      printings.value = [];
+      currentPrintingIndex.value = 0;
+      clearCommanderColors(colorSourceKey);
+    }
   } finally {
     if (activeRequestId === requestId) {
       isLoading.value = false;
