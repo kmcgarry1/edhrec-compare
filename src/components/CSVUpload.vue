@@ -93,6 +93,7 @@ import { Card, GlobalLoadingBanner } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import { handleError } from "../utils/errorHandler";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
@@ -281,8 +282,11 @@ const loadSampleInventory = async () => {
       csvScope
     );
   } catch (error) {
-    console.error("Unable to load sample inventory:", error);
-    notifyError("Unable to load the sample inventory. Please try again.");
+    handleError(error, {
+      notify: true,
+      fallbackMessage: "Unable to load the sample inventory. Please try again.",
+      context: "Sample inventory",
+    });
   }
 };
 
