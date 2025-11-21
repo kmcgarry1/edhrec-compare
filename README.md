@@ -91,10 +91,28 @@ No custom environment variables are required for local development. Network requ
 
 ## CSV Requirements
 
-- File must include a `Name` column (case-insensitive). If no header matches, the first column is used.
+Commander Scout accepts any comma-delimited CSV that follows these rules:
+
+- **Required column**
+  - `Name` or `Card Name` – used to match EDHREC entries (case-insensitive).
+- **Optional columns**
+  - `Quantity` – number of copies (defaults to `1` if omitted).
+  - `Foil` – `Yes` or `No` flag.
+  - `Set` – three-letter set code.
+  - Any other columns are ignored by the matcher but kept in memory if you want to build on them later.
 - Entries can contain combined names with `//`. The app normalizes and stores all variants (`front`, `back`, and combined) to ensure matches.
-- Additional columns are ignored but preserved in memory if you want to extend functionality later.
-- Sample file: `src/assets/inventory.csv`.
+- The uploader validates your CSV and surfaces warnings for missing `Name` headers, empty rows, or malformed column counts before importing any data.
+
+Example CSV:
+
+```
+Name,Quantity,Foil,Set
+Sol Ring,1,No,C21
+Lightning Greaves,1,Yes,M19
+```
+
+- Sample template: `src/assets/inventory-template.csv` (downloadable in the upload modal).
+- Full inventory sample: `src/assets/inventory.csv`.
 
 ## EDHREC & Scryfall Integrations
 
