@@ -60,7 +60,26 @@ The Vite dev server defaults to `http://localhost:5173`.
 
 ## Environment Variables
 
-No custom env vars are required for local development. Network requests hit the public EDHREC and Scryfall APIs directly from the browser. If you later introduce proxies or API keys, document them here.
+### Optional Configuration
+
+The following environment variables can be configured for production deployments:
+
+#### Sentry Error Tracking (Production Only)
+
+- **`VITE_SENTRY_DSN`** � Sentry Data Source Name for error tracking in production
+  - Only active when `import.meta.env.PROD` is true
+  - Automatically filters out sensitive data (CSV contents)
+  - Generates source maps for readable stack traces
+  - 10% sample rate for performance monitoring
+  - To enable:
+    1. Create a [Sentry account](https://sentry.io/) and project
+    2. Copy `.env.example` to `.env`
+    3. Set `VITE_SENTRY_DSN` to your project's DSN
+    4. Build and deploy to production
+
+### Local Development
+
+No custom environment variables are required for local development. Network requests hit the public EDHREC and Scryfall APIs directly from the browser.
 
 ## Development Workflow
 
