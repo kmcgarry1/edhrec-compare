@@ -56,6 +56,53 @@
       Processing CSV data...
     </GlobalLoadingBanner>
 
+    <div
+      v-if="validationSummary"
+      class="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-900 shadow-sm shadow-emerald-100 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-100"
+      role="status"
+      aria-live="polite"
+    >
+      <span aria-hidden="true" class="text-lg">✅</span>
+      <div class="text-left">
+        <p class="font-semibold">Valid CSV</p>
+        <p>{{ validationSummary }}</p>
+      </div>
+    </div>
+
+    <div
+      v-if="validationResult?.warnings.length"
+      class="rounded-2xl border border-amber-200/70 bg-amber-50/70 px-4 py-3 text-sm text-amber-900 shadow-sm shadow-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100"
+      role="status"
+      aria-live="polite"
+    >
+      <p class="flex items-center gap-2 font-semibold">
+        <span aria-hidden="true">⚠️</span>
+        <span>Warnings</span>
+      </p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <li v-for="(warning, index) in validationResult?.warnings" :key="`${warning}-${index}`">
+          {{ warning }}
+        </li>
+      </ul>
+    </div>
+
+    <div
+      v-if="validationResult?.errors.length"
+      class="rounded-2xl border border-rose-200/70 bg-rose-50/70 px-4 py-3 text-sm text-rose-900 shadow-sm shadow-rose-100 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
+      role="status"
+      aria-live="assertive"
+    >
+      <p class="flex items-center gap-2 font-semibold">
+        <span aria-hidden="true">❌</span>
+        <span>Errors</span>
+      </p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <li v-for="(error, index) in validationResult?.errors" :key="`${error}-${index}`">
+          {{ error }}
+        </li>
+      </ul>
+    </div>
+
     <p
       v-if="errorMessage"
       class="rounded-2xl border border-rose-200/70 bg-rose-50/70 px-4 py-2 text-sm font-medium text-rose-700 shadow-sm shadow-rose-100 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
@@ -63,39 +110,77 @@
       {{ errorMessage }}
     </p>
 
-    <div class="flex flex-col gap-2 text-xs text-slate-500 dark:text-slate-400">
+    <div class="flex flex-col gap-4 text-xs text-slate-500 dark:text-slate-400">
       <p>Your deck data stays in this browser session only and clears automatically on refresh.</p>
       <div
-        class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-emerald-300/60 px-3 py-2 text-[0.75rem] text-slate-600 dark:border-emerald-400/40 dark:text-slate-300"
+        class="rounded-3xl border border-slate-200/60 bg-white/80 p-4 text-left text-slate-600 shadow-sm shadow-slate-100 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-300"
       >
-        <span class="font-semibold text-emerald-600 dark:text-emerald-300"> Don't have one? </span>
-        <button
-          type="button"
-          class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
-          aria-label="Load sample inventory CSV"
-          @click="loadSampleInventory"
-        >
-          Use mine
-        </button>
-        <a
-          :href="sampleCsvUrl"
-          download="inventory.csv"
-          class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
-        >
-          Download sample CSV
-        </a>
+        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
+          CSV format
+        </p>
+        <div class="mt-3 space-y-3 text-sm">
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-white">Required column</p>
+            <p>Name (or Card Name) — the card name we match against EDHREC lists.</p>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-white">Optional columns</p>
+            <ul class="mt-1 list-disc space-y-1 pl-5">
+              <li>Quantity — number of copies</li>
+              <li>Foil — Yes/No</li>
+              <li>Set — three-letter set code</li>
+              <li>Any other columns (ignored but kept in the CSV)</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-800 dark:text-white">Example</p>
+            <pre
+              class="mt-2 rounded-2xl bg-slate-900/90 p-3 text-xs font-mono text-emerald-100 dark:bg-slate-900/80"
+            >Name,Quantity,Foil,Set
+Sol Ring,1,No,C21
+Lightning Greaves,1,Yes,M19</pre>
+          </div>
+          <div
+            class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-emerald-300/60 px-3 py-2 text-[0.75rem] text-slate-600 dark:border-emerald-400/40 dark:text-slate-300"
+          >
+            <span class="font-semibold text-emerald-600 dark:text-emerald-300">Need an example?</span>
+            <button
+              type="button"
+              class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+              aria-label="Load sample inventory CSV"
+              @click="loadSampleInventory"
+            >
+              Use mine
+            </button>
+            <a
+              :href="templateCsvUrl"
+              download="inventory-template.csv"
+              class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
+            >
+              Download template
+            </a>
+            <a
+              :href="sampleCsvUrl"
+              download="inventory.csv"
+              class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
+            >
+              Download full sample
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { Card, GlobalLoadingBanner } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
 import { handleError } from "../utils/errorHandler";
+import { validateCsv, type CsvValidationResult } from "../utils/csvValidator";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
@@ -106,6 +191,10 @@ const csvScope = "csv-upload";
 const { withLoading, getScopeLoading } = useGlobalLoading();
 const csvLoading = getScopeLoading(csvScope);
 const { notifyError, notifySuccess } = useGlobalNotices();
+const validationResult = ref<CsvValidationResult | null>(null);
+const importedCardCount = ref(0);
+
+const invalidCsvMessage = "We couldn't process that CSV. Fix the errors below and try again.";
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
@@ -177,18 +266,67 @@ const processFile = (selectedFile: File) => {
 };
 
 const sampleCsvUrl = new URL("../assets/inventory.csv", import.meta.url).href;
+const templateCsvUrl = new URL("../assets/inventory-template.csv", import.meta.url).href;
+
+const resetValidation = () => {
+  validationResult.value = null;
+  importedCardCount.value = 0;
+};
+
+const formatCardCount = (count: number) => {
+  const pluralized = count === 1 ? "card" : "cards";
+  return `Found ${count} ${pluralized}`;
+};
+
+const validationSummary = computed(() => {
+  if (!validationResult.value || validationResult.value.errors.length) {
+    return null;
+  }
+  return formatCardCount(importedCardCount.value);
+});
 
 const parseCSV = (csv: string) => {
+  resetValidation();
+  errorMessage.value = null;
   const data = parseCSVContent(csv);
 
-  if (data.length > 1 && data[0]) {
-    setCsvData(data.slice(1), data[0]);
-    emit("upload", csvRows.value, csvHeaders.value);
-    emit("file-uploaded", csvRows.value, csvHeaders.value);
-    notifySuccess("CSV loaded successfully.");
-  } else {
-    notifyError("That CSV doesn't appear to contain any card rows.");
+  if (!data.length || !data[0] || !data[0].length) {
+    const message = "That CSV doesn't appear to contain any card rows.";
+    errorMessage.value = message;
+    notifyError(message);
+    clearCsvData();
+    return;
   }
+
+  const headerRow = data[0];
+  const rawRows = data.slice(1);
+  const validation = validateCsv(headerRow, rawRows);
+  validationResult.value = validation;
+
+  if (!validation.valid) {
+    errorMessage.value = invalidCsvMessage;
+    notifyError("CSV validation failed. Check the errors below.");
+    clearCsvData();
+    return;
+  }
+
+  const usableRows = rawRows.filter((row) => row.some((cell) => (cell ?? "").trim().length > 0));
+  if (!usableRows.length) {
+    validationResult.value = {
+      ...validation,
+      valid: false,
+      errors: [...validation.errors, "No usable card rows detected after filtering blanks."],
+    };
+    errorMessage.value = invalidCsvMessage;
+    notifyError("CSV validation failed. Check the errors below.");
+    clearCsvData();
+    return;
+  }
+  importedCardCount.value = usableRows.length;
+  setCsvData(usableRows, headerRow);
+  emit("upload", csvRows.value, csvHeaders.value);
+  emit("file-uploaded", csvRows.value, csvHeaders.value);
+  notifySuccess(formatCardCount(importedCardCount.value));
 };
 
 // Lightweight CSV parser that respects quoted fields and escaped quotes.
@@ -208,7 +346,7 @@ const parseCSVContent = (csv: string): string[][] => {
   };
 
   const pushRow = () => {
-    if (currentRow.length > 0 && currentRow.some((cell) => cell.length > 0)) {
+    if (currentRow.length > 0) {
       rows.push(currentRow);
     }
     currentRow = [];
@@ -259,6 +397,7 @@ const removeFile = () => {
   file.value = null;
   errorMessage.value = null;
   clearCsvData();
+  resetValidation();
   if (fileInput.value) {
     fileInput.value.value = "";
   }
