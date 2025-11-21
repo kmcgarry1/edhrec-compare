@@ -162,8 +162,8 @@ npm run lint:fix
 
 **Key ESLint Rules:**
 
-- Vue 3 recommended rules are enabled
-- TypeScript recommended rules are enabled
+- See `eslint.config.js` for the complete configuration
+- Vue 3 recommended rules and TypeScript recommended rules are enabled
 - Unused variables prefixed with `_` are allowed
 - Multi-word component names are not required
 
