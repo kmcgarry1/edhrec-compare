@@ -1,3 +1,5 @@
+import { apiCall } from "./errorHandler";
+
 interface CardFaceImageUris {
   small?: string;
   normal?: string;
@@ -65,27 +67,28 @@ function sanitizeCardName(cardName: string): string {
 }
 
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
-  try {
-    const sanitizedName = sanitizeCardName(cardName);
-    const response = await fetch(
-      `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
-        sanitizedName
-      )}`
-    );
+  const sanitizedName = sanitizeCardName(cardName);
+  return apiCall<ScryfallCard | null>(
+    async () => {
+      const response = await fetch(
+        `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
+          sanitizedName
+        )}`
+      );
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`Scryfall API error: ${response.status}`);
       }
-      throw new Error(`Scryfall API error: ${response.status}`);
-    }
 
-    const card: ScryfallCard = await response.json();
-    return card;
-  } catch (error) {
-    console.error("Error fetching card from Scryfall:", error);
-    throw error;
-  }
+      const card: ScryfallCard = await response.json();
+      return card;
+    },
+    "Unable to load that commander from Scryfall.",
+    { context: "getCard" }
+  );
 }
 
 export async function getCardImage(cardName: string): Promise<string | null> {
@@ -105,111 +108,127 @@ export async function getCardImage(cardName: string): Promise<string | null> {
 }
 
 export async function searchCardNames(partialName: string): Promise<string[]> {
-  try {
-    const trimmed = partialName.trim();
-    if (!trimmed) {
-      return [];
-    }
-
-    const searchTerm = sanitizeCardName(trimmed) || trimmed;
-    const response = await fetch(
-      `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
-        `name:${searchTerm} is:commander`
-      )}`
-    );
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return [];
-      }
-      throw new Error(`Scryfall API error: ${response.status}`);
-    }
-
-    const result = await response.json();
-    const seen = new Set<string>();
-
-    return (
-      result.data
-        ?.map(
-          (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
-        )
-        .filter((name: string) => {
-          const normalized = name.trim().toLowerCase();
-          if (!normalized || seen.has(normalized)) {
-            return false;
-          }
-          seen.add(normalized);
-          return true;
-        }) || []
-    );
-  } catch (error) {
-    console.error("Error searching card names from Scryfall:", error);
+  const trimmed = partialName.trim();
+  if (!trimmed) {
     return [];
   }
+
+  const searchTerm = sanitizeCardName(trimmed) || trimmed;
+  const result = await apiCall<string[]>(
+    async () => {
+      const response = await fetch(
+        `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
+          `name:${searchTerm} is:commander`
+        )}`
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return [];
+        }
+        throw new Error(`Scryfall API error: ${response.status}`);
+      }
+
+      const searchResult = await response.json();
+      const seen = new Set<string>();
+
+      return (
+        searchResult.data
+          ?.map(
+            (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
+          )
+          .filter((name: string) => {
+            const normalized = name.trim().toLowerCase();
+            if (!normalized || seen.has(normalized)) {
+              return false;
+            }
+            seen.add(normalized);
+            return true;
+          }) || []
+      );
+    },
+    "Unable to search Scryfall for commander names.",
+    {
+      context: "searchCardNames",
+      suppressError: true,
+      fallbackValue: [],
+    }
+  );
+
+  return result;
 }
 
 export async function getCardsByNames(
   cardNames: { name: string }[]
 ): Promise<ScryfallCard[]> {
-  try {
-    const allCards: ScryfallCard[] = [];
-    const batchSize = 75;
-
-    for (let i = 0; i < cardNames.length; i += batchSize) {
-      const batch = cardNames.slice(i, i + batchSize);
-
-      const response = await fetch(
-        `https://api.scryfall.com/cards/collection`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            identifiers: batch.map((nameObj) => ({
-              name: sanitizeCardName(nameObj.name),
-            })),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Scryfall API error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      allCards.push(...(result.data as ScryfallCard[]));
-
-      // Wait 300ms before next batch (except for the last batch)
-      if (i + batchSize < cardNames.length) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-      }
-    }
-
-    return allCards;
-  } catch (error) {
-    console.error("Error fetching cards by names from Scryfall:", error);
-    throw error;
+  if (!cardNames.length) {
+    return [];
   }
+
+  const result = await apiCall<ScryfallCard[]>(
+    async () => {
+      const allCards: ScryfallCard[] = [];
+      const batchSize = 75;
+
+      for (let i = 0; i < cardNames.length; i += batchSize) {
+        const batch = cardNames.slice(i, i + batchSize);
+
+        const response = await fetch(
+          `https://api.scryfall.com/cards/collection`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              identifiers: batch.map((nameObj) => ({
+                name: sanitizeCardName(nameObj.name),
+              })),
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Scryfall API error: ${response.status}`);
+        }
+
+        const fetchResult = await response.json();
+        allCards.push(...(fetchResult.data as ScryfallCard[]));
+
+        if (i + batchSize < cardNames.length) {
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      }
+
+      return allCards;
+    },
+    "Unable to fetch detailed card data from Scryfall.",
+    { context: "getCardsByNames" }
+  );
+
+  return result;
 }
 
 export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
-  try {
-    const response = await fetch(`https://api.scryfall.com/symbology`);
-    if (!response.ok) {
-      throw new Error(`Scryfall API error: ${response.status}`);
-    }
-    const result = await response.json();
-    const symbols =
-      (result.data as Array<{ symbol: string; svg_uri: string }>) ?? [];
-    return symbols.map(({ symbol, svg_uri }) => ({
-      symbol,
-      svg_uri,
-    }));
-  } catch (error) {
-    console.error("Error fetching symbols from Scryfall:", error);
-    throw error;
-  }
+  const result = await apiCall<ScryfallSymbol[]>(
+    async () => {
+      const response = await fetch(`https://api.scryfall.com/symbology`);
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status}`);
+      }
+      const payload = await response.json();
+      const symbols =
+        (payload.data as Array<{ symbol: string; svg_uri: string }>) ?? [];
+      return symbols.map(({ symbol, svg_uri }) => ({
+        symbol,
+        svg_uri,
+      }));
+    },
+    "Unable to load mana symbols from Scryfall.",
+    { context: "getAllSymbols" }
+  );
+
+  return result;
 }
 
 const PRINTINGS_PAGE_DELAY = 150;
@@ -218,33 +237,38 @@ const MAX_PRINTING_RESULTS = 60;
 export async function getCardPrintings(
   printsSearchUri: string
 ): Promise<ScryfallCard[]> {
-  try {
-    let nextPage: string | null = printsSearchUri;
-    const allPrintings: ScryfallCard[] = [];
+  const result = await apiCall<ScryfallCard[]>(
+    async () => {
+      let nextPage: string | null = printsSearchUri;
+      const allPrintings: ScryfallCard[] = [];
 
-    while (nextPage) {
-      const response = await fetch(nextPage);
-      if (!response.ok) {
-        throw new Error(`Scryfall API error: ${response.status}`);
+      while (nextPage) {
+        const response = await fetch(nextPage);
+        if (!response.ok) {
+          throw new Error(`Scryfall API error: ${response.status}`);
+        }
+
+        const page: ScryfallListResponse<ScryfallCard> = await response.json();
+        allPrintings.push(...page.data);
+
+        if (!page.has_more || allPrintings.length >= MAX_PRINTING_RESULTS) {
+          break;
+        }
+
+        nextPage = page.next_page ?? null;
+
+        if (nextPage) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, PRINTINGS_PAGE_DELAY)
+          );
+        }
       }
 
-      const result: ScryfallListResponse<ScryfallCard> = await response.json();
-      allPrintings.push(...result.data);
+      return allPrintings;
+    },
+    "Unable to load commander printings from Scryfall.",
+    { context: "getCardPrintings" }
+  );
 
-      if (!result.has_more || allPrintings.length >= MAX_PRINTING_RESULTS) {
-        break;
-      }
-
-      nextPage = result.next_page ?? null;
-
-      if (nextPage) {
-        await new Promise((resolve) => setTimeout(resolve, PRINTINGS_PAGE_DELAY));
-      }
-    }
-
-    return allPrintings;
-  } catch (error) {
-    console.error("Error fetching card printings from Scryfall:", error);
-    throw error;
-  }
+  return result;
 }

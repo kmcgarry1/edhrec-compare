@@ -303,8 +303,6 @@ const loadCommanderData = async () => {
         if (allPrints.length) {
           nextPrintings = allPrints;
         }
-      } catch (error) {
-        console.error("Unable to load card printings:", error);
       } finally {
         if (activeRequestId === requestId) {
           printingsLoading.value = false;
@@ -319,8 +317,7 @@ const loadCommanderData = async () => {
     printings.value = nextPrintings;
     currentPrintingIndex.value = 0;
     setCommanderColors(colorSourceKey, nextPrintings[0]?.colors ?? []);
-  } catch (error) {
-    console.error("Unable to load commander data:", error);
+  } catch {
     if (activeRequestId === requestId) {
       printings.value = [];
       currentPrintingIndex.value = 0;

@@ -83,7 +83,7 @@ import { useCsvUpload } from "../composables/useCsvUpload";
 import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
-import { useGlobalNotices } from "../composables/useGlobalNotices";
+import { handleError } from "../utils/errorHandler";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 
@@ -102,7 +102,6 @@ const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
 
 const { showOwned } = useOwnedFilter();
-const { notifyError } = useGlobalNotices();
 
 type DecklistSection = {
   id: string;
@@ -153,8 +152,12 @@ const fetchJsonData = async (url: string) => {
         }
         data.value = await response.json();
       } catch (err) {
-        error.value = err instanceof Error ? err.message : "An error occurred";
-        notifyError(error.value ?? "Unable to fetch commander data.", "EDHREC request failed");
+        const handled = handleError(err, {
+          notify: true,
+          fallbackMessage: "Unable to fetch commander data from EDHREC.",
+          context: "EDHREC request failed",
+        });
+        error.value = handled.userMessage;
       }
     },
     "Fetching commander data...",
@@ -472,8 +475,11 @@ const handleCopyDecklist = async (
       decklistCopyResetHandle = null;
     }, 1600);
   } catch (error) {
-    console.error("Unable to copy decklist:", error);
-    notifyError("Unable to copy the decklist to your clipboard.");
+    handleError(error, {
+      notify: true,
+      fallbackMessage: "Unable to copy the decklist to your clipboard.",
+      context: "Decklist copy",
+    });
   }
 };
 
@@ -490,8 +496,11 @@ const handleDownloadDecklist = (
   try {
     downloadTextFile(text, filename);
   } catch (error) {
-    console.error("Unable to download decklist:", error);
-    notifyError("Unable to download the decklist file.");
+    handleError(error, {
+      notify: true,
+      fallbackMessage: "Unable to download the decklist file.",
+      context: "Decklist download",
+    });
   }
 };
 
@@ -545,12 +554,11 @@ const fetchAllCardData = async () => {
 
   await withLoading(
     async () => {
-      try {
-        const scryfallData = await getCardsByNames(allCards.value);
+      const scryfallData = await getCardsByNames(allCards.value).catch(
+        () => null
+      );
+      if (scryfallData) {
         scryfallCardData.value = scryfallData;
-      } catch (err) {
-        console.error("Failed to fetch card data from Scryfall:", err);
-        notifyError("Unable to fetch detailed card data from Scryfall.");
       }
     },
     "Fetching detailed card data...",

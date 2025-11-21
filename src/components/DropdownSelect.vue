@@ -265,9 +265,12 @@ const getOptionColorSymbols = (option: Option) =>
   buildColorSymbols(option.colors);
 
 const loadSymbolsIfNeeded = () => {
-  if (hasColorOptions.value) {
-    void ensureSymbolsLoaded();
+  if (!hasColorOptions.value) {
+    return;
   }
+  Promise.resolve(ensureSymbolsLoaded()).catch(() => {
+    /* handled globally */
+  });
 };
 
 const highlightedOptionId = computed(() =>
@@ -464,7 +467,9 @@ watch(
 
 watch(hasColorOptions, (value) => {
   if (value) {
-    void ensureSymbolsLoaded();
+    Promise.resolve(ensureSymbolsLoaded()).catch(() => {
+      /* handled globally */
+    });
   }
 });
 </script>

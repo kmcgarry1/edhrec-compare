@@ -54,6 +54,7 @@ import {
 import { useTheme } from "../composables/useTheme";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
+import { handleError } from "../utils/errorHandler";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useBackgroundPreference } from "../composables/useBackgroundPreference";
 
@@ -124,7 +125,11 @@ const copyDecklistFromHeader = async () => {
       decklistCopyHandle = null;
     }, 1600);
   } catch (error) {
-    console.error("Unable to copy decklist:", error);
+    handleError(error, {
+      notify: true,
+      fallbackMessage: "Unable to copy that decklist to your clipboard.",
+      context: "Dashboard decklist copy",
+    });
   }
 };
 
