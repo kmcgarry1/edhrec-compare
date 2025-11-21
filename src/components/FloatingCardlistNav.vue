@@ -54,22 +54,26 @@
     <Teleport to="body">
       <div
         v-if="mobileOpen"
+        ref="mobileModalRef"
         class="fixed inset-0 z-50 flex items-end bg-slate-950/70 px-4 pb-8 pt-16 backdrop-blur-sm lg:hidden"
         role="dialog"
         aria-modal="true"
-        @click.self="mobileOpen = false"
+        aria-labelledby="nav-modal-title"
+        @click.self="closeMobileNav"
+        @escape-pressed="closeMobileNav"
       >
         <div
           class="w-full rounded-3xl border border-slate-200/70 bg-white/95 p-4 shadow-2xl shadow-slate-900/50 dark:border-slate-700/70 dark:bg-slate-900/90"
         >
           <div class="mb-3 flex items-center justify-between">
-            <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <p id="nav-modal-title" class="text-sm font-semibold text-slate-700 dark:text-slate-200">
               Jump to cardlist
             </p>
             <button
               type="button"
               class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/70"
-              @click="mobileOpen = false"
+              aria-label="Close navigation dialog"
+              @click="closeMobileNav"
             >
               Close
             </button>
@@ -108,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import {
   mdiCards,
   mdiMagicStaff,
@@ -126,6 +130,7 @@ import {
   mdiStarFourPoints,
   mdiAccountGroup,
 } from "@mdi/js";
+import { useFocusTrap } from "../composables/useFocusTrap";
 
 const props = defineProps<{
   sections: Array<{
@@ -183,6 +188,8 @@ const sectionsWithIcons = computed(() =>
 );
 
 const mobileOpen = ref(false);
+const mobileModalRef = ref<HTMLElement | null>(null);
+const { activate, deactivate } = useFocusTrap(mobileModalRef, mobileOpen);
 
 const handleNavigate = (id: string) => {
   emit("navigate", id);
@@ -190,6 +197,18 @@ const handleNavigate = (id: string) => {
 
 const handleMobileNavigate = (id: string) => {
   emit("navigate", id);
+  closeMobileNav();
+};
+
+const closeMobileNav = () => {
   mobileOpen.value = false;
 };
+
+watch(mobileOpen, (newValue) => {
+  if (newValue) {
+    activate();
+  } else {
+    deactivate();
+  }
+});
 </script>
