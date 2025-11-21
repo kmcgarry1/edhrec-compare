@@ -28,4 +28,8 @@ export default defineConfig({
       "vue-router": fileURLToPath(new URL("./src/stubs/vue-router.ts", import.meta.url)),
     },
   },
+  build: {
+    // Generate source maps for Sentry error tracking
+    sourcemap: true,
+  },
 });

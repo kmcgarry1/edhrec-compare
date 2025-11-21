@@ -1,5 +1,6 @@
 import type { App } from "vue";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import { captureError } from "./sentry";
 
 const DEFAULT_FALLBACK_MESSAGE =
   "Something went wrong. Please try again in a moment.";
@@ -90,8 +91,18 @@ export function handleError(
   if (import.meta.env.DEV) {
     console.error(`[${contextLabel}]`, error);
   } else {
-    // TODO: Route to a real monitoring/telemetry endpoint when available.
     console.error(`[${contextLabel}]`, error);
+  }
+
+  // Send to Sentry in production
+  if (import.meta.env.PROD) {
+    captureError(normalized, {
+      errorContext: {
+        context: contextLabel,
+        userMessage: normalized.userMessage,
+        code: normalized.code,
+      },
+    });
   }
 
   reportClientError({
