@@ -40,9 +40,28 @@
             :aria-pressed="theme === 'dark'"
             @click="$emit('toggle-theme')"
           >
-            <svg :viewBox="'0 0 24 24'" class="h-4 w-4" fill="currentColor" aria-hidden="true">
-              <path :d="theme === 'dark' ? mdiSunCompass : mdiMoonWaningCrescent" />
-            </svg>
+            <Transition name="icon-flip" mode="out-in">
+              <svg
+                v-if="theme === 'dark'"
+                key="sun"
+                viewBox="0 0 24 24"
+                class="h-4 w-4"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path :d="mdiSunCompass" />
+              </svg>
+              <svg
+                v-else
+                key="moon"
+                viewBox="0 0 24 24"
+                class="h-4 w-4"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path :d="mdiMoonWaningCrescent" />
+              </svg>
+            </Transition>
             <span>{{ theme === "dark" ? "Light" : "Dark" }}</span>
           </button>
           <button

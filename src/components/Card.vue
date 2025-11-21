@@ -54,6 +54,7 @@ const props = withDefaults(
     border?: string | null;
     background?: string | null;
     fullWidth?: boolean;
+    hover?: boolean;
     title?: string | null;
     subtitle?: string | null;
     titleTag?: string;
@@ -68,6 +69,7 @@ const props = withDefaults(
     border: "border border-slate-200 dark:border-slate-700/70",
     background: "bg-white/90 dark:bg-slate-900/70",
     fullWidth: true,
+    hover: false,
     title: null,
     subtitle: null,
     titleTag: "h3",
@@ -90,6 +92,7 @@ const computedClasses = computed(() =>
     props.background,
     props.shadow,
     props.padding,
+    props.hover ? "card-hover" : "",
   ]
     .filter(Boolean)
     .join(" ")
