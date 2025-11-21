@@ -14,10 +14,9 @@ app.mount("#app");
 // Register service worker
 const updateSW = registerSW({
   onNeedRefresh() {
-    // Show a prompt to the user asking if they want to reload
-    if (confirm("New content available. Reload to update?")) {
-      updateSW(true);
-    }
+    // Automatically update to latest version on page refresh
+    // This provides a seamless experience without interrupting the user
+    updateSW(true);
   },
   onOfflineReady() {
     console.log("App ready to work offline");
