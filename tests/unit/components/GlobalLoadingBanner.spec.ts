@@ -5,15 +5,19 @@ import GlobalLoadingBanner from "../../../src/components/GlobalLoadingBanner.vue
 
 const scopedLoading = ref(false);
 const scopedMessage = ref("Scoped loading...");
+const scopedProgress = ref<{ current: number; total: number } | undefined>(undefined);
 const globalLoading = ref(false);
 const globalMessage = ref("Global loading");
+const globalProgress = ref<{ current: number; total: number } | undefined>(undefined);
 
 vi.mock("../../../src/composables/useGlobalLoading", () => ({
   useGlobalLoading: () => ({
     isLoading: globalLoading,
     loadingMessage: globalMessage,
+    loadingProgress: globalProgress,
     getScopeLoading: () => scopedLoading,
     getScopeMessage: () => scopedMessage,
+    getScopeProgress: () => scopedProgress,
   }),
 }));
 
@@ -33,6 +37,8 @@ describe("GlobalLoadingBanner", () => {
     globalLoading.value = false;
     scopedMessage.value = "Scoped loading...";
     globalMessage.value = "Global loading";
+    scopedProgress.value = undefined;
+    globalProgress.value = undefined;
   });
 
   it("shows inline loader when scope is active", async () => {
@@ -49,5 +55,26 @@ describe("GlobalLoadingBanner", () => {
     globalLoading.value = true;
     const wrapper = factory({ inline: true });
     expect(wrapper.find(".message-slot").text()).toBe("Global loading");
+  });
+
+  it("shows progress bar when progress is available", () => {
+    scopedLoading.value = true;
+    scopedProgress.value = { current: 3, total: 10 };
+    const wrapper = factory({
+      scope: "custom",
+      inline: true,
+    });
+
+    expect(wrapper.text()).toContain("3 / 10");
+  });
+
+  it("shows spinner icon when loading", () => {
+    scopedLoading.value = true;
+    const wrapper = factory({
+      scope: "custom",
+      inline: true,
+    });
+
+    expect(wrapper.find("svg.animate-spin").exists()).toBe(true);
   });
 });
