@@ -27,6 +27,7 @@
       <div class="space-y-2">
         <CText
           tag="label"
+          for="primary-commander-search"
           variant="label"
           tone="default"
           class="text-slate-600 dark:text-slate-300"
@@ -39,10 +40,12 @@
               <path d="M9.5 3A6.5 6.5 0 0116 9.5a6.47 6.47 0 01-1.17 3.72l5.47 5.47-1.06 1.06-5.47-5.47A6.47 6.47 0 019.5 16 6.5 6.5 0 113 9.5 6.5 6.5 0 019.5 3m0 2A4.5 4.5 0 005 9.5 4.5 4.5 0 109.5 5z" />
             </svg>
             <input
+              id="primary-commander-search"
               v-model="primaryQuery"
               type="text"
               placeholder="Atraxa, Grand Unifier..."
               aria-label="Search primary commander"
+              aria-describedby="primary-helper-text primary-error-text"
               class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
@@ -50,18 +53,21 @@
             v-if="primarySelection"
             type="button"
             class="rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-600 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60 dark:hover:text-rose-200"
+            aria-label="Clear primary commander selection"
             @click="clearSelection('primary')"
           >
             Clear
           </button>
         </div>
-        <CText variant="helper" tone="muted">
+        <CText id="primary-helper-text" variant="helper" tone="muted">
           Select the main deck commander.
         </CText>
         <CText
           v-if="primaryError"
+          id="primary-error-text"
           variant="helper"
           tone="danger"
+          role="alert"
         >
           {{ primaryError }}
         </CText>
@@ -119,6 +125,7 @@
       <div v-show="hasPartner" class="space-y-2">
         <CText
           tag="label"
+          for="partner-commander-search"
           variant="label"
           tone="default"
           class="text-slate-600 dark:text-slate-300"
@@ -134,10 +141,12 @@
               <path d="M12 13c2.7 0 5.8 1.29 6 3.89V19H6v-2.11C6.2 14.29 9.3 13 12 13m0-2a4 4 0 114-4 4 4 0 01-4 4m0 6c-3.33 0-8 1.66-8 5v2h16v-2c0-3.34-4.67-5-8-5z" />
             </svg>
             <input
+              id="partner-commander-search"
               v-model="partnerQuery"
               type="text"
               placeholder="Choose a partner..."
               aria-label="Search partner commander"
+              aria-describedby="partner-helper-text partner-warning-text partner-error-text"
               :disabled="partnerDisabled"
               class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed dark:text-slate-100 dark:placeholder:text-slate-500"
             />
@@ -146,25 +155,30 @@
             v-if="partnerSelection"
             type="button"
             class="rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-600 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60 dark:hover:text-rose-200"
+            aria-label="Clear partner commander selection"
             @click="clearSelection('partner')"
           >
             Clear
           </button>
         </div>
-        <CText variant="helper" tone="muted">
+        <CText id="partner-helper-text" variant="helper" tone="muted">
           Optional - add a partner to build a combined decklist.
         </CText>
         <CText
           v-if="partnerDisabled"
+          id="partner-warning-text"
           variant="helper"
           tone="warn"
+          role="status"
         >
           Select a primary commander before choosing a partner.
         </CText>
         <CText
           v-else-if="partnerError"
+          id="partner-error-text"
           variant="helper"
           tone="danger"
+          role="alert"
         >
           {{ partnerError }}
         </CText>

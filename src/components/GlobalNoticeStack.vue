@@ -10,6 +10,7 @@
           class="w-full max-w-sm rounded-2xl border bg-white/95 p-4 shadow-xl shadow-slate-900/15 ring-1 ring-slate-900/5 dark:bg-slate-900/90 dark:ring-slate-50/10"
           :class="noticeClass(notice.type)"
           role="status"
+          :aria-live="notice.type === 'error' ? 'assertive' : 'polite'"
         >
           <div class="flex items-start gap-3">
             <div class="text-xl" aria-hidden="true">
@@ -26,6 +27,7 @@
             <button
               type="button"
               class="text-xs font-semibold text-slate-500 transition hover:text-rose-500 dark:text-slate-400"
+              aria-label="Dismiss notification"
               @click="dismissNotice(notice.id)"
             >
               Close

@@ -28,6 +28,8 @@
       v-else
       type="button"
       class="sticky top-4 z-40 mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm shadow-slate-900/10 backdrop-blur transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
+      aria-label="Show toolkit controls"
+      aria-expanded="false"
       @click="expandHeader"
     >
       <span aria-hidden="true">☰</span>
