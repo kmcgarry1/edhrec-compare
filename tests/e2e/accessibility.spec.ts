@@ -115,10 +115,14 @@ test.describe("Keyboard Navigation", () => {
 
     // Type to search
     await primaryInput.fill("Atra");
-    await page.waitForTimeout(500); // Wait for debounce
 
-    // Use keyboard to select result
+    // Wait for search results to appear
     const firstResult = page.locator("li", { hasText: "Atraxa" }).first();
+    await expect(firstResult).toBeVisible({ timeout: 3000 }).catch(() => {
+      // Results may not always appear in stub environment
+    });
+
+    // Use keyboard to select result if available
     if (await firstResult.isVisible().catch(() => false)) {
       await firstResult.focus();
       await page.keyboard.press("Enter");
@@ -255,8 +259,8 @@ test.describe("Focus Management", () => {
     // Close modal
     await page.keyboard.press("Escape");
 
-    // Focus should return to upload button (or be restored)
-    await page.waitForTimeout(100);
+    // Wait for modal to close
+    await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeHidden();
     // Note: Full focus restoration testing requires more setup
   });
 

@@ -45,7 +45,7 @@
               type="text"
               placeholder="Atraxa, Grand Unifier..."
               aria-label="Search primary commander"
-              aria-describedby="primary-helper-text primary-error-text"
+              :aria-describedby="primaryError ? 'primary-helper-text primary-error-text' : 'primary-helper-text'"
               class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
             />
           </div>
@@ -146,7 +146,7 @@
               type="text"
               placeholder="Choose a partner..."
               aria-label="Search partner commander"
-              aria-describedby="partner-helper-text partner-warning-text partner-error-text"
+              :aria-describedby="partnerDisabled ? 'partner-helper-text partner-warning-text' : (partnerError ? 'partner-helper-text partner-error-text' : 'partner-helper-text')"
               :disabled="partnerDisabled"
               class="w-full bg-transparent text-base text-slate-900 placeholder:text-slate-400 focus:outline-none disabled:cursor-not-allowed dark:text-slate-100 dark:placeholder:text-slate-500"
             />
