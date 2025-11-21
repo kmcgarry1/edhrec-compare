@@ -3,7 +3,7 @@
     <div
       v-if="open"
       ref="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm text-center"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 px-4 py-8 text-center backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="csv-upload-title"
@@ -17,7 +17,7 @@
           padding="p-4 sm:p-6"
           background="bg-white dark:bg-slate-900"
           shadow="shadow-2xl shadow-slate-900/40 dark:shadow-black/60"
-          class="text-center"
+          class="max-h-[90vh] overflow-y-auto text-center"
         >
           <div class="flex flex-col items-center gap-3">
             <p class="text-xs uppercase tracking-[0.3em] text-emerald-500/80">Upload Collection</p>
