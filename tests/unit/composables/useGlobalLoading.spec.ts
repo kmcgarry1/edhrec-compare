@@ -130,6 +130,47 @@ describe("useGlobalLoading", () => {
     });
   });
 
+  describe("progress tracking", () => {
+    it("should initialize progress when total is provided", () => {
+      composable.startLoading("Loading with progress", "custom", 10);
+      const progress = composable.getScopeProgress("custom");
+      expect(progress.value).toEqual({ current: 0, total: 10 });
+    });
+
+    it("should update progress", () => {
+      composable.startLoading("Loading", "custom", 5);
+      composable.updateProgress("custom", 3);
+      const progress = composable.getScopeProgress("custom");
+      expect(progress.value).toEqual({ current: 3, total: 5 });
+    });
+
+    it("should not exceed total in progress", () => {
+      composable.startLoading("Loading", "custom", 5);
+      composable.updateProgress("custom", 10);
+      const progress = composable.getScopeProgress("custom");
+      expect(progress.value).toEqual({ current: 5, total: 5 });
+    });
+
+    it("should clear progress when loading stops", () => {
+      composable.startLoading("Loading", "custom", 5);
+      composable.updateProgress("custom", 3);
+      composable.stopLoading("custom");
+      const progress = composable.getScopeProgress("custom");
+      expect(progress.value).toBeUndefined();
+    });
+
+    it("should not set progress if total is not provided", () => {
+      composable.startLoading("Loading", "custom");
+      const progress = composable.getScopeProgress("custom");
+      expect(progress.value).toBeUndefined();
+    });
+
+    it("should return undefined for non-existent scope progress", () => {
+      const progress = composable.getScopeProgress("nonexistent");
+      expect(progress.value).toBeUndefined();
+    });
+  });
+
   describe("withLoading", () => {
     it("should set loading during async operation", async () => {
       const action = vi.fn(() => new Promise((resolve) => setTimeout(resolve, 10)));
@@ -170,6 +211,19 @@ describe("useGlobalLoading", () => {
 
       await promise;
       expect(scopeLoading.value).toBe(false);
+    });
+
+    it("should initialize progress when total is provided", async () => {
+      const scopeProgress = composable.getScopeProgress("custom");
+      const promise = composable.withLoading(
+        async () => "result",
+        "Loading with progress",
+        "custom",
+        5
+      );
+
+      expect(scopeProgress.value).toEqual({ current: 0, total: 5 });
+      await promise;
     });
   });
 

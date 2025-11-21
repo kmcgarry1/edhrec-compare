@@ -48,7 +48,11 @@
       </div>
     </header>
 
-    <div class="hidden md:block">
+    <div v-if="loading" class="space-y-3">
+      <SkeletonCard v-for="i in 5" :key="i" />
+    </div>
+
+    <div v-else class="hidden md:block">
       <CardTable :columns="columns" :rows="rows" row-key="id" aria-live="polite">
         <template #default="{ row }">
           <ScryfallCardRow
@@ -59,7 +63,7 @@
       </CardTable>
     </div>
 
-    <div class="md:hidden space-y-3">
+    <div v-if="!loading" class="md:hidden space-y-3">
       <ScryfallCardRow
         v-for="row in rows"
         :key="row.id + '-mobile'"
@@ -74,6 +78,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Card, CardTable, ScryfallCardRow } from ".";
+import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 
@@ -84,14 +89,20 @@ type SectionMeta = {
   iconColor?: string;
 } | null;
 
-const props = defineProps<{
-  cardlist: { header: string; cardviews: { id: string; name: string }[] };
-  sectionMeta: SectionMeta;
-  rows: CardTableRow[];
-  columns: ColumnDefinition[];
-  decklistText: string;
-  copiedSectionId: string | null;
-}>();
+const props = withDefaults(
+  defineProps<{
+    cardlist: { header: string; cardviews: { id: string; name: string }[] };
+    sectionMeta: SectionMeta;
+    rows: CardTableRow[];
+    columns: ColumnDefinition[];
+    decklistText: string;
+    copiedSectionId: string | null;
+    loading?: boolean;
+  }>(),
+  {
+    loading: false,
+  }
+);
 
 const emit = defineEmits<{
   copy: [];

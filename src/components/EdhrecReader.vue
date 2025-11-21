@@ -55,6 +55,7 @@
         :columns="cardTableColumns"
         :decklist-text="entry.decklistText"
         :copied-section-id="decklistCopySectionId"
+        :loading="bulkCardsLoading"
         @copy="handleCopyDecklist(entry.cardlist, entry.index)"
         @download="handleDownloadDecklist(entry.cardlist, entry.index)"
       />
@@ -139,6 +140,7 @@ const { withLoading, getScopeLoading } = useGlobalLoading();
 const readerScope = "edhrec-reader";
 const bulkCardScope = "scryfall-bulk";
 const readerLoading = getScopeLoading(readerScope);
+const bulkCardsLoading = getScopeLoading(bulkCardScope);
 
 const fetchJsonData = async (url: string) => {
   error.value = null;
@@ -552,17 +554,25 @@ const fetchAllCardData = async () => {
     return;
   }
 
+  const batchSize = 75;
+  const totalBatches = Math.ceil(allCards.value.length / batchSize);
+
   await withLoading(
     async () => {
-      const scryfallData = await getCardsByNames(allCards.value).catch(
-        () => null
-      );
+      const scryfallData = await getCardsByNames(
+        allCards.value,
+        (current, _total) => {
+          const { updateProgress } = useGlobalLoading();
+          updateProgress(bulkCardScope, current);
+        }
+      ).catch(() => null);
       if (scryfallData) {
         scryfallCardData.value = scryfallData;
       }
     },
     "Fetching detailed card data...",
-    bulkCardScope
+    bulkCardScope,
+    totalBatches
   );
 };
 

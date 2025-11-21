@@ -159,7 +159,8 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
 }
 
 export async function getCardsByNames(
-  cardNames: { name: string }[]
+  cardNames: { name: string }[],
+  onProgress?: (current: number, total: number) => void
 ): Promise<ScryfallCard[]> {
   if (!cardNames.length) {
     return [];
@@ -169,9 +170,11 @@ export async function getCardsByNames(
     async () => {
       const allCards: ScryfallCard[] = [];
       const batchSize = 75;
+      const totalBatches = Math.ceil(cardNames.length / batchSize);
 
       for (let i = 0; i < cardNames.length; i += batchSize) {
         const batch = cardNames.slice(i, i + batchSize);
+        const batchNumber = Math.floor(i / batchSize) + 1;
 
         const response = await fetch(
           `https://api.scryfall.com/cards/collection`,
@@ -194,6 +197,8 @@ export async function getCardsByNames(
 
         const fetchResult = await response.json();
         allCards.push(...(fetchResult.data as ScryfallCard[]));
+
+        onProgress?.(batchNumber, totalBatches);
 
         if (i + batchSize < cardNames.length) {
           await new Promise((resolve) => setTimeout(resolve, 300));
