@@ -9,7 +9,7 @@
       @dismiss="dismissOnboarding"
     />
     <div
-      :inert="showOnboarding ? '' : undefined"
+      :inert="showOnboarding ? true : undefined"
       :aria-hidden="showOnboarding ? 'true' : undefined"
     >
       <ToolkitHeader
