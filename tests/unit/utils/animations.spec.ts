@@ -77,18 +77,18 @@ describe("animations", () => {
       expect(element.style.transform).toBe("translateY(10px)");
     });
 
-    it("skips undefined style values", () => {
+    it("applies multiple styles correctly", () => {
       applyTransition(
         element,
         {
           opacity: "0.5",
-          transform: undefined,
+          color: "red",
         },
         "all 0.3s ease"
       );
 
       expect(element.style.opacity).toBe("0.5");
-      expect(element.style.transform).toBe("");
+      expect(element.style.color).toBe("red");
     });
   });
 

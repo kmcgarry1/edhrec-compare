@@ -48,13 +48,13 @@ export const durations = {
  */
 export const applyTransition = (
   el: HTMLElement,
-  styles: Partial<CSSStyleDeclaration>,
+  styles: Record<string, string>,
   transition: string
 ): void => {
   el.style.transition = transition;
   Object.entries(styles).forEach(([key, value]) => {
     if (value !== undefined) {
-      el.style[key as keyof CSSStyleDeclaration] = value as string;
+      (el.style as unknown as Record<string, string>)[key] = value;
     }
   });
 };
