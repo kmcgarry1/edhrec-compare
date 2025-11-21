@@ -8,6 +8,7 @@
       aria-modal="true"
       aria-labelledby="onboarding-title"
       aria-describedby="onboarding-description"
+      tabindex="-1"
       @escape-pressed="handleDismiss"
     >
       <Card
@@ -36,7 +37,7 @@
           <button
             type="button"
             class="inline-flex items-center justify-center rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200"
-            aria-label="Skip upload and start searching commanders"
+            aria-label="Start searching commanders without uploading"
             @click="handleDismiss"
           >
             Start searching first
@@ -85,6 +86,7 @@ watch(
     } else {
       deactivate();
     }
-  }
+  },
+  { immediate: true }
 );
 </script>

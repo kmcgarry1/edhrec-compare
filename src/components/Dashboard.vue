@@ -8,7 +8,11 @@
       @upload="openUploadModalFromOnboarding"
       @dismiss="dismissOnboarding"
     />
-    <ToolkitHeader
+    <div
+      :inert="showOnboarding ? '' : undefined"
+      :aria-hidden="showOnboarding ? 'true' : undefined"
+    >
+      <ToolkitHeader
       v-if="!headerCollapsed"
       :theme="theme"
       :background-enabled="backgroundEnabled"
@@ -24,7 +28,7 @@
       @download-decklist="downloadDecklistFromHeader"
     />
 
-    <button
+      <button
       v-else
       type="button"
       class="sticky top-4 z-40 mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm shadow-slate-900/10 backdrop-blur transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
@@ -36,11 +40,12 @@
       <span>Show Toolkit</span>
     </button>
 
-    <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
+      <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
-    <EdhrecReader @decklistUpdate="handleDecklistUpdate" />
+      <EdhrecReader @decklistUpdate="handleDecklistUpdate" />
 
-    <SiteNotice />
+      <SiteNotice />
+    </div>
   </section>
 </template>
 <script setup lang="ts">

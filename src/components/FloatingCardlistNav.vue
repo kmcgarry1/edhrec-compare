@@ -59,6 +59,7 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="nav-modal-title"
+        tabindex="-1"
         @click.self="closeMobileNav"
         @escape-pressed="closeMobileNav"
       >
@@ -204,11 +205,15 @@ const closeMobileNav = () => {
   mobileOpen.value = false;
 };
 
-watch(mobileOpen, (newValue) => {
-  if (newValue) {
-    activate();
-  } else {
-    deactivate();
-  }
-});
+watch(
+  mobileOpen,
+  (newValue) => {
+    if (newValue) {
+      activate();
+    } else {
+      deactivate();
+    }
+  },
+  { immediate: true }
+);
 </script>

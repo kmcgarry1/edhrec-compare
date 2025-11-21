@@ -77,7 +77,7 @@ test.describe("Onboarding and CSV upload", () => {
     await setupApp(page);
 
     await expect(page.getByText("First-time setup")).toBeVisible();
-    await page.getByRole("button", { name: "Upload a CSV" }).click();
+    await page.getByRole("button", { name: /Upload CSV/ }).click();
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
@@ -93,7 +93,7 @@ test.describe("Onboarding and CSV upload", () => {
 test.describe("Commander workflow", () => {
   test("searches commanders and exports decklists", async ({ page }) => {
     await setupApp(page);
-    await page.getByRole("button", { name: "Start searching first" }).click();
+    await page.getByRole("button", { name: /Start searching/ }).click();
 
     await selectCommander(page);
 
@@ -104,7 +104,7 @@ test.describe("Commander workflow", () => {
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
     await copyButton.click();
     await expect.poll(() =>
-      page.evaluate(() => (window as any).__copiedDecklist)
+      page.evaluate(() => (window as { __copiedDecklist: string }).__copiedDecklist)
     ).toContain("Sol Ring");
 
     const downloadPromise = page.waitForEvent("download");
@@ -123,7 +123,7 @@ test.describe("Mobile card modal", () => {
       "Only run on the mobile project"
     );
     await setupApp(page);
-    await page.getByRole("button", { name: "Start searching first" }).click();
+    await page.getByRole("button", { name: /Start searching/ }).click();
 
     await selectCommander(page);
 

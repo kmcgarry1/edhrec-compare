@@ -8,6 +8,7 @@
       aria-modal="true"
       aria-labelledby="csv-upload-title"
       aria-describedby="csv-upload-description"
+      tabindex="-1"
       @click.self="handleClose"
       @escape-pressed="handleClose"
     >
@@ -74,6 +75,7 @@ watch(
     } else {
       deactivate();
     }
-  }
+  },
+  { immediate: true }
 );
 </script>

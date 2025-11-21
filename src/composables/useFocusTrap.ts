@@ -75,6 +75,13 @@ export const useFocusTrap = (
 
     // Focus first focusable element in the modal
     requestAnimationFrame(() => {
+      if (containerRef.value) {
+        if (!containerRef.value.hasAttribute("tabindex")) {
+          containerRef.value.setAttribute("tabindex", "-1");
+        }
+        containerRef.value.focus({ preventScroll: true });
+        return;
+      }
       const focusableElements = getFocusableElements();
       if (focusableElements.length > 0) {
         focusableElements[0]?.focus();
