@@ -9,7 +9,7 @@
       >
         <div
           v-bind="attrs"
-          class="pointer-events-auto overflow-hidden rounded-2xl border border-emerald-400/40 bg-emerald-100/70 shadow-sm shadow-emerald-200/60 dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:shadow-black/30"
+          class="loading-pulse pointer-events-auto rounded-2xl border border-emerald-400/40 bg-emerald-100/70 px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm shadow-emerald-200/60 dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:text-emerald-100 dark:shadow-black/30"
         >
           <div class="flex items-center justify-between gap-3 px-4 py-2">
             <div class="flex items-center gap-3">
@@ -70,12 +70,12 @@
     <div
       v-bind="attrs"
       :aria-hidden="isVisible ? 'false' : 'true'"
-      class="pointer-events-auto overflow-hidden rounded-2xl border border-emerald-400/40 bg-emerald-100/70 shadow-sm shadow-emerald-200/60 transition duration-200 ease-out dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:shadow-black/30"
-      :class="
+      class="pointer-events-auto rounded-2xl border border-emerald-400/40 bg-emerald-100/70 px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm shadow-emerald-200/60 transition duration-200 ease-out dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:text-emerald-100 dark:shadow-black/30"
+      :class="[
         isVisible
-          ? 'opacity-100 translate-y-0 visible'
+          ? 'opacity-100 translate-y-0 visible loading-pulse'
           : 'pointer-events-none opacity-0 -translate-y-1 invisible'
-      "
+      ]"
     >
       <div class="flex items-center justify-between gap-3 px-4 py-2">
         <div class="flex items-center gap-3">

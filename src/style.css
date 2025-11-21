@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./assets/animations.css";
 @config "../tailwind.config.cjs";
 
 @layer base {

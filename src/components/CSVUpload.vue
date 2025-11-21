@@ -56,18 +56,25 @@
       Processing CSV data...
     </GlobalLoadingBanner>
 
-    <div
-      v-if="validationSummary"
-      class="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-900 shadow-sm shadow-emerald-100 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-100"
-      role="status"
-      aria-live="polite"
-    >
-      <span aria-hidden="true" class="text-lg">✅</span>
-      <div class="text-left">
-        <p class="font-semibold">Valid CSV</p>
-        <p>{{ validationSummary }}</p>
+    <Transition name="success-checkmark">
+      <div
+        v-if="validationSummary"
+        class="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-900 shadow-sm shadow-emerald-100 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-100"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="success-indicator text-emerald-600 dark:text-emerald-300" aria-hidden="true">
+          <svg class="checkmark" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+            <path class="checkmark-check" d="M14 27l7.5 7.5L38 18" fill="none" />
+          </svg>
+        </div>
+        <div class="text-left">
+          <p class="font-semibold">Valid CSV</p>
+          <p>{{ validationSummary }}</p>
+        </div>
       </div>
-    </div>
+    </Transition>
 
     <div
       v-if="validationResult?.warnings.length"

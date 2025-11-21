@@ -64,13 +64,15 @@ const iconForType = (type: "info" | "success" | "error") => {
 };
 </script>
 <style scoped>
-.notice-enter-active,
-.notice-leave-active {
-  transition: all 0.2s ease;
+.notice-enter-active {
+  animation: slide-in-bounce 0.5s var(--ease-bounce);
 }
-.notice-enter-from,
-.notice-leave-to {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.98);
+
+.notice-leave-active {
+  animation: slide-out 0.3s var(--ease-accelerate);
+}
+
+.notice-move {
+  transition: transform 0.3s var(--ease-standard);
 }
 </style>
