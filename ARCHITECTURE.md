@@ -68,6 +68,8 @@ Commander Scout is a **single-page application (SPA)** built with modern web tec
 | **Playwright**      | 1.56.1  | E2E Testing           | Modern, reliable browser automation for testing user flows                               |
 | **Vitest**          | 4.0.12  | Unit Testing          | Fast, Vite-native test runner with excellent DX                                          |
 
+_Note: Version numbers reflect the state at documentation time (2025-11-21). Check `package.json` for current versions._
+
 ---
 
 ## Directory Structure
@@ -859,5 +861,4 @@ For questions or clarification on architectural decisions, open an issue with th
 ---
 
 **Last Updated:** 2025-11-21  
-**Maintainers:** Commander Scout Team  
-**Version:** 0.0.0
+**Maintainers:** Commander Scout Team
