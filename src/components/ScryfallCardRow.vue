@@ -511,7 +511,7 @@ const rarityClass = (rarity?: string | null) => {
 
 onMounted(() => {
   setupHoverDetection();
-  ensureSymbolsLoaded().catch(() => {
+  Promise.resolve(ensureSymbolsLoaded()).catch(() => {
     /* handled globally */
   });
 });
