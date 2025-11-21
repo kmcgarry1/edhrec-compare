@@ -180,7 +180,7 @@ describe("sentry", () => {
       expect(Sentry.captureException).toHaveBeenCalledWith(error);
     });
 
-    it("does not throw if Sentry.captureException fails", () => {
+    it("silently handles errors if Sentry.captureException fails", () => {
       (Sentry.captureException as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
         throw new Error("Capture failed");
       });
@@ -213,7 +213,7 @@ describe("sentry", () => {
       expect(Sentry.setUser).toHaveBeenCalledWith(user);
     });
 
-    it("does not throw if Sentry.setUser fails", () => {
+    it("silently handles errors if Sentry.setUser fails", () => {
       (Sentry.setUser as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
         throw new Error("SetUser failed");
       });
@@ -229,7 +229,7 @@ describe("sentry", () => {
       expect(Sentry.setUser).toHaveBeenCalledWith(null);
     });
 
-    it("does not throw if Sentry.setUser fails", () => {
+    it("silently handles errors if Sentry.setUser fails", () => {
       (Sentry.setUser as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
         throw new Error("SetUser failed");
       });

@@ -92,11 +92,8 @@ export function captureError(
     } else {
       Sentry.captureException(error);
     }
-  } catch (sentryError) {
+  } catch {
     // Silently fail if Sentry is not initialized or throws an error
-    if (import.meta.env.DEV) {
-      console.warn("Failed to capture error to Sentry:", sentryError);
-    }
   }
 }
 
@@ -109,11 +106,8 @@ export function captureError(
 export function setUserContext(user: { id?: string; username?: string }): void {
   try {
     Sentry.setUser(user);
-  } catch (error) {
+  } catch {
     // Silently fail if Sentry is not initialized
-    if (import.meta.env.DEV) {
-      console.warn("Failed to set user context:", error);
-    }
   }
 }
 
@@ -123,10 +117,7 @@ export function setUserContext(user: { id?: string; username?: string }): void {
 export function clearUserContext(): void {
   try {
     Sentry.setUser(null);
-  } catch (error) {
+  } catch {
     // Silently fail if Sentry is not initialized
-    if (import.meta.env.DEV) {
-      console.warn("Failed to clear user context:", error);
-    }
   }
 }
