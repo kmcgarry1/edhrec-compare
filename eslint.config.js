@@ -54,8 +54,12 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      ...vuePlugin.configs["vue3-recommended"].rules,
-      ...tsPlugin.configs.recommended.rules,
+      ...(vuePlugin.configs["flat/recommended"]?.rules ??
+        vuePlugin.configs.recommended?.rules ??
+        {}),
+      ...(tsPlugin.configs["flat/recommended"]?.rules ??
+        tsPlugin.configs.recommended?.rules ??
+        {}),
       "vue/multi-word-component-names": "off",
       "vue/script-setup-uses-vars": "error",
       ...commonRules,
@@ -72,7 +76,9 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      ...tsPlugin.configs.recommended.rules,
+      ...(tsPlugin.configs["flat/recommended"]?.rules ??
+        tsPlugin.configs.recommended?.rules ??
+        {}),
       ...commonRules,
     },
   },
