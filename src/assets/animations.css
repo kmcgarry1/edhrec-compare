@@ -1,0 +1,253 @@
+/**
+ * Shared animation keyframes and utility classes
+ * Following Material Design motion principles
+ * Total size: ~3KB
+ */
+
+/* ========================================
+   CSS Custom Properties (Easing & Timing)
+   ======================================== */
+
+:root {
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  --duration-instant: 100ms;
+  --duration-quick: 200ms;
+  --duration-standard: 300ms;
+  --duration-emphasis: 500ms;
+  --duration-slow: 600ms;
+}
+
+/* ========================================
+   Keyframe Animations
+   ======================================== */
+
+/* Stroke animation for checkmark */
+@keyframes stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Success checkmark scale bounce */
+@keyframes success-bounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Ripple effect for button clicks */
+@keyframes ripple-animation {
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
+  }
+}
+
+/* Slide in with bounce for toasts */
+@keyframes slide-in-bounce {
+  0% {
+    transform: translateX(100%);
+  }
+  60% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Slide out for toasts */
+@keyframes slide-out {
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Fade up animation for cards */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Loading pulse */
+.loading-pulse {
+  animation: pulse 2s var(--ease-standard) infinite;
+}
+
+/* Ripple effect on buttons */
+.ripple {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-animation 0.6s ease-out;
+  pointer-events: none;
+}
+
+/* Card hover lift effect */
+.card-hover {
+  transition:
+    transform var(--duration-quick) var(--ease-standard),
+    box-shadow var(--duration-quick) var(--ease-standard);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+}
+
+/* Success indicator with checkmark animation */
+.success-indicator {
+  animation: success-bounce var(--duration-emphasis) var(--ease-bounce);
+}
+
+.checkmark {
+  width: 52px;
+  height: 52px;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: currentColor;
+  fill: none;
+  animation: stroke 0.6s var(--ease-decelerate) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 3;
+  stroke: currentColor;
+  fill: none;
+  animation: stroke 0.3s var(--ease-decelerate) 0.5s forwards;
+}
+
+/* Smooth scroll behavior */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ========================================
+   Vue Transition Classes
+   ======================================== */
+
+/* Icon flip transition (for theme toggle) */
+.icon-flip-enter-active,
+.icon-flip-leave-active {
+  transition: all var(--duration-standard) var(--ease-bounce);
+}
+
+.icon-flip-enter-from {
+  transform: rotateY(90deg) scale(0.5);
+  opacity: 0;
+}
+
+.icon-flip-leave-to {
+  transform: rotateY(-90deg) scale(0.5);
+  opacity: 0;
+}
+
+/* Card list staggered transitions */
+.card-list-move,
+.card-list-enter-active {
+  transition: all 0.4s var(--ease-decelerate);
+}
+
+.card-list-leave-active {
+  transition: all var(--duration-standard) var(--ease-accelerate);
+  position: absolute;
+}
+
+.card-list-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.card-list-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Toast notification enhanced animation */
+.toast-enter-active {
+  animation: slide-in-bounce var(--duration-emphasis) var(--ease-bounce);
+}
+
+.toast-leave-active {
+  animation: slide-out var(--duration-standard) var(--ease-accelerate);
+}
+
+/* Success checkmark transition */
+.success-checkmark-enter-active {
+  animation: success-bounce var(--duration-emphasis) var(--ease-bounce);
+}
+
+.success-checkmark-leave-active {
+  transition: all var(--duration-quick) var(--ease-accelerate);
+}
+
+.success-checkmark-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* ========================================
+   Accessibility: Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable transforms for reduced motion */
+  .card-hover:hover {
+    transform: none;
+  }
+}
