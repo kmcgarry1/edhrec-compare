@@ -39,6 +39,7 @@
         <button
           type="button"
           class="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-600 dark:text-slate-200 dark:hover:text-rose-200"
+          aria-label="Remove uploaded CSV file"
           @click.stop="removeFile"
         >
           Remove
@@ -71,6 +72,7 @@
         <button
           type="button"
           class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+          aria-label="Load sample inventory CSV"
           @click="loadSampleInventory"
         >
           Use mine
