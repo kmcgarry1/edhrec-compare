@@ -61,7 +61,7 @@ Each issue includes:
 
 ### 3. Issue Creation Tools
 
-**Files:** `create-ui-ux-issues.sh`, `docs/CREATE_UI_UX_ISSUES.md`
+**Files:** `create-issues.sh`, `docs/CREATE_GITHUB_ISSUES.md`
 
 - Automated shell script for bulk issue creation
 - Comprehensive manual instructions
@@ -90,11 +90,11 @@ Six UI states captured and hosted on GitHub:
 gh auth login
 
 # Create all 7 issues automatically
-./create-ui-ux-issues.sh
+./create-issues.sh
 ```
 
 **Option B: Manual**
-Follow instructions in `docs/CREATE_UI_UX_ISSUES.md` to create issues one by one.
+Follow instructions in `docs/CREATE_GITHUB_ISSUES.md` to create issues one by one.
 
 ### Step 2: Prioritize & Schedule
 
@@ -216,9 +216,8 @@ Track these to measure improvement:
 
 ### Documentation
 
-- `docs/UI_UX_DESIGN_REVIEW.md` - Full analysis
-- `docs/CREATE_UI_UX_ISSUES.md` - Issue creation guide
-- `docs/issues/UI_UX_ISSUES_README.md` - Issues summary
+- `docs/CREATE_GITHUB_ISSUES.md` - Issue creation guide
+- `docs/issues/README.md` - Issues summary
 - `VISUAL_DESIGN_REVIEW_SUMMARY.md` - This file
 
 ### Issue Files
@@ -239,7 +238,7 @@ docs/issues/
 
 ### Tools
 
-- `create-ui-ux-issues.sh` - Automated issue creation script
+- `create-issues.sh` - Automated issue creation script
 
 ## Questions?
 
@@ -253,7 +252,9 @@ docs/issues/
 
 This review provides a clear roadmap for elevating Commander Scout's UI/UX to a professional, accessible, and delightful user experience. The issues are well-documented, prioritized by impact, and ready to be tackled incrementally.
 
-**Next step:** Run `./create-ui-ux-issues.sh` to create the GitHub issues and begin implementation planning.
+**Next step:** Run `./create-issues.sh` to create the GitHub issues and begin implementation planning.
+
+**Note:** Issues #69-#75 have already been created on GitHub. The documentation structure and automation tools have been added for future reference and maintenance.
 
 ---
 
