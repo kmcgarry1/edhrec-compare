@@ -1,52 +1,80 @@
-# UI/UX Design Review Issues
+# Commander Scout - Architecture & Design Issues
 
-This directory contains detailed issue documentation from the comprehensive UI/UX design review conducted on Commander Scout.
+This directory contains detailed issue documentation from comprehensive reviews of Commander Scout, including UI/UX design and architecture reviews.
 
 ## Overview
 
-**Review Date:** November 21, 2025  
-**Total Issues:** 7  
-**Status:** Issues created on GitHub (#69-#75)
+**Last Updated:** November 22, 2025  
+**Total Issues:** 16 (7 UI/UX + 9 Architecture)  
+**Status:**
+
+- UI/UX Issues: Created on GitHub (#69-#75)
+- Architecture Issues: Ready for creation
 
 ## Directory Structure
 
 ```
 docs/issues/
-├── high-priority/          # Critical UX issues (3 issues)
+├── high-priority/          # Critical issues (6 total)
+│   # UI/UX Issues
 │   ├── 10-mobile-toolbar-responsiveness.md
 │   ├── 11-visual-hierarchy-toolkit.md
-│   └── 12-information-density-whitespace.md
-├── medium-priority/        # Important improvements (3 issues)
+│   ├── 12-information-density-whitespace.md
+│   # Architecture Issues
+│   ├── 01-implement-indexeddb-caching.md
+│   ├── 02-virtual-scrolling-card-tables.md
+│   └── 03-code-splitting-lazy-loading.md
+├── medium-priority/        # Important improvements (6 total)
+│   # UI/UX Issues
 │   ├── 10-empty-state-design.md
 │   ├── 11-form-input-accessibility.md
-│   └── 12-loading-state-visibility.md
-├── low-priority/           # Polish and enhancements (1 issue)
-│   └── 09-micro-interactions-polish.md
+│   ├── 12-loading-state-visibility.md
+│   # Architecture Issues
+│   ├── 01-error-boundary-implementation.md
+│   ├── 02-pwa-offline-support.md
+│   └── 03-api-request-deduplication.md
+├── low-priority/           # Polish and maintenance (4 total)
+│   # UI/UX Issues
+│   ├── 09-micro-interactions-polish.md
+│   # Architecture Issues
+│   ├── 01-component-documentation.md
+│   ├── 02-automated-dependency-updates.md
+│   └── 03-e2e-test-coverage.md
 └── README.md               # This file
 ```
 
 ## Priority Breakdown
 
-### High Priority (3 issues, ~5-7 days)
+### High Priority (6 issues, ~12-17 days)
 
-Issues that significantly impact usability and should be addressed first:
+Critical issues that significantly impact usability and performance:
 
-1. **Mobile Toolbar Responsiveness** (#69)
+**UI/UX Issues (#69-#71)**
+
+1. **Mobile Toolbar Responsiveness**
    - Touch targets too small on mobile
-   - Horizontal scrolling issues
    - Poor mobile user experience
-
-2. **Visual Hierarchy in Toolkit Header** (#70)
-   - All buttons have similar visual weight
+2. **Visual Hierarchy in Toolkit Header**
    - Primary actions not clear
    - Reduced feature discoverability
 
-3. **Information Density & Whitespace Balance** (#71)
+3. **Information Density & Whitespace Balance**
    - Excessive scrolling required
    - Desktop space underutilized
-   - Content hidden below fold
 
-### Medium Priority (3 issues, ~3 days)
+**Architecture Issues (New)** 4. **IndexedDB Caching** (2-4 days)
+
+- Eliminate 80% of repeat API calls
+- Enable offline functionality
+
+5. **Virtual Scrolling** (2-3 days)
+   - Smooth scrolling for 500+ card lists
+   - Reduce memory usage by 50%
+6. **Code Splitting & Lazy Loading** (2-3 days)
+   - Reduce initial bundle by 40%
+   - Faster time-to-interactive
+
+### Medium Priority (6 issues, ~8-13 days)
 
 Important improvements that enhance the experience:
 
@@ -76,11 +104,17 @@ Polish and micro-interactions for premium feel:
 
 ## GitHub Issues
 
-All issues have been created on GitHub with appropriate labels:
+**UI/UX Issues** - Already created on GitHub:
 
-- **Labels:** `ui-ux`, `design`, `high-priority`/`medium-priority`/`low-priority`
+- **Labels:** `ui-ux`, `design`, priority labels
 - **Issue Numbers:** #69-#75
 - **Link:** https://github.com/kmcgarry1/edhrec-compare/issues
+
+**Architecture Issues** - Ready to be created:
+
+- **Labels:** `architecture`, `performance`, `reliability`, priority labels
+- **Issue Count:** 9 new issues
+- **Use:** `create-issues.sh` script to batch create
 
 ## Creating GitHub Issues
 
@@ -115,9 +149,17 @@ Each issue markdown file contains:
 
 ## Implementation Recommendations
 
-### Week 1-2: Quick Wins (4 days)
+### Phase 1: Performance Quick Wins (Week 1-2, 7-10 days)
 
-Focus on medium-priority items with high impact:
+Focus on high-impact architecture improvements:
+
+- [ ] IndexedDB caching (3-4 days)
+- [ ] Virtual scrolling (2-3 days)
+- [ ] Code splitting (2-3 days)
+
+### Phase 2: UI/UX Polish (Week 3, 4-7 days)
+
+Address critical UI/UX issues:
 
 - [ ] Visual hierarchy improvements (#70)
 - [ ] Form accessibility fixes (#73)
@@ -176,8 +218,9 @@ Before closing any issue:
 
 ## Related Documentation
 
-- [VISUAL_DESIGN_REVIEW_SUMMARY.md](../../VISUAL_DESIGN_REVIEW_SUMMARY.md) - Executive summary
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) - Technical architecture
+- [ARCHITECTURE_REVIEW_SUMMARY.md](../ARCHITECTURE_REVIEW_SUMMARY.md) - Architecture review executive summary
+- [VISUAL_DESIGN_REVIEW_SUMMARY.md](../../VISUAL_DESIGN_REVIEW_SUMMARY.md) - UI/UX review summary
+- [ARCHITECTURE.md](../../ARCHITECTURE.md) - Technical architecture details
 - [ACCESSIBILITY.md](../ACCESSIBILITY.md) - Accessibility guidelines
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) - Contribution guidelines
 
