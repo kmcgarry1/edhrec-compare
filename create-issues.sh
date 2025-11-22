@@ -45,8 +45,28 @@ create_issue() {
     echo -e "${YELLOW}Processing: $filename${NC}"
     echo "Title: $title"
     
-    # Create labels based on priority
-    local labels="ui-ux,design"
+    # Determine issue type based on filename/content
+    local labels=""
+    
+    # Check if it's a UI/UX issue (numbered 09-12) or architecture issue (numbered 01-03)
+    if [[ "$filename" =~ ^(09|10|11|12)- ]]; then
+        labels="ui-ux,design"
+    else
+        labels="architecture"
+        
+        # Add specific tags based on content/title
+        if echo "$title" | grep -qi -E "cache|virtual|code splitting|lazy"; then
+            labels="$labels,performance"
+        fi
+        if echo "$title" | grep -qi -E "error|boundary|pwa|offline"; then
+            labels="$labels,reliability"
+        fi
+        if echo "$title" | grep -qi -E "documentation|dependency|test"; then
+            labels="$labels,maintenance"
+        fi
+    fi
+    
+    # Add priority label
     case $priority in
         high)
             labels="$labels,high-priority"

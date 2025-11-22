@@ -132,7 +132,7 @@ Lightning Greaves,1,Yes,M19
 
 ## Issue Automation
 
-Architecture review issues live under `docs/issues/high-priority|medium-priority|low-priority`. To convert them into GitHub issues:
+Architecture and design review issues live under `docs/issues/high-priority|medium-priority|low-priority`. To convert them into GitHub issues:
 
 ```bash
 chmod +x create-issues.sh
@@ -140,6 +140,11 @@ chmod +x create-issues.sh
 ```
 
 The script expects the GitHub CLI (`gh`) to be installed and authenticated. Alternatively, follow the manual instructions in `docs/CREATE_GITHUB_ISSUES.md`.
+
+**Available Issues:**
+
+- **UI/UX Issues:** 7 issues (already created as #69-#75)
+- **Architecture Issues:** 9 new issues covering performance, reliability, and maintenance
 
 ## Contributing
 
@@ -153,6 +158,8 @@ The script expects the GitHub CLI (`gh`) to be installed and authenticated. Alte
 
 For detailed information about the project's architecture, technology decisions, and design patterns, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
+**Architecture Review:** A comprehensive architecture review has been completed (November 2025), identifying 9 improvement opportunities across performance, reliability, and maintenance. See [ARCHITECTURE_REVIEW_SUMMARY.md](./docs/ARCHITECTURE_REVIEW_SUMMARY.md) for details.
+
 Key topics covered:
 
 - **Build Tooling**: Why we use Rolldown instead of standard Vite (performance, compatibility)
@@ -160,6 +167,7 @@ Key topics covered:
 - **Testing Strategy**: Unit and E2E testing approach
 - **Performance**: Bundle optimization and runtime considerations
 - **API Integration**: EDHREC and Scryfall integration details
+- **Improvement Roadmap**: Identified optimization opportunities and implementation priorities
 
 ---
 
