@@ -1,3 +1,4 @@
+import { cardCache } from "./indexedDbCache";
 import { apiCall } from "./errorHandler";
 
 interface CardFaceImageUris {
@@ -66,8 +67,18 @@ function sanitizeCardName(cardName: string): string {
   return frontFace?.trim() || trimmedName;
 }
 
+function getCacheKey(cardName: string): string {
+  return sanitizeCardName(cardName).toLowerCase();
+}
+
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
   const sanitizedName = sanitizeCardName(cardName);
+  const cacheKey = sanitizedName.toLowerCase();
+  const cachedCard = await cardCache.getCachedCard(cacheKey);
+  if (cachedCard) {
+    return cachedCard;
+  }
+
   return apiCall<ScryfallCard | null>(
     async () => {
       const response = await fetch(
@@ -84,6 +95,7 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
       }
 
       const card: ScryfallCard = await response.json();
+      await cardCache.setCachedCard(cacheKey, card);
       return card;
     },
     "Unable to load that commander from Scryfall.",
@@ -168,14 +180,34 @@ export async function getCardsByNames(
 
   const result = await apiCall<ScryfallCard[]>(
     async () => {
-      const allCards: ScryfallCard[] = [];
       const batchSize = 75;
       const totalBatches = Math.ceil(cardNames.length / batchSize);
+      const requests = cardNames.map(({ name }) => {
+        const sanitized = sanitizeCardName(name);
+        return {
+          sanitized,
+          cacheKey: sanitized.toLowerCase(),
+        };
+      });
 
-      for (let i = 0; i < cardNames.length; i += batchSize) {
-        const batch = cardNames.slice(i, i + batchSize);
-        const batchNumber = Math.floor(i / batchSize) + 1;
+      const cachedResults = new Map<string, ScryfallCard>();
+      const missingRequests = new Map<string, string>();
 
+      for (const request of requests) {
+        const cached = await cardCache.getCachedCard(request.cacheKey);
+        if (cached) {
+          cachedResults.set(request.cacheKey, cached);
+        } else if (!missingRequests.has(request.cacheKey)) {
+          missingRequests.set(request.cacheKey, request.sanitized);
+        }
+      }
+
+      const missingIdentifiers = Array.from(missingRequests.values());
+      const fetchedResults = new Map<string, ScryfallCard>();
+      let batchesCompleted = 0;
+
+      for (let i = 0; i < missingIdentifiers.length; i += batchSize) {
+        const batch = missingIdentifiers.slice(i, i + batchSize);
         const response = await fetch(
           `https://api.scryfall.com/cards/collection`,
           {
@@ -184,8 +216,8 @@ export async function getCardsByNames(
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              identifiers: batch.map((nameObj) => ({
-                name: sanitizeCardName(nameObj.name),
+              identifiers: batch.map((name) => ({
+                name,
               })),
             }),
           }
@@ -196,16 +228,40 @@ export async function getCardsByNames(
         }
 
         const fetchResult = await response.json();
-        allCards.push(...(fetchResult.data as ScryfallCard[]));
+        const cards = (fetchResult.data as ScryfallCard[]) ?? [];
 
-        onProgress?.(batchNumber, totalBatches);
+        for (const card of cards) {
+          const cacheKey = getCacheKey(card.name);
+          fetchedResults.set(cacheKey, card);
+          await cardCache.setCachedCard(cacheKey, card);
+        }
 
-        if (i + batchSize < cardNames.length) {
+        batchesCompleted += 1;
+        onProgress?.(
+          Math.min(batchesCompleted, totalBatches),
+          totalBatches
+        );
+
+        if (i + batchSize < missingIdentifiers.length) {
           await new Promise((resolve) => setTimeout(resolve, 300));
         }
       }
 
-      return allCards;
+      if (!missingIdentifiers.length || batchesCompleted < totalBatches) {
+        onProgress?.(totalBatches, totalBatches);
+      }
+
+      const resolvedCards: ScryfallCard[] = [];
+      for (const request of requests) {
+        const card =
+          cachedResults.get(request.cacheKey) ??
+          fetchedResults.get(request.cacheKey);
+        if (card) {
+          resolvedCards.push(card);
+        }
+      }
+
+      return resolvedCards;
     },
     "Unable to fetch detailed card data from Scryfall.",
     { context: "getCardsByNames" }
