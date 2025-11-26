@@ -81,6 +81,14 @@ The following environment variables can be configured for production deployments
 
 No custom environment variables are required for local development. Network requests hit the public EDHREC and Scryfall APIs directly from the browser.
 
+## Security Hardening
+
+### Content Security Policy
+
+- A strict CSP is shipped through both `index.html` and the production headers declared in `vercel.json`. It locks execution to the same origin by default and only whitelists the remote services the client actually talks to (EDHREC JSON endpoints, Scryfall APIs, Sentry ingestion, and Vercel analytics scripts).
+- Violations are reported to the new serverless logger at `/api/csp-report`, which emits structured events to the deployment logs. Browsers that support `report-to` automatically leverage the `Report-To`/`NEL` headers to batch reports; legacy agents fall back to `report-uri`.
+- If you deploy Commander Scout under a different domain or need extra allowances (for example, a CDN for fonts), update both the CSP string and the `Report-To` URL in `vercel.json` so the `report-to csp-endpoint` directive keeps pointing to a reachable HTTPS endpoint.
+
 ## Development Workflow
 
 1. **Start Dev Server** � `npm run dev`.
