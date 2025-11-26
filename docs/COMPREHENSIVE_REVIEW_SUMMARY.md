@@ -138,11 +138,15 @@ Commander Scout has undergone comprehensive reviews across multiple dimensions. 
 
 **Security & Compliance (5 days)**
 
-- Implement CSP (#81)
-- Sanitize CSV input (#82)
-- Privacy policy (#99)
-- WotC disclaimer (#104)
-- API attribution (#103)
+Immediate work here centers on locking down browser execution, cleaning user-provided data, and ensuring we publish the compliance language required by Wizards of the Coast and integrated APIs. Each task feeds into having a deployable build that can be made public without legal or security blockers.
+
+| Task               | Issue | Key Actions                                                                                                                                                                                                                                                                                    | Est.  |
+| ------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| Implement CSP      | #81   | Ship `Content-Security-Policy` meta/header with `default-src 'self'`, dedicated `script-src`/`style-src` hashes for inline code, tight `img-src`/`font-src` lists (EDHREC, Scryfall, data URIs), and a `report-to` endpoint; validate via browser DevTools, Playwright, and security scanners. | 1.5d  |
+| Sanitize CSV input | #82   | Normalize uploads through a streaming parser, enforce schema validation, and escape cell data before rendering or storage to block CSV injection vectors.                                                                                                                                      | 1d    |
+| Privacy policy     | #99   | Draft privacy & cookie notice covering analytics, storage, and contact handling; publish as `/legal/privacy` and link in footer/upload flow.                                                                                                                                                   | 1d    |
+| WotC disclaimer    | #104  | Add the official Wizards of the Coast fan content disclaimer to footer + legal page, confirm typography/accessibility.                                                                                                                                                                         | 0.75d |
+| API attribution    | #103  | Credit EDHREC, Scryfall, and any other data sources per their terms within footer/help modals; include link targets that open in new tabs.                                                                                                                                                     | 0.75d |
 
 **Performance (7 days)**
 
