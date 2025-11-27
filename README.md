@@ -154,6 +154,15 @@ The script expects the GitHub CLI (`gh`) to be installed and authenticated. Alte
 - **UI/UX Issues:** 7 issues (already created as #69-#75)
 - **Architecture Issues:** 9 new issues covering performance, reliability, and maintenance
 
+Need to mirror GitHub issues into Jira or Trello? Run the exporter:
+
+```bash
+# Generates docs/issue-automation/{issue-export.json,jira-import.csv,trello-import.json}
+npm run issues:export -- --repo your-org/edhrec-compare
+```
+
+See [docs/ISSUE_AUTOMATION.md](./docs/ISSUE_AUTOMATION.md) for supported flags, Jira import mapping instructions, and Trello automation ideas.
+
 ## Contributing
 
 1. Fork + clone the repo.
