@@ -17,6 +17,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --fix",
     "format": "prettier --write .",
+    "issues:export": "node scripts/export-issues-for-boards.mjs",
     "size": "size-limit",
     "prepare": "husky"
   },
