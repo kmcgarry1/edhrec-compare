@@ -15,18 +15,18 @@ describe("Code Splitting", () => {
     expect(DecklistExport.default).toBeDefined();
   });
 
-  it("does not export lazy-loaded components from index", () => {
+  it("does not export lazy-loaded components from index", async () => {
     // Import the index file
-    import("../../src/components/index").then((components) => {
-      // Verify lazy-loaded components are NOT exported
-      expect((components as Record<string, unknown>).NebulaBackground).toBeUndefined();
-      expect((components as Record<string, unknown>).OnboardingModal).toBeUndefined();
-      expect((components as Record<string, unknown>).CsvUploadModal).toBeUndefined();
-      expect((components as Record<string, unknown>).DecklistExport).toBeUndefined();
+    const components = await import("../../src/components/index");
+    
+    // Verify lazy-loaded components are NOT exported
+    expect((components as Record<string, unknown>).NebulaBackground).toBeUndefined();
+    expect((components as Record<string, unknown>).OnboardingModal).toBeUndefined();
+    expect((components as Record<string, unknown>).CsvUploadModal).toBeUndefined();
+    expect((components as Record<string, unknown>).DecklistExport).toBeUndefined();
 
-      // Verify eagerly-loaded components ARE exported
-      expect((components as Record<string, unknown>).Dashboard).toBeDefined();
-      expect((components as Record<string, unknown>).EdhrecReader).toBeDefined();
-    });
+    // Verify eagerly-loaded components ARE exported
+    expect((components as Record<string, unknown>).Dashboard).toBeDefined();
+    expect((components as Record<string, unknown>).EdhrecReader).toBeDefined();
   });
 });
