@@ -64,12 +64,50 @@ export type HandleErrorOptions = {
   context?: string;
 };
 
+const extractErrorMessage = (error: unknown): string => {
+  if (typeof error === "string") {
+    return error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    return (error as { message: string }).message;
+  }
+  return "";
+};
+
+const shouldIgnoreError = (message: string) => {
+  if (!message) {
+    return false;
+  }
+
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("resizeobserver loop") ||
+    normalized.includes("could not find identifiable element")
+  );
+};
+
 export function handleError(
   error: unknown,
   options?: HandleErrorOptions
 ): AppError {
   const fallbackMessage = options?.fallbackMessage ?? DEFAULT_FALLBACK_MESSAGE;
   const contextLabel = options?.context ?? "AppError";
+  const rawMessage = extractErrorMessage(error);
+
+  if (shouldIgnoreError(rawMessage)) {
+    if (import.meta.env.DEV) {
+      console.debug(`[${contextLabel}] Ignored benign error: ${rawMessage}`);
+    }
+    return new AppError(rawMessage || fallbackMessage, fallbackMessage);
+  }
 
   let normalized: AppError;
 
