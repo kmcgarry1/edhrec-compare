@@ -14,6 +14,51 @@ if (!globalThis.matchMedia) {
   });
 }
 
+const createMemoryStorage = (): Storage => {
+  const store = new Map<string, string>();
+  return {
+    get length() {
+      return store.size;
+    },
+    clear: () => store.clear(),
+    getItem: (key) => (store.has(key) ? store.get(key)! : null),
+    key: (index) => Array.from(store.keys())[index] ?? null,
+    removeItem: (key) => {
+      store.delete(key);
+    },
+    setItem: (key, value) => {
+      store.set(key, value);
+    },
+  };
+};
+
+const ensureLocalStorage = () => {
+  const hasWorkingStorage = typeof globalThis.localStorage?.clear === "function";
+  if (hasWorkingStorage) {
+    return;
+  }
+
+  const storage =
+    typeof window !== "undefined" && typeof window.localStorage?.clear === "function"
+      ? window.localStorage
+      : createMemoryStorage();
+
+  Object.defineProperty(globalThis, "localStorage", {
+    value: storage,
+    writable: true,
+    configurable: true,
+  });
+
+  if (typeof window !== "undefined") {
+    Object.defineProperty(window, "localStorage", {
+      value: storage,
+      configurable: true,
+    });
+  }
+};
+
+ensureLocalStorage();
+
 if (!globalThis.MutationObserver) {
   class MockMutationObserver {
     observe = vi.fn();
