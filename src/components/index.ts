@@ -13,9 +13,10 @@ export { default as CommanderDisplay } from "./CommanderDisplay.vue";
 export { default as FloatingCardlistNav } from "./FloatingCardlistNav.vue";
 export { default as GlobalNoticeStack } from "./GlobalNoticeStack.vue";
 export { default as PriceColour } from "./PriceColour.vue";
-export { default as NebulaBackground } from "./NebulaBackground.vue";
 export { default as CardlistSection } from "./CardlistSection.vue";
 export { default as ToolkitHeader } from "./ToolkitHeader.vue";
-export { default as OnboardingModal } from "./OnboardingModal.vue";
-export { default as CsvUploadModal } from "./CsvUploadModal.vue";
-export { default as DecklistExport } from "./DecklistExport.vue";
+// Lazy-loaded components are not exported from index.ts to enable code splitting
+// export { default as OnboardingModal } from "./OnboardingModal.vue";
+// export { default as CsvUploadModal } from "./CsvUploadModal.vue";
+// export { default as DecklistExport } from "./DecklistExport.vue";
+// export { default as NebulaBackground } from "./NebulaBackground.vue";

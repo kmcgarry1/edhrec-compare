@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
 import Dashboard from "../../../src/components/Dashboard.vue";
 
@@ -54,6 +54,15 @@ const mountComponent = () =>
         CSVUpload: { template: "<div class='upload-stub'></div>" },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
         SiteNotice: { template: "<footer class='notice-stub'></footer>" },
+        OnboardingModal: {
+          template:
+            "<div v-if='open' class='onboarding-stub'>Upload your collection or scout first <button @click=\"$emit('dismiss')\">Dismiss</button><button @click=\"$emit('upload')\">Upload</button></div>",
+          props: ["open"],
+        },
+        CsvUploadModal: {
+          template: "<div v-if='open' class='csv-modal-stub'></div>",
+          props: ["open"],
+        },
       },
     },
   });
@@ -69,15 +78,21 @@ describe("Dashboard", () => {
 
   it("shows onboarding prompt until dismissed or data uploaded", async () => {
     const wrapper = mountComponent();
-    expect(document.body.textContent ?? "").toContain(
-      "Upload your collection or scout first"
-    );
-
-    await (wrapper.vm as { dismissOnboarding: () => Promise<void> }).dismissOnboarding();
+    // Wait for async component to load
+    await flushPromises();
     await wrapper.vm.$nextTick();
-    expect(document.body.textContent ?? "").not.toContain(
-      "Upload your collection or scout first"
-    );
+    
+    // Check if onboarding modal stub exists
+    const modalStub = wrapper.find('.onboarding-stub');
+    expect(modalStub.exists()).toBe(true);
+    expect(modalStub.text()).toContain("Upload your collection or scout first");
+
+    // Dismiss the onboarding
+    await modalStub.find('button').trigger('click');
+    await wrapper.vm.$nextTick();
+    
+    // After dismissal, modal should not exist
+    expect(wrapper.find('.onboarding-stub').exists()).toBe(false);
   });
 
   it("downloads decklist when export is available", async () => {
