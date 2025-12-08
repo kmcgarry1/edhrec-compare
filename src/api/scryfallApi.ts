@@ -187,6 +187,8 @@ export async function getCardsByNames(
   }
 
   // Deduplicate batch requests by sorted card names
+  // Note: Order doesn't matter for Scryfall's collection endpoint, and we preserve
+  // the original order when returning results, so deduplication is safe
   const uniqueNames = [...new Set(cardNames.map((c) => getCacheKey(c.name)))];
   const requestKey = `scryfall:batch:${uniqueNames.sort().join(",")}`;
 

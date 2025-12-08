@@ -32,8 +32,12 @@ class RequestCache {
     // Create new request
     const promise = fetcher().finally(() => {
       // Clean up after a short delay to allow sharing between rapid requests
+      // Only delete if this is still the same promise instance (no race condition)
       setTimeout(() => {
-        this.pending.delete(key);
+        const current = this.pending.get(key) as CachedRequest<T> | undefined;
+        if (current && current.promise === promise) {
+          this.pending.delete(key);
+        }
       }, 1000);
     });
 
@@ -72,6 +76,11 @@ class RequestCache {
     }
 
     this.cleanupInterval = setInterval(() => {
+      // Skip cleanup if cache is empty
+      if (this.pending.size === 0) {
+        return;
+      }
+
       const now = Date.now();
       for (const [key, { timestamp }] of this.pending) {
         if (now - timestamp > this.TTL) {
