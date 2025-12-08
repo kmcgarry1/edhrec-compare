@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
-import { h } from "vue";
+import { h, nextTick } from "vue";
 import CardTable from "../../../src/components/CardTable.vue";
 
 const columns = [
@@ -72,5 +72,34 @@ describe("CardTable", () => {
     });
 
     expect(rowKeyFn).toHaveBeenCalledTimes(rows.length);
+  });
+
+  it("virtualizes rows when enabled for large datasets", async () => {
+    const largeRows = Array.from({ length: 200 }, (_, index) => ({
+      id: index,
+      name: `Card ${index}`,
+      type: "Artifact",
+    }));
+
+    const wrapper = mount(CardTable, {
+      props: {
+        columns,
+        rows: largeRows,
+        rowKey: "id",
+        virtual: true,
+        virtualItemSize: 40,
+        virtualMaxHeight: 200,
+        virtualOverscan: 0,
+      },
+    });
+
+    await nextTick();
+
+    const renderedRows = wrapper
+      .findAll("tbody tr")
+      .filter((row) => row.attributes("aria-hidden") !== "true");
+
+    expect(renderedRows.length).toBeLessThan(largeRows.length);
+    expect(wrapper.find(".overflow-y-auto").exists()).toBe(true);
   });
 });

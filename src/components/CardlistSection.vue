@@ -53,7 +53,15 @@
     </div>
 
     <div v-else class="hidden md:block">
-      <CardTable :columns="columns" :rows="rows" row-key="id" aria-live="polite">
+      <CardTable
+        :columns="columns"
+        :rows="rows"
+        row-key="id"
+        aria-live="polite"
+        :virtual="true"
+        :virtual-item-size="76"
+        :virtual-overscan="12"
+      >
         <template #default="{ row }">
           <ScryfallCardRow
             :card="(row as CardTableRow).card"
