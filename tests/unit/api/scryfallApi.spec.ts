@@ -9,6 +9,7 @@ import {
   type ScryfallCard,
 } from "../../../src/api/scryfallApi";
 import { cardCache } from "../../../src/api/indexedDbCache";
+import { requestCache } from "../../../src/api/requestCache";
 
 // Mock fetch globally
 const mockFetch = vi.fn() as MockedFunction<typeof fetch>;
@@ -18,6 +19,8 @@ describe("scryfallApi", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    // Clear request cache to prevent test interference
+    requestCache.clear();
   });
 
   describe("getCard", () => {

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
 import EdhrecReader from "../../../src/components/EdhrecReader.vue";
+import { requestCache } from "../../../src/api/requestCache";
 
 const downloadTextFile = vi.hoisted(() => vi.fn());
 
@@ -113,6 +114,7 @@ describe("EdhrecReader", () => {
     getCardsByNames.mockClear();
     csvRows.value = [];
     csvHeaders.value = ["Name"];
+    requestCache.clear(); // Clear request cache between tests
     (globalThis.fetch as unknown) = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockResponse),
