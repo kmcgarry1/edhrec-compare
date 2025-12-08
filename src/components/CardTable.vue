@@ -142,6 +142,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useVirtualizer } from "@tanstack/vue-virtual";
 
 type Alignment = "left" | "center" | "right";
+type VisibleRow = { row: Record<string, unknown>; index: number; key: string };
 
 export type ColumnDefinition = {
   key: string;
@@ -178,12 +179,15 @@ const alignmentClasses: Record<Alignment, string> = {
   right: "text-right",
 };
 
-const resolveRowKey = (row: Record<string, unknown>, index: number) => {
+const resolveRowKey = (
+  row: Record<string, unknown> | undefined,
+  index: number
+) => {
   if (typeof props.rowKey === "function") {
-    return props.rowKey(row, index);
+    return props.rowKey(row ?? {}, index);
   }
   if (typeof props.rowKey === "string") {
-    return `${row[props.rowKey] ?? index}`;
+    return `${row?.[props.rowKey] ?? index}`;
   }
   return `${index}`;
 };
@@ -219,6 +223,9 @@ const virtualPaddingBottom = computed(() => {
     return 0;
   }
   const last = virtualItems.value[virtualItems.value.length - 1];
+  if (!last) {
+    return 0;
+  }
   return Math.max(virtualizer.value.getTotalSize() - last.end, 0);
 });
 
@@ -233,7 +240,7 @@ const virtualContainerStyle = computed(() => {
   return { maxHeight };
 });
 
-const visibleRows = computed(() => {
+const visibleRows = computed<VisibleRow[]>(() => {
   if (!virtualEnabled.value) {
     return props.rows.map((row, index) => ({
       row,
@@ -242,11 +249,13 @@ const visibleRows = computed(() => {
     }));
   }
 
-  return virtualItems.value.map((item) => ({
-    row: props.rows[item.index],
-    index: item.index,
-    key: item.key,
-  }));
+  return virtualItems.value
+    .map((item) => ({
+      row: props.rows[item.index],
+      index: item.index,
+      key: String(item.key ?? resolveRowKey(props.rows[item.index], item.index)),
+    }))
+    .filter((entry): entry is VisibleRow => Boolean(entry.row));
 });
 
 const showTopShadow = ref(false);
