@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { NebulaBackground } from '../../../src/components';
+import NebulaBackground from '../../../src/components/NebulaBackground.vue';
 import { useCommanderColors } from '../../../src/composables/useCommanderColors';
 
 vi.mock('../../../src/composables/useCommanderColors');
@@ -12,7 +12,7 @@ describe('NebulaBackground', () => {
         mockCommanderColors = { value: [] };
         vi.mocked(useCommanderColors).mockReturnValue({
             commanderColors: mockCommanderColors,
-        } as any);
+        } as ReturnType<typeof useCommanderColors>);
     });
 
     afterEach(() => {

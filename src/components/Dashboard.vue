@@ -49,14 +49,12 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, computed, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, watch, defineAsyncComponent } from "vue";
 import {
   EdhrecReader,
   GlobalLoadingBanner,
   SiteNotice,
   ToolkitHeader,
-  OnboardingModal,
-  CsvUploadModal,
 } from "../components";
 import { useTheme } from "../composables/useTheme";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
@@ -64,6 +62,15 @@ import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useBackgroundPreference } from "../composables/useBackgroundPreference";
+
+// Lazy load modal components (only needed when user interacts)
+const OnboardingModal = defineAsyncComponent(() =>
+  import("./OnboardingModal.vue")
+);
+
+const CsvUploadModal = defineAsyncComponent(() =>
+  import("./CsvUploadModal.vue")
+);
 
 type DecklistPayload = {
   text: string;

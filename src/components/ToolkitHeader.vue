@@ -131,8 +131,13 @@ import {
   mdiCheckDecagram,
   mdiClose,
 } from "@mdi/js";
-import { computed } from "vue";
-import { Card, DecklistExport } from ".";
+import { computed, defineAsyncComponent } from "vue";
+import { Card } from ".";
+
+// Lazy load export component (only needed when decklist is available)
+const DecklistExport = defineAsyncComponent(() =>
+  import("./DecklistExport.vue")
+);
 
 const props = defineProps<{
   theme: string;
