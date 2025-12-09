@@ -97,7 +97,7 @@ import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
-import type CommanderSearchInstance from "./CommanderSearch.vue";
+import CommanderSearchInstance from "./CommanderSearch.vue";
 
 interface EdhrecData {
   container?: {
