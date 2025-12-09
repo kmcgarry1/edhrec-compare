@@ -15,6 +15,7 @@ export { default as GlobalNoticeStack } from "./GlobalNoticeStack.vue";
 export { default as PriceColour } from "./PriceColour.vue";
 export { default as CardlistSection } from "./CardlistSection.vue";
 export { default as ToolkitHeader } from "./ToolkitHeader.vue";
+export { default as EdhrecEmptyState } from "./EdhrecEmptyState.vue";
 // Lazy-loaded components are not exported from index.ts to enable code splitting
 // export { default as OnboardingModal } from "./OnboardingModal.vue";
 // export { default as CsvUploadModal } from "./CsvUploadModal.vue";

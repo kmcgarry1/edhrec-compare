@@ -30,7 +30,10 @@
       :aria-busy="readerLoading"
     >
       <div class="space-y-2">
-        <commander-search @commander-selected="handleCommanderSelection" />
+        <CommanderSearch
+          ref="commanderSearchRef"
+          @commander-selected="handleCommanderSelection"
+        />
         <p class="text-xs text-slate-500 dark:text-slate-400">
           Start typing to search EDHREC commanders, then refine the results with the filters below.
         </p>
@@ -47,6 +50,11 @@
         @update:companion="setCompanion"
       />
     </Card>
+    <EdhrecEmptyState
+      v-if="showEmptyState"
+      :popular="popularCommanders"
+      @select="selectSuggestedCommander"
+    />
     <template v-for="entry in cardlistEntries" :key="entry.key">
       <CardlistSection
         :cardlist="entry.cardlist"
@@ -79,6 +87,7 @@ import {
   CardlistSection,
   GlobalLoadingBanner,
   FloatingCardlistNav,
+  EdhrecEmptyState,
 } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
@@ -88,6 +97,7 @@ import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
+import type CommanderSearchInstance from "./CommanderSearch.vue";
 
 interface EdhrecData {
   container?: {
@@ -102,6 +112,7 @@ interface EdhrecData {
 
 const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
+const commanderSearchRef = ref<InstanceType<typeof CommanderSearchInstance> | null>(null);
 
 const { showOwned } = useOwnedFilter();
 
@@ -508,6 +519,26 @@ const handleDownloadDecklist = (
       context: "Decklist download",
     });
   }
+};
+
+const popularCommanders = [
+  { name: "Atraxa, Grand Unifier" },
+  { name: "The Ur-Dragon" },
+  { name: "Miirym, Sentinel Wyrm" },
+  { name: "Edgar Markov" },
+  { name: "Chulane, Teller of Tales" },
+];
+
+const showEmptyState = computed(
+  () =>
+    !cardlistSections.value.length &&
+    !readerLoading.value &&
+    !currentCommanderSlug.value &&
+    !error.value
+);
+
+const selectSuggestedCommander = (name: string) => {
+  commanderSearchRef.value?.selectPrimaryCommander(name);
 };
 
 const allCards = computed(() => {

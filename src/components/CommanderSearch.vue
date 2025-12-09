@@ -372,4 +372,20 @@ const clearSelection = (field: "primary" | "partner") => {
 
   emitCommanderSelection();
 };
+
+const selectPrimaryCommander = (commanderName: string) => {
+  const name = commanderName.trim();
+  primarySelection.value = name;
+  primaryQuery.value = name;
+  primaryResults.value = [];
+  partnerSelection.value = "";
+  partnerQuery.value = "";
+  partnerResults.value = [];
+  hasPartner.value = false;
+  emitCommanderSelection();
+};
+
+defineExpose({
+  selectPrimaryCommander,
+});
 </script>
