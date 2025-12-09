@@ -1,5 +1,6 @@
 import { cardCache } from "./indexedDbCache";
 import { apiCall } from "./errorHandler";
+import { requestCache } from "./requestCache";
 
 interface CardFaceImageUris {
   small?: string;
@@ -79,27 +80,31 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
     return cachedCard;
   }
 
-  return apiCall<ScryfallCard | null>(
-    async () => {
-      const response = await fetch(
-        `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
-          sanitizedName
-        )}`
-      );
+  // Deduplicate in-flight requests
+  const requestKey = `scryfall:card:${cacheKey}`;
+  return requestCache.dedupe(requestKey, () =>
+    apiCall<ScryfallCard | null>(
+      async () => {
+        const response = await fetch(
+          `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
+            sanitizedName
+          )}`
+        );
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
+        if (!response.ok) {
+          if (response.status === 404) {
+            return null;
+          }
+          throw new Error(`Scryfall API error: ${response.status}`);
         }
-        throw new Error(`Scryfall API error: ${response.status}`);
-      }
 
-      const card: ScryfallCard = await response.json();
-      await cardCache.setCachedCard(cacheKey, card);
-      return card;
-    },
-    "Unable to load that commander from Scryfall.",
-    { context: "getCard" }
+        const card: ScryfallCard = await response.json();
+        await cardCache.setCachedCard(cacheKey, card);
+        return card;
+      },
+      "Unable to load that commander from Scryfall.",
+      { context: "getCard" }
+    )
   );
 }
 
@@ -126,48 +131,51 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
   }
 
   const searchTerm = sanitizeCardName(trimmed) || trimmed;
-  const result = await apiCall<string[]>(
-    async () => {
-      const response = await fetch(
-        `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
-          `name:${searchTerm} is:commander`
-        )}`
-      );
+  // Deduplicate search requests by normalized search term
+  const requestKey = `scryfall:search:${searchTerm.toLowerCase()}`;
+  
+  return requestCache.dedupe(requestKey, () =>
+    apiCall<string[]>(
+      async () => {
+        const response = await fetch(
+          `https://api.scryfall.com/cards/search?q=${encodeURIComponent(
+            `name:${searchTerm} is:commander`
+          )}`
+        );
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          return [];
+        if (!response.ok) {
+          if (response.status === 404) {
+            return [];
+          }
+          throw new Error(`Scryfall API error: ${response.status}`);
         }
-        throw new Error(`Scryfall API error: ${response.status}`);
+
+        const searchResult = await response.json();
+        const seen = new Set<string>();
+
+        return (
+          searchResult.data
+            ?.map(
+              (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
+            )
+            .filter((name: string) => {
+              const normalized = name.trim().toLowerCase();
+              if (!normalized || seen.has(normalized)) {
+                return false;
+              }
+              seen.add(normalized);
+              return true;
+            }) || []
+        );
+      },
+      "Unable to search Scryfall for commander names.",
+      {
+        context: "searchCardNames",
+        suppressError: true,
+        fallbackValue: [],
       }
-
-      const searchResult = await response.json();
-      const seen = new Set<string>();
-
-      return (
-        searchResult.data
-          ?.map(
-            (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
-          )
-          .filter((name: string) => {
-            const normalized = name.trim().toLowerCase();
-            if (!normalized || seen.has(normalized)) {
-              return false;
-            }
-            seen.add(normalized);
-            return true;
-          }) || []
-      );
-    },
-    "Unable to search Scryfall for commander names.",
-    {
-      context: "searchCardNames",
-      suppressError: true,
-      fallbackValue: [],
-    }
+    )
   );
-
-  return result;
 }
 
 export async function getCardsByNames(
@@ -178,7 +186,14 @@ export async function getCardsByNames(
     return [];
   }
 
-  const result = await apiCall<ScryfallCard[]>(
+  // Deduplicate batch requests by sorted card names
+  // Note: Order doesn't matter for Scryfall's collection endpoint, and we preserve
+  // the original order when returning results, so deduplication is safe
+  const uniqueNames = [...new Set(cardNames.map((c) => getCacheKey(c.name)))];
+  const requestKey = `scryfall:batch:${uniqueNames.sort().join(",")}`;
+
+  return requestCache.dedupe(requestKey, () =>
+    apiCall<ScryfallCard[]>(
     async () => {
       const batchSize = 75;
       const totalBatches = Math.ceil(cardNames.length / batchSize);
@@ -263,11 +278,10 @@ export async function getCardsByNames(
 
       return resolvedCards;
     },
-    "Unable to fetch detailed card data from Scryfall.",
-    { context: "getCardsByNames" }
+      "Unable to fetch detailed card data from Scryfall.",
+      { context: "getCardsByNames" }
+    )
   );
-
-  return result;
 }
 
 export async function getAllSymbols(): Promise<ScryfallSymbol[]> {

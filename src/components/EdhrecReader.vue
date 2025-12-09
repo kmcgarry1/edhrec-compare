@@ -65,6 +65,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount, watchEffect } from "vue";
 import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
+import { requestCache } from "../api/requestCache";
 import {
   EDHRECBracket,
   EDHRECPageType,
@@ -147,20 +148,23 @@ const fetchJsonData = async (url: string) => {
 
   await withLoading(
     async () => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      // Deduplicate EDHREC requests by URL
+      await requestCache.dedupe(`edhrec:${url}`, async () => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          data.value = await response.json();
+        } catch (err) {
+          const handled = handleError(err, {
+            notify: true,
+            fallbackMessage: "Unable to fetch commander data from EDHREC.",
+            context: "EDHREC request failed",
+          });
+          error.value = handled.userMessage;
         }
-        data.value = await response.json();
-      } catch (err) {
-        const handled = handleError(err, {
-          notify: true,
-          fallbackMessage: "Unable to fetch commander data from EDHREC.",
-          context: "EDHREC request failed",
-        });
-        error.value = handled.userMessage;
-      }
+      });
     },
     "Fetching commander data...",
     readerScope
