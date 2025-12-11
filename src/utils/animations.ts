@@ -1,14 +1,43 @@
 /**
  * Animation utilities for managing micro-interactions
- * Provides helper functions for staggered animations and timing utilities
+ *
+ * Provides helper functions for staggered animations, timing utilities,
+ * ripple effects, and accessibility-aware animation durations.
+ *
+ * @module utils/animations
+ *
+ * @example
+ * ```typescript
+ * import { getStaggerDelay, durations, easings } from '@/utils/animations';
+ *
+ * // Apply staggered animation to list items
+ * items.forEach((item, index) => {
+ *   item.style.animationDelay = `${getStaggerDelay(index)}ms`;
+ * });
+ *
+ * // Use predefined easing and duration
+ * element.style.transition = `all ${durations.standard}ms ${easings.standard}`;
+ * ```
  */
 
 /**
- * Gets the delay for staggered animations
+ * Calculate delay for staggered animations
+ *
+ * Useful for animating lists where each item should appear slightly
+ * after the previous one.
+ *
  * @param index - The index of the element in a list
  * @param baseDelay - The base delay in milliseconds between elements (default: 50ms)
  * @param maxDelay - Maximum delay cap in milliseconds (default: 500ms)
  * @returns Delay in milliseconds
+ *
+ * @example
+ * ```typescript
+ * // Stagger card animations
+ * cards.forEach((card, i) => {
+ *   setTimeout(() => card.animate(), getStaggerDelay(i));
+ * });
+ * ```
  */
 export const getStaggerDelay = (
   index: number,
@@ -41,10 +70,20 @@ export const durations = {
 } as const;
 
 /**
- * Applies element style with transition
+ * Apply CSS styles with transition
+ *
  * @param el - HTML element to animate
  * @param styles - CSS properties to apply
  * @param transition - CSS transition string
+ *
+ * @example
+ * ```typescript
+ * applyTransition(
+ *   element,
+ *   { opacity: '0', transform: 'translateY(20px)' },
+ *   `all ${durations.standard}ms ${easings.decelerate}`
+ * );
+ * ```
  */
 export const applyTransition = (
   el: HTMLElement,
@@ -92,17 +131,37 @@ export const getRippleCoordinates = (
 };
 
 /**
- * Checks if user prefers reduced motion
+ * Check if user prefers reduced motion
+ *
+ * Respects the `prefers-reduced-motion` media query for accessibility.
+ *
  * @returns true if prefers-reduced-motion is set to reduce
+ *
+ * @example
+ * ```typescript
+ * if (!prefersReducedMotion()) {
+ *   element.classList.add('animated');
+ * }
+ * ```
  */
 export const prefersReducedMotion = (): boolean => {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 };
 
 /**
- * Gets animation duration respecting user preferences
+ * Get animation duration respecting user preferences
+ *
+ * Returns 1ms if user prefers reduced motion, otherwise returns
+ * the requested duration.
+ *
  * @param duration - Desired duration in milliseconds
  * @returns Duration adjusted for reduced motion preference (1ms if reduced motion)
+ *
+ * @example
+ * ```typescript
+ * const duration = getAccessibleDuration(durations.standard);
+ * element.style.transitionDuration = `${duration}ms`;
+ * ```
  */
 export const getAccessibleDuration = (duration: number): number => {
   return prefersReducedMotion() ? 1 : duration;
