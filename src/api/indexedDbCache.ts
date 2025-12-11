@@ -1,5 +1,31 @@
+/**
+ * IndexedDB cache for Scryfall card data
+ *
+ * Provides persistent client-side caching of card data to reduce API calls
+ * and improve performance. Cached data expires after 7 days.
+ *
+ * @module api/indexedDbCache
+ *
+ * @example
+ * ```typescript
+ * import { cardCache } from '@/api/indexedDbCache';
+ *
+ * // Cache initialization happens automatically
+ * await cardCache.init();
+ *
+ * // Get cached card
+ * const card = await cardCache.getCachedCard('sol-ring');
+ *
+ * // Cache a card
+ * await cardCache.setCachedCard('sol-ring', cardData);
+ * ```
+ */
+
 import type { ScryfallCard } from "./scryfallApi";
 
+/**
+ * Cached card entry with metadata
+ */
 interface CachedCard {
   id: string;
   data: ScryfallCard;
@@ -7,6 +33,9 @@ interface CachedCard {
   expiresAt: number;
 }
 
+/**
+ * IndexedDB cache implementation for card data
+ */
 class CardCache {
   private db: IDBDatabase | null = null;
   private initPromise: Promise<IDBDatabase | null> | null = null;
@@ -16,10 +45,20 @@ class CardCache {
   private readonly TTL = 1000 * 60 * 60 * 24 * 7; // 7 days
   private readonly isSupported = typeof indexedDB !== "undefined";
 
+  /**
+   * Initialize the IndexedDB cache
+   *
+   * Opens the database connection. Safe to call multiple times.
+   */
   async init(): Promise<void> {
     await this.getDb();
   }
 
+  /**
+   * Get or initialize the database connection
+   *
+   * @returns Database instance or null if IndexedDB is unavailable
+   */
   private async getDb(): Promise<IDBDatabase | null> {
     if (!this.isSupported) {
       return null;
@@ -37,6 +76,13 @@ class CardCache {
     return this.db;
   }
 
+  /**
+   * Open IndexedDB database connection
+   *
+   * Creates object stores if they don't exist. Handles version upgrades.
+   *
+   * @returns Database instance or null on error
+   */
   private async openDatabase(): Promise<IDBDatabase | null> {
     return new Promise<IDBDatabase | null>((resolve, reject) => {
       const indexedDbFactory = globalThis.indexedDB;
@@ -72,6 +118,22 @@ class CardCache {
     });
   }
 
+  /**
+   * Retrieve a cached card by key
+   *
+   * Returns null if card is not found or has expired.
+   *
+   * @param cacheKey - Normalized card name (lowercase)
+   * @returns Card data or null if not cached/expired
+   *
+   * @example
+   * ```typescript
+   * const card = await cardCache.getCachedCard('sol-ring');
+   * if (card) {
+   *   console.log('Cache hit:', card.name);
+   * }
+   * ```
+   */
   async getCachedCard(cacheKey: string): Promise<ScryfallCard | null> {
     const db = await this.getDb();
     if (!db) {
@@ -98,6 +160,19 @@ class CardCache {
     });
   }
 
+  /**
+   * Store a card in the cache
+   *
+   * Sets expiration timestamp based on TTL (7 days).
+   *
+   * @param cacheKey - Normalized card name (lowercase)
+   * @param data - Card data to cache
+   *
+   * @example
+   * ```typescript
+   * await cardCache.setCachedCard('lightning-bolt', cardData);
+   * ```
+   */
   async setCachedCard(cacheKey: string, data: ScryfallCard): Promise<void> {
     const db = await this.getDb();
     if (!db) {
@@ -126,6 +201,11 @@ class CardCache {
     });
   }
 
+  /**
+   * Remove expired entries from the cache
+   *
+   * Cleans up cards older than TTL to free storage space.
+   */
   async clearExpired(): Promise<void> {
     const db = await this.getDb();
     if (!db) {
@@ -177,7 +257,12 @@ class CardCache {
   }
 }
 
-// Create and export a singleton instance
+/**
+ * Singleton card cache instance
+ *
+ * Shared across the application for consistent caching.
+ * Automatically initialized on module load.
+ */
 export const cardCache = new CardCache();
 
 // Initialize the cache when the module is loaded

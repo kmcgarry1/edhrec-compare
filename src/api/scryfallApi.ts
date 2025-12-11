@@ -1,13 +1,46 @@
+/**
+ * Scryfall API integration
+ *
+ * Provides methods for fetching MTG card data from the Scryfall API with
+ * built-in caching, rate limiting, and request deduplication. Handles
+ * double-faced cards and batch requests efficiently.
+ *
+ * @module api/scryfallApi
+ *
+ * @example
+ * ```typescript
+ * import { getCard, getCardsByNames, searchCardNames } from '@/api/scryfallApi';
+ *
+ * // Fetch a single card
+ * const card = await getCard('Lightning Bolt');
+ *
+ * // Search for commanders
+ * const commanders = await searchCardNames('Atraxa');
+ *
+ * // Batch fetch multiple cards
+ * const cards = await getCardsByNames([
+ *   { name: 'Sol Ring' },
+ *   { name: 'Command Tower' }
+ * ]);
+ * ```
+ */
+
 import { cardCache } from "./indexedDbCache";
 import { apiCall } from "./errorHandler";
 import { requestCache } from "./requestCache";
 
+/**
+ * Image URIs for a card face
+ */
 interface CardFaceImageUris {
   small?: string;
   normal?: string;
   large?: string;
 }
 
+/**
+ * Represents one face of a double-faced or split card
+ */
 interface CardFace {
   name: string;
   mana_cost?: string;
@@ -18,6 +51,9 @@ interface CardFace {
   image_uris?: CardFaceImageUris;
 }
 
+/**
+ * Complete card data from Scryfall API
+ */
 export interface ScryfallCard {
   id: string;
   name: string;
@@ -47,17 +83,37 @@ export interface ScryfallCard {
   };
 }
 
+/**
+ * Mana symbol data from Scryfall symbology API
+ */
 export interface ScryfallSymbol {
   symbol: string;
   svg_uri: string;
 }
 
+/**
+ * Paginated list response from Scryfall API
+ */
 interface ScryfallListResponse<T> {
   data: T[];
   has_more: boolean;
   next_page?: string;
 }
 
+/**
+ * Sanitize card name by removing back face for double-faced cards
+ *
+ * Converts "Front // Back" to "Front" to work with Scryfall's fuzzy search.
+ *
+ * @param cardName - Full card name potentially including "//"
+ * @returns Sanitized card name (front face only)
+ *
+ * @example
+ * ```typescript
+ * sanitizeCardName("Delver of Secrets // Insectile Aberration")
+ * // Returns: "Delver of Secrets"
+ * ```
+ */
 function sanitizeCardName(cardName: string): string {
   const trimmedName = cardName.trim();
   if (!trimmedName.includes("//")) {
@@ -68,10 +124,38 @@ function sanitizeCardName(cardName: string): string {
   return frontFace?.trim() || trimmedName;
 }
 
+/**
+ * Generate cache key for card name (normalized lowercase)
+ *
+ * @param cardName - Card name to generate key for
+ * @returns Normalized lowercase cache key
+ */
 function getCacheKey(cardName: string): string {
   return sanitizeCardName(cardName).toLowerCase();
 }
 
+/**
+ * Fetch a single card by name from Scryfall API
+ *
+ * Uses fuzzy matching to find cards even with typos or partial names.
+ * Handles double-faced cards by stripping the back face name.
+ * Results are cached in IndexedDB and requests are deduplicated.
+ *
+ * @param cardName - Card name (can include // for double-faced)
+ * @returns Promise resolving to card data or null if not found
+ * @throws {AppError} If API request fails
+ *
+ * @example
+ * ```typescript
+ * const card = await getCard('Lightning Bolt');
+ * if (card) {
+ *   console.log(card.name, card.prices.usd);
+ * }
+ *
+ * // Works with double-faced cards
+ * const dfcard = await getCard('Delver of Secrets // Insectile Aberration');
+ * ```
+ */
 export async function getCard(cardName: string): Promise<ScryfallCard | null> {
   const sanitizedName = sanitizeCardName(cardName);
   const cacheKey = sanitizedName.toLowerCase();
@@ -108,6 +192,23 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
   );
 }
 
+/**
+ * Get card image URL for a card by name
+ *
+ * Fetches the card and extracts the appropriate image URI.
+ * Handles both single-faced and double-faced cards.
+ *
+ * @param cardName - Name of the card
+ * @returns Promise resolving to image URL or null if not found
+ *
+ * @example
+ * ```typescript
+ * const imageUrl = await getCardImage('Sol Ring');
+ * if (imageUrl) {
+ *   img.src = imageUrl;
+ * }
+ * ```
+ */
 export async function getCardImage(cardName: string): Promise<string | null> {
   const card = await getCard(cardName);
   if (!card) {
@@ -124,6 +225,21 @@ export async function getCardImage(cardName: string): Promise<string | null> {
   return faceWithImage?.image_uris?.normal ?? null;
 }
 
+/**
+ * Search for commander names by partial match
+ *
+ * Queries Scryfall for cards matching the search term with the
+ * `is:commander` filter. Deduplicates results and sanitizes card names.
+ *
+ * @param partialName - Partial card name to search for
+ * @returns Promise resolving to array of matching card names
+ *
+ * @example
+ * ```typescript
+ * const results = await searchCardNames('Atraxa');
+ * // Returns: ['Atraxa, Grand Unifier', 'Atraxa, Praetors\' Voice']
+ * ```
+ */
 export async function searchCardNames(partialName: string): Promise<string[]> {
   const trimmed = partialName.trim();
   if (!trimmed) {
@@ -178,6 +294,25 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
   );
 }
 
+/**
+ * Fetch multiple cards in batches from Scryfall API
+ *
+ * Batches requests into groups of 75 cards (API limit) with 300ms delay
+ * between batches to respect rate limiting. Uses IndexedDB cache and
+ * request deduplication to minimize API calls.
+ *
+ * @param cardNames - Array of objects with card names to fetch
+ * @param onProgress - Optional callback for progress updates (current, total)
+ * @returns Promise resolving to array of card data
+ *
+ * @example
+ * ```typescript
+ * const cards = await getCardsByNames(
+ *   [{ name: 'Sol Ring' }, { name: 'Command Tower' }],
+ *   (current, total) => console.log(`${current}/${total} batches`)
+ * );
+ * ```
+ */
 export async function getCardsByNames(
   cardNames: { name: string }[],
   onProgress?: (current: number, total: number) => void
@@ -284,6 +419,20 @@ export async function getCardsByNames(
   );
 }
 
+/**
+ * Fetch all mana symbols from Scryfall symbology API
+ *
+ * Retrieves complete list of mana symbols with their SVG URIs.
+ *
+ * @returns Promise resolving to array of symbol data
+ * @throws {AppError} If API request fails
+ *
+ * @example
+ * ```typescript
+ * const symbols = await getAllSymbols();
+ * symbols.forEach(s => console.log(s.symbol, s.svg_uri));
+ * ```
+ */
 export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
   const result = await apiCall<ScryfallSymbol[]>(
     async () => {
@@ -309,6 +458,26 @@ export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
 const PRINTINGS_PAGE_DELAY = 150;
 const MAX_PRINTING_RESULTS = 60;
 
+/**
+ * Fetch all printings of a card with pagination
+ *
+ * Follows Scryfall's pagination to retrieve all printings of a card,
+ * up to a maximum of 60 results. Adds delays between pages to respect
+ * rate limits.
+ *
+ * @param printsSearchUri - URI from card's `prints_search_uri` field
+ * @returns Promise resolving to array of card printing data
+ * @throws {AppError} If API request fails
+ *
+ * @example
+ * ```typescript
+ * const card = await getCard('Lightning Bolt');
+ * if (card.prints_search_uri) {
+ *   const printings = await getCardPrintings(card.prints_search_uri);
+ *   console.log(`${printings.length} printings found`);
+ * }
+ * ```
+ */
 export async function getCardPrintings(
   printsSearchUri: string
 ): Promise<ScryfallCard[]> {
