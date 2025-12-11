@@ -239,9 +239,27 @@ const emit = defineEmits<{
   "commander-selected": [slug: string];
 }>();
 
+const props = defineProps<{
+  selectedSlug?: string | null;
+}>();
+
+const formatSlugForDisplay = (slug: string) =>
+  slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
 const primarySelection = ref("");
 const partnerSelection = ref("");
 const hasPartner = ref(false);
+
+const currentSlug = computed(() =>
+  buildCommanderSlug(
+    primarySelection.value,
+    hasPartner.value ? partnerSelection.value : ""
+  )
+);
 
 const partnerDisabled = computed(() => !primarySelection.value);
 
@@ -320,6 +338,40 @@ const primaryError = primaryField.error;
 const partnerQuery = partnerField.query;
 const partnerResults = partnerField.results;
 const partnerError = partnerField.error;
+
+const hydrateFromSlug = (slug: string | null | undefined) => {
+  if (!slug) {
+    primarySelection.value = "";
+    primaryQuery.value = "";
+    primaryResults.value = [];
+    partnerSelection.value = "";
+    partnerQuery.value = "";
+    partnerResults.value = [];
+    hasPartner.value = false;
+    return;
+  }
+
+  if (currentSlug.value === slug) {
+    return;
+  }
+
+  const displayName = formatSlugForDisplay(slug);
+  primarySelection.value = displayName;
+  primaryQuery.value = displayName;
+  primaryResults.value = [];
+  partnerSelection.value = "";
+  partnerQuery.value = "";
+  partnerResults.value = [];
+  hasPartner.value = false;
+};
+
+watch(
+  () => props.selectedSlug,
+  (slug) => {
+    hydrateFromSlug(slug);
+  },
+  { immediate: true }
+);
 
 const emitCommanderSelection = () => {
   if (!primarySelection.value) {
