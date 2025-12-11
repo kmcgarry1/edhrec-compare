@@ -17,6 +17,8 @@
     "lint": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx,vue}\" --fix",
     "format": "prettier --write .",
+    "docs": "typedoc",
+    "docs:serve": "typedoc && npx http-server docs/api -o",
     "issues:export": "node scripts/export-issues-for-boards.mjs",
     "size": "size-limit",
     "prepare": "husky"
@@ -58,6 +60,7 @@
     "rollup-plugin-visualizer": "^6.0.5",
     "size-limit": "^12.0.0",
     "tailwindcss": "^4.1.17",
+    "typedoc": "^0.28.15",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.2.2",
     "vitest": "^4.0.12",

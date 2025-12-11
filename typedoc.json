@@ -1,0 +1,46 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/api/scryfallApi.ts",
+    "src/api/errorHandler.ts",
+    "src/api/requestCache.ts",
+    "src/api/indexedDbCache.ts",
+    "src/composables/useGlobalNotices.ts",
+    "src/composables/useGlobalLoading.ts",
+    "src/composables/useTheme.ts",
+    "src/composables/useCsvUpload.ts",
+    "src/composables/useCommanderColors.ts",
+    "src/composables/useOwnedFilter.ts",
+    "src/composables/useBackgroundPreference.ts",
+    "src/composables/useFocusTrap.ts",
+    "src/composables/useScryfallSymbols.ts",
+    "src/utils/slugifyCommander.ts",
+    "src/utils/csvValidator.ts",
+    "src/utils/downloadTextFile.ts",
+    "src/utils/animations.ts",
+    "src/utils/errorHandler.ts",
+    "src/utils/sentry.ts"
+  ],
+  "out": "docs/api",
+  "plugin": [],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "readme": "none",
+  "name": "Commander Scout API Documentation",
+  "includeVersion": true,
+  "sort": ["source-order"],
+  "categorizeByGroup": true,
+  "groupOrder": ["API", "Composables", "Utilities", "*"],
+  "navigationLinks": {
+    "GitHub": "https://github.com/kmcgarry1/edhrec-compare"
+  },
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.vue",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/index.ts"
+  ]
+}

@@ -384,6 +384,136 @@ test("user can search for commander", async ({ page }) => {
 - **Provide warnings**: Add deprecation warnings before removing features
 - **Version appropriately**: Breaking changes should be part of major version releases
 
+## Documentation
+
+### Code Documentation Standards
+
+All public APIs, functions, and composables should have comprehensive JSDoc documentation:
+
+````typescript
+/**
+ * Brief description of the function
+ *
+ * More detailed description explaining what the function does,
+ * how it works, and any important considerations.
+ *
+ * @param paramName - Description of the parameter
+ * @param optionalParam - Description (default: value)
+ * @returns Description of return value
+ * @throws {ErrorType} When this error occurs
+ *
+ * @example
+ * ```typescript
+ * const result = myFunction('example', 42);
+ * console.log(result); // Expected output
+ * ```
+ */
+export function myFunction(paramName: string, optionalParam = 10): number {
+  // Implementation
+}
+````
+
+### Documentation Location
+
+- **API Documentation**: `src/api/README.md` - Overview of Scryfall API integration, caching, and error handling
+- **Composables**: `src/composables/README.md` - Guide to all Vue composables and state management patterns
+- **Utilities**: `src/utils/README.md` - Pure utility functions and helpers
+- **Components**: Individual component files have inline JSDoc documentation
+
+### Viewing Documentation
+
+#### Inline Documentation
+
+All TypeScript files have inline JSDoc comments that appear in IDE tooltips:
+
+- Hover over functions in VS Code to see documentation
+- Use "Go to Definition" (F12) to read full documentation
+
+#### README Files
+
+Each major directory has a README.md with:
+
+- Overview of the module's purpose
+- Examples of common usage patterns
+- Architecture and design decisions
+- Best practices and conventions
+
+**Key README files:**
+
+```bash
+src/api/README.md          # API layer architecture
+src/composables/README.md  # State management patterns
+src/utils/README.md        # Utility functions
+```
+
+### Documentation Requirements
+
+When contributing code, ensure:
+
+1. **All public functions** have JSDoc comments with:
+   - Brief description
+   - Parameter descriptions with types
+   - Return value description
+   - At least one usage example
+   - `@throws` tags for possible errors
+
+2. **All composables** document:
+   - What state they manage
+   - What methods they expose
+   - Usage examples
+   - Related composables
+
+3. **All Vue components** document:
+   - Component purpose
+   - Props with types and defaults
+   - Emitted events
+   - Slots (if any)
+   - Usage examples
+
+4. **Complex algorithms** have:
+   - Explanation of the approach
+   - Time/space complexity notes
+   - Edge cases handled
+
+### Documentation Best Practices
+
+1. **Be concise but complete**: One sentence summary, then details
+2. **Include examples**: Show how to use the code, not just what it does
+3. **Document edge cases**: Explain unusual behavior or limitations
+4. **Keep in sync**: Update documentation when changing code
+5. **Link related items**: Reference related functions, composables, or components
+
+### Example: Well-Documented Composable
+
+````typescript
+/**
+ * Global loading state management composable
+ *
+ * Tracks loading states across multiple concurrent operations using scoped
+ * identifiers. Supports progress tracking and custom status messages.
+ *
+ * @example
+ * ```typescript
+ * const { startLoading, stopLoading, withLoading } = useGlobalLoading();
+ *
+ * // Manual control
+ * startLoading('Fetching data...', 'data-fetch');
+ * // ... async operation
+ * stopLoading('data-fetch');
+ *
+ * // Async wrapper
+ * await withLoading(
+ *   async () => await fetchData(),
+ *   'Loading...',
+ *   'api-scope'
+ * );
+ * ```
+ */
+export const useGlobalLoading = () => {
+  // Implementation
+};
+````
+
 ## Getting Help
 
 If you need help or have questions:
