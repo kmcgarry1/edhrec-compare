@@ -1,4 +1,4 @@
-import type { LocationQuery } from "vue-router";
+import type { LocationQuery, LocationQueryValue } from "vue-router";
 import {
   EDHRECBracket,
   EDHRECCompanion,
@@ -21,13 +21,15 @@ export const defaultFilterRouteState: FilterRouteState = {
 };
 
 const allowedFilterValues = {
-  pageType: new Set(Object.values(EDHRECPageType).map((option) => option.value)),
-  bracket: new Set(Object.values(EDHRECBracket).map((option) => option.value)),
-  modifier: new Set(Object.values(EDHRECPageModifier).map((option) => option.value)),
-  companion: new Set(Object.values(EDHRECCompanion).map((option) => option.value)),
+  pageType: new Set<string>(Object.values(EDHRECPageType).map((option) => option.value)),
+  bracket: new Set<string>(Object.values(EDHRECBracket).map((option) => option.value)),
+  modifier: new Set<string>(Object.values(EDHRECPageModifier).map((option) => option.value)),
+  companion: new Set<string>(Object.values(EDHRECCompanion).map((option) => option.value)),
 };
 
-const normalizeQueryValue = (value: LocationQuery[keyof LocationQuery]) => {
+type QueryValue = LocationQueryValue | LocationQueryValue[] | undefined;
+
+const normalizeQueryValue = (value: QueryValue) => {
   if (Array.isArray(value)) {
     return value[0] ?? "";
   }
