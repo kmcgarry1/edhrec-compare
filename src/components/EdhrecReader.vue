@@ -32,6 +32,7 @@
       <div class="space-y-2">
         <CommanderSearch
           ref="commanderSearchRef"
+          :selected-slug="currentCommanderSlug"
           @commander-selected="handleCommanderSelection"
         />
         <p class="text-xs text-slate-500 dark:text-slate-400">
@@ -71,7 +72,8 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount, watchEffect } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
 import { requestCache } from "../api/requestCache";
 import {
@@ -98,6 +100,11 @@ import { handleError } from "../utils/errorHandler";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import CommanderSearchInstance from "./CommanderSearch.vue";
+import {
+  buildFilterQuery,
+  parseFilterQuery,
+  type FilterRouteState,
+} from "../utils/routeFilters";
 
 interface EdhrecData {
   container?: {
@@ -113,6 +120,9 @@ interface EdhrecData {
 const data = ref<EdhrecData | null>(null);
 const error = ref<string | null>(null);
 const commanderSearchRef = ref<InstanceType<typeof CommanderSearchInstance> | null>(null);
+
+const route = useRoute();
+const router = useRouter();
 
 const { showOwned } = useOwnedFilter();
 
@@ -147,6 +157,13 @@ const setPageType = (value: string | number) => {
 const setCompanion = (value: string | number) => {
   chosenCompanion.value = String(value);
 };
+
+const filterState = computed<FilterRouteState>(() => ({
+  pageType: chosenPageType.value,
+  bracket: chosenBracket.value,
+  modifier: chosenModifier.value,
+  companion: chosenCompanion.value,
+}));
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
 const readerScope = "edhrec-reader";
@@ -351,6 +368,12 @@ const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
 const edhrecUrlSuffix = ".json";
 const currentCommanderSlug = ref<string | null>(null);
 
+const setRefValue = <T>(target: { value: T }, value: T) => {
+  if (target.value !== value) {
+    target.value = value;
+  }
+};
+
 const buildCommanderUrl = (slug: string | null | undefined) => {
   if (!slug) {
     return null;
@@ -369,6 +392,32 @@ const buildCommanderUrl = (slug: string | null | undefined) => {
   return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
 };
 
+const applyRouteState = () => {
+  const filters = parseFilterQuery(route.query);
+  setRefValue(chosenPageType, filters.pageType);
+  setRefValue(chosenBracket, filters.bracket);
+  setRefValue(chosenModifier, filters.modifier);
+  setRefValue(chosenCompanion, filters.companion);
+
+  const slugParam =
+    typeof route.params.slug === "string" && route.params.slug.length > 0
+      ? route.params.slug
+      : null;
+  setRefValue(currentCommanderSlug, slugParam);
+};
+
+let hasHydratedFromRoute = false;
+
+applyRouteState();
+hasHydratedFromRoute = true;
+
+watch(
+  () => route.fullPath,
+  () => {
+    applyRouteState();
+  }
+);
+
 const handleCommanderSelection = (slug: string) => {
   if (!slug) {
     currentCommanderSlug.value = null;
@@ -376,18 +425,64 @@ const handleCommanderSelection = (slug: string) => {
     return;
   }
   currentCommanderSlug.value = slug;
-  const url = buildCommanderUrl(slug);
-  if (url) {
-    fetchJsonData(url);
-  }
 };
 
-watch([chosenPageType, chosenBracket, chosenModifier, chosenCompanion], () => {
+const refreshCommanderData = () => {
   const url = buildCommanderUrl(currentCommanderSlug.value);
-  if (url) {
-    fetchJsonData(url);
+  if (!url) {
+    data.value = null;
+    return;
   }
-});
+  fetchJsonData(url);
+};
+
+const areQueriesEqual = (
+  existing: Record<string, string>,
+  target: Record<string, string>
+) => {
+  const existingKeys = Object.keys(existing);
+  const targetKeys = Object.keys(target);
+  if (existingKeys.length !== targetKeys.length) {
+    return false;
+  }
+
+  return targetKeys.every((key) => existing[key] === target[key]);
+};
+
+const updateRouteFromState = () => {
+  if (!hasHydratedFromRoute) {
+    return;
+  }
+
+  const targetQuery = buildFilterQuery(filterState.value);
+  const canonicalRouteQuery = buildFilterQuery(parseFilterQuery(route.query));
+  const targetSlug = currentCommanderSlug.value;
+  const currentSlug = typeof route.params.slug === "string" ? route.params.slug : null;
+
+  const targetRoute = targetSlug
+    ? { name: "commander", params: { slug: targetSlug }, query: targetQuery }
+    : { name: "home", query: targetQuery };
+
+  const isSameRoute =
+    route.name === targetRoute.name &&
+    currentSlug === (targetSlug ?? null) &&
+    areQueriesEqual(canonicalRouteQuery, targetQuery);
+
+  if (isSameRoute) {
+    return;
+  }
+
+  void router.push(targetRoute);
+};
+
+watch(
+  [currentCommanderSlug, chosenPageType, chosenBracket, chosenModifier, chosenCompanion],
+  () => {
+    refreshCommanderData();
+    updateRouteFromState();
+  },
+  { immediate: true }
+);
 const filteredCards = (cardviews: { id: string; name: string }[]) => {
   if (showOwned.value === null) return cardviews;
   return cardviews.filter((card) => isCardInUpload(card.name) === showOwned.value);

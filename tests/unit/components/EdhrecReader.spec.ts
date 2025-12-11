@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
+import { createMemoryHistory, createRouter } from "vue-router";
 import EdhrecReader from "../../../src/components/EdhrecReader.vue";
 import { requestCache } from "../../../src/api/requestCache";
 
@@ -68,9 +69,23 @@ type CommandSelectionHandler = {
   ) => Promise<void>;
 };
 
-const mountComponent = () =>
-  mount<InstanceType<typeof EdhrecReader>>(EdhrecReader, {
+const createTestRouter = () =>
+  createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: "/", name: "home", component: { template: "<div />" } },
+      { path: "/commander/:slug", name: "commander", component: { template: "<div />" } },
+    ],
+  });
+
+const mountComponent = async () => {
+  const router = createTestRouter();
+  router.push("/");
+  await router.isReady();
+
+  return mount<InstanceType<typeof EdhrecReader>>(EdhrecReader, {
     global: {
+      plugins: [router],
       stubs: {
         Card: { template: "<div class='card-stub'><slot /></div>" },
         CommanderSearch: { template: "<div class='search-stub'></div>" },
@@ -81,6 +96,7 @@ const mountComponent = () =>
       },
     },
   });
+};
 
 const mockResponse = {
   container: {
@@ -122,7 +138,7 @@ describe("EdhrecReader", () => {
   });
 
   it("fetches EDHREC data when a commander is selected", async () => {
-    const wrapper = mountComponent();
+    const wrapper = await mountComponent();
     const vm = wrapper.vm as EdhrecReaderVm;
     await vm.handleCommanderSelection("atraxa");
     await flushPromises();
@@ -134,7 +150,7 @@ describe("EdhrecReader", () => {
   });
 
   it("downloads decklist text for the first cardlist", async () => {
-    const wrapper = mountComponent();
+    const wrapper = await mountComponent();
     const vm = wrapper.vm as EdhrecReaderVm;
     await vm.handleCommanderSelection("atraxa");
     await flushPromises();
