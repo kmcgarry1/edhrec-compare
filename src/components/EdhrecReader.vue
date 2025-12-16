@@ -1,21 +1,11 @@
 <template>
-  <section class="space-y-8 text-slate-900 dark:text-slate-100">
+  <section :class="['text-slate-900 dark:text-slate-100', spacing.stackSpace]">
     <FloatingCardlistNav
       v-if="cardlistSections.length"
       :sections="cardlistSections"
       :active-id="activeSectionId"
       @navigate="scrollToSection"
     />
-    <Card
-      v-if="error"
-      rounded="rounded-2xl"
-      shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
-      border="border border-rose-200 dark:border-rose-500/30"
-      background="bg-rose-50 dark:bg-rose-950/30"
-      class="text-sm text-rose-700 dark:text-rose-200"
-    >
-      Error: {{ error }}
-    </Card>
     <GlobalLoadingBanner
       scope="scryfall-bulk"
       placement-class="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
@@ -23,51 +13,69 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <Card
-      padding="p-4 sm:p-6"
-      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
-      :class="['space-y-5 transition-opacity duration-200', readerLoading ? 'opacity-60' : '']"
-      :aria-busy="readerLoading"
-    >
-      <div class="space-y-2">
-        <CommanderSearch
-          ref="commanderSearchRef"
-          @commander-selected="handleCommanderSelection"
-        />
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Start typing to search EDHREC commanders, then refine the results with the filters below.
-        </p>
-      </div>
+    <div class="flex flex-col gap-5 xl:grid xl:grid-cols-[22rem,1fr] xl:items-start xl:gap-6">
+      <aside class="flex flex-col gap-3 xl:top-4">
+        <Card
+          padding="p-3 sm:p-4"
+          shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
+          :class="['space-y-4 transition-opacity duration-200', readerLoading ? 'opacity-60' : '']"
+          :aria-busy="readerLoading"
+        >
+          <div class="space-y-2">
+            <CommanderSearch
+              ref="commanderSearchRef"
+              @commander-selected="handleCommanderSelection"
+            />
+            <p class="text-[0.78rem] text-slate-500 dark:text-slate-400">
+              Search commanders, then refine the EDHREC results with inline filters.
+            </p>
+          </div>
 
-      <CommanderFilters
-        :bracket="chosenBracket"
-        :modifier="chosenModifier"
-        :page-type="chosenPageType"
-        :companion="chosenCompanion"
-        @update:bracket="setBracket"
-        @update:modifier="setModifier"
-        @update:page-type="setPageType"
-        @update:companion="setCompanion"
-      />
-    </Card>
-    <EdhrecEmptyState
-      v-if="showEmptyState"
-      :popular="popularCommanders"
-      @select="selectSuggestedCommander"
-    />
-    <template v-for="entry in cardlistEntries" :key="entry.key">
-      <CardlistSection
-        :cardlist="entry.cardlist"
-        :section-meta="entry.sectionMeta"
-        :rows="getTableRows(entry.cardlist)"
-        :columns="cardTableColumns"
-        :decklist-text="entry.decklistText"
-        :copied-section-id="decklistCopySectionId"
-        :loading="bulkCardsLoading"
-        @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-        @download="handleDownloadDecklist(entry.cardlist, entry.index)"
-      />
-    </template>
+          <CommanderFilters
+            :bracket="chosenBracket"
+            :modifier="chosenModifier"
+            :page-type="chosenPageType"
+            :companion="chosenCompanion"
+            @update:bracket="setBracket"
+            @update:modifier="setModifier"
+            @update:page-type="setPageType"
+            @update:companion="setCompanion"
+          />
+        </Card>
+      </aside>
+
+      <div :class="['flex-1', spacing.stackSpace]">
+        <Card
+          v-if="error"
+          rounded="rounded-2xl"
+          shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
+          border="border border-rose-200 dark:border-rose-500/30"
+          background="bg-rose-50 dark:bg-rose-950/30"
+          class="text-sm text-rose-700 dark:text-rose-200"
+        >
+          Error: {{ error }}
+        </Card>
+
+        <EdhrecEmptyState
+          v-if="showEmptyState"
+          :popular="popularCommanders"
+          @select="selectSuggestedCommander"
+        />
+        <template v-for="entry in cardlistEntries" :key="entry.key">
+          <CardlistSection
+            :cardlist="entry.cardlist"
+            :section-meta="entry.sectionMeta"
+            :rows="getTableRows(entry.cardlist)"
+            :columns="cardTableColumns"
+            :decklist-text="entry.decklistText"
+            :copied-section-id="decklistCopySectionId"
+            :loading="bulkCardsLoading"
+            @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+            @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+          />
+        </template>
+      </div>
+    </div>
   </section>
 </template>
 <script setup lang="ts">
@@ -95,6 +103,7 @@ import { getCardlistIcon } from "./helpers/cardlistIconMap";
 import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import CommanderSearchInstance from "./CommanderSearch.vue";
@@ -153,6 +162,7 @@ const readerScope = "edhrec-reader";
 const bulkCardScope = "scryfall-bulk";
 const readerLoading = getScopeLoading(readerScope);
 const bulkCardsLoading = getScopeLoading(bulkCardScope);
+const { spacing } = useLayoutDensity();
 
 const fetchJsonData = async (url: string) => {
   error.value = null;
@@ -204,7 +214,6 @@ const cardlistSections = computed(() =>
     };
   })
 );
-
 
 const activeSectionId = ref<string>("");
 const decklistCopySectionId = ref<string | null>(null);
@@ -594,13 +603,10 @@ const fetchAllCardData = async () => {
 
   await withLoading(
     async () => {
-      const scryfallData = await getCardsByNames(
-        allCards.value,
-        (current, _total) => {
-          const { updateProgress } = useGlobalLoading();
-          updateProgress(bulkCardScope, current);
-        }
-      ).catch(() => null);
+      const scryfallData = await getCardsByNames(allCards.value, (current, _total) => {
+        const { updateProgress } = useGlobalLoading();
+        updateProgress(bulkCardScope, current);
+      }).catch(() => null);
       if (scryfallData) {
         scryfallCardData.value = scryfallData;
       }
@@ -622,11 +628,9 @@ const getTableRows = (cardlist: {
     const requestedNames = cardview.name.split("//").map((n) => n.trim());
     type CardFace = NonNullable<ScryfallCard["card_faces"]>[number];
     const faces: CardFace[] = info?.card_faces ?? [];
-    const matchedFace =
-      faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
+    const matchedFace = faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
     const statsSource = matchedFace ?? info;
-    const displayName =
-      requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
+    const displayName = requestedNames.length > 1 ? cardview.name : (info?.name ?? cardview.name);
 
     return {
       id: info?.id ?? `${cardlist.header}-${cardview.id}`,

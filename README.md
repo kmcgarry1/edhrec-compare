@@ -24,6 +24,7 @@ Commander Scout is a Vue 3 + TypeScript + Vite application that compares EDHREC 
 - ?? **Dynamic background** � nebula gradient changes with commander color identity but can be toggled off via the palette button (preference stored in `localStorage`).
 - ?? **Global feedback** � unobtrusive toast notifications and bottom-of-screen loaders keep users informed while bulk Scryfall calls or CSV processing occurs.
 - ?? **Toolkit header** � hideable control bar with bracket/budget/page-type filters, commander slug export, CSV upload controls, theme toggle, and background toggle.
+- **Density modes** � comfortable, cozy, and compact layout options with a persistent toggle to trade whitespace for information density on demand.
 
 ## Project Structure
 
