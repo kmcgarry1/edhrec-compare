@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from "vue";
-import { Dashboard, GlobalNoticeStack } from "./components";
+import { defineAsyncComponent, ref } from "vue";
+import { RouterView } from "vue-router";
+import { GlobalNoticeStack } from "./components";
 import { useBackgroundPreference } from "./composables/useBackgroundPreference";
 
 const environment = ref<boolean>(import.meta.env.PROD);
@@ -26,7 +27,7 @@ const Analytics = defineAsyncComponent(() =>
   <SpeedInsights v-if="environment" />
   <Analytics v-if="environment" />
   <NebulaBackground v-if="backgroundEnabled" />
-  <Dashboard />
+  <RouterView />
   <GlobalNoticeStack />
 </template>
 

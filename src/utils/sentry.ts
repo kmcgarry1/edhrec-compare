@@ -1,12 +1,51 @@
+/**
+ * Sentry error tracking integration
+ *
+ * Configures and manages Sentry for production error monitoring.
+ * Includes privacy protections to prevent sending sensitive data.
+ *
+ * @module utils/sentry
+ *
+ * @example
+ * ```typescript
+ * import { initSentry, captureError } from '@/utils/sentry';
+ *
+ * // In main.ts
+ * if (import.meta.env.PROD) {
+ *   initSentry(app);
+ * }
+ *
+ * // In application code
+ * try {
+ *   await operation();
+ * } catch (error) {
+ *   captureError(error, { component: 'MyComponent' });
+ * }
+ * ```
+ */
+
 import * as Sentry from "@sentry/vue";
 import type { App } from "vue";
 
 /**
- * Initialize Sentry error tracking for production environments.
- * This function should only be called in production mode.
+ * Initialize Sentry error tracking for production environments
+ *
+ * Configures Sentry with performance monitoring, session replay,
+ * and privacy protections. Only initializes in production mode
+ * when VITE_SENTRY_DSN environment variable is set.
  *
  * @param app - The Vue app instance
  * @returns boolean indicating whether Sentry was initialized
+ *
+ * @example
+ * ```typescript
+ * import { createApp } from 'vue';
+ * import { initSentry } from '@/utils/sentry';
+ *
+ * const app = createApp(App);
+ * initSentry(app);
+ * app.mount('#app');
+ * ```
  */
 export function initSentry(app: App): boolean {
   // Only initialize in production

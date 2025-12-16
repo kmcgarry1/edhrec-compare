@@ -1,3 +1,39 @@
+/**
+ * Application error handling utilities
+ *
+ * Provides centralized error handling with user notifications, error tracking,
+ * and a global error handler for Vue applications. Integrates with Sentry for
+ * production error tracking.
+ *
+ * @module utils/errorHandler
+ *
+ * @example
+ * ```typescript
+ * import { handleError, AppError, installGlobalErrorHandler } from '@/utils/errorHandler';
+ *
+ * // In main.ts
+ * installGlobalErrorHandler(app);
+ *
+ * // In components/composables
+ * try {
+ *   await riskyOperation();
+ * } catch (error) {
+ *   handleError(error, {
+ *     notify: true,
+ *     fallbackMessage: 'Failed to save data',
+ *     context: 'DataService'
+ *   });
+ * }
+ *
+ * // Throw custom error
+ * throw new AppError(
+ *   'Internal error message',
+ *   'User-friendly message',
+ *   'ERROR_CODE'
+ * );
+ * ```
+ */
+
 import type { App } from "vue";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
 import { captureError } from "./sentry";
@@ -5,10 +41,22 @@ import { captureError } from "./sentry";
 const DEFAULT_FALLBACK_MESSAGE =
   "Something went wrong. Please try again in a moment.";
 
+/**
+ * Custom application error with user-friendly message
+ */
 export class AppError extends Error {
+  /** User-facing error message */
   public userMessage: string;
+  /** Optional error code for categorization */
   public code?: string;
 
+  /**
+   * Create a new AppError
+   *
+   * @param message - Internal error message (logged)
+   * @param userMessage - User-friendly message (displayed)
+   * @param code - Optional error code
+   */
   constructor(
     message: string,
     userMessage: string = DEFAULT_FALLBACK_MESSAGE,
@@ -21,6 +69,9 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * Client error log payload
+ */
 type ClientErrorLog = {
   message: string;
   userMessage: string;
@@ -29,6 +80,14 @@ type ClientErrorLog = {
   context?: string;
 };
 
+/**
+ * Report error to external logging service
+ *
+ * Only sends errors in production environment. Silently fails if
+ * the endpoint is unavailable.
+ *
+ * @param payload - Error details to log
+ */
 const reportClientError = (payload: ClientErrorLog) => {
   if (
     import.meta.env.DEV ||
