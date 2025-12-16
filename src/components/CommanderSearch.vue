@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-3">
     <div class="flex flex-col gap-1">
       <div class="inline-flex items-center gap-2">
         <svg viewBox="0 0 24 24" class="h-4 w-4 text-emerald-500" fill="currentColor" aria-hidden="true">
@@ -23,7 +23,7 @@
       Searching commanders...
     </GlobalLoadingBanner>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="grid gap-4 lg:grid-cols-2">
       <div class="space-y-2">
         <CText
           tag="label"
@@ -35,7 +35,7 @@
           Primary commander
         </CText>
         <div class="flex gap-2">
-          <div class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400">
+          <div class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400">
             <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="currentColor" aria-hidden="true">
               <path d="M9.5 3A6.5 6.5 0 0116 9.5a6.47 6.47 0 01-1.17 3.72l5.47 5.47-1.06 1.06-5.47-5.47A6.47 6.47 0 019.5 16 6.5 6.5 0 113 9.5 6.5 6.5 0 019.5 3m0 2A4.5 4.5 0 005 9.5 4.5 4.5 0 109.5 5z" />
             </svg>
@@ -87,7 +87,7 @@
           v-for="option in primaryResults"
           :key="option.id"
           tabindex="0"
-          class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
+          class="cursor-pointer px-3.5 py-2.5 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
           @click="handleSelection('primary', option.name)"
           @keydown.enter="handleSelection('primary', option.name)"
           @keydown.space.prevent="handleSelection('primary', option.name)"
@@ -98,12 +98,12 @@
         </Card>
         <CommanderDisplay
           v-if="primarySelection"
-          class="mt-4"
+          class="mt-3"
           :commanderName="primarySelection"
           label="Primary Commander"
           description="Preview of the selected primary commander."
         />
-        <div class="flex items-center gap-2 mt-4">
+        <div class="mt-3 flex items-center gap-2">
           <input
             id="has-partner-toggle"
             v-model="hasPartner"
@@ -134,7 +134,7 @@
         </CText>
         <div class="flex gap-2">
           <div
-            class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed"
+            class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-400/60 dark:border-slate-600/70 dark:bg-slate-900/80 dark:text-slate-100 dark:focus-within:border-emerald-400 disabled:cursor-not-allowed disabled:opacity-60"
             :class="partnerDisabled ? 'opacity-60' : ''"
           >
             <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-400" fill="currentColor" aria-hidden="true">
@@ -198,7 +198,7 @@
             v-for="option in partnerResults"
             :key="option.id"
             tabindex="0"
-            class="cursor-pointer px-4 py-3 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
+          class="cursor-pointer px-3.5 py-2.5 text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70 dark:text-slate-100 dark:hover:bg-slate-800/70 dark:focus-visible:ring-emerald-400/70"
             @click="handleSelection('partner', option.name)"
             @keydown.enter="handleSelection('partner', option.name)"
             @keydown.space.prevent="handleSelection('partner', option.name)"
@@ -209,7 +209,7 @@
         </Card>
         <CommanderDisplay
           v-if="partnerSelection"
-          class="mt-4"
+          class="mt-3"
           :commanderName="partnerSelection"
           label="Partner Commander"
           description="Optional partner preview."

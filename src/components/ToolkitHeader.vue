@@ -5,11 +5,11 @@
       padding="p-3 sm:p-4"
       rounded="rounded-3xl"
       border="border border-slate-200/70 dark:border-slate-700/70"
-      background="bg-white/95 dark:bg-slate-900/85"
+      background="bg-white dark:bg-slate-950"
       shadow="shadow-lg shadow-slate-900/10 dark:shadow-black/40"
-      class="backdrop-blur flex flex-col gap-3 text-xs"
+      class="backdrop-blur flex flex-col gap-2.5 text-xs"
     >
-      <div class="flex flex-wrap items-center justify-between gap-2 text-[0.7rem]">
+      <div class="flex flex-wrap items-center justify-between gap-2 text-[0.72rem]">
         <div class="flex flex-wrap items-baseline gap-2">
           <span class="uppercase tracking-[0.4em] text-emerald-500/80 dark:text-emerald-300/80">
             Toolkit
@@ -21,7 +21,33 @@
             CSV • EDHREC • Scryfall
           </span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <div
+            class="inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-white px-2 py-1 text-[0.7rem] font-semibold text-slate-600 shadow-inner shadow-white/60 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+            role="group"
+            aria-label="Adjust layout density"
+          >
+            <span class="hidden lg:inline uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+              Density
+            </span>
+            <div class="flex items-center gap-1">
+              <button
+                v-for="option in densityOptions"
+                :key="option.value"
+                type="button"
+                class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                :class="
+                  density === option.value
+                    ? 'bg-emerald-100 text-emerald-800 shadow-sm dark:bg-emerald-900/50 dark:text-emerald-100'
+                    : 'text-slate-500 hover:text-emerald-700 dark:text-slate-300 dark:hover:text-emerald-200'
+                "
+                :aria-pressed="density === option.value"
+                @click="setDensity(option.value)"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
           <button
             type="button"
             class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-500 shadow-sm transition hover:border-slate-400 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300"
@@ -89,7 +115,7 @@
           </button>
         </div>
       </div>
-      <p class="text-[0.7rem] text-slate-600 dark:text-slate-300">
+      <p class="text-[0.75rem] leading-relaxed text-slate-600 dark:text-slate-300">
         Match your collection against live commander recommendations, then tag owned cards by uploading your CSV.
       </p>
       <div class="flex flex-wrap gap-2 text-[0.7rem] font-semibold" role="group" aria-label="Filter cards by ownership">
@@ -133,6 +159,7 @@ import {
 } from "@mdi/js";
 import { computed, defineAsyncComponent } from "vue";
 import { Card } from ".";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 // Lazy load export component (only needed when decklist is available)
 const DecklistExport = defineAsyncComponent(() =>
@@ -167,4 +194,6 @@ const filterOptions = computed(() => [
   { label: "Unowned", value: false, icon: mdiBookmarkOffOutline, active: props.showOwned === false },
   { label: "Show All", value: null, icon: mdiCheckDecagram, active: props.showOwned === null },
 ]);
+
+const { density, setDensity, densityOptions } = useLayoutDensity();
 </script>

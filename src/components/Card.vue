@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { CText } from "./core";
 
 type Tone =
@@ -63,11 +64,11 @@ const props = withDefaults(
   }>(),
   {
     as: "div",
-    padding: "p-6",
+    padding: null,
     rounded: "rounded-3xl",
     shadow: "shadow-xl shadow-slate-900/5 dark:shadow-black/40",
     border: "border border-slate-200 dark:border-slate-700/70",
-    background: "bg-white/90 dark:bg-slate-900/70",
+    background: "bg-white dark:bg-slate-900",
     fullWidth: true,
     hover: false,
     title: null,
@@ -79,10 +80,13 @@ const props = withDefaults(
 );
 
 const slots = useSlots();
+const { spacing } = useLayoutDensity();
 
 const hasHeader = computed(
   () => !!props.title || !!props.subtitle || !!slots.header
 );
+
+const resolvedPadding = computed(() => props.padding ?? spacing.value.cardPadding);
 
 const computedClasses = computed(() =>
   [
@@ -91,7 +95,7 @@ const computedClasses = computed(() =>
     props.border,
     props.background,
     props.shadow,
-    props.padding,
+    resolvedPadding.value,
     props.hover ? "card-hover" : "",
   ]
     .filter(Boolean)

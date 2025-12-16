@@ -2,12 +2,11 @@
   <Card
     :id="sectionMeta?.id"
     as="article"
-    class="space-y-6"
-    padding="p-4 sm:p-6"
-    background="bg-white/95 dark:bg-slate-900/60"
+    :class="spacing.stackSpace"
+    background="bg-white dark:bg-slate-900"
     shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
   >
-    <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <svg
@@ -89,6 +88,7 @@ import { Card, CardTable, ScryfallCardRow } from ".";
 import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 type SectionMeta = {
   id: string;
@@ -116,6 +116,8 @@ const emit = defineEmits<{
   copy: [];
   download: [];
 }>();
+
+const { spacing } = useLayoutDensity();
 
 const isCopied = computed(
   () => props.sectionMeta?.id && props.sectionMeta.id === props.copiedSectionId
