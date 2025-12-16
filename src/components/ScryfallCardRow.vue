@@ -225,7 +225,7 @@
         border="border border-slate-200 dark:border-slate-700"
         background="bg-white dark:bg-slate-900"
         shadow="shadow-2xl shadow-slate-900/60 dark:shadow-black/70"
-        class="w-full max-w-md space-y-4"
+        class="relative w-full max-w-md space-y-4"
       >
         <div class="flex items-start justify-between gap-4">
           <div>
@@ -239,15 +239,27 @@
               {{ modalCard?.type_line }}
             </p>
           </div>
-          <button
-            type="button"
-            class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60"
-            @click="closeMobileModal"
-          >
-            Close
-          </button>
+          <div class="flex flex-col items-end gap-2">
+            <a
+              v-if="scryfallLink"
+              :href="scryfallLink"
+              target="_blank"
+              rel="noreferrer"
+              role="button"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:text-emerald-200"
+            >
+              View on Scryfall
+            </a>
+            <button
+              type="button"
+              class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60"
+              @click="closeMobileModal"
+            >
+              Close
+            </button>
+          </div>
         </div>
-        <div class="flex justify-center">
+        <div class="flex justify-center pointer-events-none">
           <div
             v-if="modalLoading"
             class="h-64 w-44 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
@@ -265,7 +277,7 @@
             Image unavailable
           </div>
         </div>
-        <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+        <div class="pointer-events-none text-xs text-slate-600 dark:text-slate-300 space-y-1">
           <p>
             <span class="font-semibold">Set:</span>
             {{ (modalCard?.set || "").toUpperCase() || "—" }}
@@ -276,15 +288,6 @@
               modalCard?.prices?.eur ?? "—"
             }}
           </p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:text-emerald-200"
-            @click="openScryfallPage"
-          >
-            View on Scryfall
-          </button>
         </div>
       </Card>
     </div>
@@ -318,6 +321,15 @@ const isMobileModalOpen = ref(false);
 const modalImageUrl = ref<string | null>(null);
 const modalLoading = ref(false);
 const modalCard = ref<DisplayCard | null>(null);
+const scryfallLink = computed(() => {
+  if (props.card?.scryfall_uri) {
+    return props.card.scryfall_uri;
+  }
+  if (props.card?.name) {
+    return `https://scryfall.com/search?q=${encodeURIComponent(props.card.name)}`;
+  }
+  return null;
+});
 let hoverLoadTimeout: ReturnType<typeof setTimeout> | null = null;
 const TAP_MOVE_THRESHOLD = 12;
 const HOVER_LOAD_DELAY = 150;
@@ -533,11 +545,7 @@ const openScryfallPage = () => {
   if (typeof window === "undefined") {
     return;
   }
-  const url =
-    props.card?.scryfall_uri ||
-    (props.card?.name
-      ? `https://scryfall.com/search?q=${encodeURIComponent(props.card.name)}`
-      : null);
+  const url = scryfallLink.value;
   if (url) {
     window.open(url, "_blank", "noopener");
   }
@@ -559,6 +567,7 @@ const handleMobileRowClick = () => {
 };
 
 const openMobileModal = async () => {
+  hideCardImage();
   modalCard.value = { ...props.card };
   isMobileModalOpen.value = true;
   modalLoading.value = true;
