@@ -1,13 +1,13 @@
 <template>
-  <div class="w-full space-y-4 text-slate-900 dark:text-slate-100 lg:max-w-xl">
+  <div class="w-full space-y-4 text-[color:var(--text)] lg:max-w-xl">
     <Card
       as="div"
       padding="p-6 sm:p-8 lg:p-10"
       rounded="rounded-3xl"
-      border="border-2 border-dashed border-slate-300 dark:border-slate-600/80"
-      background="bg-white/90 dark:bg-slate-900/50"
-      shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/40"
-      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-emerald-400/70 hover:bg-emerald-50/50 dark:text-slate-100 dark:hover:bg-slate-900/70"
+      border="border-2 border-dashed border-[color:var(--border)]"
+      background="bg-[color:var(--surface)]"
+      shadow="shadow-[var(--shadow)]"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)]"
       @click="triggerFileInput"
       @drop="handleDrop"
       @dragover.prevent
@@ -15,8 +15,8 @@
     >
       <input ref="fileInput" type="file" accept=".csv" class="sr-only" @change="handleFileSelect" />
       <div v-if="!file" class="space-y-2">
-        <p class="text-lg font-semibold text-slate-900 dark:text-white">Upload your collection</p>
-        <p class="text-sm text-slate-500 dark:text-slate-400">
+        <p class="text-lg font-semibold text-[color:var(--text)]">Upload your collection</p>
+        <p class="text-sm text-[color:var(--muted)]">
           Drag and drop or click to browse files. CSV only.
         </p>
       </div>
@@ -25,20 +25,20 @@
         as="div"
         padding="p-4"
         rounded="rounded-2xl"
-        border="border border-slate-200/50 dark:border-slate-700/70"
-        background="bg-white/80 dark:bg-slate-900/80"
-        shadow="shadow-inner shadow-slate-900/5"
-        class="flex w-full flex-col items-center gap-3 text-left text-slate-700 dark:text-slate-200 sm:flex-row sm:justify-between"
+        border="border border-[color:var(--border)]"
+        background="bg-[color:var(--surface)]"
+        shadow="shadow-[var(--shadow-soft)]"
+        class="flex w-full flex-col items-center gap-3 text-left text-[color:var(--text)] sm:flex-row sm:justify-between"
       >
         <div>
           <p class="font-semibold">{{ file.name }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400">
+          <p class="text-xs text-[color:var(--muted)]">
             {{ csvRows.length }} rows detected
           </p>
         </div>
         <button
           type="button"
-          class="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 transition hover:border-rose-400 hover:text-rose-500 dark:border-slate-600 dark:text-slate-200 dark:hover:text-rose-200"
+          class="rounded-full border border-[color:var(--border)] px-4 py-1 text-sm font-medium text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
           aria-label="Remove uploaded CSV file"
           @click.stop="removeFile"
         >
@@ -59,11 +59,11 @@
     <Transition name="success-checkmark">
       <div
         v-if="validationSummary"
-        class="flex items-start gap-3 rounded-2xl border border-emerald-200/70 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-900 shadow-sm shadow-emerald-100 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-100"
+        class="flex items-start gap-3 rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-3 text-sm text-[color:var(--text)] shadow-[var(--shadow-soft)]"
         role="status"
         aria-live="polite"
       >
-        <div class="success-indicator text-emerald-600 dark:text-emerald-300" aria-hidden="true">
+        <div class="success-indicator text-[color:var(--accent)]" aria-hidden="true">
           <svg class="checkmark" viewBox="0 0 52 52">
             <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
             <path class="checkmark-check" d="M14 27l7.5 7.5L38 18" fill="none" />
@@ -78,7 +78,7 @@
 
     <div
       v-if="validationResult?.warnings.length"
-      class="rounded-2xl border border-amber-200/70 bg-amber-50/70 px-4 py-3 text-sm text-amber-900 shadow-sm shadow-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100"
+      class="rounded-2xl border border-[color:var(--warn)] bg-[color:var(--warn-soft)] px-4 py-3 text-sm text-[color:var(--warn)] shadow-[var(--shadow-soft)]"
       role="status"
       aria-live="polite"
     >
@@ -95,7 +95,7 @@
 
     <div
       v-if="validationResult?.errors.length"
-      class="rounded-2xl border border-rose-200/70 bg-rose-50/70 px-4 py-3 text-sm text-rose-900 shadow-sm shadow-rose-100 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
+      class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)] shadow-[var(--shadow-soft)]"
       role="status"
       aria-live="assertive"
     >
@@ -112,26 +112,26 @@
 
     <p
       v-if="errorMessage"
-      class="rounded-2xl border border-rose-200/70 bg-rose-50/70 px-4 py-2 text-sm font-medium text-rose-700 shadow-sm shadow-rose-100 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-100"
+      class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)] shadow-[var(--shadow-soft)]"
     >
       {{ errorMessage }}
     </p>
 
-    <div class="flex flex-col gap-4 text-xs text-slate-500 dark:text-slate-400">
+    <div class="flex flex-col gap-4 text-xs text-[color:var(--muted)]">
       <p>Your deck data stays in this browser session only and clears automatically on refresh.</p>
-      <div
-        class="rounded-3xl border border-slate-200/60 bg-white/80 p-4 text-left text-slate-600 shadow-sm shadow-slate-100 dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-300"
+      <details
+        class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-left"
       >
-        <p class="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-300">
+        <summary class="cursor-pointer text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--muted)]">
           CSV format
-        </p>
-        <div class="mt-3 space-y-3 text-sm">
+        </summary>
+        <div class="mt-3 space-y-3 text-sm text-[color:var(--muted)]">
           <div>
-            <p class="font-semibold text-slate-800 dark:text-white">Required column</p>
+            <p class="font-semibold text-[color:var(--text)]">Required column</p>
             <p>Name (or Card Name) — the card name we match against EDHREC lists.</p>
           </div>
           <div>
-            <p class="font-semibold text-slate-800 dark:text-white">Optional columns</p>
+            <p class="font-semibold text-[color:var(--text)]">Optional columns</p>
             <ul class="mt-1 list-disc space-y-1 pl-5">
               <li>Quantity — number of copies</li>
               <li>Foil — Yes/No</li>
@@ -140,20 +140,20 @@
             </ul>
           </div>
           <div>
-            <p class="font-semibold text-slate-800 dark:text-white">Example</p>
+            <p class="font-semibold text-[color:var(--text)]">Example</p>
             <pre
-              class="mt-2 rounded-2xl bg-slate-900/90 p-3 text-xs font-mono text-emerald-100 dark:bg-slate-900/80"
+              class="mt-2 rounded-2xl bg-[color:var(--surface-muted)] p-3 text-xs font-mono text-[color:var(--text)]"
             >Name,Quantity,Foil,Set
 Sol Ring,1,No,C21
 Lightning Greaves,1,Yes,M19</pre>
           </div>
           <div
-            class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-emerald-300/60 px-3 py-2 text-[0.75rem] text-slate-600 dark:border-emerald-400/40 dark:text-slate-300"
+            class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-[color:var(--border)] px-3 py-2 text-[0.75rem] text-[color:var(--muted)]"
           >
-            <span class="font-semibold text-emerald-600 dark:text-emerald-300">Need an example?</span>
+            <span class="font-semibold text-[color:var(--text)]">Need an example?</span>
             <button
               type="button"
-              class="rounded-full border border-emerald-500 px-3 py-1 font-semibold text-emerald-700 transition hover:bg-emerald-500/10 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+              class="rounded-full border border-[color:var(--accent)] px-3 py-1 font-semibold text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)]"
               aria-label="Load sample inventory CSV"
               @click="loadSampleInventory"
             >
@@ -162,20 +162,20 @@ Lightning Greaves,1,Yes,M19</pre>
             <a
               :href="templateCsvUrl"
               download="inventory-template.csv"
-              class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
+              class="rounded-full border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               Download template
             </a>
             <a
               :href="sampleCsvUrl"
               download="inventory.csv"
-              class="rounded-full border border-transparent px-3 py-1 font-semibold text-emerald-600 underline decoration-dotted decoration-emerald-400 hover:text-emerald-800 dark:text-emerald-200 dark:hover:text-emerald-100"
+              class="rounded-full border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               Download full sample
             </a>
           </div>
         </div>
-      </div>
+      </details>
     </div>
   </div>
 </template>

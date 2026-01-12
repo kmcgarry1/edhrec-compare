@@ -4,7 +4,7 @@
     as="div"
     padding="p-4"
     rounded="rounded-2xl"
-    class="w-full bg-white/70 text-slate-900 dark:bg-slate-900/70 dark:text-slate-100"
+    class="w-full bg-[color:var(--surface)] text-[color:var(--text)]"
   >
     <div
       class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
@@ -14,7 +14,7 @@
           tag="p"
           variant="overline"
           tone="inherit"
-          class="tracking-[0.3em] text-emerald-500/80"
+          class="tracking-[0.3em] text-[color:var(--muted)]"
         >
           {{ label }}
         </CText>
@@ -23,14 +23,14 @@
         </CText>
         <div
           v-if="currentPrinting"
-          class="mt-4 space-y-3 rounded-2xl border border-slate-200/60 bg-white/50 p-3 text-sm text-slate-600 shadow-inner shadow-white/50 dark:border-slate-800/70 dark:bg-slate-900/40 dark:text-slate-300"
+          class="mt-4 space-y-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3 text-sm text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
         >
           <div class="grid gap-2 sm:grid-rows-3 lg:grid-rows-3">
             <div class="min-w-[100px] space-y-1">
               <CText
                 variant="helper"
                 tone="muted"
-                class="uppercase tracking-wide"
+                class="uppercase tracking-wide text-[color:var(--muted)]"
               >
                 Set
               </CText>
@@ -42,7 +42,7 @@
               <CText
                 variant="helper"
                 tone="muted"
-                class="uppercase tracking-wide"
+                class="uppercase tracking-wide text-[color:var(--muted)]"
               >
                 Collector #
               </CText>
@@ -54,7 +54,7 @@
               <CText
                 variant="helper"
                 tone="muted"
-                class="uppercase tracking-wide"
+                class="uppercase tracking-wide text-[color:var(--muted)]"
               >
                 Release
               </CText>
@@ -67,7 +67,7 @@
                 <CText
                   variant="helper"
                   tone="muted"
-                  class="uppercase tracking-wide"
+                  class="uppercase tracking-wide text-[color:var(--muted)]"
                 >
                   USD Price
                 </CText>
@@ -82,7 +82,7 @@
                 <CText
                   variant="helper"
                   tone="muted"
-                  class="uppercase tracking-wide"
+                  class="uppercase tracking-wide text-[color:var(--muted)]"
                 >
                   EUR Price
                 </CText>
@@ -109,14 +109,14 @@
           >
             <button
               type="button"
-              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-emerald-200"
+              class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               @click="showPreviousPrinting"
             >
               < Prev
             </button>
             <button
               type="button"
-              class="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-emerald-200"
+              class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               @click="showNextPrinting"
             >
               Next >
@@ -130,14 +130,14 @@
       <div class="flex items-center justify-center">
         <template v-if="isLoading">
           <div
-            class="h-40 w-28 animate-pulse rounded-xl bg-slate-200/70 dark:bg-slate-700/50"
+            class="h-40 w-28 animate-pulse rounded-xl bg-[color:var(--surface-muted)]"
           ></div>
         </template>
         <img
           v-else-if="cardImageUrl"
           :src="cardImageUrl"
           :alt="commanderName"
-          class="h-80 w-auto rounded-xl shadow-lg shadow-slate-900/10 dark:shadow-black/40"
+          class="h-80 w-auto rounded-xl shadow-[var(--shadow)]"
         />
       </div>
     </div>

@@ -3,8 +3,8 @@
     <button
       ref="buttonRef"
       type="button"
-      class="flex w-full items-center justify-between rounded-2xl border border-slate-300 bg-white/70 px-4 py-2 text-left text-sm font-medium text-slate-700 shadow-inner shadow-white/60 transition hover:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-100 dark:hover:border-emerald-400/70 disabled:cursor-not-allowed disabled:opacity-60"
-      :class="isOpen ? 'border-emerald-400 ring-2 ring-emerald-400' : ''"
+      class="flex w-full items-center justify-between rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-left text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+      :class="isOpen ? 'border-[color:var(--accent)] ring-2 ring-[color:var(--accent)]' : ''"
       :disabled="disabled"
       :aria-expanded="isOpen"
       :aria-haspopup="'listbox'"
@@ -31,7 +31,7 @@
             />
             <span
               v-else
-              class="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold uppercase text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+              class="flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--surface-muted)] text-[10px] font-semibold uppercase text-[color:var(--text)]"
               aria-hidden="true"
             >
               {{ symbol.color }}
@@ -59,7 +59,7 @@
         </div>
       </div>
       <svg
-        class="ml-3 h-4 w-4 text-slate-500 transition-transform dark:text-slate-400"
+        class="ml-3 h-4 w-4 text-[color:var(--muted)] transition-transform"
         :class="isOpen ? 'rotate-180' : ''"
         viewBox="0 0 20 20"
         fill="currentColor"
@@ -87,7 +87,7 @@
           ref="listRef"
           role="listbox"
           tabindex="-1"
-          class="max-h-64 w-full overflow-auto rounded-2xl border border-slate-200 bg-white/95 p-1 shadow-2xl ring-1 ring-black/5 focus:outline-none dark:border-slate-700 dark:bg-slate-900/95"
+          class="max-h-64 w-full overflow-auto rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 shadow-[var(--shadow)] ring-1 ring-black/5 focus:outline-none"
           :aria-activedescendant="highlightedOptionId"
         >
           <li
@@ -124,7 +124,7 @@
                     />
                     <span
                       v-else
-                      class="flex h-4 w-4 items-center justify-center rounded-full bg-slate-200 text-[10px] font-semibold uppercase text-slate-700 dark:bg-slate-700 dark:text-slate-200"
+                      class="flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--surface-muted)] text-[10px] font-semibold uppercase text-[color:var(--text)]"
                       aria-hidden="true"
                     >
                       {{ symbol.color }}
@@ -148,7 +148,7 @@
             <svg
               v-if="selectedIndex === index"
               viewBox="0 0 20 20"
-              class="h-4 w-4 text-emerald-500 dark:text-emerald-300"
+              class="h-4 w-4 text-[color:var(--accent)]"
               fill="currentColor"
               aria-hidden="true"
             >
@@ -278,9 +278,9 @@ const highlightedOptionId = computed(() =>
 );
 
 const optionHighlightClass =
-  "bg-emerald-50 text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-100";
+  "bg-[color:var(--accent-soft)] text-[color:var(--text)]";
 const optionDefaultClass =
-  "text-slate-700 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800/70";
+  "text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]";
 
 const getOptionClasses = (index: number) => [
   highlightedIndex.value === index

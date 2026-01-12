@@ -4,30 +4,30 @@
       as="header"
       padding="p-3 sm:p-4"
       rounded="rounded-3xl"
-      border="border border-slate-200/70 dark:border-slate-700/70"
-      background="bg-white dark:bg-slate-950"
-      shadow="shadow-lg shadow-slate-900/10 dark:shadow-black/40"
+      border="border border-[color:var(--border)]"
+      background="bg-[color:var(--surface)]"
+      shadow="shadow-[var(--shadow-soft)]"
       class="backdrop-blur flex flex-col gap-2.5 text-xs"
     >
       <div class="flex flex-wrap items-center justify-between gap-2 text-[0.72rem]">
         <div class="flex flex-wrap items-baseline gap-2">
-          <span class="uppercase tracking-[0.4em] text-emerald-500/80 dark:text-emerald-300/80">
+          <span class="uppercase tracking-[0.4em] text-[color:var(--muted)]">
             Toolkit
           </span>
-          <h1 class="text-lg font-semibold normal-case tracking-tight text-slate-900 dark:text-white">
+          <h1 class="text-lg font-semibold normal-case tracking-tight text-[color:var(--text)]">
             Commander Scout
           </h1>
-          <span class="text-[0.65rem] font-medium uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">
+          <span class="text-[0.65rem] font-medium uppercase tracking-[0.25em] text-[color:var(--muted)]">
             CSV • EDHREC • Scryfall
           </span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <div
-            class="inline-flex items-center gap-1 rounded-full border border-slate-200/80 bg-white px-2 py-1 text-[0.7rem] font-semibold text-slate-600 shadow-inner shadow-white/60 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200"
+            class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-2 py-1 text-[0.7rem] font-semibold text-[color:var(--muted)]"
             role="group"
             aria-label="Adjust layout density"
           >
-            <span class="hidden lg:inline uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+            <span class="hidden lg:inline uppercase tracking-[0.24em] text-[color:var(--muted)]">
               Density
             </span>
             <div class="flex items-center gap-1">
@@ -35,11 +35,11 @@
                 v-for="option in densityOptions"
                 :key="option.value"
                 type="button"
-                class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
                 :class="
                   density === option.value
-                    ? 'bg-emerald-100 text-emerald-800 shadow-sm dark:bg-emerald-900/50 dark:text-emerald-100'
-                    : 'text-slate-500 hover:text-emerald-700 dark:text-slate-300 dark:hover:text-emerald-200'
+                    ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
+                    : 'text-[color:var(--muted)] hover:text-[color:var(--accent)]'
                 "
                 :aria-pressed="density === option.value"
                 @click="setDensity(option.value)"
@@ -50,7 +50,7 @@
           </div>
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-500 shadow-sm transition hover:border-slate-400 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300"
+            class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--muted)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             aria-label="Hide toolkit"
             @click="$emit('collapse')"
           >
@@ -61,7 +61,7 @@
           </button>
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
+            class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--text)] shadow-sm transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             :aria-label="`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`"
             :aria-pressed="theme === 'dark'"
             @click="$emit('toggle-theme')"
@@ -92,7 +92,7 @@
           </button>
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[0.7rem] font-semibold text-slate-700 shadow-sm transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200"
+            class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--text)] shadow-sm transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             :aria-label="`${backgroundEnabled ? 'Hide' : 'Show'} nebula background`"
             :aria-pressed="backgroundEnabled"
             @click="$emit('toggle-background')"
@@ -104,7 +104,7 @@
           </button>
           <button
             type="button"
-            class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/80 bg-emerald-50 px-3 py-1.5 text-[0.7rem] font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-500/10 dark:border-emerald-300/70 dark:bg-emerald-900/40 dark:text-emerald-200"
+            class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--text)] shadow-sm transition hover:border-[color:var(--accent-strong)]"
             aria-label="Upload CSV collection file"
             @click="$emit('show-upload')"
           >
@@ -115,7 +115,7 @@
           </button>
         </div>
       </div>
-      <p class="text-[0.75rem] leading-relaxed text-slate-600 dark:text-slate-300">
+      <p class="text-[0.75rem] leading-relaxed text-[color:var(--muted)]">
         Match your collection against live commander recommendations, then tag owned cards by uploading your CSV.
       </p>
       <div class="flex flex-wrap gap-2 text-[0.7rem] font-semibold" role="group" aria-label="Filter cards by ownership">
@@ -123,7 +123,7 @@
           v-for="option in filterOptions"
           :key="option.label"
           type="button"
-          class="inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+          class="inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
           :class="option.active ? activeFilterClass : inactiveFilterClass"
           :aria-label="`Show ${option.label.toLowerCase()} cards`"
           :aria-pressed="option.active"
@@ -185,9 +185,9 @@ defineEmits<{
 }>();
 
 const activeFilterClass =
-  "border-emerald-500 bg-emerald-100 text-emerald-900 shadow-sm dark:border-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-100";
+  "border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)] shadow-sm";
 const inactiveFilterClass =
-  "border-slate-200 text-slate-600 hover:border-emerald-400 dark:border-slate-700 dark:text-slate-300";
+  "border-[color:var(--border)] text-[color:var(--muted)] hover:border-[color:var(--accent)]";
 
 const filterOptions = computed(() => [
   { label: "Owned", value: true, icon: mdiCardsOutline, active: props.showOwned === true },

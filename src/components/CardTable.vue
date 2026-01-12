@@ -10,18 +10,18 @@
     >
       <table
         :class="[
-          'min-w-full border border-slate-200/70 dark:border-slate-700/60 text-sm',
+          'min-w-full border border-[color:var(--border)] text-sm',
           tableClass,
         ]"
       >
-        <thead class="bg-slate-100/70 dark:bg-slate-900/60">
+        <thead class="bg-[color:var(--surface-muted)]">
           <tr>
             <th
               v-for="column in columns"
               :key="column.key"
               scope="col"
               :class="[
-                'px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300 border-b border-slate-200/60 dark:border-slate-700/60',
+                'px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)] border-b border-[color:var(--border)]',
                 column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                 column.class || '',
               ]"
@@ -30,7 +30,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200/60 dark:divide-slate-800/70">
+        <tbody class="divide-y divide-[color:var(--border)]">
           <template v-if="$slots.default">
             <template v-if="virtualEnabled">
               <tr
@@ -78,13 +78,13 @@
               <tr
                 v-for="entry in visibleRows"
                 :key="entry.key"
-                class="bg-white even:bg-slate-50/60 hover:bg-emerald-50/40 dark:bg-slate-900/50 dark:even:bg-slate-900/70 dark:hover:bg-slate-800/70 transition"
+                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition"
               >
                 <td
                   v-for="column in columns"
                   :key="column.key"
                   :class="[
-                    'px-3 py-2 text-slate-700 dark:text-slate-200',
+                    'px-3 py-2 text-[color:var(--text)]',
                     column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                     column.class || '',
                   ]"
@@ -105,13 +105,13 @@
               <tr
                 v-for="(row, index) in rows"
                 :key="resolveRowKey(row, index)"
-                class="bg-white even:bg-slate-50/60 hover:bg-emerald-50/40 dark:bg-slate-900/50 dark:even:bg-slate-900/70 dark:hover:bg-slate-800/70 transition"
+                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition"
               >
                 <td
                   v-for="column in columns"
                   :key="column.key"
                   :class="[
-                    'px-3 py-2 text-slate-700 dark:text-slate-200',
+                    'px-3 py-2 text-[color:var(--text)]',
                     column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                     column.class || '',
                   ]"
@@ -126,12 +126,12 @@
     </div>
     <div
       v-if="showTopShadow"
-      class="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-slate-200/90 via-slate-200/40 to-transparent dark:from-slate-900/90 dark:via-slate-900/60"
+      class="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[color:var(--bg-strong)] via-[color:var(--bg)] to-transparent"
       aria-hidden="true"
     />
     <div
       v-if="showBottomShadow"
-      class="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-slate-200/90 via-slate-200/40 to-transparent dark:from-slate-900/90 dark:via-slate-900/60"
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[color:var(--bg-strong)] via-[color:var(--bg)] to-transparent"
       aria-hidden="true"
     />
   </div>

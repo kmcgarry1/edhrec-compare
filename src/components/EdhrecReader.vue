@@ -1,5 +1,5 @@
 <template>
-  <section :class="['text-slate-900 dark:text-slate-100', spacing.stackSpace]">
+  <section :class="['text-[color:var(--text)]', spacing.stackSpace]">
     <FloatingCardlistNav
       v-if="cardlistSections.length"
       :sections="cardlistSections"
@@ -12,72 +12,70 @@
     >
       Loading Scryfall data...
     </GlobalLoadingBanner>
-
-    <div :class="['grid items-start xl:grid-cols-[320px,1fr]', spacing.sectionGap]">
-      <aside class="xl:top-4">
-        <Card
-          padding="p-4 sm:p-6"
-          shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
-          :class="['space-y-5 transition-opacity duration-200', readerLoading ? 'opacity-60' : '']"
-          :aria-busy="readerLoading"
-        >
-          <div class="space-y-2">
-            <CommanderSearch
-              ref="commanderSearchRef"
-              :selected-slug="currentCommanderSlug"
-              @commander-selected="handleCommanderSelection"
-            />
-            <p class="text-xs text-slate-500 dark:text-slate-400">
-              Start typing to search EDHREC commanders, then refine the results with the filters
-              below.
-            </p>
-          </div>
-
-          <CommanderFilters
-            :bracket="chosenBracket"
-            :modifier="chosenModifier"
-            :page-type="chosenPageType"
-            :companion="chosenCompanion"
-            @update:bracket="setBracket"
-            @update:modifier="setModifier"
-            @update:page-type="setPageType"
-            @update:companion="setCompanion"
-          />
-        </Card>
-      </aside>
-
-      <div :class="['flex-1', spacing.stackSpace]">
-        <Card
-          v-if="error"
-          rounded="rounded-2xl"
-          shadow="shadow-lg shadow-rose-200/40 dark:shadow-rose-900/40"
-          border="border border-rose-200 dark:border-rose-500/30"
-          background="bg-rose-50 dark:bg-rose-950/30"
-          class="text-sm text-rose-700 dark:text-rose-200"
-        >
-          Error: {{ error }}
-        </Card>
-
-        <EdhrecEmptyState
-          v-if="showEmptyState"
-          :popular="popularCommanders"
-          @select="selectSuggestedCommander"
+    <div class="space-y-4">
+      <CommanderSearch
+        ref="commanderSearchRef"
+        :selected-slug="currentCommanderSlug"
+        @commander-selected="handleCommanderSelection"
+      />
+      <Card padding="p-4 sm:p-5" class="space-y-3">
+        <CommanderFilters
+          :bracket="chosenBracket"
+          :modifier="chosenModifier"
+          :page-type="chosenPageType"
+          :companion="chosenCompanion"
+          @update:bracket="setBracket"
+          @update:modifier="setModifier"
+          @update:page-type="setPageType"
+          @update:companion="setCompanion"
         />
-        <template v-for="entry in cardlistEntries" :key="entry.key">
-          <CardlistSection
-            :cardlist="entry.cardlist"
-            :section-meta="entry.sectionMeta"
-            :rows="getTableRows(entry.cardlist)"
-            :columns="cardTableColumns"
-            :decklist-text="entry.decklistText"
-            :copied-section-id="decklistCopySectionId"
-            :loading="bulkCardsLoading"
-            @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-            @download="handleDownloadDecklist(entry.cardlist, entry.index)"
-          />
-        </template>
+        <p class="text-xs text-[color:var(--muted)]">
+          Filters update the EDHREC source URL and sync to the current route.
+        </p>
+      </Card>
+    </div>
+
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div class="space-y-1">
+        <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">
+          Results
+        </p>
+        <h2 class="text-lg font-semibold text-[color:var(--text)]">Cardlists</h2>
+      </div>
+      <div class="flex flex-wrap items-center gap-3 text-xs text-[color:var(--muted)]">
+        <span>{{ cardlistSections.length }} lists</span>
+        <span>{{ totalCardCount }} cards</span>
       </div>
     </div>
+
+    <Card
+      v-if="error"
+      rounded="rounded-2xl"
+      border="border border-[color:var(--danger)]"
+      background="bg-[color:var(--danger-soft)]"
+      class="text-sm text-[color:var(--danger)]"
+    >
+      Error: {{ error }}
+    </Card>
+
+    <EdhrecEmptyState
+      v-if="showEmptyState"
+      :popular="popularCommanders"
+      @select="selectSuggestedCommander"
+    />
+    <template v-for="entry in cardlistEntries" :key="entry.key">
+      <CardlistSection
+        :cardlist="entry.cardlist"
+        :section-meta="entry.sectionMeta"
+        :rows="getTableRows(entry.cardlist)"
+        :columns="cardTableColumns"
+        :decklist-text="entry.decklistText"
+        :copied-section-id="decklistCopySectionId"
+        :loading="bulkCardsLoading"
+        @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+        @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+      />
+    </template>
   </section>
 </template>
 <script setup lang="ts">
@@ -207,6 +205,9 @@ const fetchJsonData = async (url: string) => {
 };
 
 const cardlists = computed(() => data.value?.container?.json_dict?.cardlists || []);
+const totalCardCount = computed(() =>
+  cardlists.value.reduce((total, cardlist) => total + cardlist.cardviews.length, 0)
+);
 
 const slugifyHeader = (value: string, index: number) => {
   const base = (value || `section-${index + 1}`)
@@ -775,6 +776,7 @@ const __templateBindings = {
   setPageType,
   setCompanion,
   CardlistSection,
+  totalCardCount,
   cardlists,
   getTableRows,
   cardTableColumns,

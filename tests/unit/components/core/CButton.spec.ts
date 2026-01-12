@@ -18,7 +18,7 @@ describe("CButton", () => {
     const wrapper = mount(CButton);
     const button = wrapper.find("button");
 
-    expect(button.classes()).toContain("border-emerald-400/80");
+    expect(button.classes()).toContain("border-[color:var(--accent)]");
   });
 
   it("applies secondary variant styles when specified", () => {
@@ -29,7 +29,7 @@ describe("CButton", () => {
     });
     const button = wrapper.find("button");
 
-    expect(button.classes()).toContain("border-slate-300");
+    expect(button.classes()).toContain("border-[color:var(--border)]");
   });
 
   it("applies ghost variant styles when specified", () => {
@@ -40,7 +40,7 @@ describe("CButton", () => {
     });
     const button = wrapper.find("button");
 
-    expect(button.classes()).toContain("text-slate-600");
+    expect(button.classes()).toContain("text-[color:var(--muted)]");
   });
 
   it("emits click event when clicked", async () => {

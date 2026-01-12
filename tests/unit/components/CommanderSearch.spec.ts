@@ -9,9 +9,11 @@ vi.mock("@vueuse/core", () => ({
 const searchCardNames = vi.hoisted(() =>
   vi.fn().mockResolvedValue(["Atraxa", "Shalai and Hallar"])
 );
+const getCard = vi.hoisted(() => vi.fn().mockResolvedValue({ mana_cost: "{G}" }));
 
 vi.mock("../../../src/api/scryfallApi", () => ({
   searchCardNames,
+  getCard,
 }));
 
 vi.mock("../../../src/composables/useGlobalLoading", () => ({
@@ -43,6 +45,7 @@ const mountComponent = () =>
 describe("CommanderSearch", () => {
   beforeEach(() => {
     searchCardNames.mockClear();
+    getCard.mockClear();
     notifyError.mockClear();
   });
 

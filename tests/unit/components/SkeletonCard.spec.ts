@@ -26,7 +26,9 @@ describe("SkeletonCard", () => {
     expect(imagePlaceholder.exists()).toBe(true);
 
     // Check for detail placeholders
-    const detailPlaceholders = wrapper.findAll(".bg-slate-200.dark\\:bg-slate-700");
-    expect(detailPlaceholders.length).toBeGreaterThanOrEqual(3);
+    const detailPlaceholders = wrapper.findAll(
+      '[class*="bg-[color:var(--surface-muted)]"]'
+    );
+    expect(detailPlaceholders.length).toBeGreaterThanOrEqual(4);
   });
 });

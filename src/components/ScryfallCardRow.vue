@@ -15,7 +15,7 @@
       <td class="px-3 py-2 text-center">
         <input
           type="checkbox"
-          class="h-4 w-4 rounded border-slate-400 bg-transparent text-emerald-500 focus:ring-emerald-400 dark:border-slate-600 dark:text-emerald-400 dark:focus:ring-emerald-300"
+          class="h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
           :checked="props.have"
           disabled
           :aria-checked="props.have"
@@ -38,7 +38,7 @@
             />
           </template>
           <template v-else-if="symbolsLoading">
-            <span class="text-xs text-slate-500 dark:text-slate-400">
+            <span class="text-xs text-[color:var(--muted)]">
               Loading symbols...
             </span>
           </template>
@@ -47,18 +47,18 @@
           </template>
         </div>
       </td>
-      <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
+      <td class="px-3 py-2 text-[color:var(--muted)]">
         {{ props.card.type_line || "—" }}
       </td>
       <td
-        class="px-3 py-2 font-mono text-sm text-slate-700 dark:text-slate-200"
+        class="px-3 py-2 font-mono text-sm text-[color:var(--text)]"
       >
         <span v-if="props.card.power && props.card.toughness">
           {{ props.card.power }}/{{ props.card.toughness }}
         </span>
         <span v-else>—</span>
       </td>
-      <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
+      <td class="px-3 py-2 text-[color:var(--muted)]">
         <span class="uppercase tracking-wide text-xs">
           {{ (props.card.set || "").toUpperCase() || "—" }}
         </span>
@@ -68,7 +68,7 @@
       </td>
       <td class="px-3 py-2 text-xs">
         <span
-          class="inline-flex h-4 items-center text-slate-500 dark:text-slate-400 transition-opacity duration-150"
+          class="inline-flex h-4 items-center text-[color:var(--muted)] transition-opacity duration-150"
           :class="isCardLoading ? 'opacity-100' : 'opacity-0'"
         >
           Loading preview…
@@ -94,8 +94,8 @@
     <div
       role="button"
       tabindex="0"
-      class="flex items-center gap-2 border border-slate-200/70 bg-white px-3 py-2 text-xs dark:border-slate-800 dark:bg-slate-900/70"
-      :class="props.have ? 'ring-1 ring-emerald-400/60' : ''"
+      class="flex items-center gap-2 border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-xs"
+      :class="props.have ? 'ring-1 ring-[color:var(--accent)]' : ''"
       @mouseenter="handleCardHover(props.card.name, $event)"
       @mouseleave="hideCardImage"
       @pointermove="handlePointerMove"
@@ -107,7 +107,7 @@
     >
       <input
         type="checkbox"
-        class="h-4 w-4 rounded border-slate-400 bg-transparent text-emerald-500 focus:ring-emerald-400 dark:border-slate-600 dark:text-emerald-400 dark:focus:ring-emerald-300"
+        class="h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
         :checked="props.have"
         disabled
         :aria-checked="props.have"
@@ -116,9 +116,7 @@
         <p class="truncate text-sm font-semibold">
           {{ props.card.name }}
         </p>
-        <p
-          class="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400"
-        >
+        <p class="mt-0.5 truncate text-[11px] text-[color:var(--muted)]">
           {{ props.card.type_line || "—" }} ·
           <span class="uppercase">{{
             (props.card.set || "").toUpperCase() || "—"
@@ -161,7 +159,7 @@
           />
         </div>
         <p
-          class="text-[10px] text-slate-500 dark:text-slate-400 transition-opacity duration-150"
+          class="text-[10px] text-[color:var(--muted)] transition-opacity duration-150"
           :class="isCardLoading ? 'opacity-100' : 'opacity-0'"
         >
           Loading preview…
@@ -173,7 +171,7 @@
   <Teleport to="body">
     <div
       v-if="hoveredCardImage && isFullscreenPreview"
-      class="fixed inset-0 z-[60] flex flex-col bg-slate-950/90 px-4 py-6 text-white backdrop-blur"
+      class="fixed inset-0 z-[60] flex flex-col bg-black/80 px-4 py-6 text-white backdrop-blur"
       @click.self="hideCardImage"
     >
       <div class="flex justify-end">
@@ -198,44 +196,44 @@
       as="div"
       padding="p-1.5"
       rounded="rounded-xl"
-      border="border border-slate-200 dark:border-slate-700/70"
-      background="bg-white dark:bg-slate-900"
-      shadow="shadow-2xl shadow-slate-900/15 dark:shadow-black/60"
-      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-slate-900 dark:text-slate-100"
+      border="border border-[color:var(--border)]"
+      background="bg-[color:var(--surface)]"
+      shadow="shadow-[var(--shadow)]"
+      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-[color:var(--text)]"
       :fullWidth="false"
       :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
     >
       <img
         :src="hoveredCardImage"
         alt="Card preview"
-        class="w-56 rounded-lg shadow-lg shadow-slate-900/15 dark:shadow-black/40"
+        class="w-56 rounded-lg shadow-[var(--shadow-soft)]"
       />
     </Card>
   </Teleport>
   <Teleport to="body">
     <div
       v-if="isMobileModalOpen"
-      class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-slate-950/70 px-4 py-8 backdrop-blur-sm"
+      class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 px-4 py-8 backdrop-blur-sm"
       @click.self="closeMobileModal"
     >
       <Card
         as="div"
         padding="p-4 sm:p-6"
         rounded="rounded-3xl"
-        border="border border-slate-200 dark:border-slate-700"
-        background="bg-white dark:bg-slate-900"
-        shadow="shadow-2xl shadow-slate-900/60 dark:shadow-black/70"
-        class="relative w-full max-w-md space-y-4"
+        border="border border-[color:var(--border)]"
+        background="bg-[color:var(--surface)]"
+        shadow="shadow-[var(--shadow)]"
+        class="relative w-full max-w-md space-y-4 text-[color:var(--text)]"
       >
         <div class="flex items-start justify-between gap-4">
           <div>
-            <p class="text-xs uppercase tracking-[0.3em] text-emerald-500/80">
+            <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--accent)]">
               Card Preview
             </p>
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">
+            <h3 class="text-xl font-semibold text-[color:var(--text)]">
               {{ modalCard?.name }}
             </h3>
-            <p class="text-sm text-slate-500 dark:text-slate-300">
+            <p class="text-sm text-[color:var(--muted)]">
               {{ modalCard?.type_line }}
             </p>
           </div>
@@ -246,13 +244,13 @@
               target="_blank"
               rel="noreferrer"
               role="button"
-              class="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200 dark:hover:text-emerald-200"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               View on Scryfall
             </a>
             <button
               type="button"
-              class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/60"
+              class="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
               @click="closeMobileModal"
             >
               Close
@@ -262,22 +260,22 @@
         <div class="flex justify-center pointer-events-none">
           <div
             v-if="modalLoading"
-            class="h-64 w-44 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+            class="h-64 w-44 animate-pulse rounded-2xl bg-[color:var(--surface-muted)]"
           ></div>
           <img
             v-else-if="modalImageUrl"
             :src="modalImageUrl"
             :alt="modalCard?.name ?? 'Card'"
-            class="w-44 rounded-2xl shadow-lg shadow-slate-900/20 dark:shadow-black/40"
+            class="w-44 rounded-2xl shadow-[var(--shadow-soft)]"
           />
           <div
             v-else
-            class="h-64 w-44 rounded-2xl border border-dashed border-slate-300 p-4 text-center text-xs text-slate-500 dark:border-slate-700 dark:text-slate-300"
+            class="h-64 w-44 rounded-2xl border border-dashed border-[color:var(--border)] p-4 text-center text-xs text-[color:var(--muted)]"
           >
             Image unavailable
           </div>
         </div>
-        <div class="pointer-events-none text-xs text-slate-600 dark:text-slate-300 space-y-1">
+        <div class="pointer-events-none text-xs text-[color:var(--muted)] space-y-1">
           <p>
             <span class="font-semibold">Set:</span>
             {{ (modalCard?.set || "").toUpperCase() || "—" }}
@@ -478,11 +476,11 @@ const hoverMediaQueryState = {
 
 const tableRowClass = computed(() => {
   const base = props.have
-    ? "bg-emerald-100/60 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100"
-    : "bg-white text-slate-800 dark:bg-slate-900/60 dark:text-slate-100";
+    ? "bg-[color:var(--accent-soft)] text-[color:var(--text)]"
+    : "bg-[color:var(--surface)] text-[color:var(--text)]";
   const hover = props.have
-    ? "hover:bg-emerald-200/70 dark:hover:bg-emerald-800/60"
-    : "hover:bg-slate-100/80 dark:hover:bg-slate-800/70";
+    ? "hover:bg-[color:var(--accent-soft)]"
+    : "hover:bg-[color:var(--surface-muted)]";
   return `${base} ${hover}`;
 });
 
@@ -509,15 +507,15 @@ const manaSymbols = computed(() => {
 const rarityClass = (rarity?: string | null) => {
   switch ((rarity ?? "").toLowerCase()) {
     case "common":
-      return "text-slate-700 dark:text-slate-100";
+      return "text-[color:var(--text)]";
     case "uncommon":
-      return "text-slate-500 dark:text-slate-200";
+      return "text-[color:var(--muted)]";
     case "rare":
-      return "text-amber-600 dark:text-amber-300";
+      return "text-[color:var(--warn)]";
     case "mythic":
-      return "text-orange-600 dark:text-orange-400";
+      return "text-[color:var(--danger)]";
     default:
-      return "text-slate-600 dark:text-slate-300";
+      return "text-[color:var(--muted)]";
   }
 };
 

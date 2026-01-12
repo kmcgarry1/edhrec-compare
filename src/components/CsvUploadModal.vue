@@ -3,7 +3,7 @@
     <div
       v-if="open"
       ref="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/60 px-4 py-8 text-center backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8 text-center backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="csv-upload-title"
@@ -15,14 +15,14 @@
       <div class="max-w-2xl w-full">
         <Card
           padding="p-4 sm:p-6"
-          background="bg-white dark:bg-slate-900"
-          shadow="shadow-2xl shadow-slate-900/40 dark:shadow-black/60"
-          class="max-h-[90vh] overflow-y-auto text-center"
+          background="bg-[color:var(--surface)]"
+          shadow="shadow-[var(--shadow)]"
+          class="max-h-[90vh] overflow-y-auto text-center text-[color:var(--text)]"
         >
           <div class="flex flex-col items-center gap-3">
-            <p class="text-xs uppercase tracking-[0.3em] text-emerald-500/80">Upload Collection</p>
-            <h2 id="csv-upload-title" class="text-2xl font-semibold text-slate-900 dark:text-white">Import your CSV</h2>
-            <p id="csv-upload-description" class="text-sm text-slate-600 dark:text-slate-300">
+            <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">Upload Collection</p>
+            <h2 id="csv-upload-title" class="text-2xl font-semibold text-[color:var(--text)]">Import your CSV</h2>
+            <p id="csv-upload-description" class="text-sm text-[color:var(--muted)]">
               Drag and drop or browse files. We keep data in-memory only.
             </p>
           </div>
@@ -32,7 +32,7 @@
           <div class="mt-6 flex justify-center">
             <button
               type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-200"
+              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               aria-label="Close upload dialog"
               @click="handleClose"
             >
