@@ -273,8 +273,7 @@ const updateShadows = () => {
     return;
   }
 
-  const contentHeight = totalVirtualHeight.value ?? el.scrollHeight;
-  const maxScrollTop = Math.max(contentHeight - el.clientHeight, 0);
+  const maxScrollTop = Math.max(el.scrollHeight - el.clientHeight, 0);
   const hasOverflow = maxScrollTop > 2;
   if (!hasOverflow) {
     showTopShadow.value = false;
@@ -283,8 +282,9 @@ const updateShadows = () => {
   }
 
   const scrollTop = el.scrollTop;
-  showTopShadow.value = scrollTop > 0;
-  showBottomShadow.value = scrollTop < maxScrollTop - 1;
+  const remaining = maxScrollTop - scrollTop;
+  showTopShadow.value = scrollTop > 2;
+  showBottomShadow.value = remaining > 2;
 };
 
 onMounted(() => {

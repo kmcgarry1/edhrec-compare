@@ -6,24 +6,24 @@
 @layer base {
   :root {
     color-scheme: light;
-    --bg: #f5f4ef;
-    --bg-strong: #ebe7dd;
-    --surface: #fbfbf7;
+    --bg: #eef2f6;
+    --bg-strong: #e1e7ef;
+    --surface: #f7f9fb;
     --surface-strong: #ffffff;
-    --surface-muted: #f1efe8;
-    --border: #d8d4c9;
-    --text: #141814;
-    --muted: #5a605b;
-    --accent: #2f6f57;
-    --accent-strong: #1c4f3d;
-    --accent-soft: #e3f0ea;
-    --accent-glow: rgba(47, 111, 87, 0.08);
-    --accent-glow-strong: rgba(47, 111, 87, 0.14);
+    --surface-muted: #e9eff5;
+    --border: #ced6df;
+    --text: #1b2026;
+    --muted: #5c6673;
+    --accent: #c05a2b;
+    --accent-strong: #8d3f1f;
+    --accent-soft: #f6e4da;
+    --accent-glow: rgba(192, 90, 43, 0.08);
+    --accent-glow-strong: rgba(192, 90, 43, 0.14);
     --danger: #b42318;
     --danger-soft: rgba(180, 35, 24, 0.12);
-    --warn: #b25d00;
-    --warn-soft: rgba(178, 93, 0, 0.12);
-    --pattern-line: rgba(20, 22, 20, 0.06);
+    --warn: #b87a0c;
+    --warn-soft: rgba(184, 122, 12, 0.12);
+    --pattern-line: rgba(27, 40, 57, 0.08);
     --shadow: 0 18px 44px rgba(20, 22, 20, 0.08);
     --shadow-soft: 0 10px 24px rgba(20, 22, 20, 0.06);
     font-family:
@@ -38,24 +38,24 @@
 
   .dark {
     color-scheme: dark;
-    --bg: #0e1110;
-    --bg-strong: #151a17;
-    --surface: #141917;
-    --surface-strong: #1b211e;
-    --surface-muted: #101412;
-    --border: #2a302c;
-    --text: #f1f2ed;
-    --muted: #a0a79f;
-    --accent: #8fd6b2;
-    --accent-strong: #c0f2d9;
-    --accent-soft: rgba(143, 214, 178, 0.14);
-    --accent-glow: rgba(143, 214, 178, 0.08);
-    --accent-glow-strong: rgba(143, 214, 178, 0.16);
+    --bg: #0c1117;
+    --bg-strong: #121a24;
+    --surface: #111824;
+    --surface-strong: #18212c;
+    --surface-muted: #0e141d;
+    --border: #273243;
+    --text: #f2f4f7;
+    --muted: #9aa8b6;
+    --accent: #f1a26a;
+    --accent-strong: #ffd0b0;
+    --accent-soft: rgba(241, 162, 106, 0.18);
+    --accent-glow: rgba(241, 162, 106, 0.12);
+    --accent-glow-strong: rgba(241, 162, 106, 0.2);
     --danger: #fca5a5;
     --danger-soft: rgba(252, 165, 165, 0.14);
-    --warn: #fcd34d;
-    --warn-soft: rgba(252, 211, 77, 0.16);
-    --pattern-line: rgba(241, 242, 237, 0.08);
+    --warn: #f1c574;
+    --warn-soft: rgba(241, 197, 116, 0.18);
+    --pattern-line: rgba(229, 235, 244, 0.08);
     --shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
     --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.35);
   }
