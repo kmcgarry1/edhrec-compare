@@ -105,6 +105,7 @@ import { useOwnedFilter } from "../composables/useOwnedFilter";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
+import { useBackgroundArt } from "../composables/useBackgroundArt";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import CommanderSearchInstance from "./CommanderSearch.vue";
@@ -175,6 +176,7 @@ const bulkCardScope = "scryfall-bulk";
 const readerLoading = getScopeLoading(readerScope);
 const bulkCardsLoading = getScopeLoading(bulkCardScope);
 const { spacing } = useLayoutDensity();
+const { setBackgroundArtUrls } = useBackgroundArt();
 
 const fetchJsonData = async (url: string) => {
   error.value = null;
@@ -669,13 +671,58 @@ const scryfallIndex = computed(() => {
   return map;
 });
 
+const BACKGROUND_ART_LIMIT = 8;
+const resolveArtUrl = (card: ScryfallCard) => {
+  if (card.image_uris?.art_crop) {
+    return card.image_uris.art_crop;
+  }
+  if (card.image_uris?.large) {
+    return card.image_uris.large;
+  }
+  if (card.image_uris?.normal) {
+    return card.image_uris.normal;
+  }
+  const faceWithArt = card.card_faces?.find(
+    (face) => face.image_uris?.art_crop || face.image_uris?.large || face.image_uris?.normal
+  );
+  return (
+    faceWithArt?.image_uris?.art_crop ??
+    faceWithArt?.image_uris?.large ??
+    faceWithArt?.image_uris?.normal ??
+    null
+  );
+};
+
+const backgroundArtUrls = computed(() => {
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  for (const card of scryfallCardData.value) {
+    const url = resolveArtUrl(card);
+    if (!url || seen.has(url)) {
+      continue;
+    }
+    seen.add(url);
+    urls.push(url);
+    if (urls.length >= BACKGROUND_ART_LIMIT) {
+      break;
+    }
+  }
+  return urls;
+});
+
+watch(
+  backgroundArtUrls,
+  (urls) => {
+    setBackgroundArtUrls(urls);
+  },
+  { immediate: true }
+);
+
 const cardTableColumns: ColumnDefinition[] = [
   { key: "owned", label: "Owned", align: "center", class: "w-14" },
   { key: "name", label: "Card" },
   { key: "mana", label: "Mana", class: "w-28" },
   { key: "type", label: "Type" },
-  { key: "stats", label: "P/T", align: "center", class: "w-16" },
-  { key: "set", label: "Set", align: "center", class: "w-16" },
   { key: "rarity", label: "Rarity", class: "w-20" },
   { key: "status", label: "", align: "center", class: "w-24" },
   { key: "usd", label: "USD", align: "right", class: "w-20" },

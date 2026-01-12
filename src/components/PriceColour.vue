@@ -78,21 +78,21 @@ const colorClass = computed(() => {
     muted:
       "bg-[color:var(--surface-muted)] text-[color:var(--muted)] border border-[color:var(--border)]",
     low:
-      "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] border border-[color:var(--accent)]",
+      "bg-[color:var(--tier-blue-soft)] text-[color:var(--tier-blue)] border border-[color:var(--tier-blue)]",
     mid:
-      "bg-[color:var(--surface-muted)] text-[color:var(--text)] border border-[color:var(--border)]",
+      "bg-[color:var(--tier-green-soft)] text-[color:var(--tier-green)] border border-[color:var(--tier-green)]",
     high:
-      "bg-[color:var(--warn-soft)] text-[color:var(--warn)] border border-[color:var(--warn)]",
+      "bg-[color:var(--tier-orange-soft)] text-[color:var(--tier-orange)] border border-[color:var(--tier-orange)]",
     premium:
-      "bg-[color:var(--danger-soft)] text-[color:var(--danger)] border border-[color:var(--danger)]",
+      "bg-[color:var(--tier-red-soft)] text-[color:var(--tier-red)] border border-[color:var(--tier-red)]",
   };
 
   const textClasses: Record<string, string> = {
     muted: "text-[color:var(--muted)]",
-    low: "text-[color:var(--accent-strong)]",
-    mid: "text-[color:var(--text)]",
-    high: "text-[color:var(--warn)]",
-    premium: "text-[color:var(--danger)]",
+    low: "text-[color:var(--tier-blue)]",
+    mid: "text-[color:var(--tier-green)]",
+    high: "text-[color:var(--tier-orange)]",
+    premium: "text-[color:var(--tier-red)]",
   };
 
   return props.pill ? pillClasses[tone] : textClasses[tone];

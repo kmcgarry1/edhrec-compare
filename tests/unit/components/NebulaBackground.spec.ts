@@ -6,23 +6,22 @@ describe("NebulaBackground", () => {
   it("renders the component with base structure", () => {
     const wrapper = mount(NebulaBackground);
     expect(
-      wrapper.find(".fixed.inset-0.-z-10.overflow-hidden.pointer-events-none").exists()
+      wrapper.find(".nebula.fixed.inset-0.-z-10.overflow-hidden.pointer-events-none").exists()
     ).toBe(true);
-    expect(wrapper.findAll(".absolute.inset-0")).toHaveLength(1);
+    expect(wrapper.findAll(".nebula > div")).toHaveLength(7);
+    expect(wrapper.find(".nebula__art--primary").exists()).toBe(true);
+    expect(wrapper.find(".nebula__art--secondary").exists()).toBe(true);
+    expect(wrapper.find(".nebula__base").exists()).toBe(true);
+    expect(wrapper.find(".nebula__glow").exists()).toBe(true);
+    expect(wrapper.find(".nebula__particles--fine").exists()).toBe(true);
+    expect(wrapper.find(".nebula__particles--coarse").exists()).toBe(true);
+    expect(wrapper.find(".nebula__noise").exists()).toBe(true);
   });
 
-  it("applies the pattern layer styles", () => {
+  it("marks the layers as decorative", () => {
     const wrapper = mount(NebulaBackground);
-    const layer = wrapper.find(".absolute.inset-0");
-    const style = layer.attributes("style");
-    expect(style).toContain("background-image");
-    expect(style).toContain("linear-gradient");
-    expect(style).toContain("radial-gradient");
-  });
-
-  it("marks the pattern layer as decorative", () => {
-    const wrapper = mount(NebulaBackground);
-    const layer = wrapper.find(".absolute.inset-0");
-    expect(layer.attributes("aria-hidden")).toBe("true");
+    wrapper.findAll(".nebula > div").forEach((layer) => {
+      expect(layer.attributes("aria-hidden")).toBe("true");
+    });
   });
 });

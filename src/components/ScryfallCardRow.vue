@@ -1,32 +1,42 @@
 <template>
   <template v-if="variant === 'table'">
     <tr
-      class="transition cursor-pointer"
+      class="cursor-pointer"
       :class="tableRowClass"
-      @mouseenter="handleCardHover(props.card.name, $event)"
+      @mouseenter="handleCardHover(cardName, $event)"
       @mouseleave="hideCardImage"
       @pointermove="handlePointerMove"
-      @pointerdown="handlePointerDown(props.card.name, $event)"
+      @pointerdown="handlePointerDown(cardName, $event)"
       @pointerup="handlePointerUp"
       @pointerleave="handlePointerLeave"
       @pointercancel="handlePointerLeave"
       @click="handleRowClick"
     >
-      <td class="px-3 py-2 text-center">
+      <td :class="tableCellClasses.checkbox">
         <input
           type="checkbox"
-          class="h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
+          :class="checkboxClass"
           :checked="props.have"
           disabled
           :aria-checked="props.have"
           aria-label="Card present in uploaded list"
         />
       </td>
-      <td class="px-3 py-2 font-semibold">
-        {{ props.card.name }}
+      <td :class="tableCellClasses.name">
+        <div class="name-clamp max-w-[clamp(16rem,40vw,32rem)]" :title="cardName">
+          <template v-if="hasSplitName">
+            <span class="block leading-snug">{{ primaryName }}</span>
+            <span class="block text-xs leading-snug text-[color:var(--muted)]">
+              {{ secondaryName }}
+            </span>
+          </template>
+          <span v-else class="block leading-snug">
+            {{ cardName }}
+          </span>
+        </div>
       </td>
-      <td class="px-3 py-2">
-        <div class="flex flex-wrap items-center gap-1">
+      <td :class="tableCellClasses.mana">
+        <div class="flex items-center gap-1 text-xs text-[color:var(--muted)]">
           <template v-if="manaSymbols.length">
             <img
               v-for="symbol in manaSymbols"
@@ -38,55 +48,40 @@
             />
           </template>
           <template v-else-if="symbolsLoading">
-            <span class="text-xs text-[color:var(--muted)]">
-              Loading symbols...
-            </span>
+            <span>Loading symbols...</span>
           </template>
           <template v-else>
-            {{ props.card.mana_cost || "—" }}
+            {{ cardMana }}
           </template>
         </div>
       </td>
-      <td class="px-3 py-2 text-[color:var(--muted)]">
-        {{ props.card.type_line || "—" }}
-      </td>
-      <td
-        class="px-3 py-2 font-mono text-sm text-[color:var(--text)]"
-      >
-        <span v-if="props.card.power && props.card.toughness">
-          {{ props.card.power }}/{{ props.card.toughness }}
-        </span>
-        <span v-else>—</span>
-      </td>
-      <td class="px-3 py-2 text-[color:var(--muted)]">
-        <span class="uppercase tracking-wide text-xs">
-          {{ (props.card.set || "").toUpperCase() || "—" }}
-        </span>
-      </td>
-      <td class="px-3 py-2 capitalize" :class="rarityClass(props.card.rarity)">
-        {{ props.card.rarity || "—" }}
-      </td>
-      <td class="px-3 py-2 text-xs">
+      <td :class="tableCellClasses.muted">
         <span
-          class="inline-flex h-4 items-center text-[color:var(--muted)] transition-opacity duration-150"
-          :class="isCardLoading ? 'opacity-100' : 'opacity-0'"
+          class="block truncate max-w-[28ch]"
+          :title="cardTypeFull !== '—' ? cardTypeFull : undefined"
         >
-          Loading preview…
+          {{ cardTypeShort }}
         </span>
+      </td>
+      <td :class="tableCellClasses.badge">
+        <span :class="rarityBadgeClass">{{ cardRarity }}</span>
+      </td>
+      <td :class="tableCellClasses.status">
+        <span :class="statusLabelClass">Loading preview…</span>
       </td>
       <PriceColour
         tag="td"
         :pill="false"
         :price="props.card.prices?.usd ?? null"
         currency="$"
-        class="px-3 py-2 text-right font-mono text-sm rounded-lg"
+        :class="tableCellClasses.price"
       />
       <PriceColour
         tag="td"
         :pill="false"
         :price="props.card.prices?.eur ?? null"
         currency="€"
-        class="px-3 py-2 text-right font-mono text-sm rounded-lg"
+        :class="tableCellClasses.price"
       />
     </tr>
   </template>
@@ -94,41 +89,44 @@
     <div
       role="button"
       tabindex="0"
-      class="flex items-center gap-2 border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-xs"
-      :class="props.have ? 'ring-1 ring-[color:var(--accent)]' : ''"
-      @mouseenter="handleCardHover(props.card.name, $event)"
+      :class="cardRowClass"
+      @mouseenter="handleCardHover(cardName, $event)"
       @mouseleave="hideCardImage"
       @pointermove="handlePointerMove"
-      @pointerdown="handlePointerDown(props.card.name, $event)"
+      @pointerdown="handlePointerDown(cardName, $event)"
       @pointerup="handlePointerUp"
       @pointerleave="handlePointerLeave"
       @pointercancel="handlePointerLeave"
       @click="handleMobileRowClick"
+      @keydown.enter="handleMobileRowClick"
+      @keydown.space.prevent="handleMobileRowClick"
     >
-      <input
-        type="checkbox"
-        class="h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
-        :checked="props.have"
-        disabled
-        :aria-checked="props.have"
-      />
-      <div class="min-w-0 flex-1">
-        <p class="truncate text-sm font-semibold">
-          {{ props.card.name }}
-        </p>
-        <p class="mt-0.5 truncate text-[11px] text-[color:var(--muted)]">
-          {{ props.card.type_line || "—" }} ·
-          <span class="uppercase">{{
-            (props.card.set || "").toUpperCase() || "—"
-          }}</span>
-          ·
-          <span :class="rarityClass(props.card.rarity)">
-            {{ props.card.rarity || "—" }}
-          </span>
-        </p>
+      <div class="flex min-w-0 flex-1 items-center gap-3">
+        <input
+          type="checkbox"
+          :class="checkboxClass"
+          :checked="props.have"
+          disabled
+          :aria-checked="props.have"
+        />
+        <div class="min-w-0 flex-1">
+          <p class="truncate text-sm font-semibold">
+            {{ cardName }}
+          </p>
+          <div class="mt-1 flex flex-wrap items-center gap-2">
+            <span :class="setBadgeClass">{{ cardSet }}</span>
+            <span :class="rarityBadgeClass">{{ cardRarity }}</span>
+            <span
+              class="truncate text-[11px] text-[color:var(--muted)]"
+              :title="cardTypeFull !== '—' ? cardTypeFull : undefined"
+            >
+              {{ cardTypeShort }}
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="flex flex-col items-end gap-1 text-[11px]">
-        <div class="flex items-center gap-0.5">
+      <div class="flex flex-col items-end gap-1">
+        <div class="flex items-center gap-0.5 text-[11px] text-[color:var(--muted)]">
           <template v-if="manaSymbols.length">
             <img
               v-for="symbol in manaSymbols"
@@ -143,10 +141,10 @@
             <span>…</span>
           </template>
           <template v-else>
-            {{ props.card.mana_cost || "—" }}
+            {{ cardMana }}
           </template>
         </div>
-        <div class="flex items-center gap-1 font-mono">
+        <div class="flex items-center gap-1">
           <PriceColour
             :price="props.card.prices?.usd ?? null"
             currency="$"
@@ -158,12 +156,7 @@
             class="text-[11px]"
           />
         </div>
-        <p
-          class="text-[10px] text-[color:var(--muted)] transition-opacity duration-150"
-          :class="isCardLoading ? 'opacity-100' : 'opacity-0'"
-        >
-          Loading preview…
-        </p>
+        <span :class="statusLabelClass">Loading preview…</span>
       </div>
     </div>
   </template>
@@ -308,6 +301,48 @@ const props = defineProps<{
 }>();
 
 const variant = computed(() => props.variant ?? "table");
+const cardName = computed(() => props.card.name || "—");
+const nameParts = computed(() =>
+  cardName.value.split(/\s*\/\/\s*/).map((part) => part.trim()).filter(Boolean)
+);
+const hasSplitName = computed(() => nameParts.value.length > 1);
+const primaryName = computed(() => nameParts.value[0] ?? cardName.value);
+const secondaryName = computed(() => {
+  if (!hasSplitName.value) {
+    return "";
+  }
+  return nameParts.value.slice(1).join(" // ");
+});
+const cardTypeFull = computed(() => props.card.type_line || "—");
+const cardTypeShort = computed(() => {
+  if (!props.card.type_line) {
+    return "—";
+  }
+  const leftSide = props.card.type_line.split("—")[0]?.trim() ?? "";
+  if (!leftSide) {
+    return "—";
+  }
+  const supertypes = new Set([
+    "Basic",
+    "Legendary",
+    "Snow",
+    "World",
+    "Ongoing",
+  ]);
+  const filtered = leftSide
+    .split(/\s+/)
+    .filter((part) => !supertypes.has(part));
+  return filtered.join(" ") || leftSide;
+});
+const cardSet = computed(() => (props.card.set || "").toUpperCase() || "—");
+const cardRarity = computed(() => props.card.rarity || "—");
+const cardStats = computed(() => {
+  if (props.card.power && props.card.toughness) {
+    return `${props.card.power}/${props.card.toughness}`;
+  }
+  return "—";
+});
+const cardMana = computed(() => props.card.mana_cost || "—");
 
 const pendingImageKey = ref<string | null>(null);
 const canHover = ref(true);
@@ -474,6 +509,39 @@ const hoverMediaQueryState = {
   listener: null as ((event: MediaQueryListEvent) => void) | null,
 };
 
+const checkboxClass =
+  "h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]";
+const tableCellClasses = {
+  checkbox: "px-3 py-2 text-center",
+  name: "px-3 py-2 align-top text-sm font-semibold text-[color:var(--text)]",
+  mana: "px-3 py-2",
+  muted: "px-3 py-2 text-sm text-[color:var(--muted)]",
+  stats: "px-3 py-2 text-sm font-mono tabular-nums text-[color:var(--text)]",
+  badge: "px-3 py-2",
+  status: "px-3 py-2",
+  price: "px-3 py-2 text-right",
+};
+const badgeBaseClass =
+  "inline-flex items-center rounded-full border border-[color:var(--border)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em]";
+const setBadgeClass = `${badgeBaseClass} bg-[color:var(--surface-muted)] text-[color:var(--muted)]`;
+const statusLabelBase =
+  "inline-flex h-4 items-center text-[11px] text-[color:var(--muted)] transition-opacity duration-150";
+const statusLabelClass = computed(() => [
+  statusLabelBase,
+  isCardLoading.value ? "opacity-100" : "opacity-0",
+]);
+const cardRowClass = computed(() => {
+  const base =
+    "flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-xs text-[color:var(--text)] transition";
+  const state = props.have
+    ? "border-[color:var(--accent)] bg-[color:var(--accent-soft)]"
+    : "border-[color:var(--border)] bg-[color:var(--surface)]";
+  const hover = props.have
+    ? "hover:border-[color:var(--accent-strong)]"
+    : "hover:border-[color:var(--accent)] hover:bg-[color:var(--surface-muted)]";
+  return `${base} ${state} ${hover}`;
+});
+
 const tableRowClass = computed(() => {
   const base = props.have
     ? "bg-[color:var(--accent-soft)] text-[color:var(--text)]"
@@ -481,7 +549,7 @@ const tableRowClass = computed(() => {
   const hover = props.have
     ? "hover:bg-[color:var(--accent-soft)]"
     : "hover:bg-[color:var(--surface-muted)]";
-  return `${base} ${hover}`;
+  return `transition-colors ${base} ${hover}`;
 });
 
 const manaSymbols = computed(() => {
@@ -507,17 +575,23 @@ const manaSymbols = computed(() => {
 const rarityClass = (rarity?: string | null) => {
   switch ((rarity ?? "").toLowerCase()) {
     case "common":
-      return "text-[color:var(--text)]";
+      return "text-[color:var(--rarity-common)]";
     case "uncommon":
-      return "text-[color:var(--muted)]";
+      return "text-[color:var(--rarity-uncommon)]";
     case "rare":
-      return "text-[color:var(--warn)]";
+      return "text-[color:var(--rarity-rare)]";
     case "mythic":
-      return "text-[color:var(--danger)]";
+      return "text-[color:var(--rarity-mythic)]";
     default:
       return "text-[color:var(--muted)]";
   }
 };
+
+const rarityBadgeClass = computed(() => [
+  badgeBaseClass,
+  "bg-[color:var(--surface-muted)]",
+  rarityClass(cardRarity.value),
+]);
 
 onMounted(() => {
   setupHoverDetection();
@@ -626,3 +700,11 @@ const resetTouchTracking = () => {
   };
 };
 </script>
+<style scoped>
+.name-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+</style>

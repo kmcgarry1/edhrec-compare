@@ -26,8 +26,8 @@ describe("PriceColour", () => {
     });
 
     expect(wrapper.text()).toBe("$4.50");
-    expect(wrapper.classes()).toContain("bg-[color:var(--surface-muted)]");
-    expect(wrapper.classes()).toContain("text-[color:var(--text)]");
+    expect(wrapper.classes()).toContain("bg-[color:var(--tier-green-soft)]");
+    expect(wrapper.classes()).toContain("text-[color:var(--tier-green)]");
   });
 
   it("can render without pill styling", () => {
@@ -42,6 +42,6 @@ describe("PriceColour", () => {
 
     expect(wrapper.element.tagName).toBe("SPAN");
     expect(wrapper.classes()).toContain("tabular-nums");
-    expect(wrapper.classes()).toContain("text-[color:var(--warn)]");
+    expect(wrapper.classes()).toContain("text-[color:var(--tier-orange)]");
   });
 });

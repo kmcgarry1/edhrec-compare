@@ -54,6 +54,7 @@
         :columns="columns"
         :rows="rows"
         row-key="id"
+        tableClass="w-full"
         aria-live="polite"
         :virtual="true"
         :virtual-item-size="76"
