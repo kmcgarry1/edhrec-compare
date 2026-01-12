@@ -73,7 +73,7 @@ const scheduleNext = () => {
   }, FADE_DURATION_MS);
 };
 
-const startCycle = (urls: string[]) => {
+const startCycle = (urls: readonly string[]) => {
   clearTimers();
   if (!urls.length) {
     currentUrl.value = null;

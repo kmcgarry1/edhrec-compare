@@ -336,12 +336,6 @@ const cardTypeShort = computed(() => {
 });
 const cardSet = computed(() => (props.card.set || "").toUpperCase() || "—");
 const cardRarity = computed(() => props.card.rarity || "—");
-const cardStats = computed(() => {
-  if (props.card.power && props.card.toughness) {
-    return `${props.card.power}/${props.card.toughness}`;
-  }
-  return "—";
-});
 const cardMana = computed(() => props.card.mana_cost || "—");
 
 const pendingImageKey = ref<string | null>(null);
