@@ -26,7 +26,7 @@ describe("Code Splitting", () => {
     expect((components as Record<string, unknown>).DecklistExport).toBeUndefined();
 
     // Verify eagerly-loaded components ARE exported
-    expect((components as Record<string, unknown>).Dashboard).toBeDefined();
+    expect((components as Record<string, unknown>).Dashboard).toBeUndefined();
     expect((components as Record<string, unknown>).EdhrecReader).toBeDefined();
   });
 });

@@ -40,13 +40,13 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const toneClasses: Record<Tone, string> = {
-  default: "text-slate-700 dark:text-slate-100",
-  muted: "text-slate-600 dark:text-slate-200",
-  subtle: "text-slate-500 dark:text-slate-400",
+  default: "text-[color:var(--text)]",
+  muted: "text-[color:var(--muted)]",
+  subtle: "text-[color:var(--muted)] opacity-70",
   inverse: "text-white",
-  danger: "text-rose-600 dark:text-rose-300",
-  success: "text-emerald-600 dark:text-emerald-300",
-  warn: "text-amber-600 dark:text-amber-300",
+  danger: "text-[color:var(--danger)]",
+  success: "text-[color:var(--accent)]",
+  warn: "text-[color:var(--warn)]",
   inherit: "",
 };
 

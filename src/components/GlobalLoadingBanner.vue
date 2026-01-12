@@ -9,13 +9,13 @@
       >
         <div
           v-bind="attrs"
-          class="loading-pulse pointer-events-auto rounded-2xl border border-emerald-400/40 bg-emerald-100/70 px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm shadow-emerald-200/60 dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:text-emerald-100 dark:shadow-black/30"
+          class="loading-pulse pointer-events-auto rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-2 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)]"
         >
           <div class="flex items-center justify-between gap-3 px-4 py-2">
             <div class="flex items-center gap-3">
               <!-- Animated spinner -->
               <svg
-                class="h-5 w-5 animate-spin text-emerald-700 dark:text-emerald-300"
+                class="h-5 w-5 animate-spin text-[color:var(--accent)]"
                 viewBox="0 0 24 24"
                 fill="none"
               >
@@ -35,7 +35,7 @@
               </svg>
 
               <!-- Loading message -->
-              <span class="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+              <span class="text-sm font-medium text-[color:var(--text)]">
                 <slot :message="messageToDisplay">{{ messageToDisplay }}</slot>
               </span>
             </div>
@@ -43,16 +43,16 @@
             <!-- Progress indicator -->
             <span
               v-if="progressInfo"
-              class="text-sm font-medium text-emerald-800/90 dark:text-emerald-200/90"
+              class="text-sm font-medium text-[color:var(--muted)]"
             >
               {{ progressInfo.current }} / {{ progressInfo.total }}
             </span>
           </div>
 
           <!-- Progress bar -->
-          <div v-if="progressInfo" class="h-1 bg-emerald-200 dark:bg-emerald-900">
+          <div v-if="progressInfo" class="h-1 bg-[color:var(--surface-muted)]">
             <div
-              class="h-full bg-emerald-600 transition-all duration-300 dark:bg-emerald-400"
+              class="h-full bg-[color:var(--accent)] transition-all duration-300"
               :style="{ width: `${progressPercent}%` }"
             />
           </div>
@@ -70,7 +70,7 @@
     <div
       v-bind="attrs"
       :aria-hidden="isVisible ? 'false' : 'true'"
-      class="pointer-events-auto rounded-2xl border border-emerald-400/40 bg-emerald-100/70 px-4 py-2 text-sm font-medium text-emerald-900 shadow-sm shadow-emerald-200/60 transition duration-200 ease-out dark:border-emerald-400/50 dark:bg-emerald-950/40 dark:text-emerald-100 dark:shadow-black/30"
+      class="pointer-events-auto rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-2 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition duration-200 ease-out"
       :class="[
         isVisible
           ? 'opacity-100 translate-y-0 visible loading-pulse'
@@ -81,7 +81,7 @@
         <div class="flex items-center gap-3">
           <!-- Animated spinner -->
           <svg
-            class="h-5 w-5 animate-spin text-emerald-700 dark:text-emerald-300"
+            class="h-5 w-5 animate-spin text-[color:var(--accent)]"
             viewBox="0 0 24 24"
             fill="none"
           >
@@ -101,7 +101,7 @@
           </svg>
 
           <!-- Loading message -->
-          <span class="text-sm font-medium text-emerald-900 dark:text-emerald-100">
+          <span class="text-sm font-medium text-[color:var(--text)]">
             <slot :message="messageToDisplay">{{ messageToDisplay }}</slot>
           </span>
         </div>
@@ -109,16 +109,16 @@
         <!-- Progress indicator -->
         <span
           v-if="progressInfo"
-          class="text-sm font-medium text-emerald-800/90 dark:text-emerald-200/90"
+          class="text-sm font-medium text-[color:var(--muted)]"
         >
           {{ progressInfo.current }} / {{ progressInfo.total }}
         </span>
       </div>
 
       <!-- Progress bar -->
-      <div v-if="progressInfo" class="h-1 bg-emerald-200 dark:bg-emerald-900">
+      <div v-if="progressInfo" class="h-1 bg-[color:var(--surface-muted)]">
         <div
-          class="h-full bg-emerald-600 transition-all duration-300 dark:bg-emerald-400"
+          class="h-full bg-[color:var(--accent)] transition-all duration-300"
           :style="{ width: `${progressPercent}%` }"
         />
       </div>

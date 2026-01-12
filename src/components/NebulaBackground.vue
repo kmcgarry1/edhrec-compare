@@ -1,115 +1,218 @@
 <template>
-  <div class="fixed inset-0 -z-10 overflow-hidden">
-    <div class="absolute inset-0" :style="baseLayerStyle"></div>
+  <div class="nebula fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div
-      class="absolute inset-0 opacity-80"
-      :style="glowLayerStyle"
+      class="nebula__art nebula__art--primary"
+      :class="{ 'is-visible': Boolean(currentUrl) }"
+      :style="primaryStyle"
       aria-hidden="true"
     ></div>
+    <div
+      class="nebula__art nebula__art--secondary"
+      :class="{ 'is-visible': showNext }"
+      :style="secondaryStyle"
+      aria-hidden="true"
+    ></div>
+    <div class="nebula__base" aria-hidden="true"></div>
+    <div class="nebula__glow" aria-hidden="true"></div>
+    <div class="nebula__particles nebula__particles--fine" aria-hidden="true"></div>
+    <div class="nebula__particles nebula__particles--coarse" aria-hidden="true"></div>
+    <div class="nebula__noise" aria-hidden="true"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { useCommanderColors } from "../composables/useCommanderColors";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { useBackgroundArt } from "../composables/useBackgroundArt";
 
-type ColorKey = "W" | "U" | "B" | "R" | "G" | "C";
-const DEFAULT_ORDER: ColorKey[] = ["U", "B", "R", "G", "W"];
+const { artUrls } = useBackgroundArt();
 
-const COLOR_MAP: Record<
-  ColorKey,
-  { dark: string; light: string; glow: string }
-> = {
-  W: { dark: "#fef3c7", light: "#fbbf24", glow: "#fde68a" },
-  U: { dark: "#bae6fd", light: "#60a5fa", glow: "#bfdbfe" },
-  B: { dark: "#ddd6fe", light: "#a78bfa", glow: "#c4b5fd" },
-  R: { dark: "#fecaca", light: "#f87171", glow: "#fca5a5" },
-  G: { dark: "#bbf7d0", light: "#34d399", glow: "#86efac" },
-  C: { dark: "#e9d5ff", light: "#a855f7", glow: "#d8b4fe" },
+const currentUrl = ref<string | null>(null);
+const nextUrl = ref<string | null>(null);
+const showNext = ref(false);
+const activeIndex = ref(0);
+
+const FADE_DURATION_MS = 1800;
+const DISPLAY_DURATION_MS = 12000;
+
+let cycleTimeout: ReturnType<typeof setTimeout> | null = null;
+let fadeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const clearTimers = () => {
+  if (cycleTimeout) {
+    clearTimeout(cycleTimeout);
+    cycleTimeout = null;
+  }
+  if (fadeTimeout) {
+    clearTimeout(fadeTimeout);
+    fadeTimeout = null;
+  }
 };
 
-const POSITIONS = [
-  "20% 15%",
-  "80% 20%",
-  "30% 70%",
-  "70% 80%",
-  "50% 40%",
-];
+const buildArtStyle = (url: string | null) =>
+  url ? { backgroundImage: `url("${url}")` } : undefined;
 
-const isClient = typeof window !== "undefined";
-const isDark = ref(true);
-let prefersDark: MediaQueryList | null = null;
-let observer: MutationObserver | null = null;
+const primaryStyle = computed(() => buildArtStyle(currentUrl.value));
+const secondaryStyle = computed(() => buildArtStyle(nextUrl.value));
 
-const { commanderColors } = useCommanderColors();
-const COLOR_KEYS: readonly ColorKey[] = ["W", "U", "B", "R", "G", "C"];
-
-const normalizeColorKey = (value?: string): ColorKey => {
-  const upper = (value ?? "C").toUpperCase();
-  return COLOR_KEYS.includes(upper as ColorKey)
-    ? (upper as ColorKey)
-    : "C";
-};
-
-const updateThemeState = () => {
-  if (!isClient) {
+const scheduleNext = () => {
+  const urls = artUrls.value;
+  if (urls.length < 2) {
     return;
   }
-  const rootHasDark = document.documentElement.classList.contains("dark");
-  isDark.value = rootHasDark || Boolean(prefersDark?.matches);
+
+  const upcomingIndex = (activeIndex.value + 1) % urls.length;
+  nextUrl.value = urls[upcomingIndex] ?? null;
+  showNext.value = true;
+
+  fadeTimeout = setTimeout(() => {
+    currentUrl.value = nextUrl.value;
+    activeIndex.value = upcomingIndex;
+    showNext.value = false;
+    nextUrl.value = null;
+    cycleTimeout = setTimeout(scheduleNext, DISPLAY_DURATION_MS);
+  }, FADE_DURATION_MS);
 };
 
-onMounted(() => {
-  if (!isClient) {
+const startCycle = (urls: readonly string[]) => {
+  clearTimers();
+  if (!urls.length) {
+    currentUrl.value = null;
+    nextUrl.value = null;
+    showNext.value = false;
+    activeIndex.value = 0;
     return;
   }
-  prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
-  prefersDark.addEventListener("change", updateThemeState);
-  observer = new MutationObserver(updateThemeState);
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
-  updateThemeState();
-});
+  activeIndex.value = 0;
+  currentUrl.value = urls[0] ?? null;
+  nextUrl.value = null;
+  showNext.value = false;
+  if (urls.length > 1) {
+    cycleTimeout = setTimeout(scheduleNext, DISPLAY_DURATION_MS);
+  }
+};
+
+watch(
+  artUrls,
+  (urls) => {
+    startCycle(urls);
+  },
+  { immediate: true }
+);
 
 onBeforeUnmount(() => {
-  prefersDark?.removeEventListener("change", updateThemeState);
-  observer?.disconnect();
-});
-
-const palette = computed(() => {
-  const codes =
-    commanderColors.value.length > 0
-      ? commanderColors.value
-      : DEFAULT_ORDER;
-  return codes
-    .map((code) => {
-      const normalized = normalizeColorKey(code);
-      return COLOR_MAP[normalized];
-    })
-    .slice(0, POSITIONS.length);
-});
-
-const baseLayerStyle = computed(() => ({
-  background: isDark.value
-    ? "radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(2,6,23,0.95)), #020617"
-    : "radial-gradient(circle at top, rgba(248,250,252,0.95), rgba(226,232,240,0.9)), #f8fafc",
-  transition: "background 400ms ease",
-}));
-
-const glowLayerStyle = computed(() => {
-  const gradients = palette.value.map((entry, index) => {
-    const position = POSITIONS[index % POSITIONS.length];
-    const color = isDark.value ? entry.dark : entry.light;
-    const glow = entry.glow;
-    return `radial-gradient(circle at ${position}, ${color} 0%, ${glow} 30%, transparent 60%)`;
-  });
-
-  return {
-    backgroundImage: gradients.join(","),
-    filter: "blur(120px)",
-    transition: "background-image 600ms ease",
-  };
+  clearTimers();
 });
 </script>
+
+<style scoped>
+.nebula > div {
+  position: absolute;
+  inset: 0;
+}
+
+.nebula__art {
+  opacity: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(32px) saturate(1.15);
+  transform: scale(1.08);
+  transition: opacity 1800ms ease;
+  mix-blend-mode: soft-light;
+}
+
+.nebula__art.is-visible {
+  opacity: 0.28;
+}
+
+.nebula__base {
+  opacity: 0.65;
+  background-image:
+    linear-gradient(to right, var(--pattern-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--pattern-line) 1px, transparent 1px),
+    radial-gradient(circle at 18% 22%, var(--accent-glow-strong), transparent 45%),
+    radial-gradient(circle at 78% 10%, var(--accent-glow), transparent 40%);
+  background-size: 140px 140px, 140px 140px, 100% 100%, 100% 100%;
+  background-position: center;
+}
+
+.nebula__glow {
+  opacity: 0.7;
+  filter: blur(40px);
+  background-image:
+    radial-gradient(circle at 20% 80%, var(--warn-soft), transparent 50%),
+    radial-gradient(circle at 82% 70%, var(--danger-soft), transparent 50%),
+    radial-gradient(circle at 55% 28%, var(--accent-glow-strong), transparent 55%);
+  animation: nebula-pulse 32s ease-in-out infinite;
+}
+
+.nebula__particles {
+  opacity: 0.35;
+  will-change: background-position, transform;
+}
+
+.nebula__particles--fine {
+  background-image:
+    radial-gradient(circle, var(--pattern-line) 1px, transparent 1px),
+    radial-gradient(circle, var(--accent-glow) 1px, transparent 1px);
+  background-size: 90px 90px, 180px 180px;
+  background-position: 0 0, 45px 60px;
+  animation: nebula-drift 24s linear infinite;
+}
+
+.nebula__particles--coarse {
+  opacity: 0.25;
+  background-image: radial-gradient(circle, var(--accent-glow-strong) 1.5px, transparent 1.5px);
+  background-size: 240px 240px;
+  background-position: 120px 80px;
+  animation: nebula-drift 36s linear infinite reverse;
+}
+
+.nebula__noise {
+  opacity: 0.18;
+  background-image: radial-gradient(circle, var(--pattern-line) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+@keyframes nebula-drift {
+  0% {
+    background-position: 0 0, 45px 60px;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    background-position: 70px 45px, 20px 50px;
+    transform: translate3d(-3%, 2%, 0);
+  }
+  100% {
+    background-position: 0 0, 45px 60px;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes nebula-pulse {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate3d(-2%, 2%, 0) scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nebula__art {
+    transition: none;
+  }
+
+  .nebula__glow,
+  .nebula__particles--fine,
+  .nebula__particles--coarse {
+    animation: none;
+  }
+}
+</style>

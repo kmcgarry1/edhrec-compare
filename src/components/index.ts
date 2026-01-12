@@ -1,4 +1,3 @@
-export { default as Dashboard } from "./Dashboard.vue";
 export { default as EdhrecReader } from "./EdhrecReader.vue";
 export { default as CSVUpload } from "./CSVUpload.vue";
 export { default as CommanderSearch } from "./CommanderSearch.vue";
@@ -17,6 +16,7 @@ export { default as CardlistSection } from "./CardlistSection.vue";
 export { default as ToolkitHeader } from "./ToolkitHeader.vue";
 export { default as EdhrecEmptyState } from "./EdhrecEmptyState.vue";
 // Lazy-loaded components are not exported from index.ts to enable code splitting
+// export { default as Dashboard } from "./Dashboard.vue";
 // export { default as OnboardingModal } from "./OnboardingModal.vue";
 // export { default as CsvUploadModal } from "./CsvUploadModal.vue";
 // export { default as DecklistExport } from "./DecklistExport.vue";

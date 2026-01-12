@@ -1,79 +1,102 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mount } from '@vue/test-utils';
-import NebulaBackground from '../../../src/components/NebulaBackground.vue';
-import { useCommanderColors } from '../../../src/composables/useCommanderColors';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { mount } from "@vue/test-utils";
+import { ref, nextTick } from "vue";
 
-vi.mock('../../../src/composables/useCommanderColors');
+const artUrls = ref<string[]>([]);
 
-describe('NebulaBackground', () => {
-    let mockCommanderColors: { value: string[] };
+const loadComponent = async () => {
+  vi.doMock("../../../src/composables/useBackgroundArt", () => ({
+    useBackgroundArt: () => ({ artUrls }),
+  }));
+  const module = await import("../../../src/components/NebulaBackground.vue");
+  return module.default;
+};
 
-    beforeEach(() => {
-        mockCommanderColors = { value: [] };
-        vi.mocked(useCommanderColors).mockReturnValue({
-            commanderColors: mockCommanderColors,
-        } as ReturnType<typeof useCommanderColors>);
+describe("NebulaBackground", () => {
+  beforeEach(() => {
+    artUrls.value = [];
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("renders the component with base structure", async () => {
+    const NebulaBackground = await loadComponent();
+    const wrapper = mount(NebulaBackground);
+    expect(
+      wrapper.find(".nebula.fixed.inset-0.-z-10.overflow-hidden.pointer-events-none").exists()
+    ).toBe(true);
+    expect(wrapper.findAll(".nebula > div")).toHaveLength(7);
+    expect(wrapper.find(".nebula__art--primary").exists()).toBe(true);
+    expect(wrapper.find(".nebula__art--secondary").exists()).toBe(true);
+    expect(wrapper.find(".nebula__base").exists()).toBe(true);
+    expect(wrapper.find(".nebula__glow").exists()).toBe(true);
+    expect(wrapper.find(".nebula__particles--fine").exists()).toBe(true);
+    expect(wrapper.find(".nebula__particles--coarse").exists()).toBe(true);
+    expect(wrapper.find(".nebula__noise").exists()).toBe(true);
+  });
+
+  it("marks the layers as decorative", async () => {
+    const NebulaBackground = await loadComponent();
+    const wrapper = mount(NebulaBackground);
+    wrapper.findAll(".nebula > div").forEach((layer) => {
+      expect(layer.attributes("aria-hidden")).toBe("true");
     });
+  });
 
-    afterEach(() => {
-        vi.clearAllMocks();
-    });
+  it("cycles through background art URLs", async () => {
+    vi.useFakeTimers();
+    artUrls.value = ["https://example.com/one.jpg", "https://example.com/two.jpg"];
+    const NebulaBackground = await loadComponent();
+    const wrapper = mount(NebulaBackground);
 
-    it('renders the component with base structure', () => {
-        const wrapper = mount(NebulaBackground);
-        expect(wrapper.find('.fixed.inset-0.-z-10.overflow-hidden').exists()).toBe(true);
-        expect(wrapper.findAll('.absolute.inset-0')).toHaveLength(2);
-    });
+    await nextTick();
+    const primary = wrapper.get(".nebula__art--primary");
+    expect(primary.attributes("style")).toContain("one.jpg");
 
-    it('applies default color order when no commander colors are provided', () => {
-        mockCommanderColors.value = [];
-        const wrapper = mount(NebulaBackground);
-        const glowLayer = wrapper.findAll('.absolute.inset-0')[1];
-        expect(glowLayer.attributes('style')).toContain('background-image');
-    });
+    vi.advanceTimersByTime(12000);
+    await nextTick();
+    const secondary = wrapper.get(".nebula__art--secondary");
+    expect(secondary.attributes("style")).toContain("two.jpg");
+    expect(secondary.classes()).toContain("is-visible");
 
-    it('uses commander colors when provided', () => {
-        mockCommanderColors.value = ['W', 'U', 'B'];
-        const wrapper = mount(NebulaBackground);
-        const glowLayer = wrapper.findAll('.absolute.inset-0')[1];
-        expect(glowLayer.attributes('style')).toContain('background-image');
-    });
+    vi.advanceTimersByTime(1800);
+    await nextTick();
+    expect(primary.attributes("style")).toContain("two.jpg");
+    expect(secondary.classes()).not.toContain("is-visible");
+  });
 
-    it('normalizes invalid color keys to "C"', () => {
-        mockCommanderColors.value = ['X', 'Y', 'Z'];
-        const wrapper = mount(NebulaBackground);
-        expect(wrapper.exists()).toBe(true);
-    });
-    it('limits palette to POSITIONS length', () => {
-        mockCommanderColors.value = ['W', 'U', 'B', 'R', 'G', 'C', 'W', 'U'];
-        const wrapper = mount(NebulaBackground);
-        const glowLayer = wrapper.findAll('.absolute.inset-0')[1];
-        const style = glowLayer.attributes('style');
-        const gradientCount = (style?.match(/radial-gradient/g) || []).length;
-        expect(gradientCount).toBeLessThanOrEqual(5);
-    });
+  it("clears art when URLs are removed", async () => {
+    artUrls.value = ["https://example.com/one.jpg"];
+    const NebulaBackground = await loadComponent();
+    const wrapper = mount(NebulaBackground);
+    await nextTick();
 
-    it('applies blur filter to glow layer', () => {
-        const wrapper = mount(NebulaBackground);
-        const glowLayer = wrapper.findAll('.absolute.inset-0')[1];
-        expect(glowLayer.attributes('style')).toContain('blur(120px)');
-    });
+    const primary = wrapper.get(".nebula__art--primary");
+    expect(primary.attributes("style")).toContain("one.jpg");
 
-    it('sets aria-hidden on glow layer', () => {
-        const wrapper = mount(NebulaBackground);
-        const glowLayer = wrapper.findAll('.absolute.inset-0')[1];
-        expect(glowLayer.attributes('aria-hidden')).toBe('true');
-    });
+    artUrls.value = [];
+    await nextTick();
 
-    it('handles lowercase color codes', () => {
-        mockCommanderColors.value = ['w', 'u', 'b'];
-        const wrapper = mount(NebulaBackground);
-        expect(wrapper.exists()).toBe(true);
-    });
+    expect(primary.attributes("style") ?? "").not.toContain("one.jpg");
+  });
 
-    it('handles mixed case color codes', () => {
-        mockCommanderColors.value = ['W', 'u', 'B'];
-        const wrapper = mount(NebulaBackground);
-        expect(wrapper.exists()).toBe(true);
-    });
+  it("does not schedule a fade when only one URL is present", async () => {
+    vi.useFakeTimers();
+    artUrls.value = ["https://example.com/solo.jpg"];
+    const NebulaBackground = await loadComponent();
+    const wrapper = mount(NebulaBackground);
+
+    await nextTick();
+    const primary = wrapper.get(".nebula__art--primary");
+    const secondary = wrapper.get(".nebula__art--secondary");
+
+    vi.advanceTimersByTime(12000);
+    await nextTick();
+
+    expect(primary.attributes("style")).toContain("solo.jpg");
+    expect(secondary.classes()).not.toContain("is-visible");
+  });
 });

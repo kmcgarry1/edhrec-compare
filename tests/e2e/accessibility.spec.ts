@@ -35,32 +35,40 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
 
     // Wait for onboarding modal
-    await expect(page.getByText("First-time setup")).toBeVisible();
+    const onboardingDialog = page.getByRole("dialog", {
+      name: /Upload your collection or scout first/i,
+    });
+    await expect(onboardingDialog).toBeVisible();
 
     // Tab to first button
     await page.keyboard.press("Tab");
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/ });
+    const uploadButton = onboardingDialog.getByRole("button", {
+      name: /Upload CSV collection file/i,
+    });
     await expect(uploadButton).toBeFocused();
 
     // Tab to second button
     await page.keyboard.press("Tab");
-    const dismissButton = page.getByRole("button", { name: /Start searching/ });
+    const dismissButton = onboardingDialog.getByRole("button", { name: /Start searching/ });
     await expect(dismissButton).toBeFocused();
 
     // Press Enter to dismiss
     await page.keyboard.press("Enter");
-    await expect(page.getByText("First-time setup")).toBeHidden();
+    await expect(onboardingDialog).toBeHidden();
   });
 
   test("can close modal with Escape key", async ({ page }) => {
     await setupApp(page);
 
     // Wait for onboarding modal
-    await expect(page.getByText("First-time setup")).toBeVisible();
+    const onboardingDialog = page.getByRole("dialog", {
+      name: /Upload your collection or scout first/i,
+    });
+    await expect(onboardingDialog).toBeVisible();
 
     // Press Escape to close
     await page.keyboard.press("Escape");
-    await expect(page.getByText("First-time setup")).toBeHidden();
+    await expect(onboardingDialog).toBeHidden();
   });
 
   test("can navigate CSV upload modal with keyboard", async ({ page }) => {
@@ -69,14 +77,8 @@ test.describe("Keyboard Navigation", () => {
     // Dismiss onboarding first
     await page.getByRole("button", { name: /Start searching/ }).click();
 
-    // Show toolkit if hidden (on mobile)
-    const showToolkitButton = page.getByRole("button", { name: "Show Toolkit" });
-    if (await showToolkitButton.isVisible().catch(() => false)) {
-      await showToolkitButton.click();
-    }
-
     // Click upload button
-    await page.getByRole("button", { name: /Upload CSV/ }).click();
+    await page.getByRole("button", { name: /^Upload CSV$/ }).first().click();
 
     // Wait for upload modal
     await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeVisible();
@@ -90,7 +92,10 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
 
     // Wait for onboarding modal
-    await expect(page.getByText("First-time setup")).toBeVisible();
+    const onboardingDialog = page.getByRole("dialog", {
+      name: /Upload your collection or scout first/i,
+    });
+    await expect(onboardingDialog).toBeVisible();
 
     // Tab through all focusable elements
     await page.keyboard.press("Tab");
@@ -98,7 +103,9 @@ test.describe("Keyboard Navigation", () => {
 
     // Next tab should wrap back to first element
     await page.keyboard.press("Tab");
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/ });
+    const uploadButton = onboardingDialog.getByRole("button", {
+      name: /Upload CSV collection file/i,
+    });
     await expect(uploadButton).toBeFocused();
   });
 
@@ -138,12 +145,6 @@ test.describe("Keyboard Navigation", () => {
     // Dismiss onboarding
     await page.getByRole("button", { name: /Start searching/ }).click();
 
-    // Show toolkit if hidden
-    const showToolkitButton = page.getByRole("button", { name: "Show Toolkit" });
-    if (await showToolkitButton.isVisible().catch(() => false)) {
-      await showToolkitButton.click();
-    }
-
     // Find theme toggle button
     const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
     await themeToggle.focus();
@@ -176,18 +177,12 @@ test.describe("ARIA Attributes", () => {
     // Dismiss onboarding
     await page.getByRole("button", { name: /Start searching/ }).click();
 
-    // Show toolkit if hidden
-    const showToolkitButton = page.getByRole("button", { name: "Show Toolkit" });
-    if (await showToolkitButton.isVisible().catch(() => false)) {
-      await showToolkitButton.click();
-    }
-
     // Check theme toggle has aria-label
     const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
     await expect(themeToggle).toBeVisible();
 
     // Check upload button has aria-label
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/ });
+    const uploadButton = page.getByRole("button", { name: /Upload CSV collection file/i });
     await expect(uploadButton).toBeVisible();
   });
 
@@ -243,14 +238,8 @@ test.describe("Focus Management", () => {
     const dismissButton = page.getByRole("button", { name: /Start searching/ });
     await dismissButton.click();
 
-    // Show toolkit if hidden
-    const showToolkitButton = page.getByRole("button", { name: "Show Toolkit" });
-    if (await showToolkitButton.isVisible().catch(() => false)) {
-      await showToolkitButton.click();
-    }
-
     // Click upload button and track it
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/ });
+    const uploadButton = page.getByRole("button", { name: /Upload CSV collection file/i });
     await uploadButton.click();
 
     // Wait for modal
@@ -268,7 +257,10 @@ test.describe("Focus Management", () => {
     await setupApp(page);
 
     // Wait for modal
-    await expect(page.getByText("First-time setup")).toBeVisible();
+    const onboardingDialog = page.getByRole("dialog", {
+      name: /Upload your collection or scout first/i,
+    });
+    await expect(onboardingDialog).toBeVisible();
 
     // Try to tab outside modal - should stay within
     for (let i = 0; i < 5; i++) {

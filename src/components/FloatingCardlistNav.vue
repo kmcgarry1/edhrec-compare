@@ -1,7 +1,7 @@
 <template>
   <div v-if="sectionsWithIcons.length">
     <nav
-      class="fixed left-2 top-24 z-30 hidden lg:flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-y-auto rounded-3xl border border-slate-200/70 bg-white/70 p-2 shadow-lg shadow-slate-900/10 backdrop-blur dark:border-slate-800/60 dark:bg-slate-900/70"
+      class="fixed left-2 top-24 z-30 hidden lg:flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-y-auto rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2 shadow-[var(--shadow-soft)] backdrop-blur"
       aria-label="Cardlist navigation"
     >
       <button
@@ -11,10 +11,10 @@
         :title="section.label"
         :aria-label="section.label"
         :class="[
-          'rounded-2xl border p-2 transition focus-visible:ring-2 focus-visible:ring-emerald-400/70',
+          'rounded-2xl border p-2 transition focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]',
           section.id === activeId
-            ? 'border-emerald-400 bg-emerald-50/80 text-emerald-700 dark:border-emerald-300/70 dark:bg-emerald-900/40 dark:text-emerald-100'
-            : 'border-transparent text-slate-500 hover:text-emerald-600 dark:text-slate-300 dark:hover:text-emerald-200',
+            ? 'border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]'
+            : 'border-transparent text-[color:var(--muted)] hover:text-[color:var(--accent)]',
         ]"
         @click="handleNavigate(section.id)"
       >
@@ -32,7 +32,7 @@
 
     <button
       type="button"
-      class="fixed bottom-6 left-4 z-30 inline-flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/60 bg-white/80 text-emerald-700 shadow-lg shadow-emerald-500/20 backdrop-blur transition hover:scale-105 dark:border-emerald-300/60 dark:bg-slate-900/80 dark:text-emerald-200 lg:hidden"
+      class="fixed bottom-6 left-4 z-30 inline-flex h-12 w-12 items-center justify-center rounded-full border border-[color:var(--accent)] bg-[color:var(--surface)] text-[color:var(--text)] shadow-[var(--shadow-soft)] backdrop-blur transition hover:scale-105 lg:hidden"
       aria-label="Open cardlist navigation"
       @click="mobileOpen = true"
     >
@@ -53,26 +53,26 @@
 
     <Teleport to="body">
       <div
-        v-if="mobileOpen"
-        ref="mobileModalRef"
-        class="fixed inset-0 z-50 flex items-end bg-slate-950/70 px-4 pb-8 pt-16 backdrop-blur-sm lg:hidden"
-        role="dialog"
-        aria-modal="true"
+      v-if="mobileOpen"
+      ref="mobileModalRef"
+      class="fixed inset-0 z-50 flex items-end bg-black/70 px-4 pb-8 pt-16 backdrop-blur-sm lg:hidden"
+      role="dialog"
+      aria-modal="true"
         aria-labelledby="nav-modal-title"
         tabindex="-1"
         @click.self="closeMobileNav"
         @escape-pressed="closeMobileNav"
       >
         <div
-          class="w-full rounded-3xl border border-slate-200/70 bg-white/95 p-4 shadow-2xl shadow-slate-900/50 dark:border-slate-700/70 dark:bg-slate-900/90"
+          class="w-full rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-[var(--shadow)]"
         >
           <div class="mb-3 flex items-center justify-between">
-            <p id="nav-modal-title" class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <p id="nav-modal-title" class="text-sm font-semibold text-[color:var(--text)]">
               Jump to cardlist
             </p>
             <button
               type="button"
-              class="rounded-full border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600 hover:border-rose-400 hover:text-rose-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-rose-500/70"
+              class="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
               aria-label="Close navigation dialog"
               @click="closeMobileNav"
             >
@@ -87,8 +87,8 @@
               :class="[
                 'flex items-center gap-3 rounded-2xl border px-3 py-2 text-left text-sm transition',
                 section.id === activeId
-                  ? 'border-emerald-400 bg-emerald-50/80 text-emerald-700 dark:border-emerald-300/70 dark:bg-emerald-900/40 dark:text-emerald-100'
-                  : 'border-slate-200/70 text-slate-600 hover:text-emerald-600 dark:border-slate-700 dark:text-slate-300 dark:hover:text-emerald-200',
+                  ? 'border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]'
+                  : 'border-[color:var(--border)] text-[color:var(--muted)] hover:text-[color:var(--accent)]',
               ]"
               @click="handleMobileNavigate(section.id)"
             >

@@ -3,8 +3,6 @@
     :id="sectionMeta?.id"
     as="article"
     :class="spacing.stackSpace"
-    background="bg-white dark:bg-slate-900"
-    shadow="shadow-2xl shadow-slate-900/5 dark:shadow-black/50"
   >
     <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div class="flex flex-col gap-2">
@@ -12,25 +10,25 @@
           <svg
             v-if="sectionMeta?.iconPath"
             viewBox="0 0 24 24"
-            class="h-7 w-7 rounded-2xl bg-slate-100 p-1 text-emerald-600 dark:bg-slate-800"
+            class="h-7 w-7 rounded-2xl bg-[color:var(--surface-muted)] p-1 text-[color:var(--accent)]"
             :style="{ color: sectionMeta?.iconColor || undefined }"
             fill="currentColor"
             aria-hidden="true"
           >
             <path :d="sectionMeta?.iconPath" />
           </svg>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-500/80 dark:text-emerald-300/70">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--muted)]">
             EDHREC Cardlist
           </p>
         </div>
-        <h2 class="text-2xl font-semibold text-slate-900 dark:text-white">
+        <h2 class="text-2xl font-semibold text-[color:var(--text)]">
           {{ cardlist.header }}
         </h2>
       </div>
       <div class="flex flex-wrap gap-2 text-xs font-semibold">
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-1.5 text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:border-emerald-300"
+          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] px-3 py-1.5 text-[color:var(--muted)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="!decklistText.length"
           @click="emitCopy"
         >
@@ -38,7 +36,7 @@
         </button>
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-emerald-400 px-3 py-1.5 text-emerald-700 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-300 dark:text-emerald-200 dark:hover:bg-emerald-300/10"
+          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] px-3 py-1.5 text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)] disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="!decklistText.length"
           @click="emitDownload"
         >
@@ -56,6 +54,7 @@
         :columns="columns"
         :rows="rows"
         row-key="id"
+        tableClass="w-full"
         aria-live="polite"
         :virtual="true"
         :virtual-item-size="76"

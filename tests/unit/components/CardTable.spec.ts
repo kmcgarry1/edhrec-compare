@@ -102,4 +102,48 @@ describe("CardTable", () => {
     expect(renderedRows.length).toBeLessThan(largeRows.length);
     expect(wrapper.find(".overflow-y-auto").exists()).toBe(true);
   });
+
+  it("does not enable virtualization for small datasets", () => {
+    const wrapper = mount(CardTable, {
+      props: {
+        columns,
+        rows,
+      },
+    });
+
+    expect(wrapper.find(".overflow-y-auto").exists()).toBe(false);
+  });
+
+  it("shows and hides scroll shadows based on scroll position", async () => {
+    const wrapper = mount(CardTable, {
+      props: {
+        columns,
+        rows: Array.from({ length: 20 }, (_, index) => ({
+          id: index,
+          name: `Card ${index}`,
+          type: "Creature",
+        })),
+        rowKey: "id",
+        virtual: false,
+      },
+    });
+
+    const scrollParent = wrapper.get(".overflow-x-auto").element as HTMLElement;
+    Object.defineProperty(scrollParent, "scrollHeight", { value: 200, configurable: true });
+    Object.defineProperty(scrollParent, "clientHeight", { value: 100, configurable: true });
+    Object.defineProperty(scrollParent, "scrollTop", { value: 0, writable: true, configurable: true });
+
+    scrollParent.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(wrapper.find(".absolute.inset-x-0.top-0").exists()).toBe(false);
+    expect(wrapper.find(".absolute.inset-x-0.bottom-0").exists()).toBe(true);
+
+    scrollParent.scrollTop = 100;
+    scrollParent.dispatchEvent(new Event("scroll"));
+    await nextTick();
+
+    expect(wrapper.find(".absolute.inset-x-0.top-0").exists()).toBe(true);
+    expect(wrapper.find(".absolute.inset-x-0.bottom-0").exists()).toBe(false);
+  });
 });

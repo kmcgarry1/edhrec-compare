@@ -58,30 +58,43 @@ const componentClass = computed(() => {
 
 const colorClass = computed(() => {
   const value = numericPrice.value;
-  if (value === null) {
-    return "bg-slate-100/60 text-slate-600 dark:bg-slate-800/40 dark:text-slate-200";
-  }
-  if (value <= 0.5) {
-    return "bg-cyan-100/70 text-cyan-900 dark:bg-cyan-600/30 dark:text-cyan-100";
-  }
-  if (value <= 1) {
-    return "bg-emerald-100/70 text-emerald-900 dark:bg-emerald-600/30 dark:text-emerald-100";
-  }
-  if (value <= 2.5) {
-    return "bg-lime-100/70 text-lime-900 dark:bg-lime-600/30 dark:text-lime-100";
-  }
-  if (value <= 5) {
-    return "bg-yellow-100/70 text-yellow-900 dark:bg-yellow-600/30 dark:text-yellow-100";
-  }
-  if (value <= 10) {
-    return "bg-amber-100/70 text-amber-900 dark:bg-amber-600/30 dark:text-amber-100";
-  }
-  if (value <= 20) {
-    return "bg-orange-100/70 text-orange-900 dark:bg-orange-600/30 dark:text-orange-100";
-  }
-  if (value <= 50) {
-    return "bg-red-100/70 text-red-900 dark:bg-red-600/30 dark:text-red-100";
-  }
-  return "bg-rose-200/70 text-rose-900 dark:bg-rose-600/40 dark:text-rose-100";
+  const tone = (() => {
+    if (value === null) {
+      return "muted";
+    }
+    if (value <= 1) {
+      return "low";
+    }
+    if (value <= 5) {
+      return "mid";
+    }
+    if (value <= 20) {
+      return "high";
+    }
+    return "premium";
+  })();
+
+  const pillClasses: Record<string, string> = {
+    muted:
+      "bg-[color:var(--surface-muted)] text-[color:var(--muted)] border border-[color:var(--border)]",
+    low:
+      "bg-[color:var(--tier-blue-soft)] text-[color:var(--tier-blue)] border border-[color:var(--tier-blue)]",
+    mid:
+      "bg-[color:var(--tier-green-soft)] text-[color:var(--tier-green)] border border-[color:var(--tier-green)]",
+    high:
+      "bg-[color:var(--tier-orange-soft)] text-[color:var(--tier-orange)] border border-[color:var(--tier-orange)]",
+    premium:
+      "bg-[color:var(--tier-red-soft)] text-[color:var(--tier-red)] border border-[color:var(--tier-red)]",
+  };
+
+  const textClasses: Record<string, string> = {
+    muted: "text-[color:var(--muted)]",
+    low: "text-[color:var(--tier-blue)]",
+    mid: "text-[color:var(--tier-green)]",
+    high: "text-[color:var(--tier-orange)]",
+    premium: "text-[color:var(--tier-red)]",
+  };
+
+  return props.pill ? pillClasses[tone] : textClasses[tone];
 });
 </script>

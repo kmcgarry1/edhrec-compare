@@ -50,15 +50,15 @@ const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
 
 const computedClasses = (() => {
   const baseClasses =
-    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed";
 
   const variants = {
     primary:
-      "border border-emerald-400/80 bg-emerald-50 text-emerald-700 hover:bg-emerald-500/10 dark:border-emerald-300/70 dark:bg-emerald-900/40 dark:text-emerald-200",
+      "border border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)] hover:border-[color:var(--accent-strong)]",
     secondary:
-      "border border-slate-300 bg-white text-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:text-emerald-200",
+      "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
     ghost:
-      "text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-slate-100 dark:hover:bg-slate-800",
+      "text-[color:var(--muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]",
   };
 
   return `${baseClasses} ${variants[props.variant]}`;

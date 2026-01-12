@@ -76,8 +76,11 @@ test.describe("Onboarding and CSV upload", () => {
   test("prompts user and accepts CSV upload", async ({ page }) => {
     await setupApp(page);
 
-    await expect(page.getByText("First-time setup")).toBeVisible();
-    await page.getByRole("button", { name: /Upload CSV/ }).click();
+    const onboardingDialog = page.getByRole("dialog", {
+      name: /Upload your collection or scout first/i,
+    });
+    await expect(onboardingDialog).toBeVisible();
+    await onboardingDialog.getByRole("button", { name: /Upload CSV collection file/i }).click();
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
@@ -98,7 +101,6 @@ test.describe("Commander workflow", () => {
     await selectCommander(page);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
-    await ensureToolkitVisible(page);
 
     const copyButton = page.getByTestId("header-copy-decklist");
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
@@ -171,11 +173,4 @@ const selectCommander = async (page: Page) => {
     .first();
   await expect(option).toBeVisible({ timeout: 10_000 });
   await option.click();
-};
-
-const ensureToolkitVisible = async (page: Page) => {
-  const showButton = page.getByRole("button", { name: "Show Toolkit" });
-  if (await showButton.isVisible().catch(() => false)) {
-    await showButton.click();
-  }
 };

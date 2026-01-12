@@ -36,6 +36,8 @@ interface CardFaceImageUris {
   small?: string;
   normal?: string;
   large?: string;
+  art_crop?: string;
+  border_crop?: string;
 }
 
 /**

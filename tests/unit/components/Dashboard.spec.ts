@@ -6,6 +6,14 @@ import Dashboard from "../../../src/components/Dashboard.vue";
 const toggleTheme = vi.hoisted(() => vi.fn());
 const toggleBackground = vi.hoisted(() => vi.fn());
 const setOwnedFilter = vi.hoisted(() => vi.fn());
+const setDensity = vi.hoisted(() => vi.fn());
+
+const density = ref("comfortable");
+const densityOptions = [
+  { value: "comfortable", label: "Comfortable" },
+  { value: "cozy", label: "Cozy" },
+  { value: "compact", label: "Compact" },
+] as const;
 
 vi.mock("../../../src/composables/useTheme", () => ({
   useTheme: () => ({
@@ -36,6 +44,14 @@ vi.mock("../../../src/composables/useOwnedFilter", () => ({
   }),
 }));
 
+vi.mock("../../../src/composables/useLayoutDensity", () => ({
+  useLayoutDensity: () => ({
+    density,
+    setDensity,
+    densityOptions,
+  }),
+}));
+
 const downloadTextFile = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../src/utils/downloadTextFile", () => ({
@@ -51,9 +67,9 @@ const mountComponent = () =>
           template:
             "<div class='reader-stub' @decklistUpdate=\"$emit('decklistUpdate', $event)\"></div>",
         },
-        CSVUpload: { template: "<div class='upload-stub'></div>" },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
         SiteNotice: { template: "<footer class='notice-stub'></footer>" },
+        DecklistExport: { template: "<div class='decklist-stub'></div>" },
         OnboardingModal: {
           template:
             "<div v-if='open' class='onboarding-stub'>Upload your collection or scout first <button @click=\"$emit('dismiss')\">Dismiss</button><button @click=\"$emit('upload')\">Upload</button></div>",
@@ -72,8 +88,10 @@ describe("Dashboard", () => {
     toggleTheme.mockClear();
     toggleBackground.mockClear();
     setOwnedFilter.mockClear();
+    setDensity.mockClear();
     downloadTextFile.mockClear();
     csvRows.value = [];
+    density.value = "comfortable";
   });
 
   it("shows onboarding prompt until dismissed or data uploaded", async () => {

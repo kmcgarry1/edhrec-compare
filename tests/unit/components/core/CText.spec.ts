@@ -14,7 +14,7 @@ describe('CText', () => {
         expect(wrapper.element.tagName).toBe('P');
         expect(wrapper.classes()).toContain('c-text');
         expect(wrapper.classes()).toContain('text-sm');
-        expect(wrapper.classes()).toContain('text-slate-700');
+        expect(wrapper.classes()).toContain('text-[color:var(--text)]');
     });
 
     it('renders with custom tag', () => {
@@ -45,7 +45,7 @@ describe('CText', () => {
             }
         });
 
-        expect(wrapper.classes()).toContain('text-rose-600');
+        expect(wrapper.classes()).toContain('text-[color:var(--danger)]');
     });
 
     it('applies weight classes correctly', () => {
@@ -99,7 +99,7 @@ describe('CText', () => {
         });
 
         expect(wrapper.classes()).toContain('text-xs');
-        expect(wrapper.classes()).toContain('text-emerald-600');
+        expect(wrapper.classes()).toContain('text-[color:var(--accent)]');
         expect(wrapper.classes()).toContain('font-medium');
         expect(wrapper.classes()).toContain('text-right');
     });
