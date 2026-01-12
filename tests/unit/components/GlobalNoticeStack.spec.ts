@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
 import GlobalNoticeStack from "../../../src/components/GlobalNoticeStack.vue";
@@ -23,6 +23,10 @@ describe("GlobalNoticeStack", () => {
     dismissNotice.mockClear();
   });
 
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
   it("renders notices from the global store", () => {
     mount(GlobalNoticeStack, {
       attachTo: document.body,
@@ -42,5 +46,41 @@ describe("GlobalNoticeStack", () => {
     closeButton?.dispatchEvent(new Event("click", { bubbles: true }));
     await flushPromises();
     expect(dismissNotice).toHaveBeenCalledWith(1);
+  });
+
+  it("renders notice styling based on type", () => {
+    noticesRef.value = [
+      { id: 2, type: "error", title: "Oops", message: "Something failed" },
+    ];
+
+    mount(GlobalNoticeStack, {
+      attachTo: document.body,
+    });
+
+    const notice = document.body.querySelector("[role='status']");
+    expect(notice?.className).toContain("border-[color:var(--danger)]");
+    expect(notice?.getAttribute("aria-live")).toBe("assertive");
+  });
+
+  it("renders nothing when there are no notices", () => {
+    noticesRef.value = [];
+    mount(GlobalNoticeStack, {
+      attachTo: document.body,
+    });
+
+    expect(document.body.querySelector("[role='status']")).toBeNull();
+  });
+
+  it("renders info notices with default styling", () => {
+    noticesRef.value = [
+      { id: 3, type: "info", title: "Heads up", message: "FYI" },
+    ];
+    mount(GlobalNoticeStack, {
+      attachTo: document.body,
+    });
+
+    const notice = document.body.querySelector("[role='status']");
+    expect(notice?.textContent ?? "").toContain("Heads up");
+    expect(notice?.className).toContain("border-[color:var(--border)]");
   });
 });

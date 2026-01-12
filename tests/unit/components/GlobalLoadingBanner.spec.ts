@@ -77,4 +77,35 @@ describe("GlobalLoadingBanner", () => {
 
     expect(wrapper.find("svg.animate-spin").exists()).toBe(true);
   });
+
+  it("creates a global stack container when not inline", () => {
+    globalLoading.value = true;
+    const wrapper = factory({ inline: false });
+
+    expect(document.body.querySelector("#global-loading-stack")).toBeTruthy();
+    wrapper.unmount();
+  });
+
+  it("uses placementClass when provided", () => {
+    scopedLoading.value = true;
+    const wrapper = factory({
+      scope: "custom",
+      inline: true,
+      placementClass: "custom-placement",
+    });
+
+    expect(wrapper.get(".custom-placement").exists()).toBe(true);
+  });
+
+  it("shows zero progress when total is zero", () => {
+    scopedLoading.value = true;
+    scopedProgress.value = { current: 5, total: 0 };
+    const wrapper = factory({
+      scope: "custom",
+      inline: true,
+    });
+
+    const bar = wrapper.find(".h-full");
+    expect(bar.attributes("style")).toContain("width: 0%");
+  });
 });

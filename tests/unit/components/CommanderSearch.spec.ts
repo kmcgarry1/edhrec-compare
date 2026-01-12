@@ -30,8 +30,9 @@ vi.mock("../../../src/composables/useGlobalNotices", () => ({
   }),
 }));
 
-const mountComponent = () =>
+const mountComponent = (props = {}) =>
   mount(CommanderSearch, {
+    props,
     global: {
       stubs: {
         Card: { template: "<div class='card-stub'><slot /></div>" },
@@ -92,5 +93,82 @@ describe("CommanderSearch", () => {
     await flushPromises();
 
     expect(wrapper.emitted("commander-selected")?.pop()?.[0]).toBe("");
+  });
+
+  it("hydrates state from selected slug", async () => {
+    const wrapper = mountComponent({ selectedSlug: "atraxa-grand-unifier" });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Atraxa Grand Unifier");
+    expect(wrapper.find("button[aria-label='Clear commander selection']").exists()).toBe(true);
+  });
+
+  it("shows search results and selects a commander", async () => {
+    const wrapper = mountComponent();
+    const input = wrapper.get("#primary-commander-search");
+
+    await input.setValue("Atraxa");
+    await flushPromises();
+
+    expect(searchCardNames).toHaveBeenCalledWith("Atraxa");
+    const options = wrapper.findAll("li");
+    expect(options).toHaveLength(2);
+
+    await options[0]?.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.emitted("commander-selected")?.pop()?.[0]).toBe("atraxa");
+    expect(wrapper.text()).toContain("Atraxa");
+  });
+
+  it("shows error message when search fails", async () => {
+    searchCardNames.mockRejectedValueOnce(new Error("No results"));
+    const wrapper = mountComponent();
+
+    await wrapper.get("#primary-commander-search").setValue("Atraxa");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("No results");
+    expect(notifyError).toHaveBeenCalled();
+  });
+
+  it("disables partner search until primary selection is made", async () => {
+    const wrapper = mountComponent();
+
+    await wrapper.get("#has-partner-toggle").setValue(true);
+    expect(wrapper.get("#partner-commander-search").attributes("disabled")).toBeDefined();
+    expect(wrapper.text()).toContain("Select a primary commander before choosing a partner.");
+
+    await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
+      "Atraxa, Grand Unifier"
+    );
+    await flushPromises();
+    await wrapper.get("#has-partner-toggle").setValue(true);
+
+    expect(wrapper.get("#partner-commander-search").attributes("disabled")).toBeUndefined();
+  });
+
+  it("combines mana costs for partner commanders", async () => {
+    const wrapper = mountComponent();
+    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
+      .handleSelection("primary", "Atraxa");
+    await wrapper.get("#has-partner-toggle").setValue(true);
+    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
+      .handleSelection("partner", "Tymna");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("G + G");
+  });
+
+  it("toggles details visibility from the summary bar", async () => {
+    const wrapper = mountComponent();
+    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
+      .handleSelection("primary", "Atraxa");
+    await flushPromises();
+
+    const toggle = wrapper.get("button[aria-expanded]");
+    expect(toggle.text()).toContain("Details");
+    await toggle.trigger("click");
+    expect(toggle.text()).toContain("Collapse");
   });
 });
