@@ -60,11 +60,11 @@
           <div class="space-y-2">
             <label
               for="primary-commander-search"
-              class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+              class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text)]"
             >
               Primary commander
             </label>
-            <div class="flex gap-2">
+            <div class="flex">
               <div
                 class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-base text-[color:var(--text)] focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)]"
               >
@@ -76,23 +76,23 @@
                   v-model="primaryQuery"
                   type="text"
                   placeholder="Atraxa, Grand Unifier..."
-                  aria-label="Search primary commander"
+                  aria-label="Primary commander"
                   :aria-describedby="primaryError ? 'primary-helper-text primary-error-text' : 'primary-helper-text'"
-                  class="w-full bg-transparent text-base text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none"
+                  class="min-w-0 flex-1 bg-transparent text-base text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none"
                 />
+                <button
+                  v-if="primaryQuery || primarySelection"
+                  type="button"
+                  class="rounded-lg px-2 py-1 text-xs font-semibold text-[color:var(--muted)] transition hover:text-[color:var(--danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                  aria-label="Clear primary commander search"
+                  @click="clearSearch('primary')"
+                >
+                  Clear
+                </button>
               </div>
-              <button
-                v-if="primarySelection"
-                type="button"
-                class="rounded-xl border border-[color:var(--border)] px-3 text-sm font-medium text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
-                aria-label="Clear primary commander selection"
-                @click="clearSelection('primary')"
-              >
-                Clear
-              </button>
             </div>
             <p id="primary-helper-text" class="text-xs text-[color:var(--muted)]">
-              Select the main deck commander.
+              Select the main deck commander. Type at least 4 characters to search.
             </p>
             <p
               v-if="primaryError"
@@ -146,11 +146,11 @@
           <div v-show="hasPartner" class="space-y-2">
             <label
               for="partner-commander-search"
-              class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+              class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text)]"
             >
               Partner commander
             </label>
-            <div class="flex gap-2">
+            <div class="flex">
               <div
                 class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-base text-[color:var(--text)] focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
                 :class="partnerDisabled ? 'opacity-60' : ''"
@@ -163,24 +163,24 @@
                   v-model="partnerQuery"
                   type="text"
                   placeholder="Choose a partner..."
-                  aria-label="Search partner commander"
+                  aria-label="Partner commander"
                   :aria-describedby="partnerDisabled ? 'partner-helper-text partner-warning-text' : (partnerError ? 'partner-helper-text partner-error-text' : 'partner-helper-text')"
                   :disabled="partnerDisabled"
-                  class="w-full bg-transparent text-base text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none disabled:cursor-not-allowed"
+                  class="min-w-0 flex-1 bg-transparent text-base text-[color:var(--text)] placeholder:text-[color:var(--muted)] focus:outline-none disabled:cursor-not-allowed"
                 />
+                <button
+                  v-if="(partnerQuery || partnerSelection) && !partnerDisabled"
+                  type="button"
+                  class="rounded-lg px-2 py-1 text-xs font-semibold text-[color:var(--muted)] transition hover:text-[color:var(--danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                  aria-label="Clear partner commander search"
+                  @click="clearSearch('partner')"
+                >
+                  Clear
+                </button>
               </div>
-              <button
-                v-if="partnerSelection"
-                type="button"
-                class="rounded-xl border border-[color:var(--border)] px-3 text-sm font-medium text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
-                aria-label="Clear partner commander selection"
-                @click="clearSelection('partner')"
-              >
-                Clear
-              </button>
             </div>
             <p id="partner-helper-text" class="text-xs text-[color:var(--muted)]">
-              Optional - add a partner to build a combined decklist.
+              Optional - add a partner to build a combined decklist. Type at least 4 characters to search.
             </p>
             <p
               v-if="partnerDisabled"
@@ -551,18 +551,42 @@ const clearSelection = (field: "primary" | "partner") => {
     primarySelection.value = "";
     primaryQuery.value = "";
     primaryResults.value = [];
+    primaryError.value = "";
     partnerSelection.value = "";
     partnerQuery.value = "";
     partnerResults.value = [];
+    partnerError.value = "";
     hasPartner.value = false;
     expanded.value = true;
   } else {
     partnerSelection.value = "";
     partnerQuery.value = "";
     partnerResults.value = [];
+    partnerError.value = "";
   }
 
   emitCommanderSelection();
+};
+
+const clearSearch = (field: "primary" | "partner") => {
+  if (field === "primary") {
+    if (primarySelection.value) {
+      clearSelection("primary");
+      return;
+    }
+    primaryQuery.value = "";
+    primaryResults.value = [];
+    primaryError.value = "";
+    return;
+  }
+
+  if (partnerSelection.value) {
+    clearSelection("partner");
+    return;
+  }
+  partnerQuery.value = "";
+  partnerResults.value = [];
+  partnerError.value = "";
 };
 
 const selectPrimaryCommander = (commanderName: string) => {

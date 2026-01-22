@@ -145,6 +145,17 @@ export const getRippleCoordinates = (
  * ```
  */
 export const prefersReducedMotion = (): boolean => {
+  if (typeof document !== "undefined") {
+    const root = document.documentElement;
+    if (root?.classList?.contains("a11y-reduce-motion")) {
+      return true;
+    }
+  }
+
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 };
 

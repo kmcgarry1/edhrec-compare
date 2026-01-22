@@ -102,6 +102,7 @@
             </svg>
             <span>{{ backgroundEnabled ? "Hide BG" : "Show BG" }}</span>
           </button>
+          <AccessibilityControls />
           <button
             type="button"
             class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--text)] shadow-sm transition hover:border-[color:var(--accent-strong)]"
@@ -158,7 +159,7 @@ import {
   mdiClose,
 } from "@mdi/js";
 import { computed, defineAsyncComponent } from "vue";
-import { Card } from ".";
+import { AccessibilityControls, Card } from ".";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 // Lazy load export component (only needed when decklist is available)

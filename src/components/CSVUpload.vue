@@ -1,5 +1,11 @@
 <template>
   <div class="w-full space-y-4 text-[color:var(--text)] lg:max-w-xl">
+    <label
+      for="collection-csv-upload"
+      class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text)]"
+    >
+      Collection CSV
+    </label>
     <Card
       as="div"
       padding="p-6 sm:p-8 lg:p-10"
@@ -7,16 +13,29 @@
       border="border-2 border-dashed border-[color:var(--border)]"
       background="bg-[color:var(--surface)]"
       shadow="shadow-[var(--shadow)]"
-      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)]"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      :role="file ? undefined : 'button'"
+      :tabindex="file ? undefined : 0"
+      :aria-label="file ? undefined : 'Upload collection CSV'"
       @click="triggerFileInput"
+      @keydown="handleCardKeydown"
       @drop="handleDrop"
       @dragover.prevent
       @dragenter.prevent
     >
-      <input ref="fileInput" type="file" accept=".csv" class="sr-only" @change="handleFileSelect" />
+      <input
+        id="collection-csv-upload"
+        ref="fileInput"
+        type="file"
+        accept=".csv"
+        class="sr-only"
+        aria-label="Collection CSV"
+        aria-describedby="csv-upload-helper"
+        @change="handleFileSelect"
+      />
       <div v-if="!file" class="space-y-2">
         <p class="text-lg font-semibold text-[color:var(--text)]">Upload your collection</p>
-        <p class="text-sm text-[color:var(--muted)]">
+        <p id="csv-upload-helper" class="text-sm text-[color:var(--muted)]">
           Drag and drop or click to browse files. CSV only.
         </p>
       </div>
@@ -30,6 +49,9 @@
         shadow="shadow-[var(--shadow-soft)]"
         class="flex w-full flex-col items-center gap-3 text-left text-[color:var(--text)] sm:flex-row sm:justify-between"
       >
+        <p id="csv-upload-helper" class="sr-only">
+          Click to replace the uploaded CSV file.
+        </p>
         <div>
           <p class="font-semibold">{{ file.name }}</p>
           <p class="text-xs text-[color:var(--muted)]">
@@ -113,6 +135,7 @@
     <p
       v-if="errorMessage"
       class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)] shadow-[var(--shadow-soft)]"
+      role="alert"
     >
       {{ errorMessage }}
     </p>
@@ -210,6 +233,17 @@ const emit = defineEmits<{
 
 const triggerFileInput = () => {
   fileInput.value?.click();
+};
+
+const handleCardKeydown = (event: KeyboardEvent) => {
+  if (file.value) {
+    return;
+  }
+
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    triggerFileInput();
+  }
 };
 
 const invalidFileMessage = "Please select a valid CSV file";
@@ -443,6 +477,7 @@ const __templateBindings = {
   GlobalLoadingBanner,
   csvLoading,
   triggerFileInput,
+  handleCardKeydown,
   handleFileSelect,
   handleDrop,
   removeFile,

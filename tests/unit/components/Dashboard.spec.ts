@@ -62,6 +62,7 @@ const mountComponent = () =>
   mount(Dashboard, {
     global: {
       stubs: {
+        AccessibilityControls: { template: "<div class='a11y-controls-stub'></div>" },
         Card: { template: "<section><slot /></section>" },
         EdhrecReader: {
           template:

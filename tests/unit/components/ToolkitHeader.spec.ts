@@ -40,6 +40,7 @@ const mountComponent = (overrideProps = {}) =>
     },
     global: {
       stubs: {
+        AccessibilityControls: { template: "<div class='a11y-controls-stub'></div>" },
         Card: { template: "<div class='card-stub'><slot /></div>" },
         DecklistExport: DecklistExportStub,
       },
