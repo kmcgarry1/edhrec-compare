@@ -2,11 +2,13 @@ import { createApp } from "vue";
 import "./style.css";
 import App from "./App.vue";
 import { useTheme } from "./composables/useTheme";
+import { useAccessibilityPreferences } from "./composables/useAccessibilityPreferences";
 import { setupAppErrorHandling } from "./utils/errorHandler";
 import { initSentry } from "./utils/sentry";
 import router from "./router";
 
 useTheme();
+useAccessibilityPreferences();
 
 const app = createApp(App);
 

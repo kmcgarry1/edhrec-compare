@@ -1,5 +1,6 @@
 <template>
   <section class="mx-auto w-full max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <GlobalLoadingBanner />
     <OnboardingModal
       :open="showOnboarding"
@@ -66,6 +67,7 @@
               <span class="uppercase tracking-[0.2em] text-[0.62rem] text-[color:var(--muted)]">Backdrop</span>
               <span>{{ backgroundEnabled ? "On" : "Off" }}</span>
             </button>
+            <AccessibilityControls />
             <button
               type="button"
               class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-2 text-[0.72rem] font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)]"
@@ -80,7 +82,7 @@
 
       <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
-      <main class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <main id="main-content" class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <EdhrecReader @decklistUpdate="handleDecklistUpdate" />
         <aside class="space-y-4">
           <Card
@@ -154,6 +156,7 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount, computed, watch, defineAsyncComponent } from "vue";
 import {
+  AccessibilityControls,
   Card,
   EdhrecReader,
   GlobalLoadingBanner,

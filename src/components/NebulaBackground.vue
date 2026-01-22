@@ -215,4 +215,14 @@ onBeforeUnmount(() => {
     animation: none;
   }
 }
+
+:global(.a11y-reduce-motion) .nebula__art {
+  transition: none !important;
+}
+
+:global(.a11y-reduce-motion) .nebula__glow,
+:global(.a11y-reduce-motion) .nebula__particles--fine,
+:global(.a11y-reduce-motion) .nebula__particles--coarse {
+  animation: none !important;
+}
 </style>

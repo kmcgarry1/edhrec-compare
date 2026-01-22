@@ -116,7 +116,7 @@ test.describe("Keyboard Navigation", () => {
     await page.getByRole("button", { name: /Start searching/ }).click();
 
     // Focus on primary commander input
-    const primaryInput = page.getByLabel("Search primary commander");
+    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
     await primaryInput.focus();
     await expect(primaryInput).toBeFocused();
 
@@ -193,7 +193,7 @@ test.describe("ARIA Attributes", () => {
     await page.getByRole("button", { name: /Start searching/ }).click();
 
     // Check primary commander input
-    const primaryInput = page.getByLabel("Search primary commander");
+    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
     const describedBy = await primaryInput.getAttribute("aria-describedby");
     expect(describedBy).toBeTruthy();
     expect(describedBy).toContain("helper-text");
@@ -218,7 +218,7 @@ test.describe("ARIA Attributes", () => {
     await page.getByRole("button", { name: /Start searching/ }).click();
 
     // Type invalid search to trigger error
-    const primaryInput = page.getByLabel("Search primary commander");
+    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
     await primaryInput.fill("xyz");
 
     // Wait for potential error (may not always appear, but checking structure)

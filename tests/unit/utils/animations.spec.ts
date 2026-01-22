@@ -144,6 +144,25 @@ describe("animations", () => {
   describe("prefersReducedMotion", () => {
     afterEach(() => {
       vi.unstubAllGlobals();
+      document.documentElement.classList.remove("a11y-reduce-motion");
+    });
+
+    it("returns true when a11y-reduce-motion class is present", () => {
+      document.documentElement.classList.add("a11y-reduce-motion");
+      const mockMatchMedia = vi.fn(() => ({
+        matches: false,
+        media: "(prefers-reduced-motion: reduce)",
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        onchange: null,
+      }));
+
+      vi.stubGlobal("matchMedia", mockMatchMedia);
+
+      expect(prefersReducedMotion()).toBe(true);
     });
 
     it("returns true when prefers-reduced-motion is set to reduce", () => {
@@ -187,6 +206,7 @@ describe("animations", () => {
   describe("getAccessibleDuration", () => {
     afterEach(() => {
       vi.unstubAllGlobals();
+      document.documentElement.classList.remove("a11y-reduce-motion");
     });
 
     it("returns 1ms when user prefers reduced motion", () => {

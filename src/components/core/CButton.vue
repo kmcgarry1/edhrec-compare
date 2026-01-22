@@ -23,7 +23,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { createRipple, getRippleCoordinates } from "../../utils/animations";
+import {
+  createRipple,
+  getRippleCoordinates,
+  prefersReducedMotion,
+} from "../../utils/animations";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -69,7 +73,7 @@ const handleClick = (event: MouseEvent) => {
     return;
   }
 
-  if (props.rippleEffect) {
+  if (props.rippleEffect && !prefersReducedMotion()) {
     const { x, y } = getRippleCoordinates(event);
     const ripple = createRipple(x, y);
     ripples.value.push(ripple);
