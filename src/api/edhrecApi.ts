@@ -184,19 +184,27 @@ export async function getTopCommanders(
 
   const needed = Math.max(limit - TOP_COMMANDER_PAGE_SIZE, 0);
   const additionalPages = Math.ceil(needed / TOP_COMMANDER_PAGE_SIZE);
-  const pagedCardviews: EdhrecCardView[] = [];
 
-  for (let page = 1; page <= additionalPages; page += 1) {
-    const url = `${TOP_COMMANDER_PAGED_PREFIX}${page}.json`;
-    const payload = await fetchEdhrecJson<EdhrecPagedResponse>(
-      url,
-      `edhrec:top-commanders:page:${page}`
+  let pagedCardviews: EdhrecCardView[] = [];
+
+  if (additionalPages > 0) {
+    const pageNumbers = Array.from(
+      { length: additionalPages },
+      (_, index) => index + 1
     );
-    const cardviews = extractCommanderCardviews(payload);
-    pagedCardviews.push(...cardviews);
-    if (pagedCardviews.length >= needed) {
-      break;
-    }
+
+    const pagePayloads = await Promise.all(
+      pageNumbers.map((page) =>
+        fetchEdhrecJson<EdhrecPagedResponse>(
+          `${TOP_COMMANDER_PAGED_PREFIX}${page}.json`,
+          `edhrec:top-commanders:page:${page}`
+        )
+      )
+    );
+
+    pagedCardviews = pagePayloads.flatMap((payload) =>
+      extractCommanderCardviews(payload)
+    );
   }
 
   const allCommanders = [...baseCardviews, ...pagedCardviews]

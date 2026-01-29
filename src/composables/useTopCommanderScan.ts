@@ -13,6 +13,7 @@ import {
   getNameColumnIndex,
   normalizeCardName,
 } from "../utils/cardName";
+import { mapWithConcurrency } from "../utils/concurrency";
 import { handleError } from "../utils/errorHandler";
 import { useGlobalLoading } from "./useGlobalLoading";
 
@@ -44,29 +45,6 @@ const createScanKey = (
   const headerKey = headers.join("|");
   const firstRow = rows[0]?.[0] ?? "";
   return `${path}:${limit}:${rows.length}:${headerKey}:${firstRow}`;
-};
-
-const mapWithConcurrency = async <T, R>(
-  items: T[],
-  limit: number,
-  mapper: (item: T, index: number) => Promise<R>
-) => {
-  const results: R[] = new Array(items.length);
-  let currentIndex = 0;
-  const workers = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (currentIndex < items.length) {
-        const index = currentIndex;
-        currentIndex += 1;
-        const item = items[index]!;
-        results[index] = await mapper(item, index);
-      }
-    }
-  );
-
-  await Promise.all(workers);
-  return results;
 };
 
 export const useTopCommanderScan = () => {

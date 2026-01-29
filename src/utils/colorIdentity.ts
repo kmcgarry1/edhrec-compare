@@ -41,4 +41,43 @@ export const COLOR_IDENTITY_META: Record<CommanderColor, ColorMeta> = {
 
 export const COLOR_IDENTITY_ORDER: CommanderColor[] = ["W", "U", "B", "R", "G", "C"];
 
+/**
+ * Mapping from color identity strings (e.g. "WUB") to their EDHREC slug
+ * (e.g. "esper"). Used for constructing EDHREC API URLs.
+ */
+export const COLOR_COMBO_SLUGS: Record<string, string> = {
+  W: "mono-white",
+  U: "mono-blue",
+  B: "mono-black",
+  R: "mono-red",
+  G: "mono-green",
+  C: "colorless",
+  WU: "azorius",
+  UB: "dimir",
+  BR: "rakdos",
+  RG: "gruul",
+  WG: "selesnya",
+  WB: "orzhov",
+  UR: "izzet",
+  BG: "golgari",
+  WR: "boros",
+  UG: "simic",
+  WUB: "esper",
+  WUR: "jeskai",
+  WUG: "bant",
+  WBR: "mardu",
+  WBG: "abzan",
+  WRG: "naya",
+  UBR: "grixis",
+  UBG: "sultai",
+  URG: "temur",
+  BRG: "jund",
+  WUBR: "yore-tiller",
+  UBRG: "glint-eye",
+  WBRG: "dune-brood",
+  WURG: "ink-treader",
+  WUBG: "witch-maw",
+  WUBRG: "five-color",
+};
+
 export const getColorPillClasses = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.pill ?? "";
