@@ -135,8 +135,8 @@
                 >
                   <button
                     v-for="tab in tabOptions"
-                    :key="tab.id"
                     :id="`tab-${tab.id}`"
+                    :key="tab.id"
                     type="button"
                     role="tab"
                     class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
@@ -158,66 +158,15 @@
         </div>
 
         <div class="grid gap-6 lg:grid-cols-[18rem,1fr]">
-          <aside class="space-y-4 lg:sticky lg:top-28 lg:self-start">
-            <Card padding="p-4" class="space-y-4">
-              <div class="space-y-1">
-                <p
-                  class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]"
-                >
-                  Quick actions
-                </p>
-                <p class="text-sm text-[color:var(--muted)]">
-                  Jump to the most common tasks.
-                </p>
-              </div>
-              <div class="grid gap-2">
-                <button
-                  type="button"
-                  class="w-full rounded-full border border-[color:var(--border)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-                  @click="jumpToTab('search')"
-                >
-                  Search commanders
-                </button>
-                <RouterLink
-                  to="/top-commanders"
-                  class="w-full rounded-full border border-[color:var(--border)] px-3 py-1.5 text-center text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-                >
-                  Top 50 scan
-                </RouterLink>
-                <button
-                  type="button"
-                  class="w-full rounded-full border border-[color:var(--border)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-                  @click="openUploadModalFromRail"
-                >
-                  Upload CSV
-                </button>
-                <button
-                  type="button"
-                  class="w-full rounded-full border border-[color:var(--border)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
-                  :disabled="!exportReady"
-                  @click="jumpToTab('export')"
-                >
-                  Export decklist
-                </button>
-              </div>
-              <div class="space-y-1 text-xs text-[color:var(--muted)]">
-                <p>{{ commanderChecklist }}</p>
-                <p>{{ collectionChecklist }}</p>
-                <p>{{ exportChecklist }}</p>
-                <p v-if="commanderSummary" class="truncate">
-                  Commander: {{ commanderSummary }}
-                </p>
-              </div>
-            </Card>
-          </aside>
+
 
           <section class="space-y-4">
             <section
+              v-show="activeTab === 'search'"
               id="panel-search"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-search'"
-              v-show="activeTab === 'search'"
               class="space-y-4"
             >
               <div class="space-y-1">
@@ -240,11 +189,11 @@
             </section>
 
             <section
+              v-show="activeTab === 'collection'"
               id="panel-collection"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-collection'"
-              v-show="activeTab === 'collection'"
               class="space-y-4"
             >
               <CommanderDataPanel
@@ -381,11 +330,11 @@
             </section>
 
             <section
+              v-show="activeTab === 'export'"
               id="panel-export"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-export'"
-              v-show="activeTab === 'export'"
               class="space-y-4"
             >
               <div class="space-y-1">
@@ -501,10 +450,6 @@ const jumpToTab = (tab: DashboardTab) => {
   });
 };
 
-const openUploadModalFromRail = () => {
-  jumpToTab("collection");
-  showUploadModal.value = true;
-};
 
 const inventorySummary = computed(() => {
   if (!csvRows.value.length) {
@@ -518,19 +463,7 @@ const inventorySummary = computed(() => {
 });
 
 const hasCommander = computed(() => Boolean(commanderSelection.value.primary));
-const exportReady = computed(() => Boolean(decklistExport.value?.text));
 
-const commanderSummary = computed(() => {
-  const primary = commanderSelection.value.primary;
-  const partner = commanderSelection.value.partner;
-  if (!primary) {
-    return "";
-  }
-  if (commanderSelection.value.hasPartner && partner) {
-    return `${primary} + ${partner}`;
-  }
-  return primary;
-});
 
 const nextStepAction = computed<
   "search" | "collection" | "upload" | "export" | null
@@ -613,18 +546,6 @@ const exportHelperText = computed(() => {
   }
   return "Copy or download the filtered decklist for your deck builder.";
 });
-
-const commanderChecklist = computed(() =>
-  hasCommander.value ? "[x] Commander selected" : "[ ] Choose a commander"
-);
-
-const collectionChecklist = computed(() =>
-  hasCsvData.value ? "[x] Collection uploaded" : "[ ] Upload collection"
-);
-
-const exportChecklist = computed(() =>
-  exportReady.value ? "[x] Decklist ready" : "[ ] Export after decklists load"
-);
 
 const activeFilterClass =
   "border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]";

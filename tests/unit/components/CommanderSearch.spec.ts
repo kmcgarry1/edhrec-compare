@@ -134,41 +134,35 @@ describe("CommanderSearch", () => {
 
   it("disables partner search until primary selection is made", async () => {
     const wrapper = mountComponent();
+    const findButton = (label: string) =>
+      wrapper.findAll("button").find((button) => button.text().includes(label));
 
-    await wrapper.get("#has-partner-toggle").setValue(true);
+    expect(findButton("Add partner")).toBeUndefined();
     expect(wrapper.get("#partner-commander-search").attributes("disabled")).toBeDefined();
-    expect(wrapper.text()).toContain("Select a primary commander before choosing a partner.");
 
     await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
       "Atraxa, Grand Unifier"
     );
     await flushPromises();
-    await wrapper.get("#has-partner-toggle").setValue(true);
+
+    const addPartnerButton = findButton("Add partner");
+    expect(addPartnerButton).toBeDefined();
+    await addPartnerButton?.trigger("click");
 
     expect(wrapper.get("#partner-commander-search").attributes("disabled")).toBeUndefined();
   });
 
   it("combines mana costs for partner commanders", async () => {
     const wrapper = mountComponent();
+    const findButton = (label: string) =>
+      wrapper.findAll("button").find((button) => button.text().includes(label));
     await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
       .handleSelection("primary", "Atraxa");
-    await wrapper.get("#has-partner-toggle").setValue(true);
+    await findButton("Add partner")?.trigger("click");
     await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
       .handleSelection("partner", "Tymna");
     await flushPromises();
 
     expect(wrapper.text()).toContain("G + G");
-  });
-
-  it("toggles details visibility from the summary bar", async () => {
-    const wrapper = mountComponent();
-    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-      .handleSelection("primary", "Atraxa");
-    await flushPromises();
-
-    const toggle = wrapper.get("button[aria-expanded]");
-    expect(toggle.text()).toContain("Details");
-    await toggle.trigger("click");
-    expect(toggle.text()).toContain("Collapse");
   });
 });

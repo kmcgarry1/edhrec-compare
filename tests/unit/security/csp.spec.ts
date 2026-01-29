@@ -4,7 +4,7 @@ import path from "node:path";
 
 const PROJECT_ROOT = path.resolve(__dirname, "../../..");
 const POLICY =
-  "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.scryfall.com https://json.edhrec.com https://vitals.vercel-insights.com https://*.vercel-insights.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vercel.com; font-src 'self' data:; frame-ancestors 'none'; frame-src 'none'; img-src 'self' data: blob: https://cards.scryfall.io https://c1.scryfall.com https://c2.scryfall.com https://c3.scryfall.com https://svgs.scryfall.io; manifest-src 'self'; media-src 'self' data:; object-src 'none'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; form-action 'self'; report-uri /api/csp-report; report-to csp-endpoint;";
+  "default-src 'self'; base-uri 'self'; connect-src 'self' https://api.scryfall.com https://json.edhrec.com https://vitals.vercel-insights.com https://*.vercel-insights.com https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vercel.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'none'; frame-src 'none'; img-src 'self' data: blob: https://cards.scryfall.io https://c1.scryfall.com https://c2.scryfall.com https://c3.scryfall.com https://svgs.scryfall.io; manifest-src 'self'; media-src 'self' data:; object-src 'none'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; worker-src 'self' blob:; form-action 'self'; report-uri /api/csp-report; report-to csp-endpoint;";
 
 const readRootFile = (relativePath: string) =>
   readFileSync(path.resolve(PROJECT_ROOT, relativePath), "utf-8");

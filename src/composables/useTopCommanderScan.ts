@@ -59,7 +59,8 @@ const mapWithConcurrency = async <T, R>(
       while (currentIndex < items.length) {
         const index = currentIndex;
         currentIndex += 1;
-        results[index] = await mapper(items[index], index);
+        const item = items[index]!;
+        results[index] = await mapper(item, index);
       }
     }
   );

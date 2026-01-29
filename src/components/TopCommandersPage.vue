@@ -475,7 +475,8 @@ const manaTokenMap: Record<CommanderColor, string> = {
   C: "{C}",
 };
 
-const manaSymbol = (color: CommanderColor) => getSvgForSymbol(manaTokenMap[color]);
+const manaSymbol = (color: CommanderColor) =>
+  getSvgForSymbol(manaTokenMap[color]) ?? undefined;
 
 const colorDotClass = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.dot ?? "";
 const colorPillClass = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.pill ?? "";

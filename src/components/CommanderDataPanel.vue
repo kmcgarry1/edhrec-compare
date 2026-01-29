@@ -34,13 +34,13 @@
       >
         <CommanderDisplay
           v-if="hasSelection"
-          :commanderName="primaryCommander"
+          :commanderName="primaryName"
           label="Primary Commander"
           description="Scryfall-powered preview for the current focus."
         />
         <CommanderDisplay
           v-if="hasSelection && partnerCommander"
-          :commanderName="partnerCommander"
+          :commanderName="partnerName"
           label="Partner Commander"
           description="Optional partner preview shown outside the header."
         />
@@ -95,6 +95,8 @@ const props = defineProps<{
 const { commanderColors } = useCommanderColors();
 
 const hasSelection = computed(() => Boolean(props.primaryCommander));
+const primaryName = computed(() => props.primaryCommander ?? "");
+const partnerName = computed(() => props.partnerCommander ?? "");
 
 const commanderColorBadges = computed(() => {
   const normalized = new Set(
