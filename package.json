@@ -36,14 +36,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "^1.58.0",
     "@size-limit/preset-app": "^12.0.0",
     "@tailwindcss/postcss": "^4.1.18",
-    "@types/node": "^25.0.9",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@types/node": "^25.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.47.0",
     "@vitejs/plugin-vue": "^6.0.3",
-    "@vitest/coverage-v8": "^4.0.17",
+    "@vitest/coverage-v8": "^4.0.18",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "autoprefixer": "^10.4.23",
@@ -52,12 +52,12 @@
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.7.0",
-    "globals": "^17.0.0",
-    "happy-dom": "^20.3.3",
+    "globals": "^17.1.0",
+    "happy-dom": "^20.3.9",
     "husky": "^9.1.6",
     "lint-staged": "^16.2.7",
     "postcss": "^8.4.49",
-    "prettier": "^3.8.0",
+    "prettier": "^3.8.1",
     "rollup-plugin-visualizer": "^6.0.5",
     "size-limit": "^12.0.0",
     "tailwindcss": "^4.1.17",
@@ -66,7 +66,7 @@
     "vite": "npm:rolldown-vite@7.2.2",
     "vitest": "^4.0.12",
     "vue-eslint-parser": "^10.2.0",
-    "vue-tsc": "^3.2.2"
+    "vue-tsc": "^3.2.4"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.2"
