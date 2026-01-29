@@ -167,6 +167,7 @@
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-search'"
+              :aria-hidden="activeTab !== 'search'"
               class="space-y-4"
             >
               <div class="space-y-1">
@@ -194,6 +195,7 @@
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-collection'"
+              :aria-hidden="activeTab !== 'collection'"
               class="space-y-4"
             >
               <CommanderDataPanel

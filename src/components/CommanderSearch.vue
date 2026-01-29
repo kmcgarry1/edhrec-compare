@@ -342,6 +342,13 @@ const createSearchField = (label: string, disabled?: () => boolean) => {
     }
 
     const trimmed = value.trim();
+    // NOTE: We intentionally allow searches starting at 2 characters for better UX.
+    // This does increase potential Scryfall traffic compared to a 3–4 character
+    // threshold, but is mitigated by:
+    //   - this 300ms debounce (via useDebounceFn), and
+    //   - additional batching/rate limiting in the Scryfall API wrapper.
+    // If Scryfall rate limits become an issue in practice, consider raising this
+    // threshold back to 3–4 characters or adding per-session caching here.
     if (trimmed.length < 2) {
       results.value = [];
       error.value = "";

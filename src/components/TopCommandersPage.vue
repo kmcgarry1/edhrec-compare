@@ -316,11 +316,12 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { useDebounceFn } from "@vueuse/core";
 import { getTopCommanders, type TopCommander } from "../api/edhrecApi";
 import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
 import { handleError } from "../utils/errorHandler";
 import { normalizeCardName } from "../utils/cardName";
-import { COLOR_IDENTITY_META, COLOR_IDENTITY_ORDER, type CommanderColor } from "../utils/colorIdentity";
+import { COLOR_IDENTITY_META, COLOR_IDENTITY_ORDER, COLOR_COMBO_SLUGS, type CommanderColor } from "../utils/colorIdentity";
 import { Card, GlobalLoadingBanner, SiteNotice } from ".";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
@@ -386,7 +387,7 @@ const filteredCommanders = computed(() =>
 
 const sortedCommanders = computed(() => {
   const base = filteredCommanders.value;
-  if (sortMode.value != "owned") {
+  if (sortMode.value !== "owned") {
     return base;
   }
   const entries = [...base];
@@ -395,7 +396,7 @@ const sortedCommanders = computed(() => {
     const bResult = scanLookup.value.get(b.slug);
     const aPercent = aResult?.ownedPercent ?? -1;
     const bPercent = bResult?.ownedPercent ?? -1;
-    if (bPercent != aPercent) {
+    if (bPercent !== aPercent) {
       return bPercent - aPercent;
     }
     return (a.rank ?? 0) - (b.rank ?? 0);
@@ -431,40 +432,6 @@ const clearColors = () => {
 };
 
 const COLOR_ORDER: CommanderColor[] = ["W", "U", "B", "R", "G"];
-const COLOR_COMBO_SLUGS: Record<string, string> = {
-  W: "mono-white",
-  U: "mono-blue",
-  B: "mono-black",
-  R: "mono-red",
-  G: "mono-green",
-  C: "colorless",
-  WU: "azorius",
-  UB: "dimir",
-  BR: "rakdos",
-  RG: "gruul",
-  WG: "selesnya",
-  WB: "orzhov",
-  UR: "izzet",
-  BG: "golgari",
-  WR: "boros",
-  UG: "simic",
-  WUB: "esper",
-  WUR: "jeskai",
-  WUG: "bant",
-  WBR: "mardu",
-  WBG: "abzan",
-  WRG: "naya",
-  UBR: "grixis",
-  UBG: "sultai",
-  URG: "temur",
-  BRG: "jund",
-  WUBR: "yore-tiller",
-  UBRG: "glint-eye",
-  WBRG: "dune-brood",
-  WURG: "ink-treader",
-  WUBG: "witch-maw",
-  WUBRG: "five-color",
-};
 
 const manaTokenMap: Record<CommanderColor, string> = {
   W: "{W}",
@@ -793,19 +760,20 @@ watch(
   { immediate: true }
 );
 
-watch(
-  selectedColorPath,
-  () => {
-    void loadTopCommanders();
-    if (hasCsvData.value) {
-      void runScan(rows.value, headers.value, {
-        limit: topLimit.value,
-        force: true,
-        path: selectedColorPath.value,
-      });
-    }
+const handleSelectedColorPathChange = useDebounceFn(() => {
+  void loadTopCommanders();
+  if (hasCsvData.value) {
+    void runScan(rows.value, headers.value, {
+      limit: topLimit.value,
+      force: true,
+      path: selectedColorPath.value,
+    });
   }
-);
+}, 250);
+
+watch(selectedColorPath, () => {
+  handleSelectedColorPathChange();
+});
 
 onMounted(() => {
   void ensureSymbolsLoaded();
