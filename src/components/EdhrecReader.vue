@@ -17,6 +17,7 @@
         ref="commanderSearchRef"
         :selected-slug="currentCommanderSlug"
         @commander-selected="handleCommanderSelection"
+        @selection-change="handleSelectionChange"
       />
       <Card padding="p-4 sm:p-5" class="space-y-3">
         <CommanderFilters
@@ -110,6 +111,12 @@ import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import CommanderSearchInstance from "./CommanderSearch.vue";
 import { buildFilterQuery, parseFilterQuery, type FilterRouteState } from "../utils/routeFilters";
+import {
+  buildCardNameSet,
+  cardNameVariants,
+  getNameColumnIndex,
+  normalizeCardName,
+} from "../utils/cardName";
 
 interface EdhrecData {
   container?: {
@@ -143,8 +150,15 @@ type DecklistPayload = {
   sections: DecklistSection[];
 };
 
+type CommanderSelection = {
+  primary: string;
+  partner: string;
+  hasPartner: boolean;
+};
+
 const emit = defineEmits<{
   decklistUpdate: [payload: DecklistPayload];
+  "selection-change": [payload: CommanderSelection];
 }>();
 const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
 const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
@@ -319,50 +333,14 @@ const scrollToSection = (id: string) => {
 const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
 
 const uploadedNameIndex = computed(() => {
-  const headers = uploadedHeaders.value;
-  const idx = headers.findIndex((header) => header.trim().toLowerCase() === "name");
-  return idx >= 0 ? idx : 0;
+  return getNameColumnIndex(uploadedHeaders.value);
 });
 
-const normalizeCardName = (value: string) => value.trim().replace(/\s+/g, " ").toLowerCase();
-
-const cardNameVariants = (value: string) => {
-  if (!value) {
-    return [] as string[];
-  }
-  const variants = new Set<string>();
-  const normalizedFull = normalizeCardName(value);
-  if (normalizedFull) {
-    variants.add(normalizedFull);
-  }
-
-  value
-    .split("//")
-    .map((part) => normalizeCardName(part))
-    .filter((part) => part.length > 0)
-    .forEach((part) => variants.add(part));
-
-  return Array.from(variants);
-};
-
 const uploadedCardNameSet = computed(() => {
-  const set = new Set<string>();
   if (!uploadedRows.value.length) {
-    return set;
+    return new Set<string>();
   }
-
-  const idx = uploadedNameIndex.value;
-
-  uploadedRows.value.forEach((row) => {
-    const raw = row[idx] ?? row[0] ?? "";
-    cardNameVariants(raw).forEach((variant) => {
-      if (variant.length > 0) {
-        set.add(variant);
-      }
-    });
-  });
-
-  return set;
+  return buildCardNameSet(uploadedRows.value, uploadedNameIndex.value);
 });
 
 const isCardInUpload = (cardName: string) => {
@@ -434,6 +412,10 @@ const handleCommanderSelection = (slug: string) => {
     return;
   }
   currentCommanderSlug.value = slug;
+};
+
+const handleSelectionChange = (payload: CommanderSelection) => {
+  emit("selection-change", payload);
 };
 
 const refreshCommanderData = () => {
