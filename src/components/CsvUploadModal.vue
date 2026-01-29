@@ -17,7 +17,7 @@
           padding="p-4 sm:p-6"
           background="bg-[color:var(--surface)]"
           shadow="shadow-[var(--shadow)]"
-          class="max-h-[90vh] overflow-y-auto text-center text-[color:var(--text)]"
+          class="surface-sheen max-h-[90vh] overflow-y-auto text-center text-[color:var(--text)]"
         >
           <div class="flex flex-col items-center gap-3">
             <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">Upload Collection</p>
@@ -32,7 +32,7 @@
           <div class="mt-6 flex justify-center">
             <button
               type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               aria-label="Close upload dialog"
               @click="handleClose"
             >

@@ -6,11 +6,11 @@
     border="border border-[color:var(--border)]"
     background="bg-[color:var(--surface)]"
     shadow="shadow-[var(--shadow-soft)]"
-    class="relative overflow-hidden"
+    class="relative overflow-hidden surface-sheen"
   >
     <div class="relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
       <div class="space-y-6 text-center lg:text-left">
-        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[color:var(--accent-soft)] text-[color:var(--accent)] ring-1 ring-[color:var(--border)] lg:mx-0">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[color:var(--accent-soft)] text-[color:var(--accent)] shadow-[var(--shadow-soft)] ring-1 ring-[color:var(--border)] lg:mx-0">
           <svg viewBox="0 0 24 24" class="h-8 w-8" fill="currentColor" aria-hidden="true">
             <path d="M4 6c0-1.1.9-2 2-2h12a2 2 0 0 1 2 2v11.5a.5.5 0 0 1-.8.4l-2.9-2.17a1 1 0 0 0-.6-.2H6a2 2 0 0 1-2-2z" />
             <path d="M7.5 9.5h9v1h-9zm0 3h6v1h-6z" class="text-[color:var(--accent)]" />
@@ -49,10 +49,10 @@
               v-for="commander in popular"
               :key="commander.name"
               type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-1.5 text-sm font-semibold text-[color:var(--text)] transition hover:-translate-y-0.5 hover:border-[color:var(--accent-strong)] hover:shadow-[var(--shadow-soft)]"
+              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-sm font-semibold text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:-translate-y-0.5 hover:border-[color:var(--accent-strong)] hover:brightness-105"
               @click="emit('select', commander.name)"
             >
-              <span class="text-[color:var(--accent)]">▶</span>
+              <span class="text-[color:var(--accent-contrast)]">▶</span>
               {{ commander.name }}
             </button>
           </div>
@@ -128,3 +128,5 @@ const emit = defineEmits<{
 
 const popular = props.popular;
 </script>
+
+

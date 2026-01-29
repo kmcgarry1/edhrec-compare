@@ -5,7 +5,7 @@
     rounded="rounded-2xl"
     background="bg-[color:var(--surface)]"
     shadow="shadow-[var(--shadow-soft)]"
-    class="text-sm text-[color:var(--muted)]"
+    class="surface-sheen text-sm text-[color:var(--muted)]"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="space-y-0.5">
@@ -18,7 +18,7 @@
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] px-2.5 py-1 text-[0.75rem] font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+        class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-2.5 py-1 text-[0.75rem] font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
         :aria-expanded="expanded"
         @click="expanded = !expanded"
       >

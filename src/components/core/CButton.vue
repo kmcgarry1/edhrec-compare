@@ -58,9 +58,9 @@ const computedClasses = (() => {
 
   const variants = {
     primary:
-      "border border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)] hover:border-[color:var(--accent-strong)]",
+      "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
     secondary:
-      "border border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+      "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
     ghost:
       "text-[color:var(--muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]",
   };
