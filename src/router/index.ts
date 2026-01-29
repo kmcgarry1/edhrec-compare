@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const Dashboard = () => import("../components/Dashboard.vue");
+const TopCommandersPage = () => import("../components/TopCommandersPage.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,11 @@ const router = createRouter({
       name: "commander",
       component: Dashboard,
       props: true,
+    },
+    {
+      path: "/top-commanders",
+      name: "top-commanders",
+      component: TopCommandersPage,
     },
     {
       path: "/:catchAll(.*)",
