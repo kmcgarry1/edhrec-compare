@@ -47,10 +47,6 @@ const baseCard = {
 
 const originalMatchMedia = window.matchMedia;
 
-type ScryfallRowMethods = {
-  openScryfallPage: () => void;
-};
-
 describe("ScryfallCardRow", () => {
   const windowOpenSpy = vi.spyOn(window, "open").mockImplementation(() => null);
   const matchMediaMock = vi.fn().mockReturnValue({
@@ -87,7 +83,7 @@ describe("ScryfallCardRow", () => {
   });
 
   it("opens Scryfall page when row is clicked on desktop", async () => {
-    const wrapper = mount<ScryfallRowMethods>(ScryfallCardRow, {
+    const wrapper = mount(ScryfallCardRow, {
       props: {
         card: baseCard,
         variant: "table",
@@ -95,7 +91,7 @@ describe("ScryfallCardRow", () => {
     });
 
     await flushPromises();
-    wrapper.vm.openScryfallPage();
+    await wrapper.find("tr").trigger("click");
     expect(windowOpenSpy).toHaveBeenCalledWith(
       "https://scryfall.com/card",
       "_blank",
