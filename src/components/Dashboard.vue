@@ -123,7 +123,6 @@ const {
   showUploadModal,
   decklistExport,
   decklistCopied,
-  mainContentRef,
   activeTab,
   tabOptions,
   commanderSelection,
