@@ -25,7 +25,7 @@ export const useScryfallCardMeta = (card: Ref<DisplayCard>) => {
   const { ensureSymbolsLoaded, getSvgForSymbol, isLoading: symbolsLoading } =
     useScryfallSymbols();
 
-  const cardName = computed(() => card.value.name || "—");
+  const cardName = computed(() => card.value.name || "â€”");
   const nameParts = computed(() =>
     cardName.value
       .split(/\s*\/\/\s*/)
@@ -41,22 +41,22 @@ export const useScryfallCardMeta = (card: Ref<DisplayCard>) => {
     return nameParts.value.slice(1).join(" // ");
   });
 
-  const cardTypeFull = computed(() => card.value.type_line || "—");
+  const cardTypeFull = computed(() => card.value.type_line || "â€”");
   const cardTypeShort = computed(() => {
     if (!card.value.type_line) {
-      return "—";
+      return "â€”";
     }
-    const leftSide = card.value.type_line.split("—")[0]?.trim() ?? "";
+    const leftSide = card.value.type_line.split("â€”")[0]?.trim() ?? "";
     if (!leftSide) {
-      return "—";
+      return "â€”";
     }
     const supertypes = new Set(["Basic", "Legendary", "Snow", "World", "Ongoing"]);
     const filtered = leftSide.split(/\s+/).filter((part) => !supertypes.has(part));
     return filtered.join(" ") || leftSide;
   });
-  const cardSet = computed(() => (card.value.set || "").toUpperCase() || "—");
-  const cardRarity = computed(() => card.value.rarity || "—");
-  const cardMana = computed(() => card.value.mana_cost || "—");
+  const cardSet = computed(() => (card.value.set || "").toUpperCase() || "â€”");
+  const cardRarity = computed(() => card.value.rarity || "â€”");
+  const cardMana = computed(() => card.value.mana_cost || "â€”");
 
   const manaSymbols = computed(() => {
     if (!card.value.mana_cost) {
