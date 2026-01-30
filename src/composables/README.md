@@ -105,6 +105,20 @@ setOwnedFilter(null); // Show all cards
 Encapsulates commander search state (primary/partner), autocomplete queries,
 selection management, and mana cost lookups.
 
+#### `useTopCommandersData.ts`
+
+Fetches the EDHREC top commanders list and owns paging/sorting state.
+
+#### `useTopCommanderImages.ts`
+
+Loads commander images and color identities from Scryfall, with partner-aware
+stacked image helpers.
+
+#### `useTopCommanderFilters.ts`
+
+Manages color identity filters and resolves EDHREC list paths for the selected
+colors.
+
 ### External Data
 
 #### `useScryfallSymbols.ts`
