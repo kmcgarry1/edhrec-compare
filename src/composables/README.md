@@ -100,6 +100,11 @@ setOwnedFilter(false); // Show only unowned cards
 setOwnedFilter(null); // Show all cards
 ```
 
+#### `useCommanderSearch.ts`
+
+Encapsulates commander search state (primary/partner), autocomplete queries,
+selection management, and mana cost lookups.
+
 ### External Data
 
 #### `useScryfallSymbols.ts`
