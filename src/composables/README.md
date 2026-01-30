@@ -119,6 +119,21 @@ stacked image helpers.
 Manages color identity filters and resolves EDHREC list paths for the selected
 colors.
 
+#### `useScryfallCardMeta.ts`
+
+Derives display-ready card metadata (names, types, mana, rarity badges) and
+mana symbol rendering for Scryfall cards.
+
+#### `useScryfallCardPreview.ts`
+
+Handles hover previews and mobile modal previews for Scryfall cards, including
+image caching and pointer interaction logic.
+
+#### `useScryfallCardRowStyles.ts`
+
+Builds responsive row and table cell class names based on density and owned
+state.
+
 ### External Data
 
 #### `useScryfallSymbols.ts`
