@@ -108,6 +108,7 @@ import { handleError } from "../utils/errorHandler";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { useBackgroundArt } from "../composables/useBackgroundArt";
 import type { CardTableRow } from "../types/cards";
+import type { CommanderSelection, DecklistPayload, DecklistSection } from "../types/edhrec";
 import type { ColumnDefinition } from "./CardTable.vue";
 import CommanderSearchInstance from "./CommanderSearch.vue";
 import { buildFilterQuery, parseFilterQuery, type FilterRouteState } from "../utils/routeFilters";
@@ -137,24 +138,6 @@ const route = useRoute();
 const router = useRouter();
 
 const { showOwned } = useOwnedFilter();
-
-type DecklistSection = {
-  id: string;
-  label: string;
-  text: string;
-};
-
-type DecklistPayload = {
-  text: string;
-  filterLabel: string;
-  sections: DecklistSection[];
-};
-
-type CommanderSelection = {
-  primary: string;
-  partner: string;
-  hasPartner: boolean;
-};
 
 const emit = defineEmits<{
   decklistUpdate: [payload: DecklistPayload];

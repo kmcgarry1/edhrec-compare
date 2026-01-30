@@ -235,6 +235,7 @@ import { Card, CommanderDisplay } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import type { CommanderSelection } from "../types/edhrec";
 
 const searchScope = "commander-search";
 
@@ -243,15 +244,9 @@ type CommanderOption = { id: string; name: string };
 const { withLoading } = useGlobalLoading();
 const { notifyError } = useGlobalNotices();
 
-type SelectionState = {
-  primary: string;
-  partner: string;
-  hasPartner: boolean;
-};
-
 const emit = defineEmits<{
   "commander-selected": [slug: string];
-  "selection-change": [state: SelectionState];
+  "selection-change": [state: CommanderSelection];
 }>();
 
 const props = defineProps<{
