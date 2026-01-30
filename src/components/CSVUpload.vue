@@ -6,6 +6,34 @@
     >
       Collection CSV
     </label>
+    <div class="space-y-2">
+      <p
+        class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+      >
+        Use this CSV for
+      </p>
+      <div
+        class="grid gap-2 sm:grid-cols-2"
+        role="radiogroup"
+        aria-label="CSV usage mode"
+      >
+        <button
+          v-for="option in modeOptions"
+          :key="option.value"
+          type="button"
+          role="radio"
+          class="rounded-2xl border px-4 py-3 text-left text-sm shadow-[var(--shadow-soft)] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          :class="mode === option.value ? activeModeClass : inactiveModeClass"
+          :aria-checked="mode === option.value"
+          @click="setMode(option.value)"
+        >
+          <p class="font-semibold text-[color:var(--text)]">{{ option.label }}</p>
+          <p class="mt-1 text-xs text-[color:var(--muted)]">
+            {{ option.description }}
+          </p>
+        </button>
+      </div>
+    </div>
     <Card
       as="div"
       padding="p-6 sm:p-8 lg:p-10"
@@ -60,7 +88,7 @@
         </div>
         <button
           type="button"
-          class="rounded-full border border-[color:var(--border)] px-4 py-1 text-sm font-medium text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
+          class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
           aria-label="Remove uploaded CSV file"
           @click.stop="removeFile"
         >
@@ -208,6 +236,7 @@ import { computed, ref } from "vue";
 import { Card, GlobalLoadingBanner } from ".";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
+import { useCsvUploadMode, type CsvUploadMode } from "../composables/useCsvUploadMode";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
 import { handleError } from "../utils/errorHandler";
 import { validateCsv, type CsvValidationResult } from "../utils/csvValidator";
@@ -216,6 +245,7 @@ const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
 const errorMessage = ref<string | null>(null);
 const { rows: csvRows, headers: csvHeaders, setCsvData, clearCsvData } = useCsvUpload();
+const { mode, setMode } = useCsvUploadMode();
 const csvScope = "csv-upload";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
@@ -225,6 +255,24 @@ const validationResult = ref<CsvValidationResult | null>(null);
 const importedCardCount = ref(0);
 
 const invalidCsvMessage = "We couldn't process that CSV. Fix the errors below and try again.";
+
+const modeOptions: Array<{ value: CsvUploadMode; label: string; description: string }> = [
+  {
+    value: "compare",
+    label: "Compare commander decks",
+    description: "Use owned/unowned filters against any EDHREC commander.",
+  },
+  {
+    value: "top-50",
+    label: "Top 50 scan",
+    description: "Match your collection against average decks for top commanders.",
+  },
+];
+
+const activeModeClass =
+  "border-[color:var(--accent)] bg-[color:var(--accent-soft)]";
+const inactiveModeClass =
+  "border-[color:var(--border)] bg-[color:var(--surface)] hover:border-[color:var(--accent)]";
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];

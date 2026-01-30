@@ -115,39 +115,39 @@ onBeforeUnmount(() => {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(32px) saturate(1.15);
-  transform: scale(1.08);
+  filter: blur(28px) saturate(1.1) contrast(1.03);
+  transform: scale(1.06);
   transition: opacity 1800ms ease;
   mix-blend-mode: soft-light;
 }
 
 .nebula__art.is-visible {
-  opacity: 0.28;
+  opacity: 0.24;
 }
 
 .nebula__base {
-  opacity: 0.65;
+  opacity: 0.6;
   background-image:
-    linear-gradient(to right, var(--pattern-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--pattern-line) 1px, transparent 1px),
+    repeating-linear-gradient(120deg, var(--pattern-line) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(30deg, var(--pattern-line) 0 1px, transparent 1px 32px),
     radial-gradient(circle at 18% 22%, var(--accent-glow-strong), transparent 45%),
     radial-gradient(circle at 78% 10%, var(--accent-glow), transparent 40%);
-  background-size: 140px 140px, 140px 140px, 100% 100%, 100% 100%;
+  background-size: 240px 240px, 200px 200px, 100% 100%, 100% 100%;
   background-position: center;
 }
 
 .nebula__glow {
-  opacity: 0.7;
-  filter: blur(40px);
+  opacity: 0.6;
+  filter: blur(44px);
   background-image:
-    radial-gradient(circle at 20% 80%, var(--warn-soft), transparent 50%),
-    radial-gradient(circle at 82% 70%, var(--danger-soft), transparent 50%),
-    radial-gradient(circle at 55% 28%, var(--accent-glow-strong), transparent 55%);
-  animation: nebula-pulse 32s ease-in-out infinite;
+    radial-gradient(circle at 18% 78%, var(--warn-soft), transparent 50%),
+    radial-gradient(circle at 82% 70%, var(--danger-soft), transparent 45%),
+    radial-gradient(circle at 55% 20%, var(--accent-glow-strong), transparent 55%);
+  animation: nebula-pulse 36s ease-in-out infinite;
 }
 
 .nebula__particles {
-  opacity: 0.35;
+  opacity: 0.3;
   will-change: background-position, transform;
 }
 
@@ -155,21 +155,21 @@ onBeforeUnmount(() => {
   background-image:
     radial-gradient(circle, var(--pattern-line) 1px, transparent 1px),
     radial-gradient(circle, var(--accent-glow) 1px, transparent 1px);
-  background-size: 90px 90px, 180px 180px;
+  background-size: 110px 110px, 200px 200px;
   background-position: 0 0, 45px 60px;
-  animation: nebula-drift 24s linear infinite;
+  animation: nebula-drift 30s linear infinite;
 }
 
 .nebula__particles--coarse {
-  opacity: 0.25;
-  background-image: radial-gradient(circle, var(--accent-glow-strong) 1.5px, transparent 1.5px);
-  background-size: 240px 240px;
+  opacity: 0.22;
+  background-image: radial-gradient(circle, var(--accent-glow-strong) 1.4px, transparent 1.4px);
+  background-size: 260px 260px;
   background-position: 120px 80px;
-  animation: nebula-drift 36s linear infinite reverse;
+  animation: nebula-drift 42s linear infinite reverse;
 }
 
 .nebula__noise {
-  opacity: 0.18;
+  opacity: 0.14;
   background-image: radial-gradient(circle, var(--pattern-line) 0.5px, transparent 0.5px);
   background-size: 3px 3px;
 }

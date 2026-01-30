@@ -170,7 +170,7 @@
       <div class="flex justify-end">
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-1.5 text-sm font-semibold transition hover:bg-white/10"
+          class="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white/90 transition hover:bg-white/20"
           @click="hideCardImage"
         >
           Close
@@ -237,13 +237,13 @@
               target="_blank"
               rel="noreferrer"
               role="button"
-              class="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               View on Scryfall
             </a>
             <button
               type="button"
-              class="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
+              class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
               @click="closeMobileModal"
             >
               Close
@@ -292,6 +292,7 @@ import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { handleError } from "../utils/errorHandler";
 import type { DisplayCard } from "../types/cards";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 const cardImageCache = new Map<string, string>();
 
 const props = defineProps<{
@@ -369,6 +370,7 @@ const touchTracking = ref({
 
 const { withLoading } = useGlobalLoading();
 const cardPreviewScope = "card-preview";
+const { density } = useLayoutDensity();
 const {
   ensureSymbolsLoaded,
   getSvgForSymbol,
@@ -505,16 +507,27 @@ const hoverMediaQueryState = {
 
 const checkboxClass =
   "h-4 w-4 rounded border-[color:var(--border)] bg-transparent text-[color:var(--accent)] focus:ring-[color:var(--accent)]";
-const tableCellClasses = {
-  checkbox: "px-3 py-2 text-center",
-  name: "px-3 py-2 align-top text-sm font-semibold text-[color:var(--text)]",
-  mana: "px-3 py-2",
-  muted: "px-3 py-2 text-sm text-[color:var(--muted)]",
-  stats: "px-3 py-2 text-sm font-mono tabular-nums text-[color:var(--text)]",
-  badge: "px-3 py-2",
-  status: "px-3 py-2",
-  price: "px-3 py-2 text-right",
-};
+const cellPadding = computed(() => {
+  switch (density.value) {
+    case "compact":
+      return "px-2.5 py-1";
+    case "cozy":
+      return "px-3 py-1.5";
+    default:
+      return "px-3 py-2";
+  }
+});
+
+const tableCellClasses = computed(() => ({
+  checkbox: `${cellPadding.value} text-center`,
+  name: `${cellPadding.value} align-top text-sm font-semibold text-[color:var(--text)]`,
+  mana: `${cellPadding.value}`,
+  muted: `${cellPadding.value} text-sm text-[color:var(--muted)]`,
+  stats: `${cellPadding.value} text-sm font-mono tabular-nums text-[color:var(--text)]`,
+  badge: `${cellPadding.value}`,
+  status: `${cellPadding.value}`,
+  price: `${cellPadding.value} text-right`,
+}));
 const badgeBaseClass =
   "inline-flex items-center rounded-full border border-[color:var(--border)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em]";
 const setBadgeClass = `${badgeBaseClass} bg-[color:var(--surface-muted)] text-[color:var(--muted)]`;

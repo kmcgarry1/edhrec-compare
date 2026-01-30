@@ -88,6 +88,17 @@ const hasHeader = computed(
 
 const resolvedPadding = computed(() => props.padding ?? spacing.value.cardPadding);
 
+const surfaceSheen = computed(() => {
+  const background = props.background ?? "";
+  if (!background.includes("var(--surface")) {
+    return "";
+  }
+  if (background.includes("surface-muted")) {
+    return "";
+  }
+  return "surface-sheen";
+});
+
 const computedClasses = computed(() =>
   [
     props.fullWidth ? "block w-full" : "",
@@ -96,6 +107,7 @@ const computedClasses = computed(() =>
     props.background,
     props.shadow,
     resolvedPadding.value,
+    surfaceSheen.value,
     props.hover ? "card-hover" : "",
   ]
     .filter(Boolean)

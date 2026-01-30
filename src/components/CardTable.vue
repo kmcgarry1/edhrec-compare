@@ -10,18 +10,19 @@
     >
       <table
         :class="[
-          'min-w-full border border-[color:var(--border)] text-sm',
+          'min-w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] text-sm text-[color:var(--text)]',
           tableClass,
         ]"
       >
-        <thead class="bg-[color:var(--surface-muted)]">
+        <thead class="bg-[color:var(--surface-strong)] text-[color:var(--muted)]">
           <tr>
             <th
               v-for="column in columns"
               :key="column.key"
               scope="col"
               :class="[
-                'px-3 py-2 text-xs font-semibold uppercase tracking-wide text-[color:var(--muted)] border-b border-[color:var(--border)]',
+                headerCellClass,
+                'font-semibold uppercase tracking-[0.24em] border-b border-[color:var(--border)]',
                 column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                 column.class || '',
               ]"
@@ -78,13 +79,13 @@
               <tr
                 v-for="entry in visibleRows"
                 :key="entry.key"
-                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition"
+                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition-colors"
               >
                 <td
                   v-for="column in columns"
                   :key="column.key"
                   :class="[
-                    'px-3 py-2 text-[color:var(--text)]',
+                    bodyCellClass,
                     column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                     column.class || '',
                   ]"
@@ -105,13 +106,13 @@
               <tr
                 v-for="(row, index) in rows"
                 :key="resolveRowKey(row, index)"
-                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition"
+                class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition-colors"
               >
                 <td
                   v-for="column in columns"
                   :key="column.key"
                   :class="[
-                    'px-3 py-2 text-[color:var(--text)]',
+                    bodyCellClass,
                     column.align ? alignmentClasses[column.align] : alignmentClasses.left,
                     column.class || '',
                   ]"
@@ -140,6 +141,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useVirtualizer } from "@tanstack/vue-virtual";
+import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 type Alignment = "left" | "center" | "right";
 type VisibleRow = { row: Record<string, unknown>; index: number; key: string };
@@ -178,6 +180,30 @@ const alignmentClasses: Record<Alignment, string> = {
   center: "text-center",
   right: "text-right",
 };
+
+const { density } = useLayoutDensity();
+
+const headerCellClass = computed(() => {
+  switch (density.value) {
+    case "compact":
+      return "px-2.5 py-1 text-[0.6rem]";
+    case "cozy":
+      return "px-3 py-1.5 text-[0.65rem]";
+    default:
+      return "px-3 py-2 text-[0.68rem]";
+  }
+});
+
+const bodyCellClass = computed(() => {
+  switch (density.value) {
+    case "compact":
+      return "px-2.5 py-1 text-[0.78rem] text-[color:var(--text)]";
+    case "cozy":
+      return "px-3 py-1.5 text-[0.82rem] text-[color:var(--text)]";
+    default:
+      return "px-3 py-2 text-sm text-[color:var(--text)]";
+  }
+});
 
 const resolveRowKey = (
   row: Record<string, unknown> | undefined,

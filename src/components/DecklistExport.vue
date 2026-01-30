@@ -3,7 +3,7 @@
     <span class="text-[color:var(--muted)]">Export:</span>
     <button
       type="button"
-      class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-[color:var(--text)] transition hover:border-[color:var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+      class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
       :disabled="disabled"
       data-testid="header-copy-decklist"
       @click="$emit('copy')"
@@ -15,7 +15,7 @@
     </button>
     <button
       type="button"
-      class="rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-1.5 text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)] focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+      class="rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-[color:var(--accent-contrast)] transition hover:brightness-105 focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
       :disabled="disabled"
       data-testid="header-download-decklist"
       @click="$emit('download')"

@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import path from "node:path";
 
 const interceptNetwork = async (page: Page) => {
   // Stub network calls to avoid rate limiting
@@ -28,6 +29,25 @@ const interceptNetwork = async (page: Page) => {
 const setupApp = async (page: Page) => {
   await interceptNetwork(page);
   await page.goto("/");
+};
+
+const dismissOnboarding = async (page: Page) => {
+  const onboardingDialog = page.getByRole("dialog", {
+    name: /Upload your collection or scout first/i,
+  });
+  await expect(onboardingDialog).toBeVisible();
+  await page.getByRole("button", { name: /Start searching/ }).click();
+  await expect(onboardingDialog).toBeHidden();
+};
+
+const openCollectionTab = async (page: Page) => {
+  await page.getByRole("tab", { name: /^Collection$/ }).click();
+  await expect(page.locator("#panel-collection")).toBeVisible();
+};
+
+const openDisplaySettings = async (page: Page) => {
+  await openCollectionTab(page);
+  await page.locator("summary", { hasText: "Display settings" }).click();
 };
 
 test.describe("Keyboard Navigation", () => {
@@ -75,10 +95,11 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
 
     // Dismiss onboarding first
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
+    await openCollectionTab(page);
 
     // Click upload button
-    await page.getByRole("button", { name: /^Upload CSV$/ }).first().click();
+    await page.getByRole("button", { name: /Upload CSV/ }).first().click();
 
     // Wait for upload modal
     await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeVisible();
@@ -143,7 +164,8 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
+    await openDisplaySettings(page);
 
     // Find theme toggle button
     const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
@@ -175,14 +197,15 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
+    await openDisplaySettings(page);
 
     // Check theme toggle has aria-label
     const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
     await expect(themeToggle).toBeVisible();
 
     // Check upload button has aria-label
-    const uploadButton = page.getByRole("button", { name: /Upload CSV collection file/i });
+    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
     await expect(uploadButton).toBeVisible();
   });
 
@@ -203,12 +226,19 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
+    await openCollectionTab(page);
 
-    // Look for aria-live regions
-    const liveRegions = page.locator('[aria-live="polite"]');
-    const count = await liveRegions.count();
-    expect(count).toBeGreaterThan(0);
+    // Open upload modal and provide a CSV to surface status messaging
+    await page.getByRole("button", { name: /Upload CSV/i }).click();
+    const uploadDialog = page.getByRole("dialog", { name: /Import your CSV/i });
+    await expect(uploadDialog).toBeVisible();
+    const fileInput = uploadDialog.locator('input[type="file"]');
+    await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
+
+    await expect(uploadDialog.getByText("Valid CSV")).toBeVisible();
+    const liveRegions = uploadDialog.locator('[aria-live="polite"]');
+    await expect(liveRegions.first()).toBeVisible();
   });
 
   test("error messages have role alert", async ({ page }) => {
@@ -235,11 +265,11 @@ test.describe("Focus Management", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    const dismissButton = page.getByRole("button", { name: /Start searching/ });
-    await dismissButton.click();
+    await dismissOnboarding(page);
+    await openCollectionTab(page);
 
     // Click upload button and track it
-    const uploadButton = page.getByRole("button", { name: /Upload CSV collection file/i });
+    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
     await uploadButton.click();
 
     // Wait for modal

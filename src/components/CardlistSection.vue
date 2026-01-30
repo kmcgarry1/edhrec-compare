@@ -28,7 +28,7 @@
       <div class="flex flex-wrap gap-2 text-xs font-semibold">
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] px-3 py-1.5 text-[color:var(--muted)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="!decklistText.length"
           @click="emitCopy"
         >
@@ -36,7 +36,7 @@
         </button>
         <button
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] px-3 py-1.5 text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)] disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="!decklistText.length"
           @click="emitDownload"
         >
@@ -44,6 +44,39 @@
         </button>
       </div>
     </header>
+
+    <div
+      v-if="!loading"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-2 text-xs font-semibold text-[color:var(--muted)]"
+    >
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="uppercase tracking-[0.32em] text-[color:var(--muted)]">
+          Atlas
+        </span>
+        <span class="text-[color:var(--text)]">{{ totalCards }} cards</span>
+        <span class="text-[color:var(--text)]">{{ ownedCount }} owned</span>
+        <span class="text-[color:var(--text)]">{{ unownedCount }} unowned</span>
+      </div>
+      <div
+        class="flex items-center gap-3"
+        role="img"
+        :aria-label="`Owned ${ownedPercent}% of cards`"
+      >
+        <span class="text-[color:var(--muted)]">{{ ownedPercent }}% owned</span>
+        <div class="grid grid-cols-12 gap-1" aria-hidden="true">
+          <span
+            v-for="(filled, index) in ownedSegments"
+            :key="`segment-${index}`"
+            class="h-2 w-2 rounded-full"
+            :class="
+              filled
+                ? 'bg-[color:var(--accent)]'
+                : 'bg-[color:var(--surface-strong)]'
+            "
+          ></span>
+        </div>
+      </div>
+    </div>
 
     <div v-if="loading" class="space-y-3">
       <SkeletonCard v-for="i in 5" :key="i" />
@@ -57,7 +90,7 @@
         tableClass="w-full"
         aria-live="polite"
         :virtual="true"
-        :virtual-item-size="76"
+        :virtual-item-size="virtualRowSize"
         :virtual-overscan="12"
       >
         <template #default="{ row }">
@@ -116,7 +149,40 @@ const emit = defineEmits<{
   download: [];
 }>();
 
-const { spacing } = useLayoutDensity();
+const { spacing, density } = useLayoutDensity();
+
+const totalCards = computed(() => props.rows.length);
+const ownedCount = computed(
+  () => props.rows.filter((row) => Boolean(row.have)).length
+);
+const unownedCount = computed(() =>
+  Math.max(totalCards.value - ownedCount.value, 0)
+);
+const ownedPercent = computed(() => {
+  if (!totalCards.value) {
+    return 0;
+  }
+  return Math.round((ownedCount.value / totalCards.value) * 100);
+});
+const ownedSegments = computed(() => {
+  const segments = 12;
+  if (!totalCards.value) {
+    return Array.from({ length: segments }, () => false);
+  }
+  const filled = Math.round((ownedCount.value / totalCards.value) * segments);
+  return Array.from({ length: segments }, (_, index) => index < filled);
+});
+
+const virtualRowSize = computed(() => {
+  switch (density.value) {
+    case "compact":
+      return 58;
+    case "cozy":
+      return 66;
+    default:
+      return 76;
+  }
+});
 
 const isCopied = computed(
   () => props.sectionMeta?.id && props.sectionMeta.id === props.copiedSectionId

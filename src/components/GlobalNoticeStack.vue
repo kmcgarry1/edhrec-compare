@@ -7,7 +7,7 @@
         <div
           v-for="notice in notices"
           :key="notice.id"
-          class="w-full max-w-sm rounded-2xl border bg-[color:var(--surface)] p-4 shadow-[var(--shadow-soft)] ring-1 ring-black/5"
+          class="surface-sheen w-full max-w-sm rounded-2xl border bg-[color:var(--surface)] p-4 shadow-[var(--shadow-soft)] ring-1 ring-black/5"
           :class="noticeClass(notice.type)"
           role="status"
           :aria-live="notice.type === 'error' ? 'assertive' : 'polite'"

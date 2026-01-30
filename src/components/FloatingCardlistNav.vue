@@ -1,7 +1,7 @@
 <template>
   <div v-if="sectionsWithIcons.length">
     <nav
-      class="fixed left-2 top-24 z-30 hidden lg:flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-y-auto rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2 shadow-[var(--shadow-soft)] backdrop-blur"
+      class="surface-sheen fixed left-2 top-24 z-30 hidden lg:flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-y-auto rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-2 shadow-[var(--shadow-soft)] backdrop-blur"
       aria-label="Cardlist navigation"
     >
       <button
@@ -64,7 +64,7 @@
         @escape-pressed="closeMobileNav"
       >
         <div
-          class="w-full rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-[var(--shadow)]"
+          class="surface-sheen w-full rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 shadow-[var(--shadow)]"
         >
           <div class="mb-3 flex items-center justify-between">
             <p id="nav-modal-title" class="text-sm font-semibold text-[color:var(--text)]">
