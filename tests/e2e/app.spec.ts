@@ -72,6 +72,20 @@ const setupApp = async (page: Page) => {
   await page.goto("/");
 };
 
+const dismissOnboarding = async (page: Page) => {
+  const onboardingDialog = page.getByRole("dialog", {
+    name: /Upload your collection or scout first/i,
+  });
+  await expect(onboardingDialog).toBeVisible();
+  await page.getByRole("button", { name: /Start searching/ }).click();
+  await expect(onboardingDialog).toBeHidden();
+};
+
+const openExportTab = async (page: Page) => {
+  await page.getByRole("tab", { name: /^Export$/ }).click();
+  await expect(page.locator("#panel-export")).toBeVisible();
+};
+
 test.describe("Onboarding and CSV upload", () => {
   test("prompts user and accepts CSV upload", async ({ page }) => {
     await setupApp(page);
@@ -96,13 +110,15 @@ test.describe("Onboarding and CSV upload", () => {
 test.describe("Commander workflow", () => {
   test("searches commanders and exports decklists", async ({ page }) => {
     await setupApp(page);
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
 
     await selectCommander(page);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
 
     const copyButton = page.getByTestId("header-copy-decklist");
+    await openExportTab(page);
+    await expect(copyButton).toBeVisible();
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
     await copyButton.click();
     await expect.poll(() =>
@@ -125,7 +141,7 @@ test.describe("Mobile card modal", () => {
       "Only run on the mobile project"
     );
     await setupApp(page);
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
 
     await selectCommander(page);
 
@@ -136,7 +152,8 @@ test.describe("Mobile card modal", () => {
     await expect(mobileRow).toBeVisible();
     await mobileRow.click();
 
-    await expect(page.getByText("Card Preview")).toBeVisible();
+    const cardPreviewLabel = page.getByText("Card Preview", { exact: true });
+    await expect(cardPreviewLabel).toBeVisible();
     const popupPromise = page.waitForEvent("popup");
     await page.getByRole("button", { name: "View on Scryfall" }).click();
     const popup = await popupPromise;
@@ -144,7 +161,7 @@ test.describe("Mobile card modal", () => {
     await popup.close();
 
     await page.getByRole("button", { name: "Close" }).click();
-    await expect(page.getByText("Card Preview")).toBeHidden();
+    await expect(cardPreviewLabel).toBeHidden();
   });
 });
 
