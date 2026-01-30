@@ -114,6 +114,28 @@ await ensureSymbolsLoaded();
 const whiteManaSvg = getSvgForSymbol("{W}");
 ```
 
+### Feature Modules
+
+#### `useEdhrecRouteState.ts`
+
+Keeps EDHREC filter state in sync with route params and query strings. Builds the
+current EDHREC JSON URL based on commander selection and filter state.
+
+#### `useEdhrecData.ts`
+
+Fetches EDHREC cardlists with request deduplication and scoped loading state.
+Exposes parsed cardlists and total card counts.
+
+#### `useEdhrecCardlists.ts`
+
+Builds cardlist sections, decklist export payloads, ownership filtering helpers,
+and scroll tracking for the cardlist nav.
+
+#### `useScryfallCardData.ts`
+
+Batch-fetches Scryfall data, builds table rows for cardlists, and keeps the
+background art selection in sync with fetched cards.
+
 ### Accessibility
 
 #### `useFocusTrap.ts`

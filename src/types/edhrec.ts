@@ -15,3 +15,28 @@ export type DecklistPayload = {
   filterLabel: string;
   sections: DecklistSection[];
 };
+
+export type EdhrecCardview = {
+  id: string;
+  name: string;
+};
+
+export type EdhrecCardlist = {
+  header: string;
+  cardviews: EdhrecCardview[];
+};
+
+export type EdhrecData = {
+  container?: {
+    json_dict?: {
+      cardlists?: EdhrecCardlist[];
+    };
+  };
+};
+
+export type CardlistSectionMeta = {
+  id: string;
+  label: string;
+  iconPath?: string;
+  iconColor?: string;
+};
