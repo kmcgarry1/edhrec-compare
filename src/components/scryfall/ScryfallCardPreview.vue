@@ -109,11 +109,11 @@
         <div class="pointer-events-none space-y-1 text-xs text-[color:var(--muted)]">
           <p>
             <span class="font-semibold">Set:</span>
-            {{ (modalCard?.set || '').toUpperCase() || '—' }}
+            {{ (modalCard?.set || '').toUpperCase() || 'â€”' }}
           </p>
           <p>
             <span class="font-semibold">Prices:</span>
-            ${{ modalCard?.prices?.usd ?? '—' }} / €{{ modalCard?.prices?.eur ?? '—' }}
+            ${{ modalCard?.prices?.usd ?? 'â€”' }} / â‚¬{{ modalCard?.prices?.eur ?? 'â€”' }}
           </p>
         </div>
       </Card>
@@ -140,4 +140,4 @@ const emit = defineEmits<{
   "close-preview": [];
   "close-modal": [];
 }>();
-</script>
+</script>

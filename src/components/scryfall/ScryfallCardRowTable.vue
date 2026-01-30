@@ -57,7 +57,7 @@
     <td :class="tableCellClasses.muted">
       <span
         class="block truncate max-w-[28ch]"
-        :title="cardTypeFull !== '—' ? cardTypeFull : undefined"
+        :title="cardTypeFull !== 'â€”' ? cardTypeFull : undefined"
       >
         {{ cardTypeShort }}
       </span>
@@ -66,7 +66,7 @@
       <span :class="rarityBadgeClass">{{ cardRarity }}</span>
     </td>
     <td :class="tableCellClasses.status">
-      <span :class="statusLabelClass">Loading preview…</span>
+      <span :class="statusLabelClass">Loading previewâ€¦</span>
     </td>
     <PriceColour
       tag="td"
@@ -79,7 +79,7 @@
       tag="td"
       :pill="false"
       :price="eurPrice"
-      currency="€"
+      currency="â‚¬"
       :class="tableCellClasses.price"
     />
   </tr>
@@ -141,4 +141,4 @@ const emit = defineEmits<{
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
-</style>
+</style>

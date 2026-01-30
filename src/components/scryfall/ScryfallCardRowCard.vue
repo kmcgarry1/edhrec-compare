@@ -31,7 +31,7 @@
           <span :class="rarityBadgeClass">{{ cardRarity }}</span>
           <span
             class="truncate text-[11px] text-[color:var(--muted)]"
-            :title="cardTypeFull !== '—' ? cardTypeFull : undefined"
+            :title="cardTypeFull !== 'â€”' ? cardTypeFull : undefined"
           >
             {{ cardTypeShort }}
           </span>
@@ -51,7 +51,7 @@
           />
         </template>
         <template v-else-if="symbolsLoading">
-          <span>…</span>
+          <span>â€¦</span>
         </template>
         <template v-else>
           {{ cardMana }}
@@ -65,11 +65,11 @@
         />
         <PriceColour
           :price="eurPrice"
-          currency="€"
+          currency="â‚¬"
           class="text-[11px]"
         />
       </div>
-      <span :class="statusLabelClass">Loading preview…</span>
+      <span :class="statusLabelClass">Loading previewâ€¦</span>
     </div>
   </div>
 </template>
@@ -108,4 +108,4 @@ const emit = defineEmits<{
   pointerleave: [event: PointerEvent];
   activate: [];
 }>();
-</script>
+</script>
