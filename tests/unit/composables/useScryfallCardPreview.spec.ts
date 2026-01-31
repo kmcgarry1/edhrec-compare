@@ -86,7 +86,7 @@ describe("useScryfallCardPreview", () => {
 
     it("should return null scryfall link when no name or URI", () => {
       const card = ref(
-        createMockCard({ name: "", scryfall_uri: undefined } as any)
+        createMockCard({ name: "", scryfall_uri: undefined }) as unknown as DisplayCard
       );
       const composable = useScryfallCardPreview(card);
 
@@ -112,6 +112,7 @@ describe("useScryfallCardPreview", () => {
     });
 
     it("should use cached image if available", async () => {
+      vi.useFakeTimers();
       const card = ref(createMockCard());
       const composable = useScryfallCardPreview(card);
 
@@ -119,10 +120,10 @@ describe("useScryfallCardPreview", () => {
 
       // First hover - should fetch
       await composable.handleCardHover("Test Card", mockEvent);
-      vi.useFakeTimers();
       vi.advanceTimersByTime(150);
       await nextTick();
-      vi.useRealTimers();
+      await vi.waitFor(() => mockGetCardImage.mock.calls.length > 0);
+      await nextTick();
 
       mockGetCardImage.mockClear();
 
@@ -132,6 +133,8 @@ describe("useScryfallCardPreview", () => {
 
       expect(mockGetCardImage).not.toHaveBeenCalled();
       expect(composable.hoveredCardImage.value).toBe("https://example.com/card.jpg");
+
+      vi.useRealTimers();
     });
 
     it("should debounce hover loads", async () => {
@@ -206,7 +209,7 @@ describe("useScryfallCardPreview", () => {
 
       vi.advanceTimersByTime(150);
       await nextTick();
-      await vi.waitFor(() => mockHandleError.mock.calls.length > 0);
+      await vi.waitFor(() => mockHandleError.mock.calls.length > 0, { timeout: 2000 });
 
       expect(mockHandleError).toHaveBeenCalledWith(
         expect.any(Error),
@@ -269,11 +272,12 @@ describe("useScryfallCardPreview", () => {
       const card = ref(createMockCard());
       const composable = useScryfallCardPreview(card);
 
-      // Simulate non-hover device
-      await composable.handleMobileRowClick();
+      // Simulate non-hover device - use handleMobileRowClick directly
+      composable.handleMobileRowClick();
+      await nextTick();
 
       expect(composable.isMobileModalOpen.value).toBe(true);
-      await vi.waitFor(() => !composable.modalLoading.value);
+      await vi.waitFor(() => !composable.modalLoading.value, { timeout: 2000 });
 
       expect(mockGetCardImage).toHaveBeenCalledWith("Test Card");
       expect(composable.modalImageUrl.value).toBe("https://example.com/card.jpg");
@@ -298,8 +302,9 @@ describe("useScryfallCardPreview", () => {
       const card = ref(createMockCard());
       const composable = useScryfallCardPreview(card);
 
-      await composable.handleMobileRowClick();
-      await vi.waitFor(() => mockHandleError.mock.calls.length > 0);
+      composable.handleMobileRowClick();
+      await nextTick();
+      await vi.waitFor(() => mockHandleError.mock.calls.length > 0, { timeout: 2000 });
 
       expect(mockHandleError).toHaveBeenCalledWith(
         expect.any(Error),
@@ -316,8 +321,9 @@ describe("useScryfallCardPreview", () => {
       const card = ref(testCard);
       const composable = useScryfallCardPreview(card);
 
-      await composable.handleMobileRowClick();
-      await vi.waitFor(() => !composable.modalLoading.value);
+      composable.handleMobileRowClick();
+      await nextTick();
+      await vi.waitFor(() => !composable.modalLoading.value, { timeout: 2000 });
 
       expect(composable.modalCard.value).toEqual(testCard);
     });

@@ -293,6 +293,8 @@ describe("useScryfallCardData", () => {
       useScryfallCardData(cardlists, options);
 
       await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
+      await nextTick();
       await vi.waitFor(() => mockSetBackgroundArtUrls.mock.calls.length > 0);
 
       expect(mockSetBackgroundArtUrls).toHaveBeenCalledWith(
@@ -320,6 +322,8 @@ describe("useScryfallCardData", () => {
       useScryfallCardData(cardlists, options);
 
       await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
+      await nextTick();
       await vi.waitFor(() => mockSetBackgroundArtUrls.mock.calls.length > 0);
 
       const urls = mockSetBackgroundArtUrls.mock.calls[0][0];
@@ -342,6 +346,8 @@ describe("useScryfallCardData", () => {
 
       useScryfallCardData(cardlists, options);
 
+      await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
       await nextTick();
       await vi.waitFor(() => mockSetBackgroundArtUrls.mock.calls.length > 0);
 
@@ -379,6 +385,8 @@ describe("useScryfallCardData", () => {
       useScryfallCardData(cardlists, options);
 
       await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
+      await nextTick();
       await vi.waitFor(() => mockSetBackgroundArtUrls.mock.calls.length > 0);
 
       expect(mockSetBackgroundArtUrls).toHaveBeenCalledWith([
@@ -406,6 +414,8 @@ describe("useScryfallCardData", () => {
 
       useScryfallCardData(cardlists, options);
 
+      await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
       await nextTick();
       await vi.waitFor(() => mockSetBackgroundArtUrls.mock.calls.length > 0);
 

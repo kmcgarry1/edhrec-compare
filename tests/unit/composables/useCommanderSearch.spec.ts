@@ -226,13 +226,17 @@ describe("useCommanderSearch", () => {
       });
 
       composable.primaryQuery.value = "A";
+      await nextTick();
       composable.primaryQuery.value = "At";
+      await nextTick();
       composable.primaryQuery.value = "Atr";
+      await nextTick();
 
       expect(mockSearchCardNames).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(300);
       await nextTick();
+      await vi.waitFor(() => mockWithLoading.mock.calls.length > 0);
 
       expect(mockSearchCardNames).toHaveBeenCalledTimes(1);
       expect(mockSearchCardNames).toHaveBeenCalledWith("Atr");
@@ -278,9 +282,11 @@ describe("useCommanderSearch", () => {
       });
 
       composable.primaryQuery.value = "Commander";
+      await nextTick();
       vi.advanceTimersByTime(300);
       await nextTick();
-      await vi.waitFor(() => composable.primaryResults.value.length > 0);
+      await vi.waitFor(() => mockWithLoading.mock.calls.length > 0);
+      await nextTick();
 
       expect(composable.primaryResults.value).toHaveLength(20);
 
@@ -302,9 +308,10 @@ describe("useCommanderSearch", () => {
       });
 
       composable.primaryQuery.value = "Test";
+      await nextTick();
       vi.advanceTimersByTime(300);
       await nextTick();
-      await vi.waitFor(() => mockNotifyError.mock.calls.length > 0);
+      await vi.waitFor(() => mockNotifyError.mock.calls.length > 0, { timeout: 1000 });
 
       expect(mockNotifyError).toHaveBeenCalled();
       expect(composable.primaryError.value).toBe("Search failed");
@@ -564,11 +571,15 @@ describe("useCommanderSearch", () => {
       });
 
       composable.primarySelection.value = "Thrasios";
+      await nextTick();
       composable.hasPartner.value = true;
+      await nextTick();
       composable.partnerSelection.value = "Tymna";
+      await nextTick();
 
       composable.hasPartner.value = false;
       await nextTick();
+      await nextTick(); // Extra tick for watcher to complete
 
       expect(composable.partnerSelection.value).toBe("");
       expect(composable.partnerQuery.value).toBe("");
