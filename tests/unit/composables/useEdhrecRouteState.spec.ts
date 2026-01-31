@@ -54,17 +54,17 @@ describe("useEdhrecRouteState", () => {
         params: {},
         query: {
           pageType: "average-decks",
-          bracket: "high",
+          bracket: "cedh",
           modifier: "budget",
           companion: "lurrus-companion",
         },
-        fullPath: "/?pageType=average-decks&bracket=high&modifier=budget&companion=lurrus-companion",
+        fullPath: "/?pageType=average-decks&bracket=cedh&modifier=budget&companion=lurrus-companion",
       };
 
       const composable = useEdhrecRouteState();
 
       expect(composable.chosenPageType.value).toBe("average-decks");
-      expect(composable.chosenBracket.value).toBe("high");
+      expect(composable.chosenBracket.value).toBe("cedh");
       expect(composable.chosenModifier.value).toBe("budget");
       expect(composable.chosenCompanion.value).toBe("lurrus-companion");
     });
@@ -112,11 +112,11 @@ describe("useEdhrecRouteState", () => {
       const composable = useEdhrecRouteState();
 
       composable.setCommanderSlug("atraxa-praetors-voice");
-      composable.setBracket("high");
+      composable.setBracket("cedh");
       composable.setCompanion("");
 
       expect(composable.commanderUrl.value).toBe(
-        "https://json.edhrec.com/pages/commanders/atraxa-praetors-voice/high.json"
+        "https://json.edhrec.com/pages/commanders/atraxa-praetors-voice/cedh.json"
       );
     });
 
@@ -267,15 +267,15 @@ describe("useEdhrecRouteState", () => {
     it("should include filters in route query", async () => {
       const composable = useEdhrecRouteState();
 
-      composable.setBracket("high");
-      composable.setModifier("cheap");
+      composable.setBracket("cedh");
+      composable.setModifier("budget");
       await nextTick();
 
       expect(mockPush).toHaveBeenCalledWith({
         name: "home",
         query: {
-          bracket: "high",
-          modifier: "cheap",
+          bracket: "cedh",
+          modifier: "budget",
         },
       });
     });
@@ -284,8 +284,8 @@ describe("useEdhrecRouteState", () => {
       mockRoute.value = {
         name: "commander",
         params: { slug: "atraxa-praetors-voice" },
-        query: { bracket: "high" },
-        fullPath: "/commander/atraxa-praetors-voice?bracket=high",
+        query: { bracket: "cedh" },
+        fullPath: "/commander/atraxa-praetors-voice?bracket=cedh",
       };
 
       const composable = useEdhrecRouteState();
@@ -307,8 +307,8 @@ describe("useEdhrecRouteState", () => {
       mockRoute.value = {
         name: "commander",
         params: { slug: "thrasios-triton-hero-tymna-the-weaver" },
-        query: { bracket: "high" },
-        fullPath: "/commander/thrasios-triton-hero-tymna-the-weaver?bracket=high",
+        query: { bracket: "cedh" },
+        fullPath: "/commander/thrasios-triton-hero-tymna-the-weaver?bracket=cedh",
       };
 
       // Manually trigger route change processing since we can't change fullPath reactively
@@ -324,7 +324,7 @@ describe("useEdhrecRouteState", () => {
       expect(composable2.currentCommanderSlug.value).toBe(
         "thrasios-triton-hero-tymna-the-weaver"
       );
-      expect(composable2.chosenBracket.value).toBe("high");
+      expect(composable2.chosenBracket.value).toBe("cedh");
     });
   });
 
@@ -372,9 +372,9 @@ describe("useEdhrecRouteState", () => {
     it("should batch multiple changes in single route update", async () => {
       const composable = useEdhrecRouteState();
 
-      composable.setBracket("high");
-      composable.setModifier("cheap");
-      composable.setCompanion("lurrus");
+      composable.setBracket("cedh");
+      composable.setModifier("budget");
+      composable.setCompanion("lurrus-companion");
       await nextTick();
 
       // Should have pushed only once with all changes
@@ -382,9 +382,9 @@ describe("useEdhrecRouteState", () => {
       expect(mockPush).toHaveBeenCalledWith({
         name: "home",
         query: {
-          bracket: "high",
-          modifier: "cheap",
-          companion: "lurrus",
+          bracket: "cedh",
+          modifier: "budget",
+          companion: "lurrus-companion",
         },
       });
     });
