@@ -277,7 +277,7 @@ describe("useScryfallCardPreview", () => {
       const card = ref(createMockCard());
       const composable = useScryfallCardPreview(card);
 
-      // Call openMobileModal equivalent behavior by triggering the row click 
+      // Call openMobileRowClick equivalent behavior by triggering the row click 
       // In test environment canHover may be true, so test the internal behavior instead
       // This tests the actual modal opening logic
       await composable.handleMobileRowClick();
@@ -300,18 +300,6 @@ describe("useScryfallCardPreview", () => {
 
       expect(composable.isMobileModalOpen.value).toBe(false);
       expect(composable.modalImageUrl.value).toBeNull();
-    });
-
-    it("should handle modal image load errors", async () => {
-      // This test is skipped because it depends on hover detection
-      // which requires proper window.matchMedia mocking
-      expect(true).toBe(true);
-    });
-
-    it("should store modal card data", async () => {
-      // This test is skipped because it depends on hover detection
-      // which requires proper window.matchMedia mocking
-      expect(true).toBe(true);
     });
   });
 
