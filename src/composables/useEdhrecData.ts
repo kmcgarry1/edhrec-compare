@@ -41,6 +41,7 @@ export const useEdhrecData = (url: Ref<string | null>) => {
   const refresh = () => {
     if (!url.value) {
       data.value = null;
+      error.value = null;
       return;
     }
     void fetchJsonData(url.value);
