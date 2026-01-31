@@ -154,19 +154,33 @@ const SCRYFALL_SYMBOLS_RESPONSE = {
   ],
 };
 
-const interceptNetwork = async (page: Page) => {
+const interceptNetwork = async (
+  page: Page,
+  options?: { topCommandersDelayMs?: number; colorCommandersDelayMs?: number }
+) => {
+  const delay = options?.topCommandersDelayMs ?? 0;
+  const colorDelay = options?.colorCommandersDelayMs ?? 0;
   // Mock EDHREC Top Commanders API
-  await page.route("**/json.edhrec.com/pages/commanders/year.json", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify(TOP_COMMANDERS_FIXTURE),
-    })
+  await page.route(
+    "**/json.edhrec.com/pages/commanders/year.json",
+    async (route) => {
+      if (delay > 0) {
+        await page.waitForTimeout(delay);
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(TOP_COMMANDERS_FIXTURE),
+      });
+    }
   );
 
   // Mock EDHREC color-filtered commanders
-  await page.route("**/json.edhrec.com/pages/commanders/*.json", (route) => {
+  await page.route("**/json.edhrec.com/pages/commanders/*.json", async (route) => {
     const url = route.request().url();
+    if (colorDelay > 0) {
+      await page.waitForTimeout(colorDelay);
+    }
     // Return filtered results based on URL
     if (url.includes("commanders/wb.json")) {
       route.fulfill({
@@ -317,19 +331,18 @@ test.describe("Top Commanders Page - Loading and Display", () => {
   });
 
   test("shows loading state while fetching commanders", async ({ page }) => {
-    // Create a delayed response
-    await page.route("**/json.edhrec.com/pages/commanders/year.json", async (route) => {
-      await page.waitForTimeout(500);
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(TOP_COMMANDERS_FIXTURE),
-      });
-    });
-
+    await interceptNetwork(page, { colorCommandersDelayMs: 500 });
     await page.goto("/top-commanders");
 
-    // Check for loading indicator
+    // Wait for initial load
+    await expect(page.getByText("Atraxa, Grand Unifier")).toBeVisible({ timeout: 10_000 });
+
+    // Trigger a filtered fetch to show loading state
+    const colorGroup = page.getByRole("group", { name: /Filter by color identity/i });
+    const colorButtons = colorGroup.getByRole("button");
+    await colorButtons.first().click();
+
+    // Check for loading indicator during filtered fetch
     await expect(page.getByText(/Loading top commanders/i)).toBeVisible();
 
     // Wait for content to appear

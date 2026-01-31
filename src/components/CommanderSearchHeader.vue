@@ -82,12 +82,7 @@ import {
 import { computed } from "vue";
 import CommanderSearch from "./CommanderSearch.vue";
 import Card from "./Card.vue";
-
-type SelectionState = {
-  primary: string;
-  partner: string;
-  hasPartner: boolean;
-};
+import type { CommanderSelection } from "../types/edhrec";
 
 const props = defineProps<{
   theme: string;
@@ -98,7 +93,7 @@ defineEmits<{
   "toggle-theme": [];
   "toggle-background": [];
   "commander-selected": [slug: string];
-  "selection-change": [SelectionState];
+  "selection-change": [CommanderSelection];
 }>();
 
 const theme = computed(() => props.theme);

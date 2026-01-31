@@ -12,42 +12,26 @@
     >
       Loading Scryfall data...
     </GlobalLoadingBanner>
-    <div class="space-y-4">
-      <CommanderSearch
-        ref="commanderSearchRef"
-        :selected-slug="currentCommanderSlug"
-        @commander-selected="handleCommanderSelection"
-        @selection-change="handleSelectionChange"
-      />
-      <Card padding="p-4 sm:p-5" class="space-y-3">
-        <CommanderFilters
-          :bracket="chosenBracket"
-          :modifier="chosenModifier"
-          :page-type="chosenPageType"
-          :companion="chosenCompanion"
-          @update:bracket="setBracket"
-          @update:modifier="setModifier"
-          @update:page-type="setPageType"
-          @update:companion="setCompanion"
-        />
-        <p class="text-xs text-[color:var(--muted)]">
-          Filters update the EDHREC source URL and sync to the current route.
-        </p>
-      </Card>
-    </div>
 
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div class="space-y-1">
-        <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">
-          Results
-        </p>
-        <h2 class="text-lg font-semibold text-[color:var(--text)]">Cardlists</h2>
-      </div>
-      <div class="flex flex-wrap items-center gap-3 text-xs text-[color:var(--muted)]">
-        <span>{{ cardlistSections.length }} lists</span>
-        <span>{{ totalCardCount }} cards</span>
-      </div>
-    </div>
+    <EdhrecControls
+      ref="controlsRef"
+      :selected-slug="currentCommanderSlug"
+      :bracket="chosenBracket"
+      :modifier="chosenModifier"
+      :page-type="chosenPageType"
+      :companion="chosenCompanion"
+      @commander-selected="handleCommanderSelection"
+      @selection-change="handleSelectionChange"
+      @update:bracket="setBracket"
+      @update:modifier="setModifier"
+      @update:page-type="setPageType"
+      @update:companion="setCompanion"
+    />
+
+    <EdhrecResultsHeader
+      :list-count="cardlistSections.length"
+      :card-count="totalCardCount"
+    />
 
     <Card
       v-if="error"
@@ -80,529 +64,74 @@
   </section>
 </template>
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
-import { requestCache } from "../api/requestCache";
-import {
-  EDHRECBracket,
-  EDHRECPageType,
-  EDHRECPageModifier,
-  EDHRECCompanion,
-} from "./helpers/enums";
-import {
-  Card,
-  CommanderSearch,
-  CommanderFilters,
-  CardlistSection,
-  GlobalLoadingBanner,
-  FloatingCardlistNav,
-  EdhrecEmptyState,
-} from ".";
-import { useGlobalLoading } from "../composables/useGlobalLoading";
-import { useCsvUpload } from "../composables/useCsvUpload";
-import { getCardlistIcon } from "./helpers/cardlistIconMap";
-import { useOwnedFilter } from "../composables/useOwnedFilter";
-import { downloadTextFile } from "../utils/downloadTextFile";
-import { handleError } from "../utils/errorHandler";
+import { computed, ref, watchEffect } from "vue";
+import { Card, CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
-import { useBackgroundArt } from "../composables/useBackgroundArt";
-import type { CardTableRow } from "../types/cards";
+import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
+import { useEdhrecData } from "../composables/useEdhrecData";
+import { useEdhrecCardlists } from "../composables/useEdhrecCardlists";
+import { useScryfallCardData } from "../composables/useScryfallCardData";
+import EdhrecControls from "./edhrec/EdhrecControls.vue";
+import EdhrecResultsHeader from "./edhrec/EdhrecResultsHeader.vue";
 import type { ColumnDefinition } from "./CardTable.vue";
-import CommanderSearchInstance from "./CommanderSearch.vue";
-import { buildFilterQuery, parseFilterQuery, type FilterRouteState } from "../utils/routeFilters";
-import {
-  buildCardNameSet,
-  cardNameVariants,
-  getNameColumnIndex,
-  normalizeCardName,
-} from "../utils/cardName";
-
-interface EdhrecData {
-  container?: {
-    json_dict?: {
-      cardlists?: {
-        header: string;
-        cardviews: { id: string; name: string }[];
-      }[];
-    };
-  };
-}
-
-const data = ref<EdhrecData | null>(null);
-const error = ref<string | null>(null);
-const commanderSearchRef = ref<InstanceType<typeof CommanderSearchInstance> | null>(null);
-
-const route = useRoute();
-const router = useRouter();
-
-const { showOwned } = useOwnedFilter();
-
-type DecklistSection = {
-  id: string;
-  label: string;
-  text: string;
-};
-
-type DecklistPayload = {
-  text: string;
-  filterLabel: string;
-  sections: DecklistSection[];
-};
-
-type CommanderSelection = {
-  primary: string;
-  partner: string;
-  hasPartner: boolean;
-};
+import type { CommanderSelection, DecklistPayload } from "../types/edhrec";
 
 const emit = defineEmits<{
   decklistUpdate: [payload: DecklistPayload];
   "selection-change": [payload: CommanderSelection];
 }>();
-const chosenPageType = ref<string>(EDHRECPageType.COMMANDER.value);
-const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
-const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
-const chosenCompanion = ref<string>(EDHRECCompanion.NONE.value);
-const setBracket = (value: string | number) => {
-  chosenBracket.value = String(value);
-};
-const setModifier = (value: string | number) => {
-  chosenModifier.value = String(value);
-};
-const setPageType = (value: string | number) => {
-  chosenPageType.value = String(value);
-};
-const setCompanion = (value: string | number) => {
-  chosenCompanion.value = String(value);
-};
 
-const filterState = computed<FilterRouteState>(() => ({
-  pageType: chosenPageType.value,
-  bracket: chosenBracket.value,
-  modifier: chosenModifier.value,
-  companion: chosenCompanion.value,
-}));
-
-const { withLoading, getScopeLoading } = useGlobalLoading();
-const readerScope = "edhrec-reader";
-const bulkCardScope = "scryfall-bulk";
-const readerLoading = getScopeLoading(readerScope);
-const bulkCardsLoading = getScopeLoading(bulkCardScope);
 const { spacing } = useLayoutDensity();
-const { setBackgroundArtUrls } = useBackgroundArt();
 
-const fetchJsonData = async (url: string) => {
-  error.value = null;
+const controlsRef = ref<InstanceType<typeof EdhrecControls> | null>(null);
 
-  await withLoading(
-    async () => {
-      // Deduplicate EDHREC requests by URL
-      await requestCache.dedupe(`edhrec:${url}`, async () => {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          data.value = await response.json();
-        } catch (err) {
-          const handled = handleError(err, {
-            notify: true,
-            fallbackMessage: "Unable to fetch commander data from EDHREC.",
-            context: "EDHREC request failed",
-          });
-          error.value = handled.userMessage;
-        }
-      });
-    },
-    "Fetching commander data...",
-    readerScope
-  );
-};
+const {
+  chosenPageType,
+  chosenBracket,
+  chosenModifier,
+  chosenCompanion,
+  currentCommanderSlug,
+  commanderUrl,
+  setCommanderSlug,
+  setBracket,
+  setModifier,
+  setPageType,
+  setCompanion,
+} = useEdhrecRouteState();
 
-const cardlists = computed(() => data.value?.container?.json_dict?.cardlists || []);
-const totalCardCount = computed(() =>
-  cardlists.value.reduce((total, cardlist) => total + cardlist.cardviews.length, 0)
-);
+const { cardlists, error, totalCardCount, readerLoading } = useEdhrecData(commanderUrl);
 
-const slugifyHeader = (value: string, index: number) => {
-  const base = (value || `section-${index + 1}`)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-  return base.length ? base : `section-${index + 1}`;
-};
-
-const cardlistSections = computed(() =>
-  cardlists.value.map((cardlist, index) => {
-    const id = slugifyHeader(cardlist.header, index);
-    const iconConfig = getCardlistIcon(id);
-    return {
-      id,
-      label: cardlist.header || `Cardlist ${index + 1}`,
-      iconPath: iconConfig?.path,
-      iconColor: iconConfig?.color,
-    };
-  })
-);
-
-const activeSectionId = ref<string>("");
-const decklistCopySectionId = ref<string | null>(null);
-let decklistCopyResetHandle: ReturnType<typeof setTimeout> | null = null;
-
-let scrollListener: (() => void) | null = null;
-
-const updateActiveSectionFromScroll = () => {
-  if (typeof window === "undefined" || !cardlistSections.value.length) {
-    activeSectionId.value = "";
-    return;
-  }
-  const scrollPosition = window.scrollY + 120;
-  let currentId = cardlistSections.value[0]?.id ?? "";
-
-  for (const section of cardlistSections.value) {
-    const el = document.getElementById(section.id);
-    if (!el) {
-      continue;
-    }
-    if (el.offsetTop <= scrollPosition) {
-      currentId = section.id;
-    } else {
-      break;
-    }
-  }
-
-  activeSectionId.value = currentId;
-};
-
-const detachScrollListener = () => {
-  if (scrollListener && typeof window !== "undefined") {
-    window.removeEventListener("scroll", scrollListener);
-    scrollListener = null;
-  }
-};
-
-const attachScrollListener = () => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  detachScrollListener();
-  scrollListener = () => {
-    window.requestAnimationFrame(updateActiveSectionFromScroll);
-  };
-  window.addEventListener("scroll", scrollListener, { passive: true });
-  updateActiveSectionFromScroll();
-};
-
-watch(
+const {
   cardlistSections,
-  (sections) => {
-    nextTick(() => {
-      if (!sections.length) {
-        activeSectionId.value = "";
-        detachScrollListener();
-        return;
-      }
-      attachScrollListener();
-    });
-  },
-  { immediate: true }
-);
+  cardlistEntries,
+  decklistPayload,
+  decklistCopySectionId,
+  activeSectionId,
+  scrollToSection,
+  filterCardviews,
+  isCardInUpload,
+  handleCopyDecklist,
+  handleDownloadDecklist,
+} = useEdhrecCardlists(cardlists);
 
-onBeforeUnmount(() => {
-  detachScrollListener();
-  clearDecklistCopyState();
+const { bulkCardsLoading, getTableRows } = useScryfallCardData(cardlists, {
+  filterCardviews,
+  isCardInUpload,
 });
-
-const scrollToSection = (id: string) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-  const el = document.getElementById(id);
-  if (!el) {
-    return;
-  }
-  const offset = 80;
-  const targetTop = el.getBoundingClientRect().top + window.scrollY - offset;
-  window.scrollTo({
-    top: targetTop,
-    behavior: "smooth",
-  });
-};
-
-const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
-
-const uploadedNameIndex = computed(() => {
-  return getNameColumnIndex(uploadedHeaders.value);
-});
-
-const uploadedCardNameSet = computed(() => {
-  if (!uploadedRows.value.length) {
-    return new Set<string>();
-  }
-  return buildCardNameSet(uploadedRows.value, uploadedNameIndex.value);
-});
-
-const isCardInUpload = (cardName: string) => {
-  if (!cardName) {
-    return false;
-  }
-
-  return cardNameVariants(cardName).some((variant) => uploadedCardNameSet.value.has(variant));
-};
-
-const edhrecUrlPrefix = "https://json.edhrec.com/pages/";
-const edhrecUrlSuffix = ".json";
-const currentCommanderSlug = ref<string | null>(null);
-
-const setRefValue = <T,>(target: { value: T }, value: T) => {
-  if (target.value !== value) {
-    target.value = value;
-  }
-};
-
-const buildCommanderUrl = (slug: string | null | undefined) => {
-  if (!slug) {
-    return null;
-  }
-  const segments = [chosenPageType.value, slug];
-  if (chosenBracket.value) {
-    segments.push(chosenBracket.value);
-  }
-  if (chosenCompanion.value && chosenCompanion.value !== EDHRECCompanion.NONE.value) {
-    segments.push(chosenCompanion.value);
-  }
-  if (chosenModifier.value) {
-    segments.push(chosenModifier.value);
-  }
-
-  return `${edhrecUrlPrefix}${segments.join("/")}${edhrecUrlSuffix}`;
-};
-
-const applyRouteState = () => {
-  const filters = parseFilterQuery(route.query);
-  setRefValue(chosenPageType, filters.pageType);
-  setRefValue(chosenBracket, filters.bracket);
-  setRefValue(chosenModifier, filters.modifier);
-  setRefValue(chosenCompanion, filters.companion);
-
-  const slugParam =
-    typeof route.params.slug === "string" && route.params.slug.length > 0
-      ? route.params.slug
-      : null;
-  setRefValue(currentCommanderSlug, slugParam);
-};
-
-let hasHydratedFromRoute = false;
-
-applyRouteState();
-hasHydratedFromRoute = true;
-
-watch(
-  () => route.fullPath,
-  () => {
-    applyRouteState();
-  }
-);
 
 const handleCommanderSelection = (slug: string) => {
-  if (!slug) {
-    currentCommanderSlug.value = null;
-    data.value = null;
-    return;
-  }
-  currentCommanderSlug.value = slug;
+  setCommanderSlug(slug);
 };
 
 const handleSelectionChange = (payload: CommanderSelection) => {
   emit("selection-change", payload);
 };
 
-const refreshCommanderData = () => {
-  const url = buildCommanderUrl(currentCommanderSlug.value);
-  if (!url) {
-    data.value = null;
-    return;
-  }
-  fetchJsonData(url);
-};
-
-const areQueriesEqual = (existing: Record<string, string>, target: Record<string, string>) => {
-  const existingKeys = Object.keys(existing);
-  const targetKeys = Object.keys(target);
-  if (existingKeys.length !== targetKeys.length) {
-    return false;
-  }
-
-  return targetKeys.every((key) => existing[key] === target[key]);
-};
-
-const updateRouteFromState = () => {
-  if (!hasHydratedFromRoute) {
-    return;
-  }
-
-  const targetQuery = buildFilterQuery(filterState.value);
-  const canonicalRouteQuery = buildFilterQuery(parseFilterQuery(route.query));
-  const targetSlug = currentCommanderSlug.value;
-  const currentSlug = typeof route.params.slug === "string" ? route.params.slug : null;
-
-  const targetRoute = targetSlug
-    ? { name: "commander", params: { slug: targetSlug }, query: targetQuery }
-    : { name: "home", query: targetQuery };
-
-  const isSameRoute =
-    route.name === targetRoute.name &&
-    currentSlug === (targetSlug ?? null) &&
-    areQueriesEqual(canonicalRouteQuery, targetQuery);
-
-  if (isSameRoute) {
-    return;
-  }
-
-  void router.push(targetRoute);
-};
-
-watch(
-  [currentCommanderSlug, chosenPageType, chosenBracket, chosenModifier, chosenCompanion],
-  () => {
-    refreshCommanderData();
-    updateRouteFromState();
-  },
-  { immediate: true }
-);
-const filteredCards = (cardviews: { id: string; name: string }[]) => {
-  if (showOwned.value === null) return cardviews;
-  return cardviews.filter((card) => isCardInUpload(card.name) === showOwned.value);
-};
-
-const getDeckFilterLabel = () => {
-  if (showOwned.value === true) {
-    return "Owned cards";
-  }
-  if (showOwned.value === false) {
-    return "Unowned cards";
-  }
-  return "All cards";
-};
-
-const buildDecklistText = (
-  cardlist: { header: string; cardviews: { id: string; name: string }[] },
-  _sectionMeta?: { id: string; label: string }
-) => {
-  const cards = filteredCards(cardlist.cardviews);
-  if (cards.length === 0) {
-    return "";
-  }
-  return cards.map((card) => `1 ${card.name}`).join("\n");
-};
-
-const cardlistDecklists = computed(() =>
-  cardlists.value.map((cardlist, index) =>
-    buildDecklistText(cardlist, cardlistSections.value[index])
-  )
-);
-
-const cardlistEntries = computed(() =>
-  cardlists.value.map((cardlist, index) => {
-    const sectionMeta = cardlistSections.value[index] ?? null;
-    return {
-      key: sectionMeta?.id ?? `${index}`,
-      cardlist,
-      sectionMeta,
-      decklistText: cardlistDecklists.value[index] ?? "",
-      index,
-    };
-  })
-);
-
-const clearDecklistCopyState = () => {
-  if (decklistCopyResetHandle) {
-    clearTimeout(decklistCopyResetHandle);
-    decklistCopyResetHandle = null;
-  }
-  decklistCopySectionId.value = null;
-};
-
-const buildDecklistPayload = (): DecklistPayload | null => {
-  if (!cardlists.value.length) {
-    return null;
-  }
-  const sections: DecklistSection[] = cardlists.value.map((cardlist, index) => {
-    const sectionMeta = cardlistSections.value[index];
-    const text = cardlistDecklists.value[index] ?? "";
-    return {
-      id: sectionMeta?.id ?? slugifyHeader(cardlist.header, index),
-      label: sectionMeta?.label ?? cardlist.header ?? `Cardlist ${index + 1}`,
-      text,
-    };
-  });
-  const nonEmpty = sections.filter((section) => section.text.length > 0);
-  const text = nonEmpty.map((section) => section.text).join("\n\n");
-  return {
-    text,
-    filterLabel: getDeckFilterLabel(),
-    sections,
-  };
-};
-
 watchEffect(() => {
-  const payload = buildDecklistPayload();
-  if (payload) {
-    emit("decklistUpdate", payload);
+  if (decklistPayload.value) {
+    emit("decklistUpdate", decklistPayload.value);
   }
 });
-
-const handleCopyDecklist = async (
-  cardlist: { header: string; cardviews: { id: string; name: string }[] },
-  index: number
-) => {
-  const text = cardlistDecklists.value[index] ?? "";
-  if (!text) {
-    return;
-  }
-  if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
-    console.warn("Clipboard API is unavailable in this environment.");
-    return;
-  }
-  const sectionMeta = cardlistSections.value[index];
-  try {
-    clearDecklistCopyState();
-    decklistCopySectionId.value = sectionMeta?.id ?? slugifyHeader(cardlist.header, index);
-    await navigator.clipboard.writeText(text);
-    decklistCopyResetHandle = setTimeout(() => {
-      decklistCopySectionId.value = null;
-      decklistCopyResetHandle = null;
-    }, 1600);
-  } catch (error) {
-    handleError(error, {
-      notify: true,
-      fallbackMessage: "Unable to copy the decklist to your clipboard.",
-      context: "Decklist copy",
-    });
-  }
-};
-
-const handleDownloadDecklist = (
-  cardlist: { header: string; cardviews: { id: string; name: string }[] },
-  index: number
-) => {
-  const sectionMeta = cardlistSections.value[index];
-  const text = cardlistDecklists.value[index] ?? "";
-  if (!text) {
-    return;
-  }
-  const filename = `${sectionMeta?.id ?? slugifyHeader(cardlist.header, index)}.txt`;
-  try {
-    downloadTextFile(text, filename);
-  } catch (error) {
-    handleError(error, {
-      notify: true,
-      fallbackMessage: "Unable to download the decklist file.",
-      context: "Decklist download",
-    });
-  }
-};
 
 const popularCommanders = [
   { name: "Atraxa, Grand Unifier" },
@@ -621,84 +150,8 @@ const showEmptyState = computed(
 );
 
 const selectSuggestedCommander = (name: string) => {
-  commanderSearchRef.value?.selectPrimaryCommander(name);
+  controlsRef.value?.selectPrimaryCommander(name);
 };
-
-const allCards = computed(() => {
-  const cards: { name: string }[] = [];
-  cardlists.value.forEach((cardlist) => {
-    cardlist.cardviews.forEach((card) => {
-      cards.push({ name: card.name });
-    });
-  });
-  return cards;
-});
-
-const scryfallCardData = ref<ScryfallCard[]>([]);
-const scryfallIndex = computed(() => {
-  const map = new Map<string, ScryfallCard>();
-  scryfallCardData.value.forEach((card) => {
-    const normalizedFullName = normalizeCardName(card.name);
-    if (normalizedFullName) {
-      map.set(normalizedFullName, card);
-    }
-
-    card.card_faces?.forEach((face) => {
-      const normalizedFaceName = normalizeCardName(face.name);
-      if (normalizedFaceName && !map.has(normalizedFaceName)) {
-        map.set(normalizedFaceName, card);
-      }
-    });
-  });
-  return map;
-});
-
-const BACKGROUND_ART_LIMIT = 8;
-const resolveArtUrl = (card: ScryfallCard) => {
-  if (card.image_uris?.art_crop) {
-    return card.image_uris.art_crop;
-  }
-  if (card.image_uris?.large) {
-    return card.image_uris.large;
-  }
-  if (card.image_uris?.normal) {
-    return card.image_uris.normal;
-  }
-  const faceWithArt = card.card_faces?.find(
-    (face) => face.image_uris?.art_crop || face.image_uris?.large || face.image_uris?.normal
-  );
-  return (
-    faceWithArt?.image_uris?.art_crop ??
-    faceWithArt?.image_uris?.large ??
-    faceWithArt?.image_uris?.normal ??
-    null
-  );
-};
-
-const backgroundArtUrls = computed(() => {
-  const urls: string[] = [];
-  const seen = new Set<string>();
-  for (const card of scryfallCardData.value) {
-    const url = resolveArtUrl(card);
-    if (!url || seen.has(url)) {
-      continue;
-    }
-    seen.add(url);
-    urls.push(url);
-    if (urls.length >= BACKGROUND_ART_LIMIT) {
-      break;
-    }
-  }
-  return urls;
-});
-
-watch(
-  backgroundArtUrls,
-  (urls) => {
-    setBackgroundArtUrls(urls);
-  },
-  { immediate: true }
-);
 
 const cardTableColumns: ColumnDefinition[] = [
   { key: "owned", label: "Owned", align: "center", class: "w-14" },
@@ -710,110 +163,4 @@ const cardTableColumns: ColumnDefinition[] = [
   { key: "usd", label: "USD", align: "right", class: "w-20" },
   { key: "eur", label: "EUR", align: "right", class: "w-20" },
 ];
-
-const fetchAllCardData = async () => {
-  if (allCards.value.length === 0) {
-    scryfallCardData.value = [];
-    return;
-  }
-
-  const batchSize = 75;
-  const totalBatches = Math.ceil(allCards.value.length / batchSize);
-
-  await withLoading(
-    async () => {
-      const scryfallData = await getCardsByNames(allCards.value, (current, _total) => {
-        const { updateProgress } = useGlobalLoading();
-        updateProgress(bulkCardScope, current);
-      }).catch(() => null);
-      if (scryfallData) {
-        scryfallCardData.value = scryfallData;
-      }
-    },
-    "Fetching detailed card data...",
-    bulkCardScope,
-    totalBatches
-  );
-};
-
-watch(allCards, fetchAllCardData, { immediate: true });
-
-const getTableRows = (cardlist: {
-  header: string;
-  cardviews: { id: string; name: string }[];
-}): CardTableRow[] =>
-  filteredCards(cardlist.cardviews).map((cardview) => {
-    const info = scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
-    const requestedNames = cardview.name.split("//").map((n) => n.trim());
-    type CardFace = NonNullable<ScryfallCard["card_faces"]>[number];
-    const faces: CardFace[] = info?.card_faces ?? [];
-    const matchedFace = faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
-    const statsSource = matchedFace ?? info;
-    const displayName = requestedNames.length > 1 ? cardview.name : (info?.name ?? cardview.name);
-
-    return {
-      id: info?.id ?? `${cardlist.header}-${cardview.id}`,
-      have: isCardInUpload(cardview.name),
-      card: {
-        id: info?.id ?? `${cardlist.header}-${cardview.id}`,
-        name: displayName,
-        mana_cost: statsSource?.mana_cost ?? "",
-        type_line: statsSource?.type_line ?? "",
-        power: statsSource?.power ?? null,
-        toughness: statsSource?.toughness ?? null,
-        set: info?.set ?? "",
-        rarity: info?.rarity ?? "",
-        prices: {
-          usd: info?.prices?.usd ?? null,
-          eur: info?.prices?.eur ?? null,
-        },
-        scryfall_uri: info?.scryfall_uri,
-        faces:
-          faces.length > 1
-            ? faces.map((face) => ({
-                name: face.name,
-                mana_cost: face.mana_cost,
-                type_line: face.type_line,
-              }))
-            : undefined,
-      },
-    };
-  });
-
-onMounted(() => {
-  // No default fetch; wait for explicit commander selection.
-});
-
-const __templateBindings = {
-  FloatingCardlistNav,
-  cardlistSections,
-  activeSectionId,
-  scrollToSection,
-  Card,
-  error,
-  GlobalLoadingBanner,
-  readerLoading,
-  CommanderSearch,
-  handleCommanderSelection,
-  CommanderFilters,
-  chosenBracket,
-  chosenModifier,
-  chosenPageType,
-  chosenCompanion,
-  setBracket,
-  setModifier,
-  setPageType,
-  setCompanion,
-  CardlistSection,
-  totalCardCount,
-  cardlists,
-  getTableRows,
-  cardTableColumns,
-  cardlistDecklists,
-  cardlistEntries,
-  decklistCopySectionId,
-  handleCopyDecklist,
-  handleDownloadDecklist,
-};
-void __templateBindings;
 </script>

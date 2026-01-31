@@ -24,7 +24,7 @@
 
 import { readonly, ref } from "vue";
 
-type Theme = "light" | "dark";
+export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "edhrec-color-scheme";
 const theme = ref<Theme>("light");

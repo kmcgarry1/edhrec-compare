@@ -100,6 +100,40 @@ setOwnedFilter(false); // Show only unowned cards
 setOwnedFilter(null); // Show all cards
 ```
 
+#### `useCommanderSearch.ts`
+
+Encapsulates commander search state (primary/partner), autocomplete queries,
+selection management, and mana cost lookups.
+
+#### `useTopCommandersData.ts`
+
+Fetches the EDHREC top commanders list and owns paging/sorting state.
+
+#### `useTopCommanderImages.ts`
+
+Loads commander images and color identities from Scryfall, with partner-aware
+stacked image helpers.
+
+#### `useTopCommanderFilters.ts`
+
+Manages color identity filters and resolves EDHREC list paths for the selected
+colors.
+
+#### `useScryfallCardMeta.ts`
+
+Derives display-ready card metadata (names, types, mana, rarity badges) and
+mana symbol rendering for Scryfall cards.
+
+#### `useScryfallCardPreview.ts`
+
+Handles hover previews and mobile modal previews for Scryfall cards, including
+image caching and pointer interaction logic.
+
+#### `useScryfallCardRowStyles.ts`
+
+Builds responsive row and table cell class names based on density and owned
+state.
+
 ### External Data
 
 #### `useScryfallSymbols.ts`
@@ -113,6 +147,28 @@ const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
 await ensureSymbolsLoaded();
 const whiteManaSvg = getSvgForSymbol("{W}");
 ```
+
+### Feature Modules
+
+#### `useEdhrecRouteState.ts`
+
+Keeps EDHREC filter state in sync with route params and query strings. Builds the
+current EDHREC JSON URL based on commander selection and filter state.
+
+#### `useEdhrecData.ts`
+
+Fetches EDHREC cardlists with request deduplication and scoped loading state.
+Exposes parsed cardlists and total card counts.
+
+#### `useEdhrecCardlists.ts`
+
+Builds cardlist sections, decklist export payloads, ownership filtering helpers,
+and scroll tracking for the cardlist nav.
+
+#### `useScryfallCardData.ts`
+
+Batch-fetches Scryfall data, builds table rows for cardlists, and keeps the
+background art selection in sync with fetched cards.
 
 ### Accessibility
 
