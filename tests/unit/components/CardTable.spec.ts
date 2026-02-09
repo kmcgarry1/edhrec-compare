@@ -124,7 +124,8 @@ describe("CardTable", () => {
           type: "Creature",
         })),
         rowKey: "id",
-        virtual: false,
+        virtual: true,
+        virtualMaxHeight: 200,
       },
     });
 
