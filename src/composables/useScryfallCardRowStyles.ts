@@ -52,13 +52,23 @@ export const useScryfallCardRowStyles = (
   });
 
   const tableRowClass = computed(() => {
+    const heightClass = (() => {
+      switch (density.value) {
+        case "compact":
+          return "h-12";
+        case "cozy":
+          return "h-[52px]";
+        default:
+          return "h-14";
+      }
+    })();
     const base = have.value
       ? "bg-[color:var(--accent-soft)] text-[color:var(--text)]"
       : "bg-[color:var(--surface)] text-[color:var(--text)]";
     const hover = have.value
       ? "hover:bg-[color:var(--accent-soft)]"
       : "hover:bg-[color:var(--surface-muted)]";
-    return `transition-colors ${base} ${hover}`;
+    return `transition-colors ${base} ${hover} ${heightClass}`;
   });
 
   return {

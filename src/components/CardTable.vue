@@ -4,7 +4,7 @@
       ref="scrollParent"
       :class="[
         'overflow-x-auto',
-        virtualEnabled ? 'overflow-y-auto' : '',
+        containerVirtualEnabled ? 'overflow-y-auto' : '',
       ]"
       :style="virtualContainerStyle"
     >
@@ -33,7 +33,7 @@
         </thead>
         <tbody class="divide-y divide-[color:var(--border)]">
           <template v-if="$slots.default">
-            <template v-if="virtualEnabled">
+            <template v-if="containerVirtualEnabled">
               <tr
                 v-if="virtualPaddingTop"
                 aria-hidden="true"
@@ -59,15 +59,23 @@
             </template>
             <template v-else>
               <slot
-                v-for="(row, index) in rows"
+                v-for="(row, index) in rowsToRender"
                 :key="resolveRowKey(row, index)"
                 :row="row"
                 :index="index"
               />
+              <tr
+                v-if="showLoadMoreRow"
+                ref="loadMoreRef"
+                aria-hidden="true"
+                class="h-px border-0 p-0"
+              >
+                <td :colspan="columns.length" class="border-0 p-0"></td>
+              </tr>
             </template>
           </template>
           <template v-else>
-            <template v-if="virtualEnabled">
+            <template v-if="containerVirtualEnabled">
               <tr
                 v-if="virtualPaddingTop"
                 aria-hidden="true"
@@ -104,7 +112,7 @@
             </template>
             <template v-else>
               <tr
-                v-for="(row, index) in rows"
+                v-for="(row, index) in rowsToRender"
                 :key="resolveRowKey(row, index)"
                 class="bg-[color:var(--surface)] even:bg-[color:var(--surface-muted)] hover:bg-[color:var(--accent-soft)] transition-colors"
               >
@@ -119,6 +127,14 @@
                 >
                   {{ row[column.key as keyof typeof row] }}
                 </td>
+              </tr>
+              <tr
+                v-if="showLoadMoreRow"
+                ref="loadMoreRef"
+                aria-hidden="true"
+                class="h-px border-0 p-0"
+              >
+                <td :colspan="columns.length" class="border-0 p-0"></td>
               </tr>
             </template>
           </template>
@@ -164,6 +180,7 @@ const props = withDefaults(
     virtualOverscan?: number;
     virtualMaxHeight?: number | string;
     virtualTriggerCount?: number;
+    scrollMode?: "container" | "page";
   }>(),
   {
     tableClass: "",
@@ -172,6 +189,7 @@ const props = withDefaults(
     virtualOverscan: 8,
     virtualMaxHeight: "70vh",
     virtualTriggerCount: 80,
+    scrollMode: "container",
   }
 );
 
@@ -219,6 +237,8 @@ const resolveRowKey = (
 };
 
 const scrollParent = ref<HTMLElement | null>(null);
+const loadMoreRef = ref<HTMLElement | null>(null);
+let loadMoreObserver: IntersectionObserver | null = null;
 
 const virtualEnabled = computed(() => {
   if (typeof props.virtual === "boolean") {
@@ -227,19 +247,30 @@ const virtualEnabled = computed(() => {
   return props.rows.length >= props.virtualTriggerCount;
 });
 
-const virtualizer = useVirtualizer(
+const useWindowScroll = computed(() => props.scrollMode === "page");
+const containerVirtualEnabled = computed(
+  () => virtualEnabled.value && !useWindowScroll.value
+);
+const progressiveEnabled = computed(
+  () =>
+    useWindowScroll.value &&
+    virtualEnabled.value &&
+    props.rows.length >= props.virtualTriggerCount
+);
+
+const elementVirtualizer = useVirtualizer(
   computed(() => ({
     count: props.rows.length,
     getScrollElement: () => scrollParent.value,
     estimateSize: () => props.virtualItemSize,
     overscan: props.virtualOverscan,
     getItemKey: (index) => resolveRowKey(props.rows[index], index),
-    enabled: virtualEnabled.value,
+    enabled: containerVirtualEnabled.value,
   }))
 );
 
 const virtualItems = computed(() =>
-  virtualEnabled.value ? virtualizer.value.getVirtualItems() : []
+  containerVirtualEnabled.value ? elementVirtualizer.value.getVirtualItems() : []
 );
 
 const virtualPaddingTop = computed(() => virtualItems.value[0]?.start ?? 0);
@@ -252,11 +283,11 @@ const virtualPaddingBottom = computed(() => {
   if (!last) {
     return 0;
   }
-  return Math.max(virtualizer.value.getTotalSize() - last.end, 0);
+  return Math.max(elementVirtualizer.value.getTotalSize() - last.end, 0);
 });
 
 const virtualContainerStyle = computed(() => {
-  if (!virtualEnabled.value) {
+  if (!containerVirtualEnabled.value) {
     return undefined;
   }
   const maxHeight =
@@ -288,10 +319,27 @@ const showTopShadow = ref(false);
 const showBottomShadow = ref(false);
 
 const totalVirtualHeight = computed(() =>
-  virtualEnabled.value ? virtualizer.value.getTotalSize() : null
+  containerVirtualEnabled.value ? elementVirtualizer.value.getTotalSize() : null
 );
 
+const attachScrollListener = () => {
+  const el = scrollParent.value;
+  if (!el) {
+    return;
+  }
+  el.addEventListener("scroll", updateShadows, { passive: true });
+};
+
+const detachScrollListener = () => {
+  scrollParent.value?.removeEventListener("scroll", updateShadows);
+};
+
 const updateShadows = () => {
+  if (!containerVirtualEnabled.value) {
+    showTopShadow.value = false;
+    showBottomShadow.value = false;
+    return;
+  }
   const el = scrollParent.value;
   if (!el) {
     showTopShadow.value = false;
@@ -313,23 +361,121 @@ const updateShadows = () => {
   showBottomShadow.value = remaining > 2;
 };
 
-onMounted(() => {
-  const el = scrollParent.value;
-  if (el) {
-    el.addEventListener("scroll", updateShadows, { passive: true });
+const progressiveLimit = ref(0);
+const progressiveChunkSize = computed(() =>
+  Math.max(20, Math.round(props.virtualTriggerCount / 2))
+);
+
+const rowsToRender = computed(() => {
+  if (!progressiveEnabled.value) {
+    return props.rows;
   }
-  nextTick(updateShadows);
+  return props.rows.slice(0, progressiveLimit.value);
+});
+
+const showLoadMoreRow = computed(
+  () => progressiveEnabled.value && progressiveLimit.value < props.rows.length
+);
+
+const resetProgressiveLimit = () => {
+  if (!progressiveEnabled.value) {
+    progressiveLimit.value = props.rows.length;
+    return;
+  }
+  progressiveLimit.value = Math.min(props.virtualTriggerCount, props.rows.length);
+};
+
+const loadMoreRows = () => {
+  if (!progressiveEnabled.value) {
+    return;
+  }
+  const nextLimit = Math.min(
+    props.rows.length,
+    progressiveLimit.value + progressiveChunkSize.value
+  );
+  if (nextLimit !== progressiveLimit.value) {
+    progressiveLimit.value = nextLimit;
+  }
+};
+
+const cleanupLoadMoreObserver = () => {
+  if (loadMoreObserver) {
+    loadMoreObserver.disconnect();
+    loadMoreObserver = null;
+  }
+};
+
+const setupLoadMoreObserver = () => {
+  if (
+    !showLoadMoreRow.value ||
+    typeof window === "undefined" ||
+    !loadMoreRef.value
+  ) {
+    cleanupLoadMoreObserver();
+    return;
+  }
+  cleanupLoadMoreObserver();
+  loadMoreObserver = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadMoreRows();
+      }
+    },
+    { root: null, rootMargin: "400px 0px", threshold: 0.01 }
+  );
+  loadMoreObserver.observe(loadMoreRef.value);
+};
+
+onMounted(() => {
+  if (containerVirtualEnabled.value) {
+    attachScrollListener();
+  }
+  nextTick(() => {
+    updateShadows();
+    setupLoadMoreObserver();
+  });
 });
 
 onUnmounted(() => {
-  scrollParent.value?.removeEventListener("scroll", updateShadows);
+  detachScrollListener();
+  cleanupLoadMoreObserver();
 });
 
-watch([virtualItems, () => props.rows.length, virtualEnabled], () => {
-  nextTick(updateShadows);
+watch(
+  [virtualItems, () => props.rows.length, containerVirtualEnabled],
+  () => {
+    nextTick(updateShadows);
+  }
+);
+
+watch([progressiveEnabled, () => props.rows.length], () => {
+  resetProgressiveLimit();
+  nextTick(setupLoadMoreObserver);
 });
 
 watch(totalVirtualHeight, () => {
   nextTick(updateShadows);
 });
+
+watch(containerVirtualEnabled, (enabled) => {
+  if (enabled) {
+    nextTick(() => {
+      attachScrollListener();
+      updateShadows();
+    });
+  } else {
+    detachScrollListener();
+    updateShadows();
+  }
+});
+
+watch(showLoadMoreRow, () => {
+  nextTick(setupLoadMoreObserver);
+});
+
+watch(loadMoreRef, () => {
+  nextTick(setupLoadMoreObserver);
+});
+
+resetProgressiveLimit();
 </script>

@@ -176,11 +176,11 @@ const ownedSegments = computed(() => {
 const virtualRowSize = computed(() => {
   switch (density.value) {
     case "compact":
-      return 58;
+      return 49;
     case "cozy":
-      return 66;
+      return 53;
     default:
-      return 76;
+      return 57;
   }
 });
 

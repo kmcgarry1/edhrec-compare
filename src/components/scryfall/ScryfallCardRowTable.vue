@@ -22,16 +22,22 @@
       />
     </td>
     <td :class="tableCellClasses.name">
-      <div class="name-clamp max-w-[clamp(16rem,40vw,32rem)]" :title="cardName">
-        <template v-if="hasSplitName">
-          <span class="block leading-snug">{{ primaryName }}</span>
-          <span class="block text-xs leading-snug text-[color:var(--muted)]">
-            {{ secondaryName }}
-          </span>
-        </template>
-        <span v-else class="block leading-snug">
-          {{ cardName }}
+      <div
+        v-if="hasSplitName"
+        class="name-clamp max-w-[clamp(16rem,40vw,32rem)]"
+        :title="cardName"
+      >
+        <span class="block leading-snug">{{ primaryName }}</span>
+        <span class="block text-xs leading-snug text-[color:var(--muted)]">
+          {{ secondaryName }}
         </span>
+      </div>
+      <div
+        v-else
+        class="flex h-full max-w-[clamp(16rem,40vw,32rem)] items-center"
+        :title="cardName"
+      >
+        <span class="block truncate leading-snug">{{ cardName }}</span>
       </div>
     </td>
     <td :class="tableCellClasses.mana">
