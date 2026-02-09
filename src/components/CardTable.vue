@@ -252,7 +252,10 @@ const containerVirtualEnabled = computed(
   () => virtualEnabled.value && !useWindowScroll.value
 );
 const progressiveEnabled = computed(
-  () => useWindowScroll.value && props.rows.length >= props.virtualTriggerCount
+  () =>
+    useWindowScroll.value &&
+    virtualEnabled.value &&
+    props.rows.length >= props.virtualTriggerCount
 );
 
 const elementVirtualizer = useVirtualizer(
