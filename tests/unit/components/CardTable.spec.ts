@@ -5,9 +5,7 @@ import CardTable from "../../../src/components/CardTable.vue";
 
 // Mock IntersectionObserver for all tests
 class MockIntersectionObserver {
-  constructor(_callback: IntersectionObserverCallback) {
-    // Store callback but don't use it by default
-  }
+  callback?: IntersectionObserverCallback;
   observe = vi.fn();
   disconnect = vi.fn();
   unobserve = vi.fn();
@@ -15,6 +13,10 @@ class MockIntersectionObserver {
   root = null;
   rootMargin = "";
   thresholds = [];
+
+  constructor(callback?: IntersectionObserverCallback) {
+    this.callback = callback;
+  }
 }
 
 const columns = [
@@ -214,26 +216,24 @@ describe("CardTable", () => {
       type: "Artifact",
     }));
 
-    // Mock IntersectionObserver
+    // Track intersection callback and mock methods
+    let intersectionCallback: IntersectionObserverCallback | undefined;
     const mockObserve = vi.fn();
     const mockDisconnect = vi.fn();
     const mockUnobserve = vi.fn();
-    let intersectionCallback: IntersectionObserverCallback | undefined;
     
-    class MockIntersectionObserver {
+    // Extend the base mock to capture the callback
+    class CallbackCapturingMock extends MockIntersectionObserver {
       constructor(callback: IntersectionObserverCallback) {
+        super(callback);
         intersectionCallback = callback;
       }
       observe = mockObserve;
       disconnect = mockDisconnect;
       unobserve = mockUnobserve;
-      takeRecords = vi.fn();
-      root = null;
-      rootMargin = "";
-      thresholds = [];
     }
     
-    global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+    global.IntersectionObserver = CallbackCapturingMock as unknown as typeof IntersectionObserver;
 
     const wrapper = mount(CardTable, {
       props: {
