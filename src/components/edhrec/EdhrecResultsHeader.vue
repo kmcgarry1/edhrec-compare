@@ -1,24 +1,27 @@
 <template>
-  <div class="flex flex-wrap items-end justify-between gap-3">
-    <div class="space-y-1">
-      <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">
+  <CInline align="end" justify="between" gap="md" class="flex-wrap">
+    <CStack gap="xs">
+      <CText tag="p" variant="eyebrow" tone="muted">
         Results
-      </p>
-      <h2 class="text-xl font-semibold text-[color:var(--text)]">Cardlists</h2>
-    </div>
-    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
-      <span class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-1 text-[color:var(--muted)]">
+      </CText>
+      <CText tag="h2" variant="title" class="text-lg sm:text-xl">
+        Cardlists
+      </CText>
+    </CStack>
+    <CInline gap="sm" class="flex-wrap text-xs font-semibold">
+      <CBadge tone="default" variant="soft" size="sm" text-case="normal">
         {{ listCount }} lists
-      </span>
-      <span class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-1 text-[color:var(--muted)]">
+      </CBadge>
+      <CBadge tone="default" variant="soft" size="sm" text-case="normal">
         {{ cardCount }} cards
-      </span>
-    </div>
-  </div>
+      </CBadge>
+    </CInline>
+  </CInline>
 </template>
 
 <script setup lang="ts">
 import { toRefs } from "vue";
+import { CBadge, CInline, CStack, CText } from "../core";
 
 const props = defineProps<{
   listCount: number;

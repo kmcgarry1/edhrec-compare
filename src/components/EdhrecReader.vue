@@ -7,7 +7,7 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <CSurface variant="command" size="md" radius="2xl" class="space-y-4">
+    <CSurface variant="command" size="md" radius="2xl" class="space-y-3">
       <EdhrecControls
         ref="controlsRef"
         :selected-slug="currentCommanderSlug"
@@ -24,28 +24,22 @@
       />
     </CSurface>
 
-    <CSurface variant="content" size="md" radius="2xl" class="space-y-5">
-      <EdhrecResultsHeader
-        :list-count="cardlistSections.length"
-        :card-count="totalCardCount"
-      />
+    <CSurface variant="content" size="md" radius="2xl" class="space-y-4">
+      <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+        <EdhrecResultsHeader :list-count="cardlistSections.length" :card-count="totalCardCount" />
 
-      <FloatingCardlistNav
-        v-if="cardlistSections.length"
-        :sections="cardlistSections"
-        :active-id="activeSectionId"
-        @navigate="scrollToSection"
-      />
+        <FloatingCardlistNav
+          v-if="cardlistSections.length"
+          :sections="cardlistSections"
+          :active-id="activeSectionId"
+          class="xl:max-w-[36rem]"
+          @navigate="scrollToSection"
+        />
+      </div>
 
-      <CNotice
-        v-if="error"
-        tone="danger"
-        :message="`Error: ${error}`"
-      >
+      <CNotice v-if="error" tone="danger" :message="`Error: ${error}`">
         <template #icon>
-          <CText tag="span" variant="title" weight="bold" tone="inherit">
-            X
-          </CText>
+          <CText tag="span" variant="title" weight="bold" tone="inherit"> X </CText>
         </template>
       </CNotice>
 

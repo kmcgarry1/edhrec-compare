@@ -1,7 +1,7 @@
 <template>
   <nav
     v-if="sectionsWithIcons.length"
-    class="surface-sheen sticky top-24 z-20 rounded-3xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 shadow-[var(--shadow-soft)]"
+    class="surface-sheen sticky top-24 z-20 rounded-[26px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-2.5 py-2 shadow-[var(--shadow-soft)]"
     aria-label="Cardlist navigation"
   >
     <div class="flex gap-2 overflow-x-auto pb-1">
@@ -12,7 +12,7 @@
         :title="section.label"
         :aria-label="section.label"
         :class="[
-          'inline-flex shrink-0 items-center gap-2 rounded-2xl border px-3 py-2 text-left text-xs font-semibold transition focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]',
+          'inline-flex shrink-0 items-center gap-1.5 rounded-2xl border px-2.5 py-1.5 text-left text-[0.72rem] font-semibold transition focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]',
           section.id === activeId
             ? 'border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]'
             : 'border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--muted)] hover:border-[color:var(--accent)] hover:text-[color:var(--text)]',
@@ -96,8 +96,7 @@ const activeId = computed(() => props.activeId ?? null);
 
 const sectionsWithIcons = computed(() =>
   props.sections.map((section, index) => {
-    const iconPath =
-      section.iconPath ?? ICONS[index % ICONS.length]?.path ?? defaultIconPath;
+    const iconPath = section.iconPath ?? ICONS[index % ICONS.length]?.path ?? defaultIconPath;
     return {
       ...section,
       icon: {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import CardlistSection from "../../../src/components/CardlistSection.vue";
 import type { CardTableRow } from "../../../src/types/cards";
@@ -56,16 +56,48 @@ const mountComponent = (overrideProps = {}) =>
   });
 
 describe("CardlistSection", () => {
+  const originalInnerWidth = window.innerWidth;
+
+  beforeEach(() => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 1024,
+    });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: originalInnerWidth,
+    });
+  });
+
   it("shows skeletons when loading", () => {
     const wrapper = mountComponent({ loading: true });
     expect(wrapper.findAll(".skeleton-stub")).toHaveLength(5);
     expect(wrapper.find(".table-stub").exists()).toBe(false);
   });
 
-  it("renders rows for desktop and mobile when not loading", () => {
+  it("renders only desktop rows on desktop", () => {
     const wrapper = mountComponent({ loading: false });
     expect(wrapper.find(".table-stub").exists()).toBe(true);
-    expect(wrapper.findAll(".row-stub")).toHaveLength(rows.length * 2);
+    expect(wrapper.findAll(".row-stub")).toHaveLength(rows.length);
+  });
+
+  it("renders only mobile rows on narrow viewports", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 640,
+    });
+
+    const wrapper = mountComponent({ loading: false });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".table-stub").exists()).toBe(false);
+    expect(wrapper.findAll(".row-stub")).toHaveLength(rows.length);
   });
 
   it("emits copy and download when decklist is available", async () => {
