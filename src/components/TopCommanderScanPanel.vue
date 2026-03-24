@@ -1,118 +1,123 @@
 <template>
-  <Card padding="p-4 sm:p-5" class="space-y-4">
-    <div class="space-y-1">
-      <p
-        class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]"
-      >
-        Collection insights
-      </p>
-      <h2 class="text-lg font-semibold text-[color:var(--text)]">
-        Top 50 commander scan
-      </h2>
-      <p class="text-sm text-[color:var(--muted)]">
-        Compare your CSV against average decklists from EDHREC's
-        {{ sourceLabel }}. No brackets, companions, or price filters applied.
-      </p>
-    </div>
+  <CSurface size="md">
+    <CStack gap="md">
+      <CStack gap="xs">
+        <CText tag="p" variant="eyebrow" tone="muted">
+          Collection insights
+        </CText>
+        <CText tag="h2" variant="title" class="text-lg">
+          Top 50 commander scan
+        </CText>
+        <CText tag="p" variant="body" tone="muted">
+          Compare your CSV against average decklists from EDHREC's
+          {{ sourceLabel }}. No brackets, companions, or price filters applied.
+        </CText>
+      </CStack>
 
-    <div
-      v-if="!hasCsvData"
-      class="rounded-2xl border border-dashed border-[color:var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[color:var(--muted)]"
-    >
-      Upload a CSV to run this scan.
-    </div>
+      <CNotice
+        v-if="!hasCsvData"
+        tone="info"
+        message="Upload a CSV to run this scan."
+        class="border-dashed bg-[color:var(--surface-muted)]"
+      />
 
-    <div
-      v-else-if="!isScoutMode"
-      class="rounded-2xl border border-dashed border-[color:var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[color:var(--muted)]"
-    >
-      Choose "Top 50 scan" in the upload modal to run this comparison.
-    </div>
+      <CNotice
+        v-else-if="!isScoutMode"
+        tone="info"
+        message='Choose "Top 50 scan" in the upload modal to run this comparison.'
+        class="border-dashed bg-[color:var(--surface-muted)]"
+      />
 
-    <div v-else class="space-y-4">
-      <div class="flex flex-wrap items-center gap-3 text-xs text-[color:var(--muted)]">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-1.5 text-xs font-semibold text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
-          :disabled="isLoading"
-          @click="handleRunScan"
+      <CStack v-else gap="md">
+        <CInline gap="md" class="text-xs">
+          <CButton
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="isLoading"
+            @click="handleRunScan"
+          >
+            {{ runButtonLabel }}
+          </CButton>
+          <CText v-if="lastUpdated" tag="span" variant="helper" tone="muted">
+            Last updated {{ formattedLastUpdated }}
+          </CText>
+          <CText v-if="failedCount" tag="span" variant="helper" tone="warn">
+            {{ failedCount }} commanders failed to load.
+          </CText>
+        </CInline>
+
+        <GlobalLoadingBanner
+          :scope="scope"
+          inline
+          placement-class="w-full"
         >
-          {{ runButtonLabel }}
-        </button>
-        <span v-if="lastUpdated">
-          Last updated {{ formattedLastUpdated }}
-        </span>
-        <span v-if="failedCount" class="text-[color:var(--warn)]">
-          {{ failedCount }} commanders failed to load.
-        </span>
-      </div>
+          Scanning commander averages...
+        </GlobalLoadingBanner>
 
-      <GlobalLoadingBanner
-        :scope="scope"
-        inline
-        placement-class="w-full"
-      >
-        Scanning commander averages...
-      </GlobalLoadingBanner>
+        <CNotice
+          v-if="error"
+          tone="danger"
+          :message="error"
+        />
 
-      <div
-        v-if="error"
-        class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)]"
-        role="status"
-      >
-        {{ error }}
-      </div>
-
-      <div
-        v-if="results.length"
-        class="grid gap-3 sm:grid-cols-2"
-      >
-        <div
-          v-for="commander in results"
-          :key="commander.slug"
-          class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 shadow-[var(--shadow-soft)]"
+        <CGrid
+          v-if="results.length"
+          variant="halves"
+          gap="md"
         >
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <p class="text-sm font-semibold text-[color:var(--text)]">
-                #{{ commander.rank }} {{ commander.name }}
-              </p>
-              <p class="text-xs text-[color:var(--muted)]">
-                {{ commander.ownedCards }} / {{ commander.totalCards }} cards owned
-                | {{ formatCount(commander.deckCount) }} decks
-              </p>
-            </div>
-            <div class="text-sm font-semibold text-[color:var(--text)]">
-              {{ formatPercent(commander.ownedPercent) }}
-            </div>
-          </div>
-          <div class="mt-3 h-2 w-full rounded-full bg-[color:var(--surface-muted)]">
-            <div
-              class="h-full rounded-full bg-[color:var(--accent)] transition-all duration-300"
-              :style="{ width: `${Math.min(commander.ownedPercent, 100)}%` }"
-              :aria-label="`Owned ${formatPercent(commander.ownedPercent)}`"
-            />
-          </div>
-        </div>
-      </div>
+          <CSurface
+            v-for="commander in results"
+            :key="commander.slug"
+            variant="panel"
+            size="sm"
+          >
+            <CStack gap="md">
+              <CInline align="center" justify="between" gap="md">
+                <CStack gap="xs">
+                  <CText tag="p" variant="body" weight="semibold">
+                    #{{ commander.rank }} {{ commander.name }}
+                  </CText>
+                  <CText tag="p" variant="helper" tone="muted">
+                    {{ commander.ownedCards }} / {{ commander.totalCards }} cards owned
+                    | {{ formatCount(commander.deckCount) }} decks
+                  </CText>
+                </CStack>
+                <CText tag="span" variant="body" weight="semibold">
+                  {{ formatPercent(commander.ownedPercent) }}
+                </CText>
+              </CInline>
 
-      <p
-        v-else-if="!isLoading"
-        class="text-sm text-[color:var(--muted)]"
-      >
-        {{
-          failedCount
-            ? "No commander lists could be loaded. Try the scan again."
-            : "Run the scan to see how your collection matches each top commander."
-        }}
-      </p>
-    </div>
-  </Card>
+              <CProgress
+                :value="Math.min(commander.ownedPercent, 100)"
+                size="md"
+                aria-label="Owned percentage"
+              />
+            </CStack>
+          </CSurface>
+        </CGrid>
+
+        <CText
+          v-else-if="!isLoading"
+          tag="p"
+          variant="body"
+          tone="muted"
+        >
+          {{
+            failedCount
+              ? "No commander lists could be loaded. Try the scan again."
+              : "Run the scan to see how your collection matches each top commander."
+          }}
+        </CText>
+      </CStack>
+    </CStack>
+  </CSurface>
 </template>
 
 <script setup lang="ts">
 import { computed, watch } from "vue";
-import { Card, GlobalLoadingBanner } from ".";
+import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
+import { CButton, CGrid, CInline, CNotice, CProgress, CStack, CSurface, CText } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useCsvUploadMode } from "../composables/useCsvUploadMode";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";

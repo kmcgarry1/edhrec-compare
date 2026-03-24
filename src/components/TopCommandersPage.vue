@@ -42,21 +42,23 @@
         />
         <TopCommandersOwnedLegend />
 
-        <div
+        <CNotice
           v-if="topLoading"
-          class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-4 py-3 text-sm text-[color:var(--muted)]"
-        >
-          Loading top commanders...
-        </div>
-        <div
+          tone="info"
+          message="Loading top commanders..."
+          class="bg-[color:var(--surface-muted)]"
+        />
+        <CNotice
           v-else-if="topError"
-          class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)]"
-          role="status"
-        >
-          {{ topError }}
-        </div>
+          tone="danger"
+          :message="topError"
+        />
 
-        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <CGrid
+          v-else
+          variant="cards"
+          gap="md"
+        >
           <TopCommanderCard
             v-for="commander in sortedCommanders"
             :key="commander.slug"
@@ -66,7 +68,7 @@
             :image-stack="getImageStack(commander.name)"
             :image-loading="imageLoading"
           />
-        </div>
+        </CGrid>
       </Card>
 
       <SiteNotice />
@@ -78,6 +80,7 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { Card, GlobalLoadingBanner, SiteNotice } from ".";
+import { CGrid, CNotice } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";

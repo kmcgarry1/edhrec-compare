@@ -1,42 +1,53 @@
 <template>
-  <Card padding="p-4 sm:p-5" class="space-y-3">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div class="space-y-1">
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]"
-        >
-          CSV Status
-        </p>
-        <p class="text-sm text-[color:var(--muted)]">
-          {{ statusLabel }}
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-3 text-xs text-[color:var(--muted)]">
-        <span v-if="formattedLastUpdated">
-          Last updated {{ formattedLastUpdated }}
-        </span>
-        <span v-if="failedCount" class="text-[color:var(--warn)]">
-          {{ failedCount }} commanders failed to load.
-        </span>
-      </div>
-    </div>
-    <GlobalLoadingBanner :scope="scanScope" inline placement-class="w-full">
-      Scanning commander averages...
-    </GlobalLoadingBanner>
-    <div
-      v-if="scanError"
-      class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)]"
-      role="status"
-    >
-      {{ scanError }}
-    </div>
-  </Card>
+  <CSurface size="md">
+    <CStack gap="md">
+      <CInline align="start" justify="between" gap="md">
+        <CStack gap="xs">
+          <CText tag="p" variant="eyebrow" tone="muted">
+            CSV Status
+          </CText>
+          <CText tag="p" variant="body" tone="muted">
+            {{ statusLabel }}
+          </CText>
+        </CStack>
+
+        <CInline gap="md" class="text-xs">
+          <CText
+            v-if="formattedLastUpdated"
+            tag="span"
+            variant="helper"
+            tone="muted"
+          >
+            Last updated {{ formattedLastUpdated }}
+          </CText>
+          <CText
+            v-if="failedCount"
+            tag="span"
+            variant="helper"
+            tone="warn"
+          >
+            {{ failedCount }} commanders failed to load.
+          </CText>
+        </CInline>
+      </CInline>
+
+      <GlobalLoadingBanner :scope="scanScope" inline placement-class="w-full">
+        Scanning commander averages...
+      </GlobalLoadingBanner>
+
+      <CNotice
+        v-if="scanError"
+        tone="danger"
+        :message="scanError"
+      />
+    </CStack>
+  </CSurface>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import Card from "../Card.vue";
 import GlobalLoadingBanner from "../GlobalLoadingBanner.vue";
+import { CInline, CNotice, CStack, CSurface, CText } from "../core";
 
 declare type MaybeDate = Date | null;
 
