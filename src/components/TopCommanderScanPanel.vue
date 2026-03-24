@@ -1,5 +1,5 @@
 <template>
-  <CSurface size="md">
+  <CSurface variant="content" size="sm">
     <CStack gap="md">
       <CStack gap="xs">
         <CText tag="p" variant="eyebrow" tone="muted">
@@ -69,7 +69,7 @@
           <CSurface
             v-for="commander in results"
             :key="commander.slug"
-            variant="panel"
+            variant="content"
             size="sm"
           >
             <CStack gap="md">

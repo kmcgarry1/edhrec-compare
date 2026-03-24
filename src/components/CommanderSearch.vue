@@ -61,11 +61,6 @@
           />
         </div>
       </div>
-
-      <CommanderSelectionDisplay
-        :primary-selection="primarySelection"
-        :partner-selection="partnerSelection"
-      />
     </div>
   </section>
 </template>
@@ -73,7 +68,6 @@
 import { toRef } from "vue";
 import CommanderSearchSummary from "./commander-search/CommanderSearchSummary.vue";
 import CommanderSearchField from "./commander-search/CommanderSearchField.vue";
-import CommanderSelectionDisplay from "./commander-search/CommanderSelectionDisplay.vue";
 import { useCommanderSearch } from "../composables/useCommanderSearch";
 import type { CommanderSelection } from "../types/edhrec";
 

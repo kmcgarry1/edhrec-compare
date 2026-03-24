@@ -29,7 +29,11 @@ export type SurfaceVariant =
   | "muted"
   | "accent"
   | "ghost"
-  | "dashed";
+  | "dashed"
+  | "masthead"
+  | "command"
+  | "content"
+  | "utility";
 
 export type SurfaceTone =
   | "default"
@@ -170,12 +174,16 @@ export const buttonToneClasses = {
 export const surfaceBase = "c-surface relative";
 
 export const surfaceVariantClasses: Record<SurfaceVariant, string> = {
-  panel: "border bg-[color:var(--surface)]",
+  panel: "surface-role-panel border",
   strong: "border bg-[color:var(--surface-strong)]",
   muted: "border bg-[color:var(--surface-muted)]",
   accent: "border bg-[color:var(--accent-soft)]",
   ghost: "border border-transparent bg-transparent shadow-none",
   dashed: "border-2 border-dashed bg-[color:var(--surface)]",
+  masthead: "surface-role-masthead border",
+  command: "surface-role-command border backdrop-blur-xl",
+  content: "surface-role-content border",
+  utility: "surface-role-utility border",
 };
 
 export const surfaceToneClasses: Record<SurfaceTone, string> = {

@@ -7,6 +7,10 @@ import type { DisplayCard } from "../types/cards";
 const cardImageCache = new Map<string, string>();
 const TAP_MOVE_THRESHOLD = 12;
 const HOVER_LOAD_DELAY = 150;
+const PREVIEW_WIDTH = 240;
+const PREVIEW_HEIGHT = 344;
+const PREVIEW_GAP = 28;
+const VIEWPORT_MARGIN = 16;
 
 const normalizeCardName = (value: string) => value.trim().toLowerCase();
 
@@ -66,9 +70,32 @@ export const useScryfallCardPreview = (card: Ref<DisplayCard>) => {
   };
 
   const updateImagePosition = (event: MouseEvent | PointerEvent) => {
+    if (typeof window === "undefined") {
+      imagePosition.value = {
+        x: event.clientX + PREVIEW_GAP,
+        y: event.clientY + PREVIEW_GAP,
+      };
+      return;
+    }
+
+    const halfWidth = PREVIEW_WIDTH / 2;
+    const halfHeight = PREVIEW_HEIGHT / 2;
+    const preferredRight = event.clientX + PREVIEW_GAP + halfWidth;
+    const preferredLeft = event.clientX - PREVIEW_GAP - halfWidth;
+    const minX = VIEWPORT_MARGIN + halfWidth;
+    const maxX = window.innerWidth - VIEWPORT_MARGIN - halfWidth;
+    const minY = VIEWPORT_MARGIN + halfHeight;
+    const maxY = window.innerHeight - VIEWPORT_MARGIN - halfHeight;
+
+    const x =
+      preferredRight <= maxX
+        ? preferredRight
+        : Math.max(preferredLeft, minX);
+    const y = Math.min(Math.max(event.clientY, minY), maxY);
+
     imagePosition.value = {
-      x: event.clientX + 100,
-      y: event.clientY + 160,
+      x,
+      y,
     };
   };
 

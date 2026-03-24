@@ -239,6 +239,8 @@ export const useDashboardState = () => {
     activeTab,
     tabOptions,
     commanderSelection,
+    hasCommander,
+    hasCsvData,
     showOnboarding,
     csvCount,
     inventorySummary,

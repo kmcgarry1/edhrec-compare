@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8 2xl:max-w-[90rem] 2xl:px-10">
+  <section class="mx-auto w-full max-w-[96rem] px-4 pb-16 pt-6 sm:px-6 lg:px-8 2xl:px-10">
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <GlobalLoadingBanner />
     <OnboardingModal
@@ -11,7 +11,16 @@
       :inert="showOnboarding ? true : undefined"
       :aria-hidden="showOnboarding ? 'true' : undefined"
     >
-      <DashboardHero @jump="jumpToTab" />
+      <DashboardHero v-if="!hasCommander" @jump="jumpToTab" />
+      <DashboardCommanderMasthead
+        v-else
+        :commander-selection="commanderSelection"
+        :csv-count="csvCount"
+        :has-csv-data="hasCsvData"
+        :decklist-ready="Boolean(decklistExport?.text)"
+        :next-step-label="nextStepLabel"
+        @jump="jumpToTab"
+      />
 
       <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
@@ -33,31 +42,31 @@
           />
         </div>
 
-        <div class="grid gap-6 lg:grid-cols-[18rem,1fr]">
-          <section class="space-y-4">
+        <div class="command-deck-grid grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start">
+          <section class="min-w-0 space-y-4">
             <section
-              v-show="activeTab === 'search'"
               id="panel-search"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-search'"
-              :aria-hidden="activeTab !== 'search'"
-              class="space-y-4"
+              :aria-hidden="activeTab !== 'search' && !hasCommander ? 'true' : undefined"
+              :class="panelClass('search')"
             >
               <DashboardSearchPanel
                 @decklistUpdate="handleDecklistUpdate"
                 @selection-change="handleSelectionChange"
               />
             </section>
+          </section>
 
+          <aside class="space-y-4 xl:sticky xl:top-28">
             <section
-              v-show="activeTab === 'collection'"
               id="panel-collection"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-collection'"
-              :aria-hidden="activeTab !== 'collection'"
-              class="space-y-4"
+              :aria-hidden="activeTab !== 'collection' && !hasCommander ? 'true' : undefined"
+              :class="panelClass('collection')"
             >
               <DashboardCollectionPanel
                 :commander-selection="commanderSelection"
@@ -77,12 +86,12 @@
             </section>
 
             <section
-              v-show="activeTab === 'export'"
               id="panel-export"
               role="tabpanel"
               tabindex="0"
               :aria-labelledby="'tab-export'"
-              class="space-y-4"
+              :aria-hidden="activeTab !== 'export' && !hasCommander ? 'true' : undefined"
+              :class="panelClass('export')"
             >
               <DashboardExportPanel
                 :helper-text="exportHelperText"
@@ -92,7 +101,7 @@
                 @download="downloadDecklistFromHeader"
               />
             </section>
-          </section>
+          </aside>
         </div>
       </main>
     </div>
@@ -103,6 +112,7 @@
 import { defineAsyncComponent } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import DashboardHero from "./dashboard/DashboardHero.vue";
+import DashboardCommanderMasthead from "./dashboard/DashboardCommanderMasthead.vue";
 import DashboardToolbar from "./dashboard/DashboardToolbar.vue";
 import DashboardSearchPanel from "./dashboard/DashboardSearchPanel.vue";
 import DashboardCollectionPanel from "./dashboard/DashboardCollectionPanel.vue";
@@ -126,6 +136,8 @@ const {
   activeTab,
   tabOptions,
   commanderSelection,
+  hasCommander,
+  hasCsvData,
   showOnboarding,
   csvCount,
   inventorySummary,
@@ -144,4 +156,11 @@ const {
   dismissOnboarding,
   openUploadModalFromOnboarding,
 } = useDashboardState();
+
+const panelClass = (tab: "search" | "collection" | "export") => {
+  if (activeTab.value === tab) {
+    return "space-y-4";
+  }
+  return hasCommander.value ? "hidden space-y-4 xl:block" : "hidden space-y-4";
+};
 </script>

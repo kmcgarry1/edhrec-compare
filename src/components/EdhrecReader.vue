@@ -1,11 +1,5 @@
 <template>
   <section :class="['text-[color:var(--text)]', spacing.stackSpace]">
-    <FloatingCardlistNav
-      v-if="cardlistSections.length"
-      :sections="cardlistSections"
-      :active-id="activeSectionId"
-      @navigate="scrollToSection"
-    />
     <GlobalLoadingBanner
       scope="scryfall-bulk"
       placement-class="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
@@ -13,62 +7,73 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <EdhrecControls
-      ref="controlsRef"
-      :selected-slug="currentCommanderSlug"
-      :bracket="chosenBracket"
-      :modifier="chosenModifier"
-      :page-type="chosenPageType"
-      :companion="chosenCompanion"
-      @commander-selected="handleCommanderSelection"
-      @selection-change="handleSelectionChange"
-      @update:bracket="setBracket"
-      @update:modifier="setModifier"
-      @update:page-type="setPageType"
-      @update:companion="setCompanion"
-    />
-
-    <EdhrecResultsHeader
-      :list-count="cardlistSections.length"
-      :card-count="totalCardCount"
-    />
-
-    <CNotice
-      v-if="error"
-      tone="danger"
-      :message="`Error: ${error}`"
-    >
-      <template #icon>
-        <CText tag="span" variant="title" weight="bold" tone="inherit">
-          X
-        </CText>
-      </template>
-    </CNotice>
-
-    <EdhrecEmptyState
-      v-if="showEmptyState"
-      :popular="popularCommanders"
-      @select="selectSuggestedCommander"
-    />
-    <template v-for="entry in cardlistEntries" :key="entry.key">
-      <CardlistSection
-        :cardlist="entry.cardlist"
-        :section-meta="entry.sectionMeta"
-        :rows="getTableRows(entry.cardlist)"
-        :columns="cardTableColumns"
-        :decklist-text="entry.decklistText"
-        :copied-section-id="decklistCopySectionId"
-        :loading="bulkCardsLoading"
-        @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-        @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+    <CSurface variant="command" size="md" radius="2xl" class="space-y-4">
+      <EdhrecControls
+        ref="controlsRef"
+        :selected-slug="currentCommanderSlug"
+        :bracket="chosenBracket"
+        :modifier="chosenModifier"
+        :page-type="chosenPageType"
+        :companion="chosenCompanion"
+        @commander-selected="handleCommanderSelection"
+        @selection-change="handleSelectionChange"
+        @update:bracket="setBracket"
+        @update:modifier="setModifier"
+        @update:page-type="setPageType"
+        @update:companion="setCompanion"
       />
-    </template>
+    </CSurface>
+
+    <CSurface variant="content" size="md" radius="2xl" class="space-y-5">
+      <EdhrecResultsHeader
+        :list-count="cardlistSections.length"
+        :card-count="totalCardCount"
+      />
+
+      <FloatingCardlistNav
+        v-if="cardlistSections.length"
+        :sections="cardlistSections"
+        :active-id="activeSectionId"
+        @navigate="scrollToSection"
+      />
+
+      <CNotice
+        v-if="error"
+        tone="danger"
+        :message="`Error: ${error}`"
+      >
+        <template #icon>
+          <CText tag="span" variant="title" weight="bold" tone="inherit">
+            X
+          </CText>
+        </template>
+      </CNotice>
+
+      <EdhrecEmptyState
+        v-if="showEmptyState"
+        :popular="popularCommanders"
+        @select="selectSuggestedCommander"
+      />
+      <template v-for="entry in cardlistEntries" :key="entry.key">
+        <CardlistSection
+          :cardlist="entry.cardlist"
+          :section-meta="entry.sectionMeta"
+          :rows="getTableRows(entry.cardlist)"
+          :columns="cardTableColumns"
+          :decklist-text="entry.decklistText"
+          :copied-section-id="decklistCopySectionId"
+          :loading="bulkCardsLoading"
+          @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+          @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+        />
+      </template>
+    </CSurface>
   </section>
 </template>
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
-import { CNotice, CText } from "./core";
+import { CNotice, CSurface, CText } from "./core";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../composables/useEdhrecData";

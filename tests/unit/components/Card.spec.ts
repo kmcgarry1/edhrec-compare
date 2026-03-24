@@ -33,4 +33,17 @@ describe("Card", () => {
     expect(footer.exists()).toBe(true);
     expect(footer.text()).toContain("Footer content");
   });
+
+  it("forwards surface variants to the root surface", () => {
+    const wrapper = mount(Card, {
+      props: {
+        variant: "command",
+      },
+      slots: {
+        default: "<p>Command deck</p>",
+      },
+    });
+
+    expect(wrapper.classes()).toContain("surface-role-command");
+  });
 });

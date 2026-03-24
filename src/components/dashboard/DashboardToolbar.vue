@@ -1,19 +1,15 @@
 <template>
   <Card
+    variant="command"
     padding="p-4"
     rounded="rounded-3xl"
-    border="border border-[color:var(--border)]"
-    background="bg-[color:var(--surface-strong)]"
-    shadow="shadow-[var(--shadow)]"
     class="backdrop-blur-sm"
   >
-    <div class="grid gap-3 lg:grid-cols-[1fr,auto] lg:items-center">
-      <div class="flex flex-wrap items-center gap-3">
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
         <div class="space-y-1">
-          <p
-            class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]"
-          >
-            Next step
+          <p class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">
+            Command bar
           </p>
           <p class="text-sm font-semibold text-[color:var(--text)]">
             {{ nextStepLabel }}
@@ -22,21 +18,19 @@
         <button
           v-if="nextStepActionLabel"
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-xs font-semibold text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105"
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-xs font-semibold text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105"
           @click="emit('next-action')"
         >
           {{ nextStepActionLabel }}
         </button>
       </div>
       <div class="flex flex-wrap items-center justify-end gap-3">
-        <div class="flex items-center gap-2">
-          <span
-            class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
-          >
-            Filter
+        <div class="grid gap-1">
+          <span class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+            Ownership
           </span>
           <div
-            class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.7rem] font-semibold text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
+            class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)]/80 p-1 text-[0.7rem] font-semibold text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
             role="group"
             aria-label="Filter decklists by ownership"
           >
@@ -57,29 +51,34 @@
             </button>
           </div>
         </div>
-        <div
-          class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.7rem] font-semibold text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
-          role="tablist"
-          aria-label="Dashboard tabs"
-        >
-          <button
-            v-for="tab in tabOptions"
-            :id="`tab-${tab.id}`"
-            :key="tab.id"
-            type="button"
-            role="tab"
-            class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-            :class="
-              activeTab === tab.id
-                ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
-                : 'text-[color:var(--muted)] hover:text-[color:var(--text)]'
-            "
-            :aria-selected="activeTab === tab.id"
-            :aria-controls="`panel-${tab.id}`"
-            @click="emit('tab-change', tab.id)"
+        <div class="grid gap-1">
+          <span class="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+            Panels
+          </span>
+          <div
+            class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)]/80 p-1 text-[0.7rem] font-semibold text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
+            role="tablist"
+            aria-label="Dashboard tabs"
           >
-            {{ tab.label }}
-          </button>
+            <button
+              v-for="tab in tabOptions"
+              :id="`tab-${tab.id}`"
+              :key="tab.id"
+              type="button"
+              role="tab"
+              class="rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+              :class="
+                activeTab === tab.id
+                  ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
+                  : 'text-[color:var(--muted)] hover:text-[color:var(--text)]'
+              "
+              :aria-selected="activeTab === tab.id"
+              :aria-controls="`panel-${tab.id}`"
+              @click="emit('tab-change', tab.id)"
+            >
+              {{ tab.label }}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 <template>
   <Card
     :id="sectionMeta?.id"
+    variant="content"
     as="article"
     :class="spacing.stackSpace"
   >
@@ -11,8 +12,8 @@
       gap="md"
       class="flex-col md:flex-row"
     >
-      <CStack gap="sm">
-        <CInline gap="md">
+      <CStack gap="sm" class="min-w-0">
+        <CInline gap="md" class="flex-wrap">
           <svg
             v-if="sectionMeta?.iconPath"
             viewBox="0 0 24 24"
@@ -27,8 +28,11 @@
             EDHREC Cardlist
           </CText>
         </CInline>
-        <CText tag="h2" variant="title" class="text-2xl">
+        <CText tag="h2" variant="title" class="text-2xl text-balance">
           {{ cardlist.header }}
+        </CText>
+        <CText tag="p" variant="body" tone="muted" class="max-w-2xl">
+          Export or inspect this section in place while the shared content well keeps table density and hover previews aligned.
         </CText>
       </CStack>
 
@@ -54,16 +58,16 @@
       </CInline>
     </CInline>
 
-    <CSurface
+      <CSurface
       v-if="!loading"
-      variant="muted"
+      variant="utility"
       size="none"
       radius="xl"
-      class="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-xs font-semibold text-[color:var(--muted)]"
+      class="flex flex-wrap items-center justify-between gap-3 px-3 py-3 text-xs font-semibold text-[color:var(--muted)]"
     >
       <CInline gap="md">
-        <CBadge tone="muted" variant="outline" size="sm">
-          Atlas
+        <CBadge tone="accent" variant="soft" size="sm">
+          Section stats
         </CBadge>
         <CText tag="span" variant="helper" tone="default">
           {{ totalCards }} cards

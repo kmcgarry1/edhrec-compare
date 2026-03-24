@@ -4,11 +4,15 @@
       <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">
         Results
       </p>
-      <h2 class="text-lg font-semibold text-[color:var(--text)]">Cardlists</h2>
+      <h2 class="text-xl font-semibold text-[color:var(--text)]">Cardlists</h2>
     </div>
-    <div class="flex flex-wrap items-center gap-3 text-xs text-[color:var(--muted)]">
-      <span>{{ listCount }} lists</span>
-      <span>{{ cardCount }} cards</span>
+    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+      <span class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-1 text-[color:var(--muted)]">
+        {{ listCount }} lists
+      </span>
+      <span class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-1 text-[color:var(--muted)]">
+        {{ cardCount }} cards
+      </span>
     </div>
   </div>
 </template>
