@@ -1,5 +1,18 @@
 <template>
-  <component :is="as" :class="computedClasses">
+  <CSurface
+    :as="as"
+    :size="resolvedSize"
+    radius="xl"
+    :shadow="resolvedShadow"
+    :rounded="rounded"
+    :border="border"
+    :background="background"
+    :shadow-class="shadow"
+    :padding-class="padding"
+    :sheen="surfaceSheen"
+    :full-width="fullWidth"
+    :class="cardClass"
+  >
     <div v-if="hasHeader" class="mb-4">
       <slot name="header">
         <CText
@@ -28,13 +41,13 @@
     <footer v-if="slots.footer" class="mt-4">
       <slot name="footer" />
     </footer>
-  </component>
+  </CSurface>
 </template>
 
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
-import { useLayoutDensity } from "../composables/useLayoutDensity";
-import { CText } from "./core";
+import { CSurface, CText } from "./core";
+import type { SurfaceShadow, SurfaceSize } from "./core/config";
 
 type Tone =
   | "default"
@@ -80,37 +93,26 @@ const props = withDefaults(
 );
 
 const slots = useSlots();
-const { spacing } = useLayoutDensity();
 
 const hasHeader = computed(
   () => !!props.title || !!props.subtitle || !!slots.header
 );
 
-const resolvedPadding = computed(() => props.padding ?? spacing.value.cardPadding);
-
 const surfaceSheen = computed(() => {
   const background = props.background ?? "";
+  if (!background) {
+    return false;
+  }
   if (!background.includes("var(--surface")) {
-    return "";
+    return false;
   }
   if (background.includes("surface-muted")) {
-    return "";
+    return false;
   }
-  return "surface-sheen";
+  return true;
 });
 
-const computedClasses = computed(() =>
-  [
-    props.fullWidth ? "block w-full" : "",
-    props.rounded,
-    props.border,
-    props.background,
-    props.shadow,
-    resolvedPadding.value,
-    surfaceSheen.value,
-    props.hover ? "card-hover" : "",
-  ]
-    .filter(Boolean)
-    .join(" ")
-);
+const resolvedSize = computed<SurfaceSize>(() => (props.padding ? "none" : "adaptive"));
+const resolvedShadow = computed<SurfaceShadow>(() => (props.shadow ? "none" : "soft"));
+const cardClass = computed(() => (props.hover ? "card-hover" : ""));
 </script>

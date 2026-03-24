@@ -1,58 +1,73 @@
 <template>
-  <header
-    class="surface-sheen relative overflow-hidden rounded-[32px] border border-[color:var(--border)] bg-[color:var(--surface)] p-5 shadow-[var(--shadow)] sm:p-7"
+  <CSurface
+    as="header"
+    variant="panel"
+    tone="default"
+    size="lg"
+    radius="3xl"
+    shadow="base"
+    sheen
+    class="overflow-hidden"
   >
     <div
       class="pointer-events-none absolute -top-24 right-6 h-48 w-48 rounded-full bg-[color:var(--accent-soft)] blur-3xl opacity-70"
       aria-hidden="true"
-    ></div>
+    />
     <div
       class="pointer-events-none absolute -bottom-24 left-4 h-52 w-64 rounded-full bg-[color:var(--warn-soft)] blur-3xl opacity-60"
       aria-hidden="true"
-    ></div>
-    <div class="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div class="space-y-3">
-        <p
-          class="text-xs font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]"
-        >
+    />
+
+    <CInline
+      align="end"
+      justify="between"
+      gap="xl"
+      class="relative flex-col lg:flex-row"
+    >
+      <CStack gap="md" class="max-w-2xl">
+        <CText tag="p" variant="eyebrow" tone="muted">
           Commander Scout
-        </p>
-        <h1 class="text-3xl font-semibold text-[color:var(--text)] sm:text-4xl">
+        </CText>
+        <CText tag="h1" variant="display">
           Compare EDHREC decklists to your collection
-        </h1>
-        <p class="max-w-2xl text-sm text-[color:var(--muted)] sm:text-base">
+        </CText>
+        <CText tag="p" variant="body" tone="muted" class="sm:text-base">
           Choose a commander, upload your collection CSV, and export an owned or
           unowned list in minutes.
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <button
+        </CText>
+      </CStack>
+
+      <CInline gap="md" class="relative">
+        <CButton
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-2 text-xs font-semibold text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105"
+          variant="primary"
           @click="emit('jump', 'search')"
         >
           Start with a commander
-        </button>
-        <RouterLink
+        </CButton>
+        <CButton
+          :as="RouterLink"
           to="/top-commanders"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+          variant="secondary"
         >
           Top commanders
-        </RouterLink>
-        <button
+        </CButton>
+        <CButton
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+          variant="secondary"
           @click="emit('jump', 'collection')"
         >
           Jump to collection
-        </button>
-      </div>
-    </div>
-  </header>
+        </CButton>
+      </CInline>
+    </CInline>
+  </CSurface>
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from "vue-router";
 import type { DashboardTab } from "../../types/dashboard";
+import { CButton, CInline, CStack, CSurface, CText } from "../core";
 
 const emit = defineEmits<{
   jump: [tab: DashboardTab];

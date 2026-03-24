@@ -1,8 +1,8 @@
 <template>
-  <button
-    :type="type"
+  <component
+    :is="as"
+    v-bind="rootProps"
     :class="computedClasses"
-    :disabled="disabled"
     class="relative overflow-hidden"
     @click="handleClick"
   >
@@ -18,29 +18,44 @@
         top: ripple.y + 'px',
       }"
     />
-  </button>
+  </component>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref, useAttrs, type Component } from "vue";
 import {
   createRipple,
   getRippleCoordinates,
   prefersReducedMotion,
 } from "../../utils/animations";
+import {
+  buttonBase,
+  buttonSizeClasses,
+  buttonToneClasses,
+  buttonVariantClasses,
+  cx,
+} from "./config";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = keyof typeof buttonVariantClasses;
+type Size = keyof typeof buttonSizeClasses;
+type Tone = keyof typeof buttonToneClasses;
 
 const props = withDefaults(
   defineProps<{
+    as?: string | Component;
     type?: "button" | "submit" | "reset";
     variant?: Variant;
+    size?: Size;
+    tone?: Tone;
     disabled?: boolean;
     rippleEffect?: boolean;
   }>(),
   {
+    as: "button",
     type: "button",
     variant: "primary",
+    size: "md",
+    tone: "default",
     disabled: false,
     rippleEffect: true,
   }
@@ -51,25 +66,32 @@ const emit = defineEmits<{
 }>();
 
 const ripples = ref<Array<{ id: number; x: number; y: number }>>([]);
+const attrs = useAttrs();
 
-const computedClasses = (() => {
-  const baseClasses =
-    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:opacity-50 disabled:cursor-not-allowed";
+const isNativeButton = computed(() => props.as === "button");
 
-  const variants = {
-    primary:
-      "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
-    secondary:
-      "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
-    ghost:
-      "text-[color:var(--muted)] hover:text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]",
-  };
+const rootProps = computed(() => ({
+  ...attrs,
+  type: isNativeButton.value ? props.type : undefined,
+  disabled: isNativeButton.value ? props.disabled : undefined,
+  "aria-disabled": !isNativeButton.value && props.disabled ? "true" : undefined,
+  tabindex: !isNativeButton.value && props.disabled ? -1 : undefined,
+}));
 
-  return `${baseClasses} ${variants[props.variant]}`;
-})();
+const computedClasses = computed(() =>
+  cx(
+    "c-button",
+    buttonBase,
+    buttonSizeClasses[props.size],
+    buttonVariantClasses[props.variant],
+    buttonToneClasses[props.tone]
+  )
+);
 
 const handleClick = (event: MouseEvent) => {
   if (props.disabled) {
+    event.preventDefault();
+    event.stopPropagation();
     return;
   }
 

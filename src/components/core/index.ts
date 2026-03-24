@@ -1,2 +1,10 @@
 export { default as CText } from "./CText.vue";
 export { default as CButton } from "./CButton.vue";
+export { default as CStack } from "./CStack.vue";
+export { default as CInline } from "./CInline.vue";
+export { default as CGrid } from "./CGrid.vue";
+export { default as CSurface } from "./CSurface.vue";
+export { default as CBadge } from "./CBadge.vue";
+export { default as CProgress } from "./CProgress.vue";
+export { default as CNotice } from "./CNotice.vue";
+export { default as CFieldShell } from "./CFieldShell.vue";

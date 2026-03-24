@@ -1,134 +1,69 @@
 <template>
-  <Teleport v-if="!isInline" :to="stackTargetSelector">
-    <Transition name="fade">
-      <div
-        v-if="isVisible"
-        :class="containerClass"
-        aria-live="polite"
-        role="status"
-      >
-        <div
+  <Teleport
+    :to="stackTargetSelector"
+    :disabled="isInline"
+  >
+    <div :class="containerClass">
+      <Transition name="fade">
+        <CNotice
+          v-if="!isInline ? isVisible : true"
           v-bind="attrs"
-          class="loading-pulse pointer-events-auto rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-2 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)]"
+          tone="loading"
+          :message="messageToDisplay"
+          :progress="progressInfo ?? null"
+          :aria-hidden="isInline ? String(!isVisible) : undefined"
+          :class="inlineNoticeClass"
         >
-          <div class="flex items-center justify-between gap-3 px-4 py-2">
-            <div class="flex items-center gap-3">
-              <!-- Animated spinner -->
-              <svg
-                class="h-5 w-5 animate-spin text-[color:var(--accent)]"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+          <template #icon>
+            <svg
+              class="h-5 w-5 animate-spin text-[color:var(--accent)]"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              />
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
+            </svg>
+          </template>
 
-              <!-- Loading message -->
-              <span class="text-sm font-medium text-[color:var(--text)]">
-                <slot :message="messageToDisplay">{{ messageToDisplay }}</slot>
-              </span>
-            </div>
+          <template #default="{ message }">
+            <CText tag="span" variant="body" weight="medium">
+              <slot :message="message">{{ message }}</slot>
+            </CText>
+          </template>
 
-            <!-- Progress indicator -->
-            <span
+          <template #actions>
+            <CText
               v-if="progressInfo"
-              class="text-sm font-medium text-[color:var(--muted)]"
+              tag="span"
+              variant="body"
+              tone="muted"
+              weight="medium"
             >
               {{ progressInfo.current }} / {{ progressInfo.total }}
-            </span>
-          </div>
-
-          <!-- Progress bar -->
-          <div v-if="progressInfo" class="h-1 bg-[color:var(--surface-muted)]">
-            <div
-              class="h-full bg-[color:var(--accent)] transition-all duration-300"
-              :style="{ width: `${progressPercent}%` }"
-            />
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
-
-  <div
-    v-else
-    :class="containerClass"
-    aria-live="polite"
-    role="status"
-  >
-    <div
-      v-bind="attrs"
-      :aria-hidden="isVisible ? 'false' : 'true'"
-      class="pointer-events-auto rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-2 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition duration-200 ease-out"
-      :class="[
-        isVisible
-          ? 'opacity-100 translate-y-0 visible loading-pulse'
-          : 'pointer-events-none opacity-0 -translate-y-1 invisible'
-      ]"
-    >
-      <div class="flex items-center justify-between gap-3 px-4 py-2">
-        <div class="flex items-center gap-3">
-          <!-- Animated spinner -->
-          <svg
-            class="h-5 w-5 animate-spin text-[color:var(--accent)]"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-
-          <!-- Loading message -->
-          <span class="text-sm font-medium text-[color:var(--text)]">
-            <slot :message="messageToDisplay">{{ messageToDisplay }}</slot>
-          </span>
-        </div>
-
-        <!-- Progress indicator -->
-        <span
-          v-if="progressInfo"
-          class="text-sm font-medium text-[color:var(--muted)]"
-        >
-          {{ progressInfo.current }} / {{ progressInfo.total }}
-        </span>
-      </div>
-
-      <!-- Progress bar -->
-      <div v-if="progressInfo" class="h-1 bg-[color:var(--surface-muted)]">
-        <div
-          class="h-full bg-[color:var(--accent)] transition-all duration-300"
-          :style="{ width: `${progressPercent}%` }"
-        />
-      </div>
+            </CText>
+          </template>
+        </CNotice>
+      </Transition>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, useAttrs, onMounted, watch } from "vue";
+import { computed, onMounted, useAttrs, watch } from "vue";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
+import { CNotice, CText } from "./core";
 
 defineOptions({
   inheritAttrs: false,
@@ -211,16 +146,9 @@ const progressInfo = computed(() =>
   scopedProgress ? scopedProgress.value : loadingProgress.value
 );
 
-const progressPercent = computed(() => {
-  if (!progressInfo.value) return 0;
-  const { current, total } = progressInfo.value;
-  if (total === 0) return 0;
-  return Math.round((current / total) * 100);
-});
-
 const stackDefaultClass =
   "pointer-events-none flex w-full max-w-md justify-center";
-const inlineDefaultClass = "w-full flex justify-center";
+const inlineDefaultClass = "flex w-full justify-center";
 
 const containerClass = computed(() => {
   if (props.placementClass) {
@@ -228,6 +156,14 @@ const containerClass = computed(() => {
   }
   return props.inline ? inlineDefaultClass : stackDefaultClass;
 });
+
+const inlineNoticeClass = computed(() =>
+  !props.inline
+    ? ""
+    : isVisible.value
+      ? "pointer-events-auto visible translate-y-0 opacity-100 loading-pulse transition duration-200 ease-out"
+      : "pointer-events-none invisible -translate-y-1 opacity-0 transition duration-200 ease-out"
+);
 </script>
 
 <style scoped>

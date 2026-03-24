@@ -62,15 +62,22 @@ const mountComponent = () =>
   mount(Dashboard, {
     global: {
       stubs: {
-        AccessibilityControls: { template: "<div class='a11y-controls-stub'></div>" },
-        Card: { template: "<section><slot /></section>" },
-        EdhrecReader: {
-          template:
-            "<div class='reader-stub' @decklistUpdate=\"$emit('decklistUpdate', $event)\"></div>",
+        DashboardHero: {
+          template: "<header class='dashboard-hero-stub'></header>",
+        },
+        DashboardToolbar: {
+          template: "<nav class='dashboard-toolbar-stub'></nav>",
+        },
+        DashboardSearchPanel: {
+          template: "<section class='dashboard-search-stub'></section>",
+        },
+        DashboardCollectionPanel: {
+          template: "<section class='dashboard-collection-stub'></section>",
+        },
+        DashboardExportPanel: {
+          template: "<section class='dashboard-export-stub'></section>",
         },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
-        SiteNotice: { template: "<footer class='notice-stub'></footer>" },
-        DecklistExport: { template: "<div class='decklist-stub'></div>" },
         OnboardingModal: {
           template:
             "<div v-if='open' class='onboarding-stub'>Upload your collection or scout first <button @click=\"$emit('dismiss')\">Dismiss</button><button @click=\"$emit('upload')\">Upload</button></div>",

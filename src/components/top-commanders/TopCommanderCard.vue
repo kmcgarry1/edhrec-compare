@@ -1,23 +1,27 @@
 <template>
   <RouterLink :to="commanderLink" class="group block h-full">
-    <Card
-      padding="p-4"
+    <CSurface
+      size="sm"
       :background="highlightBackground"
       :border="highlightBorder"
-      class="flex h-full flex-col items-center gap-3 text-center transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]"
       :class="highlightClass"
+      class="flex h-full flex-col items-center gap-3 text-center transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]"
     >
-      <div class="space-y-1">
-        <p class="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-[color:var(--muted)]">
+      <CStack gap="xs">
+        <CText tag="p" variant="overline" tone="muted" class="text-[0.65rem]">
           Rank #{{ commander.rank }}
-        </p>
-        <p class="text-sm font-semibold text-[color:var(--text)]">
+        </CText>
+        <CText tag="p" variant="body" weight="semibold">
           {{ commander.name }}
-        </p>
-      </div>
-      <div class="flex flex-col items-center gap-2">
-        <div
-          class="flex h-52 w-36 items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] shadow-[var(--shadow-soft)]"
+        </CText>
+      </CStack>
+
+      <CStack gap="sm" class="items-center">
+        <CSurface
+          variant="muted"
+          size="none"
+          radius="xl"
+          class="flex h-52 w-36 items-center justify-center overflow-hidden"
         >
           <div v-if="imageStack.length" class="relative h-full w-full">
             <img
@@ -32,41 +36,47 @@
               class="absolute left-5 top-5 h-[85%] w-[85%] rounded-xl object-cover shadow-[var(--shadow)]"
             />
           </div>
-          <div
+          <CText
             v-else
-            class="flex h-full w-full items-center justify-center text-xs text-[color:var(--muted)]"
+            tag="span"
+            variant="helper"
+            tone="muted"
           >
             {{ imageLoading ? "Loading..." : "No image" }}
-          </div>
-        </div>
-        <div class="w-full space-y-2">
-          <p class="text-sm font-semibold" :class="percentToneClass">
+          </CText>
+        </CSurface>
+
+        <CStack gap="sm" class="w-full">
+          <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
             {{ percentLabel }}
-          </p>
-          <div class="relative h-2 w-full rounded-full bg-[color:var(--surface-muted)]">
+          </CText>
+
+          <div class="relative">
             <div
-              class="absolute inset-0 rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500 opacity-80"
+              class="h-2 w-full rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500 opacity-80"
               aria-hidden="true"
-            ></div>
+            />
             <span
               v-if="percentValue !== null"
               class="absolute -top-1.5 h-5 w-1.5 rounded-full bg-[color:var(--surface)] shadow-[var(--shadow-soft)] ring-1 ring-[color:var(--border)]"
               :style="{ left: `${percentValue}%` }"
               aria-hidden="true"
-            ></span>
+            />
           </div>
-        </div>
-      </div>
-      <p class="text-xs text-[color:var(--muted)]">
+        </CStack>
+      </CStack>
+
+      <CText tag="p" variant="helper" tone="muted">
         {{ detailLabel }}
-      </p>
-    </Card>
+      </CText>
+    </CSurface>
   </RouterLink>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Card } from "..";
+import { RouterLink } from "vue-router";
+import { CStack, CSurface, CText } from "../core";
 import type { TopCommander } from "../../api/edhrecApi";
 import type { CommanderScanResult } from "../../composables/useTopCommanderScan";
 
@@ -163,9 +173,6 @@ const highlightBorder = computed(() => {
   }
   if (value >= 50) {
     return "border border-[color:var(--warn)]";
-  }
-  if (value >= 30) {
-    return "border border-[color:var(--border-strong)]";
   }
   if (value >= 10) {
     return "border border-[color:var(--danger)]";

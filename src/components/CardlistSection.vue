@@ -4,9 +4,15 @@
     as="article"
     :class="spacing.stackSpace"
   >
-    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-3">
+    <CInline
+      as="header"
+      align="center"
+      justify="between"
+      gap="md"
+      class="flex-col md:flex-row"
+    >
+      <CStack gap="sm">
+        <CInline gap="md">
           <svg
             v-if="sectionMeta?.iconPath"
             viewBox="0 0 24 24"
@@ -17,70 +23,81 @@
           >
             <path :d="sectionMeta?.iconPath" />
           </svg>
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--muted)]">
+          <CText tag="p" variant="eyebrow" tone="muted" class="tracking-[0.3em]">
             EDHREC Cardlist
-          </p>
-        </div>
-        <h2 class="text-2xl font-semibold text-[color:var(--text)]">
+          </CText>
+        </CInline>
+        <CText tag="h2" variant="title" class="text-2xl">
           {{ cardlist.header }}
-        </h2>
-      </div>
-      <div class="flex flex-wrap gap-2 text-xs font-semibold">
-        <button
+        </CText>
+      </CStack>
+
+      <CInline gap="sm" class="text-xs font-semibold">
+        <CButton
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+          variant="secondary"
+          size="sm"
           :disabled="!decklistText.length"
           @click="emitCopy"
         >
           {{ isCopied ? "Copied!" : "Copy for Archidekt/Moxfield" }}
-        </button>
-        <button
+        </CButton>
+        <CButton
           type="button"
-          class="inline-flex items-center gap-2 rounded-full border border-[color:var(--accent)] bg-[color:var(--accent)] px-3 py-1.5 text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent-strong)] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+          variant="primary"
+          size="sm"
           :disabled="!decklistText.length"
           @click="emitDownload"
         >
           Download decklist.txt
-        </button>
-      </div>
-    </header>
+        </CButton>
+      </CInline>
+    </CInline>
 
-    <div
+    <CSurface
       v-if="!loading"
-      class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] px-3 py-2 text-xs font-semibold text-[color:var(--muted)]"
+      variant="muted"
+      size="none"
+      radius="xl"
+      class="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-xs font-semibold text-[color:var(--muted)]"
     >
-      <div class="flex flex-wrap items-center gap-3">
-        <span class="uppercase tracking-[0.32em] text-[color:var(--muted)]">
+      <CInline gap="md">
+        <CBadge tone="muted" variant="outline" size="sm">
           Atlas
-        </span>
-        <span class="text-[color:var(--text)]">{{ totalCards }} cards</span>
-        <span class="text-[color:var(--text)]">{{ ownedCount }} owned</span>
-        <span class="text-[color:var(--text)]">{{ unownedCount }} unowned</span>
-      </div>
-      <div
-        class="flex items-center gap-3"
+        </CBadge>
+        <CText tag="span" variant="helper" tone="default">
+          {{ totalCards }} cards
+        </CText>
+        <CText tag="span" variant="helper" tone="default">
+          {{ ownedCount }} owned
+        </CText>
+        <CText tag="span" variant="helper" tone="default">
+          {{ unownedCount }} unowned
+        </CText>
+      </CInline>
+
+      <CInline
+        gap="md"
         role="img"
         :aria-label="`Owned ${ownedPercent}% of cards`"
       >
-        <span class="text-[color:var(--muted)]">{{ ownedPercent }}% owned</span>
+        <CText tag="span" variant="helper" tone="muted">
+          {{ ownedPercent }}% owned
+        </CText>
         <div class="grid grid-cols-12 gap-1" aria-hidden="true">
           <span
             v-for="(filled, index) in ownedSegments"
             :key="`segment-${index}`"
             class="h-2 w-2 rounded-full"
-            :class="
-              filled
-                ? 'bg-[color:var(--accent)]'
-                : 'bg-[color:var(--surface-strong)]'
-            "
-          ></span>
+            :class="filled ? 'bg-[color:var(--accent)]' : 'bg-[color:var(--surface-strong)]'"
+          />
         </div>
-      </div>
-    </div>
+      </CInline>
+    </CSurface>
 
-    <div v-if="loading" class="space-y-3">
+    <CStack v-if="loading" gap="md">
       <SkeletonCard v-for="i in 5" :key="i" />
-    </div>
+    </CStack>
 
     <div v-else class="hidden md:block">
       <CardTable
@@ -102,7 +119,7 @@
       </CardTable>
     </div>
 
-    <div v-if="!loading" class="md:hidden space-y-3">
+    <CStack v-if="!loading" gap="md" class="md:hidden">
       <ScryfallCardRow
         v-for="row in rows"
         :key="row.id + '-mobile'"
@@ -110,13 +127,14 @@
         :have="Boolean(row.have)"
         variant="card"
       />
-    </div>
+    </CStack>
   </Card>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import { Card, CardTable, ScryfallCardRow } from ".";
+import { CBadge, CButton, CInline, CStack, CSurface, CText } from "./core";
 import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
@@ -152,12 +170,8 @@ const emit = defineEmits<{
 const { spacing, density } = useLayoutDensity();
 
 const totalCards = computed(() => props.rows.length);
-const ownedCount = computed(
-  () => props.rows.filter((row) => Boolean(row.have)).length
-);
-const unownedCount = computed(() =>
-  Math.max(totalCards.value - ownedCount.value, 0)
-);
+const ownedCount = computed(() => props.rows.filter((row) => Boolean(row.have)).length);
+const unownedCount = computed(() => Math.max(totalCards.value - ownedCount.value, 0));
 const ownedPercent = computed(() => {
   if (!totalCards.value) {
     return 0;

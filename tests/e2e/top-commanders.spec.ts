@@ -780,9 +780,10 @@ test.describe("Top Commanders Page - Accessibility", () => {
 
     await page.goto("/top-commanders");
 
-    // Error should have status role
-    const error = page.locator('[role="status"]');
-    await expect(error.first()).toBeVisible({ timeout: 10_000 });
+    const error = page
+      .getByRole("alert")
+      .filter({ hasText: /Unable to load top commanders/i });
+    await expect(error).toBeVisible({ timeout: 10_000 });
   });
 });
 

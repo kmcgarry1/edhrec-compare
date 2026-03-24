@@ -33,15 +33,17 @@
       :card-count="totalCardCount"
     />
 
-    <Card
+    <CNotice
       v-if="error"
-      rounded="rounded-2xl"
-      border="border border-[color:var(--danger)]"
-      background="bg-[color:var(--danger-soft)]"
-      class="text-sm text-[color:var(--danger)]"
+      tone="danger"
+      :message="`Error: ${error}`"
     >
-      Error: {{ error }}
-    </Card>
+      <template #icon>
+        <CText tag="span" variant="title" weight="bold" tone="inherit">
+          X
+        </CText>
+      </template>
+    </CNotice>
 
     <EdhrecEmptyState
       v-if="showEmptyState"
@@ -65,7 +67,8 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import { Card, CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
+import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
+import { CNotice, CText } from "./core";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../composables/useEdhrecData";
