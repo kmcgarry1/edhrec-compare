@@ -68,14 +68,15 @@ describe("GlobalLoadingBanner", () => {
     expect(wrapper.text()).toContain("3 / 10");
   });
 
-  it("shows spinner icon when loading", () => {
+  it("shows loading icon when loading", () => {
     scopedLoading.value = true;
     const wrapper = factory({
       scope: "custom",
       inline: true,
     });
 
-    expect(wrapper.find("svg.animate-spin").exists()).toBe(true);
+    expect(wrapper.find("svg").exists()).toBe(true);
+    expect(wrapper.find("svg.animate-spin").exists()).toBe(false);
   });
 
   it("creates a global stack container when not inline", () => {

@@ -28,13 +28,11 @@ describe("NebulaBackground", () => {
     expect(
       wrapper.find(".nebula.fixed.inset-0.-z-10.overflow-hidden.pointer-events-none").exists()
     ).toBe(true);
-    expect(wrapper.findAll(".nebula > div")).toHaveLength(7);
+    expect(wrapper.findAll(".nebula > div")).toHaveLength(5);
     expect(wrapper.find(".nebula__art--primary").exists()).toBe(true);
     expect(wrapper.find(".nebula__art--secondary").exists()).toBe(true);
     expect(wrapper.find(".nebula__base").exists()).toBe(true);
     expect(wrapper.find(".nebula__glow").exists()).toBe(true);
-    expect(wrapper.find(".nebula__particles--fine").exists()).toBe(true);
-    expect(wrapper.find(".nebula__particles--coarse").exists()).toBe(true);
     expect(wrapper.find(".nebula__noise").exists()).toBe(true);
   });
 
@@ -46,7 +44,7 @@ describe("NebulaBackground", () => {
     });
   });
 
-  it("cycles through background art URLs", async () => {
+  it("cross-fades when the lead background art URL changes", async () => {
     vi.useFakeTimers();
     artUrls.value = ["https://example.com/one.jpg", "https://example.com/two.jpg"];
     const NebulaBackground = await loadComponent();
@@ -56,7 +54,7 @@ describe("NebulaBackground", () => {
     const primary = wrapper.get(".nebula__art--primary");
     expect(primary.attributes("style")).toContain("one.jpg");
 
-    vi.advanceTimersByTime(12000);
+    artUrls.value = ["https://example.com/two.jpg", "https://example.com/three.jpg"];
     await nextTick();
     const secondary = wrapper.get(".nebula__art--secondary");
     expect(secondary.attributes("style")).toContain("two.jpg");
@@ -83,7 +81,7 @@ describe("NebulaBackground", () => {
     expect(primary.attributes("style") ?? "").not.toContain("one.jpg");
   });
 
-  it("does not schedule a fade when only one URL is present", async () => {
+  it("does not start a transition when the lead URL is unchanged", async () => {
     vi.useFakeTimers();
     artUrls.value = ["https://example.com/solo.jpg"];
     const NebulaBackground = await loadComponent();
@@ -93,7 +91,7 @@ describe("NebulaBackground", () => {
     const primary = wrapper.get(".nebula__art--primary");
     const secondary = wrapper.get(".nebula__art--secondary");
 
-    vi.advanceTimersByTime(12000);
+    artUrls.value = ["https://example.com/solo.jpg", "https://example.com/alternate.jpg"];
     await nextTick();
 
     expect(primary.attributes("style")).toContain("solo.jpg");

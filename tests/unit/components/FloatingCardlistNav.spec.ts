@@ -31,12 +31,13 @@ describe("FloatingCardlistNav", () => {
     expect(wrapper.emitted("navigate")?.[0]).toEqual(["draw"]);
   });
 
-  it("opens mobile menu when floating button is clicked", async () => {
-    const wrapper = mountComponent();
-    const trigger = wrapper.find(
-      'button[aria-label="Open cardlist navigation"]'
-    );
-    await trigger.trigger("click");
-    expect(document.body.textContent ?? "").toContain("Jump to cardlist");
+  it("does not render when there are no sections", () => {
+    const wrapper = mount(FloatingCardlistNav, {
+      props: {
+        sections: [],
+      },
+    });
+
+    expect(wrapper.find("nav").exists()).toBe(false);
   });
 });

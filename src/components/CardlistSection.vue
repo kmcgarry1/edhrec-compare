@@ -1,38 +1,84 @@
 <template>
   <Card
     :id="sectionMeta?.id"
+    variant="content"
     as="article"
-    :class="spacing.stackSpace"
+    :class="['cardlist-section', spacing.stackSpace]"
   >
-    <CInline
-      as="header"
-      align="center"
-      justify="between"
-      gap="md"
-      class="flex-col md:flex-row"
-    >
-      <CStack gap="sm">
-        <CInline gap="md">
-          <svg
+    <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+      <div class="min-w-0">
+        <div class="flex items-start gap-3">
+          <div
             v-if="sectionMeta?.iconPath"
-            viewBox="0 0 24 24"
-            class="h-7 w-7 rounded-2xl bg-[color:var(--surface-muted)] p-1 text-[color:var(--accent)]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[color:var(--surface-muted)] text-[color:var(--accent)]"
             :style="{ color: sectionMeta?.iconColor || undefined }"
-            fill="currentColor"
             aria-hidden="true"
           >
-            <path :d="sectionMeta?.iconPath" />
-          </svg>
-          <CText tag="p" variant="eyebrow" tone="muted" class="tracking-[0.3em]">
-            EDHREC Cardlist
-          </CText>
-        </CInline>
-        <CText tag="h2" variant="title" class="text-2xl">
-          {{ cardlist.header }}
-        </CText>
-      </CStack>
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor">
+              <path :d="sectionMeta?.iconPath" />
+            </svg>
+          </div>
 
-      <CInline gap="sm" class="text-xs font-semibold">
+          <CStack gap="sm" class="min-w-0">
+            <CInline gap="sm" class="flex-wrap text-[0.72rem] font-semibold">
+              <CBadge tone="muted" variant="outline" size="sm"> EDHREC </CBadge>
+              <CBadge
+                v-if="sectionMeta?.label"
+                tone="default"
+                variant="soft"
+                size="sm"
+                text-case="normal"
+              >
+                {{ sectionMeta.label }}
+              </CBadge>
+              <span class="text-[color:var(--muted)]"> {{ totalCards }} cards </span>
+            </CInline>
+
+            <CText
+              tag="h2"
+              variant="title"
+              class="text-xl leading-tight text-balance sm:text-[1.35rem]"
+            >
+              {{ cardlist.header }}
+            </CText>
+
+            <CInline
+              gap="sm"
+              class="flex-wrap text-[0.72rem] font-semibold text-[color:var(--muted)]"
+            >
+              <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+                {{ ownedCount }} owned
+              </CBadge>
+              <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+                {{ unownedCount }} unowned
+              </CBadge>
+              <CBadge
+                tone="accent"
+                variant="soft"
+                size="sm"
+                text-case="normal"
+                class="gap-2"
+                role="img"
+                :aria-label="`Owned ${ownedPercent}% of cards`"
+              >
+                <span>{{ ownedPercent }}% owned</span>
+                <span class="grid grid-cols-12 gap-1" aria-hidden="true">
+                  <span
+                    v-for="(filled, index) in ownedSegments"
+                    :key="`segment-${index}`"
+                    class="h-1.5 w-1.5 rounded-full"
+                    :class="
+                      filled ? 'bg-[color:var(--accent)]' : 'bg-[color:var(--surface-strong)]'
+                    "
+                  />
+                </span>
+              </CBadge>
+            </CInline>
+          </CStack>
+        </div>
+      </div>
+
+      <CInline gap="sm" class="flex-wrap text-xs font-semibold xl:justify-end">
         <CButton
           type="button"
           variant="secondary"
@@ -40,7 +86,12 @@
           :disabled="!decklistText.length"
           @click="emitCopy"
         >
-          {{ isCopied ? "Copied!" : "Copy for Archidekt/Moxfield" }}
+          <span class="sm:hidden">
+            {{ isCopied ? "Copied" : "Copy" }}
+          </span>
+          <span class="hidden sm:inline">
+            {{ isCopied ? "Copied!" : "Copy decklist" }}
+          </span>
         </CButton>
         <CButton
           type="button"
@@ -49,57 +100,17 @@
           :disabled="!decklistText.length"
           @click="emitDownload"
         >
-          Download decklist.txt
+          <span class="sm:hidden">Save</span>
+          <span class="hidden sm:inline">Download .txt</span>
         </CButton>
       </CInline>
-    </CInline>
-
-    <CSurface
-      v-if="!loading"
-      variant="muted"
-      size="none"
-      radius="xl"
-      class="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-xs font-semibold text-[color:var(--muted)]"
-    >
-      <CInline gap="md">
-        <CBadge tone="muted" variant="outline" size="sm">
-          Atlas
-        </CBadge>
-        <CText tag="span" variant="helper" tone="default">
-          {{ totalCards }} cards
-        </CText>
-        <CText tag="span" variant="helper" tone="default">
-          {{ ownedCount }} owned
-        </CText>
-        <CText tag="span" variant="helper" tone="default">
-          {{ unownedCount }} unowned
-        </CText>
-      </CInline>
-
-      <CInline
-        gap="md"
-        role="img"
-        :aria-label="`Owned ${ownedPercent}% of cards`"
-      >
-        <CText tag="span" variant="helper" tone="muted">
-          {{ ownedPercent }}% owned
-        </CText>
-        <div class="grid grid-cols-12 gap-1" aria-hidden="true">
-          <span
-            v-for="(filled, index) in ownedSegments"
-            :key="`segment-${index}`"
-            class="h-2 w-2 rounded-full"
-            :class="filled ? 'bg-[color:var(--accent)]' : 'bg-[color:var(--surface-strong)]'"
-          />
-        </div>
-      </CInline>
-    </CSurface>
+    </div>
 
     <CStack v-if="loading" gap="md">
       <SkeletonCard v-for="i in 5" :key="i" />
     </CStack>
 
-    <div v-else class="hidden md:block">
+    <div v-else-if="isDesktopViewport">
       <CardTable
         :columns="columns"
         :rows="rows"
@@ -119,7 +130,7 @@
       </CardTable>
     </div>
 
-    <CStack v-if="!loading" gap="md" class="md:hidden">
+    <CStack v-else gap="md">
       <ScryfallCardRow
         v-for="row in rows"
         :key="row.id + '-mobile'"
@@ -132,13 +143,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { Card, CardTable, ScryfallCardRow } from ".";
-import { CBadge, CButton, CInline, CStack, CSurface, CText } from "./core";
+import { CBadge, CButton, CInline, CStack, CText } from "./core";
 import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
+
+const DESKTOP_BREAKPOINT_PX = 768;
 
 type SectionMeta = {
   id: string;
@@ -168,6 +181,27 @@ const emit = defineEmits<{
 }>();
 
 const { spacing, density } = useLayoutDensity();
+const isDesktopViewport = ref(
+  typeof window === "undefined" ? true : window.innerWidth >= DESKTOP_BREAKPOINT_PX
+);
+
+const syncViewportMode = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  isDesktopViewport.value = window.innerWidth >= DESKTOP_BREAKPOINT_PX;
+};
+
+onMounted(() => {
+  syncViewportMode();
+  window.addEventListener("resize", syncViewportMode, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  if (typeof window !== "undefined") {
+    window.removeEventListener("resize", syncViewportMode);
+  }
+});
 
 const totalCards = computed(() => props.rows.length);
 const ownedCount = computed(() => props.rows.filter((row) => Boolean(row.have)).length);
@@ -214,3 +248,12 @@ const emitDownload = () => {
   }
 };
 </script>
+
+<style scoped>
+@supports (content-visibility: auto) {
+  .cardlist-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1200px;
+  }
+}
+</style>

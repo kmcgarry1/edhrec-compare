@@ -6,7 +6,7 @@
       @commander-selected="emit('commander-selected', $event)"
       @selection-change="emit('selection-change', $event)"
     />
-    <Card padding="p-4 sm:p-5" class="space-y-3">
+    <Card variant="utility" padding="p-4 sm:p-5" class="space-y-3">
       <CommanderFilters
         :bracket="bracket"
         :modifier="modifier"

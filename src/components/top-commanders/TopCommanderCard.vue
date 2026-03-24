@@ -1,27 +1,44 @@
 <template>
   <RouterLink :to="commanderLink" class="group block h-full">
     <CSurface
+      variant="content"
       size="sm"
       :background="highlightBackground"
       :border="highlightBorder"
       :class="highlightClass"
-      class="flex h-full flex-col items-center gap-3 text-center transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]"
+      class="flex h-full flex-col gap-4 overflow-hidden transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]"
     >
-      <CStack gap="xs">
-        <CText tag="p" variant="overline" tone="muted" class="text-[0.65rem]">
-          Rank #{{ commander.rank }}
-        </CText>
-        <CText tag="p" variant="body" weight="semibold">
-          {{ commander.name }}
-        </CText>
-      </CStack>
+      <div class="flex items-start justify-between gap-3">
+        <CStack gap="xs">
+          <CText tag="p" variant="overline" tone="muted" class="text-[0.65rem]">
+            Rank #{{ commander.rank }}
+          </CText>
+          <CText tag="p" variant="body" weight="semibold" class="text-left text-base">
+            {{ commander.name }}
+          </CText>
+        </CStack>
 
-      <CStack gap="sm" class="items-center">
+        <CSurface
+          variant="utility"
+          size="none"
+          radius="pill"
+          class="shrink-0 px-3 py-1.5 text-right"
+        >
+          <CText tag="p" variant="helper" tone="muted" class="uppercase tracking-[0.22em]">
+            Owned
+          </CText>
+          <CText tag="p" variant="title" :class="percentToneClass">
+            {{ percentValue !== null ? `${Math.round(percentValue)}%` : "--" }}
+          </CText>
+        </CSurface>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-[5rem,minmax(0,1fr)]">
         <CSurface
           variant="muted"
           size="none"
           radius="xl"
-          class="flex h-52 w-36 items-center justify-center overflow-hidden"
+          class="flex h-28 w-20 items-center justify-center overflow-hidden"
         >
           <div v-if="imageStack.length" class="relative h-full w-full">
             <img
@@ -33,7 +50,7 @@
               v-if="imageStack.length > 1"
               :src="imageStack[1]"
               :alt="commander.name"
-              class="absolute left-5 top-5 h-[85%] w-[85%] rounded-xl object-cover shadow-[var(--shadow)]"
+              class="absolute bottom-2 right-2 h-16 w-12 rounded-md object-cover shadow-[var(--shadow)]"
             />
           </div>
           <CText
@@ -46,28 +63,34 @@
           </CText>
         </CSurface>
 
-        <CStack gap="sm" class="w-full">
-          <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
+        <CStack gap="sm" class="min-w-0">
+          <CText tag="p" variant="title" :class="percentToneClass">
             {{ percentLabel }}
           </CText>
+          <CText tag="p" variant="helper" tone="muted">
+            {{ ownedSummary }}
+          </CText>
+          <CText tag="p" variant="helper" tone="muted">
+            {{ detailLabel }}
+          </CText>
 
-          <div class="relative">
+          <div class="relative pt-1">
             <div
               class="h-2 w-full rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500 opacity-80"
               aria-hidden="true"
             />
             <span
               v-if="percentValue !== null"
-              class="absolute -top-1.5 h-5 w-1.5 rounded-full bg-[color:var(--surface)] shadow-[var(--shadow-soft)] ring-1 ring-[color:var(--border)]"
+              class="absolute -top-0.5 h-5 w-1.5 -translate-x-1/2 rounded-full bg-[color:var(--surface)] shadow-[var(--shadow-soft)] ring-1 ring-[color:var(--border)]"
               :style="{ left: `${percentValue}%` }"
               aria-hidden="true"
             />
           </div>
         </CStack>
-      </CStack>
+      </div>
 
-      <CText tag="p" variant="helper" tone="muted">
-        {{ detailLabel }}
+      <CText tag="p" variant="helper" tone="muted" class="mt-auto">
+        Open commander route
       </CText>
     </CSurface>
   </RouterLink>
@@ -129,12 +152,17 @@ const percentToneClass = computed(() => {
 });
 
 const detailLabel = computed(() => {
-  if (props.scanResult) {
-    return `${props.scanResult.ownedCards} / ${props.scanResult.totalCards} cards | ${
-      numberFormatter.format(props.commander.deckCount)
-    } decks`;
-  }
   return `${numberFormatter.format(props.commander.deckCount)} decks`;
+});
+
+const ownedSummary = computed(() => {
+  if (!props.hasCsvData) {
+    return "Upload a CSV to calculate ownership overlap.";
+  }
+  if (!props.scanResult) {
+    return "Waiting for scan results.";
+  }
+  return `${props.scanResult.ownedCards} / ${props.scanResult.totalCards} cards owned`;
 });
 
 const highlightBackground = computed(() => {

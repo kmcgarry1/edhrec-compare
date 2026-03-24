@@ -5,12 +5,60 @@ import { useCsvUpload } from "./useCsvUpload";
 import { useCsvUploadMode } from "./useCsvUploadMode";
 import { useBackgroundPreference } from "./useBackgroundPreference";
 import { useLayoutDensity } from "./useLayoutDensity";
+import { useCommanderSpotlight } from "./useCommanderSpotlight";
+import { useEdhrecRouteState } from "./useEdhrecRouteState";
+import { requestCache } from "../api/requestCache";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
-import type { CommanderSelection, DecklistPayload } from "../types/edhrec";
-import type { DashboardTab, OwnedFilterOption, TabOption } from "../types/dashboard";
+import { buildCommanderSlug } from "../utils/slugifyCommander";
+import type { CommanderSelection, DecklistPayload, EdhrecData } from "../types/edhrec";
+import type { OwnedFilterOption } from "../types/dashboard";
 
-type NextStepAction = "search" | "collection" | "upload" | "export" | null;
+type NextStepAction = "browse" | "upload" | "filter" | "copy" | null;
+
+const EMPTY_COMMANDER_SELECTION: CommanderSelection = {
+  primary: "",
+  partner: "",
+  hasPartner: false,
+};
+
+const formatSlugForDisplay = (slug: string) =>
+  slug
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+
+const parseCommanderSelectionLabel = (value: string | null | undefined): CommanderSelection => {
+  const normalized = value?.replace(/\s+\(Commander\)\s*$/, "").trim() ?? "";
+  if (!normalized) {
+    return EMPTY_COMMANDER_SELECTION;
+  }
+
+  const [primary = "", partner = ""] = normalized
+    .split(/\s*\/\/\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (primary && partner) {
+    return {
+      primary,
+      partner,
+      hasPartner: true,
+    };
+  }
+
+  return {
+    primary: normalized,
+    partner: "",
+    hasPartner: false,
+  };
+};
+
+const sameCommanderSelection = (left: CommanderSelection, right: CommanderSelection) =>
+  left.primary === right.primary &&
+  left.partner === right.partner &&
+  left.hasPartner === right.hasPartner;
 
 export const useDashboardState = () => {
   const { theme, toggleTheme } = useTheme();
@@ -19,42 +67,141 @@ export const useDashboardState = () => {
   const { mode: csvUploadMode } = useCsvUploadMode();
   const { showOwned, setOwnedFilter } = useOwnedFilter();
   const { density, setDensity, densityOptions } = useLayoutDensity();
+  const { currentCommanderSlug, commanderUrl } = useEdhrecRouteState();
 
   const showUploadModal = ref(false);
   const decklistExport = ref<DecklistPayload | null>(null);
   const decklistCopied = ref(false);
   const mainContentRef = ref<HTMLElement | null>(null);
-  const activeTab = ref<DashboardTab>("search");
+  const browseRailOpen = ref(true);
+  const utilityDrawerOpen = ref(false);
   const commanderSelection = ref<CommanderSelection>({
     primary: "",
     partner: "",
     hasPartner: false,
   });
+  const {
+    spotlightCards: commanderSpotlightCards,
+    spotlightLoading: commanderSpotlightLoading,
+    backdropUrl: commanderSpotlightBackdropUrl,
+  } = useCommanderSpotlight(commanderSelection);
   const onboardingDismissed = ref(false);
+  const routeCommanderLabel = ref<string | null>(null);
+  let routeCommanderRequestId: symbol | null = null;
   let decklistCopyHandle: ReturnType<typeof setTimeout> | null = null;
-
-  const tabOptions: ReadonlyArray<TabOption> = [
-    { id: "search", label: "Search" },
-    { id: "collection", label: "Collection" },
-    { id: "export", label: "Export" },
-  ];
 
   const csvCount = computed(() => csvRows.value.length);
   const hasCsvData = computed(() => csvCount.value > 0);
-  const hasCommander = computed(() => Boolean(commanderSelection.value.primary));
+  const localCommanderSlug = computed(() =>
+    buildCommanderSlug(
+      commanderSelection.value.primary,
+      commanderSelection.value.hasPartner ? commanderSelection.value.partner : ""
+    )
+  );
+  const hasCommander = computed(
+    () => Boolean(commanderSelection.value.primary) || Boolean(currentCommanderSlug.value)
+  );
+  const hasDecklist = computed(() => Boolean(decklistExport.value?.text));
+  const decklistSectionCount = computed(() => decklistExport.value?.sections.length ?? 0);
   const showOnboarding = computed(
-    () => !onboardingDismissed.value && !hasCsvData.value
+    () => !onboardingDismissed.value && !hasCsvData.value && !hasCommander.value
   );
 
-  const setActiveTab = (tab: DashboardTab) => {
-    activeTab.value = tab;
-  };
+  watch(
+    commanderUrl,
+    async (url) => {
+      if (!url || !currentCommanderSlug.value) {
+        routeCommanderLabel.value = null;
+        routeCommanderRequestId = null;
+        return;
+      }
 
-  const jumpToTab = (tab: DashboardTab) => {
-    activeTab.value = tab;
+      const requestId = Symbol("route-commander");
+      routeCommanderRequestId = requestId;
+
+      try {
+        const payload = await requestCache.dedupe(`edhrec:${url}`, async () => {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return (await response.json()) as EdhrecData;
+        });
+
+        if (routeCommanderRequestId !== requestId) {
+          return;
+        }
+
+        routeCommanderLabel.value =
+          payload.container?.json_dict?.card?.name ?? payload.header ?? null;
+      } catch {
+        if (routeCommanderRequestId === requestId) {
+          routeCommanderLabel.value = null;
+        }
+      }
+    },
+    { immediate: true }
+  );
+
+  watch(
+    [currentCommanderSlug, routeCommanderLabel],
+    ([routeSlug, resolvedLabel]) => {
+      if (!routeSlug) {
+        if (!sameCommanderSelection(commanderSelection.value, EMPTY_COMMANDER_SELECTION)) {
+          commanderSelection.value = { ...EMPTY_COMMANDER_SELECTION };
+        }
+        return;
+      }
+
+      if (resolvedLabel) {
+        const resolvedSelection = parseCommanderSelectionLabel(resolvedLabel);
+        if (!sameCommanderSelection(commanderSelection.value, resolvedSelection)) {
+          commanderSelection.value = resolvedSelection;
+        }
+        return;
+      }
+
+      if (!localCommanderSlug.value) {
+        commanderSelection.value = parseCommanderSelectionLabel(formatSlugForDisplay(routeSlug));
+        return;
+      }
+
+      if (localCommanderSlug.value !== routeSlug) {
+        commanderSelection.value = parseCommanderSelectionLabel(formatSlugForDisplay(routeSlug));
+      }
+    },
+    { immediate: true }
+  );
+
+  const focusWorkspace = () => {
     nextTick(() => {
       mainContentRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  };
+
+  const openUploadModal = () => {
+    showUploadModal.value = true;
+    focusWorkspace();
+  };
+
+  const openBrowseRail = () => {
+    browseRailOpen.value = true;
+    focusWorkspace();
+  };
+
+  const closeBrowseRail = () => {
+    browseRailOpen.value = false;
+  };
+
+  const toggleBrowseRail = () => {
+    browseRailOpen.value = !browseRailOpen.value;
+    if (browseRailOpen.value) {
+      focusWorkspace();
+    }
+  };
+
+  const toggleUtilityDrawer = () => {
+    utilityDrawerOpen.value = !utilityDrawerOpen.value;
   };
 
   const inventorySummary = computed(() => {
@@ -70,18 +217,15 @@ export const useDashboardState = () => {
 
   const nextStepAction = computed<NextStepAction>(() => {
     if (!hasCommander.value) {
-      return "search";
+      return "browse";
     }
     if (!hasCsvData.value) {
       return "upload";
     }
-    if (!decklistExport.value) {
-      return null;
+    if (!hasDecklist.value) {
+      return "filter";
     }
-    if (!decklistExport.value.text) {
-      return "collection";
-    }
-    return "export";
+    return "copy";
   });
 
   const nextStepLabel = computed(() => {
@@ -102,14 +246,14 @@ export const useDashboardState = () => {
 
   const nextStepActionLabel = computed(() => {
     switch (nextStepAction.value) {
-      case "search":
-        return "Search commanders";
+      case "browse":
+        return "Browse commanders";
       case "upload":
         return "Upload CSV";
-      case "collection":
-        return "Adjust filter";
-      case "export":
-        return "Go to export";
+      case "filter":
+        return "Review filters";
+      case "copy":
+        return "Copy decklist";
       default:
         return null;
     }
@@ -117,18 +261,17 @@ export const useDashboardState = () => {
 
   const handleNextStepAction = () => {
     switch (nextStepAction.value) {
-      case "search":
-        jumpToTab("search");
+      case "browse":
+        openBrowseRail();
         break;
-      case "collection":
-        jumpToTab("collection");
+      case "filter":
+        focusWorkspace();
         break;
       case "upload":
-        jumpToTab("collection");
-        showUploadModal.value = true;
+        openUploadModal();
         break;
-      case "export":
-        jumpToTab("export");
+      case "copy":
+        void copyDecklistFromHeader();
         break;
       default:
         break;
@@ -168,6 +311,7 @@ export const useDashboardState = () => {
 
   const handleSelectionChange = (payload: CommanderSelection) => {
     commanderSelection.value = payload;
+    browseRailOpen.value = false;
   };
 
   const copyDecklistFromHeader = async () => {
@@ -221,7 +365,7 @@ export const useDashboardState = () => {
 
   const openUploadModalFromOnboarding = () => {
     onboardingDismissed.value = true;
-    showUploadModal.value = true;
+    openUploadModal();
   };
 
   return {
@@ -236,9 +380,16 @@ export const useDashboardState = () => {
     decklistExport,
     decklistCopied,
     mainContentRef,
-    activeTab,
-    tabOptions,
+    browseRailOpen,
+    utilityDrawerOpen,
     commanderSelection,
+    commanderSpotlightCards,
+    commanderSpotlightLoading,
+    commanderSpotlightBackdropUrl,
+    hasCommander,
+    hasCsvData,
+    hasDecklist,
+    decklistSectionCount,
     showOnboarding,
     csvCount,
     inventorySummary,
@@ -246,8 +397,12 @@ export const useDashboardState = () => {
     nextStepActionLabel,
     exportHelperText,
     filterOptions,
-    setActiveTab,
-    jumpToTab,
+    focusWorkspace,
+    openUploadModal,
+    openBrowseRail,
+    closeBrowseRail,
+    toggleBrowseRail,
+    toggleUtilityDrawer,
     handleNextStepAction,
     handleDecklistUpdate,
     handleSelectionChange,

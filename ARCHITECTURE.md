@@ -53,22 +53,22 @@ Commander Scout is a **single-page application (SPA)** built with modern web tec
 - **Client-side only** - No backend server, all processing in browser
 - **In-memory state** - CSV data stored in browser memory (no persistence)
 - **API-driven** - Data fetched from public EDHREC and Scryfall APIs
-- **Progressive enhancement** - Works without JavaScript for basic HTML
+- **Client-rendered SPA** - Requires JavaScript and hydrates from a single root app
 - **Responsive design** - Tailwind CSS for mobile-first UI
 
 ### Key Technologies
 
 | Technology          | Version | Purpose               | Why Chosen                                                                               |
 | ------------------- | ------- | --------------------- | ---------------------------------------------------------------------------------------- |
-| **Vue 3**           | 3.5.24  | UI Framework          | Modern, performant, excellent TypeScript support with Composition API                    |
+| **Vue 3**           | 3.5.28  | UI Framework          | Modern, performant, excellent TypeScript support with Composition API                    |
 | **TypeScript**      | 5.9.3   | Type Safety           | Catch errors at compile time, better IDE support, self-documenting code                  |
 | **Vite** (Rolldown) | 7.2.2   | Build Tool            | Fast HMR, optimized builds, native ESM support. Using Rolldown variant for faster builds |
-| **Tailwind CSS**    | 3.4.13  | Styling               | Utility-first, consistent design system, excellent for rapid prototyping                 |
-| **VueUse**          | 14.0.0  | Composition Utilities | Battle-tested composables for common patterns (debounce, local storage, etc.)            |
-| **Playwright**      | 1.56.1  | E2E Testing           | Modern, reliable browser automation for testing user flows                               |
+| **Tailwind CSS**    | 4.1.17  | Styling               | Utility-first styling backed by shared CSS variables and primitive component maps        |
+| **VueUse**          | 14.2.0  | Composition Utilities | Battle-tested composables for common patterns (debounce, local storage, etc.)            |
+| **Playwright**      | 1.58.2  | E2E Testing           | Modern, reliable browser automation for testing user flows                               |
 | **Vitest**          | 4.0.12  | Unit Testing          | Fast, Vite-native test runner with excellent DX                                          |
 
-_Note: Version numbers reflect the state at documentation time (2025-11-21). Check `package.json` for current versions._
+_Note: Version numbers reflect the state at documentation time (2026-03-24). Check `package.json` for current versions._
 
 ---
 
@@ -81,15 +81,16 @@ src/
 │   └── errorHandler.ts    # Centralized error handling with user notifications
 │
 ├── components/            # Vue components organized by feature
-│   ├── core/             # Reusable core components (CText, etc.)
+│   ├── core/             # Primitive design system (CText, CSurface, CBadge, etc.)
+│   ├── dashboard/        # Dashboard route panels and controls
+│   ├── top-commanders/   # Top commanders route panels and controls
 │   ├── helpers/          # Component utilities (enums, icon maps)
 │   ├── Card.vue          # Reusable card container with variants
 │   ├── CardTable.vue     # Virtualized table for large card lists
 │   ├── CommanderSearch.vue    # Fuzzy commander search with autocomplete
 │   ├── EdhrecReader.vue       # Main EDHREC data fetching & display
 │   ├── CSVUpload.vue          # CSV file parsing & validation
-│   ├── Dashboard.vue          # Root layout component
-│   ├── ToolkitHeader.vue      # Top navigation & filters
+│   ├── Dashboard.vue          # Main dashboard route shell
 │   ├── GlobalNoticeStack.vue  # Toast notifications
 │   ├── GlobalLoadingBanner.vue # Loading indicators
 │   ├── NebulaBackground.vue   # Dynamic gradient background
@@ -116,12 +117,12 @@ src/
 ├── assets/              # Static assets
 │   └── inventory.csv    # Sample CSV for users
 │
-├── stubs/               # Library stubs for tree-shaking
-│   └── vue-router.ts   # Empty vue-router stub (no routing used)
+├── router/              # Route definitions and scroll behavior
+│   └── index.ts         # /, /commander/:slug, /top-commanders
 │
 ├── App.vue             # Root component with analytics
 ├── main.ts             # Application entry point
-└── style.css           # Global Tailwind styles
+└── style.css           # Global theme variables, typography, and design tokens
 ```
 
 ### Component Organization Philosophy
@@ -130,6 +131,16 @@ src/
 - **Feature-based grouping** - Related components stay close (e.g., Commander\* components)
 - **Core subfolder** - Only truly reusable, generic components
 - **Helpers subfolder** - Non-component utilities used by multiple components
+
+### UI Primitive Layer
+
+The app now has a documented primitive layer under `src/components/core`.
+
+- `config.ts` defines shared class maps for typography, layout, surfaces, buttons, badges, and progress.
+- `style.css` owns the theme variables, typography families, status colors, shadows, and surface treatments.
+- `useLayoutDensity()` lets core surfaces and route shells respond to comfortable, cozy, and compact density without each component re-inventing spacing rules.
+
+This keeps route work focused on composition and content hierarchy rather than rebuilding the same visual patterns in each feature area.
 
 ---
 
@@ -337,27 +348,33 @@ Show success notification
 - ❌ Steeper learning curve for developers familiar with Options API
 - ✅ Better long-term maintainability and testability
 
-### 2. Why No Routing?
+### 2. Why Thin Routing?
 
-**Decision:** Single-page application with no routing library
+**Decision:** Use Vue Router, but keep the route surface intentionally small
 
 **Rationale:**
 
-- **Single focused task** - App has one primary view (commander comparison)
-- **No distinct pages** - All state is in-memory, no shareable URLs needed
-- **Bundle size** - Saves ~10KB from vue-router
-- **Simplicity** - Less mental overhead for contributors
+- **Shareable state** - Commander selections and filter state can be reflected in the URL
+- **Clear route separation** - The dashboard and top-commanders scan are distinct enough to deserve dedicated routes
+- **Browser navigation** - Back/forward and bookmarking work naturally
+- **Contained complexity** - Routing exists, but most app behavior still lives in composables instead of route-specific stores
 
 **Implementation:**
 
-- Created `src/stubs/vue-router.ts` to satisfy library dependencies
-- Vite alias resolves `vue-router` imports to stub during build
+- `/` renders the main dashboard
+- `/commander/:slug` renders the same dashboard shell with route-driven commander state
+- `/top-commanders` renders the top-commanders scan
+- `useEdhrecRouteState.ts` synchronizes commander filters with route params and query state
+
+**Trade-offs:**
+
+- ❌ Route and composable state must stay synchronized
+- ✅ Deep links and browser navigation are available without a large routing layer
 
 **When to reconsider:**
 
-- If we add user accounts/authentication
-- If we add distinct pages (settings, history, etc.)
-- If we need shareable URLs for specific commanders
+- If the app grows an authenticated area or a settings/history section
+- If route modules need to be split by domain instead of keeping a single thin router file
 
 ### 3. Why Rolldown Instead of Standard Vite?
 
@@ -548,9 +565,9 @@ try {
 
 **Caching Strategy:**
 
-- No persistent cache (browser memory only)
-- Same card fetched multiple times during session = multiple requests
-- Future improvement: IndexedDB cache for frequently used cards
+- Persistent card caching is handled in IndexedDB with a 7-day TTL
+- In-flight fetches are deduplicated through `requestCache`
+- Cached lookups reduce repeat Scryfall requests for previously viewed cards
 
 ---
 
@@ -569,15 +586,15 @@ try {
 1. **Tree-shaking**
    - Use ES modules for all imports
    - Avoid default exports (harder to tree-shake)
-   - Stub unused libraries (vue-router)
+   - Keep feature utilities and composables imported narrowly
 
 2. **Code splitting**
-   - Lazy load heavy components (not implemented yet)
-   - Future: Split CSV parsing into separate chunk
+   - Lazy load route-adjacent optional UI like modals, background effects, and analytics
+   - Split vendor concerns in `vite.config.ts`
 
 3. **Dependency audit**
    - VueUse: Only import specific composables (not `@vueuse/core` bundle)
-   - Tailwind: PurgeCSS removes unused utility classes
+   - Tailwind: the build pipeline removes unused utility classes
 
 **Size Budget:**
 
@@ -587,24 +604,24 @@ try {
 
 ### 2. Virtual Scrolling Strategy
 
-**Current Implementation:** ❌ Not implemented yet
+**Current Implementation:** Implemented in `CardTable.vue` via `@tanstack/vue-virtual`
 
-**Why needed:**
+**Why it exists:**
 
 - EDHREC cardlists can have 100-500 cards
 - Rendering 500+ DOM nodes causes jank
 - Mobile devices especially struggle
 
-**Planned Approach:**
+**Current approach:**
 
 ```typescript
-// Use @vueuse/core's useVirtualList
-import { useVirtualList } from "@vueuse/core";
+import { useVirtualizer } from "@tanstack/vue-virtual";
 
-const { list, containerProps, wrapperProps } = useVirtualList(
-  cards,
-  { itemHeight: 60 } // Fixed row height
-);
+const rowVirtualizer = useVirtualizer({
+  count: rows.length,
+  estimateSize: () => props.virtualItemSize,
+  overscan: props.virtualOverscan,
+});
 ```
 
 **Benefits:**
@@ -612,6 +629,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
 - Only render visible rows (~20 at a time)
 - Smooth scrolling even with 1000+ cards
 - Reduced memory usage
+- Density-aware row sizes can still be applied without changing the table contract
 
 ### 3. API Call Optimization
 
@@ -825,9 +843,9 @@ const url = `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(san
    - Background sync for API requests
 
 4. **URL State Management**
-   - Add routing for shareable commander URLs
-   - Query params for filter state
-   - Browser history for navigation
+   - Expand route state beyond commander and filter syncing if more views are added
+   - Consider splitting router concerns into feature modules if route count grows
+   - Keep deep linking aligned with the composable-driven state model
 
 5. **Progressive Web App (PWA)**
    - Add manifest.json
@@ -860,5 +878,5 @@ For questions or clarification on architectural decisions, open an issue with th
 
 ---
 
-**Last Updated:** 2025-11-21  
+**Last Updated:** 2026-03-24
 **Maintainers:** Commander Scout Team

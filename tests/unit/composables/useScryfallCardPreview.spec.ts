@@ -168,8 +168,8 @@ describe("useScryfallCardPreview", () => {
       const mockEvent = new MouseEvent("mouseenter", { clientX: 100, clientY: 200 });
       await composable.handleCardHover("Test Card", mockEvent);
 
-      expect(composable.imagePosition.value.x).toBe(200); // 100 + 100
-      expect(composable.imagePosition.value.y).toBe(360); // 200 + 160
+      expect(composable.imagePosition.value.x).toBe(128);
+      expect(composable.imagePosition.value.y).toBe(28);
     });
 
     it("should update image position on pointer move", () => {
@@ -179,8 +179,30 @@ describe("useScryfallCardPreview", () => {
       const mockEvent = new MouseEvent("mousemove", { clientX: 300, clientY: 400 });
       composable.handlePointerMove(mockEvent);
 
-      expect(composable.imagePosition.value.x).toBe(400); // 300 + 100
-      expect(composable.imagePosition.value.y).toBe(560); // 400 + 160
+      expect(composable.imagePosition.value.x).toBe(328);
+      expect(composable.imagePosition.value.y).toBe(228);
+    });
+
+    it("should clamp preview position near the right and bottom viewport edges", () => {
+      const card = ref(createMockCard());
+      const composable = useScryfallCardPreview(card);
+
+      const mockEvent = new MouseEvent("mousemove", { clientX: 980, clientY: 760 });
+      composable.handlePointerMove(mockEvent);
+
+      expect(composable.imagePosition.value.x).toBe(712);
+      expect(composable.imagePosition.value.y).toBe(408);
+    });
+
+    it("should clamp preview position near the left and top viewport edges", () => {
+      const card = ref(createMockCard());
+      const composable = useScryfallCardPreview(card);
+
+      const mockEvent = new MouseEvent("mousemove", { clientX: 8, clientY: 24 });
+      composable.handlePointerMove(mockEvent);
+
+      expect(composable.imagePosition.value.x).toBe(36);
+      expect(composable.imagePosition.value.y).toBe(16);
     });
 
     it("should hide card image on pointer leave", () => {

@@ -1,4 +1,11 @@
-import { onBeforeUnmount, onMounted, ref, computed, type Ref } from "vue";
+import {
+  computed,
+  getCurrentInstance,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type Ref,
+} from "vue";
 import { getCardImage } from "../api/scryfallApi";
 import { useGlobalLoading } from "./useGlobalLoading";
 import { handleError } from "../utils/errorHandler";
@@ -7,6 +14,10 @@ import type { DisplayCard } from "../types/cards";
 const cardImageCache = new Map<string, string>();
 const TAP_MOVE_THRESHOLD = 12;
 const HOVER_LOAD_DELAY = 150;
+const PREVIEW_WIDTH = 240;
+const PREVIEW_HEIGHT = 344;
+const PREVIEW_GAP = 28;
+const VIEWPORT_MARGIN = 16;
 
 const normalizeCardName = (value: string) => value.trim().toLowerCase();
 
@@ -66,9 +77,32 @@ export const useScryfallCardPreview = (card: Ref<DisplayCard>) => {
   };
 
   const updateImagePosition = (event: MouseEvent | PointerEvent) => {
+    const preferredY = event.clientY - PREVIEW_HEIGHT / 2;
+
+    if (typeof window === "undefined") {
+      imagePosition.value = {
+        x: event.clientX + PREVIEW_GAP,
+        y: preferredY,
+      };
+      return;
+    }
+
+    const preferredRight = event.clientX + PREVIEW_GAP;
+    const preferredLeft = event.clientX - PREVIEW_GAP - PREVIEW_WIDTH;
+    const minX = VIEWPORT_MARGIN;
+    const maxX = Math.max(window.innerWidth - VIEWPORT_MARGIN - PREVIEW_WIDTH, minX);
+    const minY = VIEWPORT_MARGIN;
+    const maxY = Math.max(window.innerHeight - VIEWPORT_MARGIN - PREVIEW_HEIGHT, minY);
+
+    const x = Math.min(
+      Math.max(preferredRight <= maxX ? preferredRight : preferredLeft, minX),
+      maxX
+    );
+    const y = Math.min(Math.max(preferredY, minY), maxY);
+
     imagePosition.value = {
-      x: event.clientX + 100,
-      y: event.clientY + 160,
+      x,
+      y,
     };
   };
 
@@ -251,22 +285,24 @@ export const useScryfallCardPreview = (card: Ref<DisplayCard>) => {
     listener: null as ((event: MediaQueryListEvent) => void) | null,
   };
 
-  onMounted(() => {
-    setupHoverDetection();
-  });
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      setupHoverDetection();
+    });
 
-  onBeforeUnmount(() => {
-    if (
-      hoverMediaQueryState.query &&
-      hoverMediaQueryState.listener &&
-      "removeEventListener" in hoverMediaQueryState.query
-    ) {
-      hoverMediaQueryState.query.removeEventListener(
-        "change",
-        hoverMediaQueryState.listener
-      );
-    }
-  });
+    onBeforeUnmount(() => {
+      if (
+        hoverMediaQueryState.query &&
+        hoverMediaQueryState.listener &&
+        "removeEventListener" in hoverMediaQueryState.query
+      ) {
+        hoverMediaQueryState.query.removeEventListener(
+          "change",
+          hoverMediaQueryState.listener
+        );
+      }
+    });
+  }
 
   return {
     hoveredCardImage,

@@ -1,17 +1,20 @@
 <template>
-  <CSurface size="md">
+  <CSurface variant="utility" size="sm">
     <CStack gap="md">
-      <CInline align="start" justify="between" gap="md">
+      <CInline align="start" justify="between" gap="md" class="flex-col lg:flex-row">
         <CStack gap="xs">
           <CText tag="p" variant="eyebrow" tone="muted">
             CSV Status
           </CText>
-          <CText tag="p" variant="body" tone="muted">
+          <CText tag="p" variant="title">
             {{ statusLabel }}
+          </CText>
+          <CText tag="p" variant="helper" tone="muted">
+            Upload once to promote ownership overlap across every ranked commander card below.
           </CText>
         </CStack>
 
-        <CInline gap="md" class="text-xs">
+        <CInline gap="md" class="text-xs flex-wrap">
           <CText
             v-if="formattedLastUpdated"
             tag="span"

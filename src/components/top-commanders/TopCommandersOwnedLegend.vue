@@ -1,6 +1,6 @@
 <template>
-  <CInline gap="md" class="text-xs">
-    <CBadge tone="muted" variant="outline">
+  <CInline gap="md" class="text-xs flex-wrap">
+    <CBadge tone="default" variant="outline">
       Owned range
     </CBadge>
     <CInline gap="sm">

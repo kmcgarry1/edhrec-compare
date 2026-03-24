@@ -14,8 +14,6 @@
     ></div>
     <div class="nebula__base" aria-hidden="true"></div>
     <div class="nebula__glow" aria-hidden="true"></div>
-    <div class="nebula__particles nebula__particles--fine" aria-hidden="true"></div>
-    <div class="nebula__particles nebula__particles--coarse" aria-hidden="true"></div>
     <div class="nebula__noise" aria-hidden="true"></div>
   </div>
 </template>
@@ -29,19 +27,12 @@ const { artUrls } = useBackgroundArt();
 const currentUrl = ref<string | null>(null);
 const nextUrl = ref<string | null>(null);
 const showNext = ref(false);
-const activeIndex = ref(0);
 
 const FADE_DURATION_MS = 1800;
-const DISPLAY_DURATION_MS = 12000;
 
-let cycleTimeout: ReturnType<typeof setTimeout> | null = null;
 let fadeTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const clearTimers = () => {
-  if (cycleTimeout) {
-    clearTimeout(cycleTimeout);
-    cycleTimeout = null;
-  }
   if (fadeTimeout) {
     clearTimeout(fadeTimeout);
     fadeTimeout = null;
@@ -54,47 +45,45 @@ const buildArtStyle = (url: string | null) =>
 const primaryStyle = computed(() => buildArtStyle(currentUrl.value));
 const secondaryStyle = computed(() => buildArtStyle(nextUrl.value));
 
-const scheduleNext = () => {
-  const urls = artUrls.value;
-  if (urls.length < 2) {
-    return;
-  }
-
-  const upcomingIndex = (activeIndex.value + 1) % urls.length;
-  nextUrl.value = urls[upcomingIndex] ?? null;
-  showNext.value = true;
-
-  fadeTimeout = setTimeout(() => {
-    currentUrl.value = nextUrl.value;
-    activeIndex.value = upcomingIndex;
-    showNext.value = false;
-    nextUrl.value = null;
-    cycleTimeout = setTimeout(scheduleNext, DISPLAY_DURATION_MS);
-  }, FADE_DURATION_MS);
-};
-
-const startCycle = (urls: readonly string[]) => {
+const updateArt = (urls: readonly string[]) => {
   clearTimers();
-  if (!urls.length) {
+
+  const nextPrimaryUrl = urls[0] ?? null;
+  if (!nextPrimaryUrl) {
     currentUrl.value = null;
     nextUrl.value = null;
     showNext.value = false;
-    activeIndex.value = 0;
     return;
   }
-  activeIndex.value = 0;
-  currentUrl.value = urls[0] ?? null;
-  nextUrl.value = null;
-  showNext.value = false;
-  if (urls.length > 1) {
-    cycleTimeout = setTimeout(scheduleNext, DISPLAY_DURATION_MS);
+
+  if (!currentUrl.value) {
+    currentUrl.value = nextPrimaryUrl;
+    nextUrl.value = null;
+    showNext.value = false;
+    return;
   }
+
+  if (currentUrl.value === nextPrimaryUrl) {
+    nextUrl.value = null;
+    showNext.value = false;
+    return;
+  }
+
+  nextUrl.value = nextPrimaryUrl;
+  showNext.value = true;
+
+  fadeTimeout = setTimeout(() => {
+    currentUrl.value = nextPrimaryUrl;
+    nextUrl.value = null;
+    showNext.value = false;
+    fadeTimeout = null;
+  }, FADE_DURATION_MS);
 };
 
 watch(
   artUrls,
   (urls) => {
-    startCycle(urls);
+    updateArt(urls);
   },
   { immediate: true }
 );
@@ -110,119 +99,56 @@ onBeforeUnmount(() => {
   inset: 0;
 }
 
+.nebula {
+  contain: strict;
+}
+
 .nebula__art {
   opacity: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(28px) saturate(1.1) contrast(1.03);
-  transform: scale(1.06);
+  filter: blur(16px) saturate(1.02);
+  transform: scale(1.03);
   transition: opacity 1800ms ease;
-  mix-blend-mode: soft-light;
 }
 
 .nebula__art.is-visible {
-  opacity: 0.24;
+  opacity: 0.18;
 }
 
 .nebula__base {
-  opacity: 0.6;
+  opacity: 0.48;
   background-image:
-    repeating-linear-gradient(120deg, var(--pattern-line) 0 1px, transparent 1px 26px),
-    repeating-linear-gradient(30deg, var(--pattern-line) 0 1px, transparent 1px 32px),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-strong) 76%, transparent), transparent),
     radial-gradient(circle at 18% 22%, var(--accent-glow-strong), transparent 45%),
     radial-gradient(circle at 78% 10%, var(--accent-glow), transparent 40%);
-  background-size: 240px 240px, 200px 200px, 100% 100%, 100% 100%;
+  background-size: 100% 100%, 100% 100%, 100% 100%;
   background-position: center;
 }
 
 .nebula__glow {
-  opacity: 0.6;
-  filter: blur(44px);
+  opacity: 0.32;
+  filter: blur(28px);
   background-image:
     radial-gradient(circle at 18% 78%, var(--warn-soft), transparent 50%),
     radial-gradient(circle at 82% 70%, var(--danger-soft), transparent 45%),
     radial-gradient(circle at 55% 20%, var(--accent-glow-strong), transparent 55%);
-  animation: nebula-pulse 36s ease-in-out infinite;
-}
-
-.nebula__particles {
-  opacity: 0.3;
-  will-change: background-position, transform;
-}
-
-.nebula__particles--fine {
-  background-image:
-    radial-gradient(circle, var(--pattern-line) 1px, transparent 1px),
-    radial-gradient(circle, var(--accent-glow) 1px, transparent 1px);
-  background-size: 110px 110px, 200px 200px;
-  background-position: 0 0, 45px 60px;
-  animation: nebula-drift 30s linear infinite;
-}
-
-.nebula__particles--coarse {
-  opacity: 0.22;
-  background-image: radial-gradient(circle, var(--accent-glow-strong) 1.4px, transparent 1.4px);
-  background-size: 260px 260px;
-  background-position: 120px 80px;
-  animation: nebula-drift 42s linear infinite reverse;
 }
 
 .nebula__noise {
-  opacity: 0.14;
+  opacity: 0.08;
   background-image: radial-gradient(circle, var(--pattern-line) 0.5px, transparent 0.5px);
-  background-size: 3px 3px;
-}
-
-@keyframes nebula-drift {
-  0% {
-    background-position: 0 0, 45px 60px;
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    background-position: 70px 45px, 20px 50px;
-    transform: translate3d(-3%, 2%, 0);
-  }
-  100% {
-    background-position: 0 0, 45px 60px;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes nebula-pulse {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translate3d(-2%, 2%, 0) scale(1.05);
-    opacity: 0.8;
-  }
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.65;
-  }
+  background-size: 4px 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nebula__art {
     transition: none;
   }
-
-  .nebula__glow,
-  .nebula__particles--fine,
-  .nebula__particles--coarse {
-    animation: none;
-  }
 }
 
 :global(.a11y-reduce-motion) .nebula__art {
   transition: none !important;
-}
-
-:global(.a11y-reduce-motion) .nebula__glow,
-:global(.a11y-reduce-motion) .nebula__particles--fine,
-:global(.a11y-reduce-motion) .nebula__particles--coarse {
-  animation: none !important;
 }
 </style>

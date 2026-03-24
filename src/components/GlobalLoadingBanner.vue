@@ -16,7 +16,7 @@
         >
           <template #icon>
             <svg
-              class="h-5 w-5 animate-spin text-[color:var(--accent)]"
+              class="h-5 w-5 text-[color:var(--accent)]"
               viewBox="0 0 24 24"
               fill="none"
               aria-hidden="true"
@@ -161,7 +161,7 @@ const inlineNoticeClass = computed(() =>
   !props.inline
     ? ""
     : isVisible.value
-      ? "pointer-events-auto visible translate-y-0 opacity-100 loading-pulse transition duration-200 ease-out"
+      ? "pointer-events-auto visible translate-y-0 opacity-100 transition duration-200 ease-out"
       : "pointer-events-none invisible -translate-y-1 opacity-0 transition duration-200 ease-out"
 );
 </script>

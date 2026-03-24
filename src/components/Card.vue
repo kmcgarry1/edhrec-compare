@@ -1,6 +1,7 @@
 <template>
   <CSurface
     :as="as"
+    :variant="variant"
     :size="resolvedSize"
     radius="xl"
     :shadow="resolvedShadow"
@@ -47,7 +48,7 @@
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
 import { CSurface, CText } from "./core";
-import type { SurfaceShadow, SurfaceSize } from "./core/config";
+import type { SurfaceShadow, SurfaceSize, SurfaceVariant } from "./core/config";
 
 type Tone =
   | "default"
@@ -62,6 +63,7 @@ type Tone =
 const props = withDefaults(
   defineProps<{
     as?: string;
+    variant?: SurfaceVariant;
     padding?: string | null;
     rounded?: string | null;
     shadow?: string | null;
@@ -77,6 +79,7 @@ const props = withDefaults(
   }>(),
   {
     as: "div",
+    variant: "panel" as SurfaceVariant,
     padding: null,
     rounded: "rounded-2xl",
     shadow: "shadow-[var(--shadow-soft)]",
@@ -99,9 +102,12 @@ const hasHeader = computed(
 );
 
 const surfaceSheen = computed(() => {
+  if (props.variant === "masthead") {
+    return true;
+  }
   const background = props.background ?? "";
   if (!background) {
-    return false;
+    return props.variant === "panel" || props.variant === "content";
   }
   if (!background.includes("var(--surface")) {
     return false;

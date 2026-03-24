@@ -9,6 +9,7 @@ export type TextVariant =
   | "helper"
   | "caption"
   | "title"
+  | "metric"
   | "overline"
   | "eyebrow"
   | "display";
@@ -29,28 +30,25 @@ export type SurfaceVariant =
   | "muted"
   | "accent"
   | "ghost"
-  | "dashed";
+  | "dashed"
+  | "masthead"
+  | "command"
+  | "toolbar"
+  | "rail"
+  | "dense"
+  | "content"
+  | "utility";
 
-export type SurfaceTone =
-  | "default"
-  | "accent"
-  | "success"
-  | "warn"
-  | "danger";
+export type SurfaceTone = "default" | "accent" | "success" | "warn" | "danger";
 
 export type SurfaceSize = "none" | "sm" | "md" | "lg" | "adaptive";
 export type SurfaceRadius = "lg" | "xl" | "2xl" | "3xl" | "pill";
 export type SurfaceShadow = "none" | "soft" | "base";
 
 export type BadgeVariant = "soft" | "solid" | "outline";
-export type BadgeTone =
-  | "default"
-  | "accent"
-  | "success"
-  | "warn"
-  | "danger"
-  | "muted";
+export type BadgeTone = "default" | "accent" | "success" | "warn" | "danger" | "muted";
 export type BadgeSize = "sm" | "md";
+export type BadgeTextCase = "caps" | "normal";
 
 export type ProgressTone = "accent" | "success" | "warn" | "danger" | "muted";
 export type ProgressSize = "sm" | "md";
@@ -91,13 +89,14 @@ export const wrapClasses: Record<Wrap, string> = {
 
 export const textVariantClasses: Record<TextVariant, string> = {
   body: "text-sm",
-  helper: "text-xs",
+  helper: "text-[0.78rem]",
   label: "text-xs font-semibold uppercase tracking-wide",
   caption: "text-[11px]",
-  title: "text-base font-semibold",
-  overline: "text-[10px] font-semibold uppercase tracking-[0.2em]",
-  eyebrow: "text-xs font-semibold uppercase tracking-[0.28em]",
-  display: "text-3xl font-semibold sm:text-4xl",
+  title: "text-[1.02rem] font-semibold leading-tight",
+  metric: "text-2xl font-semibold tracking-tight sm:text-[1.8rem]",
+  overline: "text-[10px] font-semibold uppercase tracking-[0.24em]",
+  eyebrow: "text-[0.68rem] font-semibold uppercase tracking-[0.3em]",
+  display: "text-[clamp(2.2rem,4vw,3.8rem)] font-semibold leading-[0.96]",
 };
 
 export const textToneClasses: Record<TextTone, string> = {
@@ -156,8 +155,7 @@ export const buttonVariantClasses = {
     "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
   ghost:
     "border border-transparent bg-transparent text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]",
-  soft:
-    "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
 } as const;
 
 export const buttonToneClasses = {
@@ -170,12 +168,19 @@ export const buttonToneClasses = {
 export const surfaceBase = "c-surface relative";
 
 export const surfaceVariantClasses: Record<SurfaceVariant, string> = {
-  panel: "border bg-[color:var(--surface)]",
+  panel: "surface-role-panel border",
   strong: "border bg-[color:var(--surface-strong)]",
   muted: "border bg-[color:var(--surface-muted)]",
   accent: "border bg-[color:var(--accent-soft)]",
   ghost: "border border-transparent bg-transparent shadow-none",
   dashed: "border-2 border-dashed bg-[color:var(--surface)]",
+  masthead: "surface-role-masthead border",
+  command: "surface-role-command border",
+  toolbar: "surface-role-toolbar border",
+  rail: "surface-role-rail border",
+  dense: "surface-role-dense border",
+  content: "surface-role-content border",
+  utility: "surface-role-utility border",
 };
 
 export const surfaceToneClasses: Record<SurfaceTone, string> = {
@@ -207,12 +212,16 @@ export const surfacePaddingClasses: Record<Exclude<SurfaceSize, "adaptive">, str
   lg: "p-5 sm:p-7",
 };
 
-export const badgeBase =
-  "inline-flex items-center rounded-full font-semibold tracking-[0.18em] uppercase";
+export const badgeBase = "inline-flex items-center rounded-full font-semibold leading-none";
 
 export const badgeSizeClasses: Record<BadgeSize, string> = {
   sm: "px-2.5 py-1 text-[10px]",
   md: "px-3 py-1.5 text-[11px]",
+};
+
+export const badgeTextCaseClasses: Record<BadgeTextCase, string> = {
+  caps: "uppercase tracking-[0.18em]",
+  normal: "normal-case tracking-[0.08em]",
 };
 
 export const badgeVariantClasses: Record<BadgeVariant, string> = {
@@ -224,8 +233,7 @@ export const badgeVariantClasses: Record<BadgeVariant, string> = {
 export const badgeToneClasses: Record<BadgeTone, Record<BadgeVariant, string>> = {
   default: {
     soft: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)]",
-    solid:
-      "border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)]",
+    solid: "border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)]",
     outline: "border-[color:var(--border)] text-[color:var(--muted)]",
   },
   accent: {
@@ -246,16 +254,14 @@ export const badgeToneClasses: Record<BadgeTone, Record<BadgeVariant, string>> =
     outline: "border-[color:var(--warn)] text-[color:var(--warn)]",
   },
   danger: {
-    soft:
-      "border-[color:var(--danger)] bg-[color:var(--danger-soft)] text-[color:var(--danger)]",
+    soft: "border-[color:var(--danger)] bg-[color:var(--danger-soft)] text-[color:var(--danger)]",
     solid:
       "border-[color:var(--danger)] bg-[color:var(--danger)] text-[color:var(--accent-contrast)]",
     outline: "border-[color:var(--danger)] text-[color:var(--danger)]",
   },
   muted: {
     soft: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--muted)]",
-    solid:
-      "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--muted)]",
+    solid: "border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--muted)]",
     outline: "border-[color:var(--border)] text-[color:var(--muted)]",
   },
 };

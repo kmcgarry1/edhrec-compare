@@ -22,20 +22,20 @@ describe("useLayoutDensity", () => {
     expect(spacing.value.cardPadding).toBe("p-2.5 sm:p-3");
   });
 
-  it("falls back to comfortable for invalid stored value", async () => {
+  it("falls back to cozy for invalid stored value", async () => {
     localStorage.setItem(STORAGE_KEY, "ultra");
     const { density } = await loadComposable();
 
-    expect(density.value).toBe("comfortable");
+    expect(density.value).toBe("cozy");
   });
 
   it("persists density changes to localStorage", async () => {
     const { density, setDensity } = await loadComposable();
 
-    expect(density.value).toBe("comfortable");
-    setDensity("cozy");
+    expect(density.value).toBe("cozy");
+    setDensity("compact");
     await nextTick();
 
-    expect(localStorage.getItem(STORAGE_KEY)).toBe("cozy");
+    expect(localStorage.getItem(STORAGE_KEY)).toBe("compact");
   });
 });

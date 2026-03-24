@@ -9,6 +9,24 @@ export type CardPriceSummary = {
   eur: string | null;
 };
 
+export type DisplayCardManaSymbol = {
+  token: string;
+  svg: string;
+};
+
+export type DisplayCardMeta = {
+  cardName: string;
+  hasSplitName: boolean;
+  primaryName: string;
+  secondaryName: string;
+  cardTypeFull: string;
+  cardTypeShort: string;
+  cardSet: string;
+  cardRarity: string;
+  cardMana: string;
+  manaSymbols: DisplayCardManaSymbol[];
+};
+
 export type DisplayCard = {
   id: string;
   name: string;
@@ -21,6 +39,7 @@ export type DisplayCard = {
   prices?: CardPriceSummary;
   faces?: CardFaceSummary[];
   scryfall_uri?: string;
+  display?: DisplayCardMeta;
 };
 
 export type CardTableRow = {

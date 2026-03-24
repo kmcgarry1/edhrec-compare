@@ -23,7 +23,7 @@
 import { readonly, ref } from "vue";
 
 const STORAGE_KEY = "edhrec-background-enabled";
-const backgroundEnabled = ref(true);
+const backgroundEnabled = ref(false);
 let initialized = false;
 
 /**
@@ -36,8 +36,8 @@ const ensureInitialized = () => {
 
   if (typeof window !== "undefined") {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "false") {
-      backgroundEnabled.value = false;
+    if (stored === "true") {
+      backgroundEnabled.value = true;
     }
   }
 

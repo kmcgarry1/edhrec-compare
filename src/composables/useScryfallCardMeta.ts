@@ -1,4 +1,4 @@
-import { computed, onMounted, type Ref } from "vue";
+import { computed, type Ref } from "vue";
 import { useScryfallSymbols } from "./useScryfallSymbols";
 import type { DisplayCard } from "../types/cards";
 
@@ -22,27 +22,39 @@ const rarityClass = (rarity?: string | null) => {
 };
 
 export const useScryfallCardMeta = (card: Ref<DisplayCard>) => {
-  const { ensureSymbolsLoaded, getSvgForSymbol, isLoading: symbolsLoading } =
-    useScryfallSymbols();
+  const { getSvgForSymbol, isLoading: symbolsLoading } = useScryfallSymbols();
+  const display = computed(() => card.value.display ?? null);
 
-  const cardName = computed(() => card.value.name || "—");
+  const cardName = computed(() => display.value?.cardName ?? card.value.name ?? "—");
   const nameParts = computed(() =>
     cardName.value
       .split(/\s*\/\/\s*/)
       .map((part) => part.trim())
       .filter(Boolean)
   );
-  const hasSplitName = computed(() => nameParts.value.length > 1);
-  const primaryName = computed(() => nameParts.value[0] ?? cardName.value);
+  const hasSplitName = computed(
+    () => display.value?.hasSplitName ?? nameParts.value.length > 1
+  );
+  const primaryName = computed(
+    () => display.value?.primaryName ?? nameParts.value[0] ?? cardName.value
+  );
   const secondaryName = computed(() => {
+    if (display.value) {
+      return display.value.secondaryName;
+    }
     if (!hasSplitName.value) {
       return "";
     }
     return nameParts.value.slice(1).join(" // ");
   });
 
-  const cardTypeFull = computed(() => card.value.type_line || "—");
+  const cardTypeFull = computed(
+    () => display.value?.cardTypeFull ?? card.value.type_line ?? "—"
+  );
   const cardTypeShort = computed(() => {
+    if (display.value) {
+      return display.value.cardTypeShort;
+    }
     if (!card.value.type_line) {
       return "—";
     }
@@ -54,11 +66,16 @@ export const useScryfallCardMeta = (card: Ref<DisplayCard>) => {
     const filtered = leftSide.split(/\s+/).filter((part) => !supertypes.has(part));
     return filtered.join(" ") || leftSide;
   });
-  const cardSet = computed(() => (card.value.set || "").toUpperCase() || "—");
-  const cardRarity = computed(() => card.value.rarity || "—");
-  const cardMana = computed(() => card.value.mana_cost || "—");
+  const cardSet = computed(
+    () => display.value?.cardSet ?? ((card.value.set || "").toUpperCase() || "—")
+  );
+  const cardRarity = computed(() => display.value?.cardRarity ?? card.value.rarity ?? "—");
+  const cardMana = computed(() => display.value?.cardMana ?? card.value.mana_cost ?? "—");
 
   const manaSymbols = computed(() => {
+    if (display.value) {
+      return display.value.manaSymbols;
+    }
     if (!card.value.mana_cost) {
       return [] as Array<{ token: string; svg: string }>;
     }
@@ -80,12 +97,6 @@ export const useScryfallCardMeta = (card: Ref<DisplayCard>) => {
     "bg-[color:var(--surface-muted)]",
     rarityClass(cardRarity.value),
   ]);
-
-  onMounted(() => {
-    Promise.resolve(ensureSymbolsLoaded()).catch(() => {
-      /* handled globally */
-    });
-  });
 
   return {
     cardName,

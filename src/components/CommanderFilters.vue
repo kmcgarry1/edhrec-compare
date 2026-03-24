@@ -4,13 +4,16 @@
       <span class="text-xs font-semibold uppercase tracking-[0.3em] text-[color:var(--muted)]">
         Filters
       </span>
-      <span class="text-[0.7rem] text-[color:var(--muted)]">
-        EDHREC query controls
-      </span>
+      <span class="text-[0.7rem] text-[color:var(--muted)]"> EDHREC query controls </span>
     </div>
-    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div :class="gridClass">
       <label class="space-y-1 text-[0.8rem] text-[color:var(--text)]">
-        <span :class="['text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]', spacing.labelText]">
+        <span
+          :class="[
+            'text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]',
+            spacing.labelText,
+          ]"
+        >
           Bracket
         </span>
         <DropdownSelect
@@ -22,7 +25,12 @@
         />
       </label>
       <label class="space-y-1 text-[0.8rem] text-[color:var(--text)]">
-        <span :class="['text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]', spacing.labelText]">
+        <span
+          :class="[
+            'text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]',
+            spacing.labelText,
+          ]"
+        >
           Budget
         </span>
         <DropdownSelect
@@ -34,7 +42,12 @@
         />
       </label>
       <label class="space-y-1 text-[0.8rem] text-[color:var(--text)]">
-        <span :class="['text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]', spacing.labelText]">
+        <span
+          :class="[
+            'text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]',
+            spacing.labelText,
+          ]"
+        >
           Page
         </span>
         <DropdownSelect
@@ -46,7 +59,12 @@
         />
       </label>
       <label class="space-y-1 text-[0.8rem] text-[color:var(--text)]">
-        <span :class="['text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]', spacing.labelText]">
+        <span
+          :class="[
+            'text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]',
+            spacing.labelText,
+          ]"
+        >
           Companion
         </span>
         <DropdownSelect
@@ -76,6 +94,7 @@ const props = defineProps<{
   modifier: string;
   pageType: string;
   companion: string;
+  layout?: "grid" | "stacked";
 }>();
 
 const emit = defineEmits<{
@@ -105,6 +124,8 @@ const setCompanion = (value: string | number) => {
 
 const { bracket, modifier, pageType, companion } = toRefs(props);
 const { spacing } = useLayoutDensity();
+const gridClass =
+  props.layout === "stacked" ? "grid gap-3" : "grid gap-3 sm:grid-cols-2 xl:grid-cols-4";
 
 const __templateBindings = {
   DropdownSelect,
@@ -120,6 +141,7 @@ const __templateBindings = {
   modifier,
   pageType,
   companion,
+  gridClass,
 };
 void __templateBindings;
 </script>
