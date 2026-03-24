@@ -46,6 +46,13 @@
             Back to dashboard
           </CButton>
           <CButton
+            :as="RouterLink"
+            to="/changelog"
+            variant="soft"
+          >
+            Release notes
+          </CButton>
+          <CButton
             type="button"
             variant="primary"
             @click="emit('upload')"

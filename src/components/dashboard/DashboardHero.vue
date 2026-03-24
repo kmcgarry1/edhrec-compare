@@ -40,6 +40,9 @@
           <CButton :as="RouterLink" to="/top-commanders" variant="secondary">
             Top commanders
           </CButton>
+          <CButton :as="RouterLink" to="/changelog" variant="soft">
+            Release notes
+          </CButton>
         </CInline>
       </CStack>
 
