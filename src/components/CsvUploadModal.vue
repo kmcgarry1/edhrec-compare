@@ -3,7 +3,7 @@
     <div
       v-if="open"
       ref="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 px-4 py-8 text-center backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-8 text-center"
       role="dialog"
       aria-modal="true"
       aria-labelledby="csv-upload-title"

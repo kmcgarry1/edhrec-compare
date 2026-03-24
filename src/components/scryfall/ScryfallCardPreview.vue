@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="hoveredCardImage && isFullscreenPreview"
-      class="fixed inset-0 z-[60] flex flex-col bg-black/80 px-4 py-6 text-white backdrop-blur"
+      class="fixed inset-0 z-[60] flex flex-col bg-black/88 px-4 py-6 text-white"
       @click.self="emit('close-preview')"
     >
       <div class="flex justify-end">
@@ -30,9 +30,13 @@
       border="border border-[color:var(--border)]"
       background="bg-[color:var(--surface)]"
       shadow="shadow-[var(--shadow)]"
-      class="fixed pointer-events-none z-50 -translate-x-1/2 -translate-y-1/2 text-[color:var(--text)]"
+      class="pointer-events-none z-50 text-[color:var(--text)]"
       :fullWidth="false"
-      :style="{ left: imagePosition.x + 'px', top: imagePosition.y + 'px' }"
+      :style="{
+        position: 'fixed',
+        left: imagePosition.x + 'px',
+        top: imagePosition.y + 'px',
+      }"
     >
       <img
         :src="hoveredCardImage"
@@ -44,7 +48,7 @@
   <Teleport to="body">
     <div
       v-if="isMobileModalOpen"
-      class="fixed inset-0 z-[70] flex items-end justify-center bg-black/70 px-4 py-8 backdrop-blur-sm sm:items-center"
+      class="fixed inset-0 z-[70] flex items-end justify-center bg-black/82 px-4 py-8 sm:items-center"
       @click.self="emit('close-modal')"
     >
       <Card
@@ -91,7 +95,7 @@
         <div class="pointer-events-none flex justify-center">
           <div
             v-if="modalLoading"
-            class="h-64 w-44 animate-pulse rounded-2xl bg-[color:var(--surface-muted)]"
+            class="h-64 w-44 rounded-2xl bg-[color:var(--surface-muted)]"
           ></div>
           <img
             v-else-if="modalImageUrl"

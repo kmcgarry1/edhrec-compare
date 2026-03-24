@@ -31,6 +31,10 @@ const setupApp = async (page: Page) => {
   await page.goto("/");
 };
 
+const expectSearchReady = async (page: Page) => {
+  await expect(page.getByRole("textbox", { name: /Primary commander/i })).toBeVisible();
+};
+
 const dismissOnboarding = async (page: Page) => {
   const onboardingDialog = page.getByRole("dialog", {
     name: /Upload your collection or scout first/i,
@@ -38,16 +42,12 @@ const dismissOnboarding = async (page: Page) => {
   await expect(onboardingDialog).toBeVisible();
   await page.getByRole("button", { name: /Start searching/ }).click();
   await expect(onboardingDialog).toBeHidden();
-};
-
-const openCollectionTab = async (page: Page) => {
-  await page.getByRole("tab", { name: /^Collection$/ }).click();
-  await expect(page.locator("#panel-collection")).toBeVisible();
+  await expectSearchReady(page);
 };
 
 const openDisplaySettings = async (page: Page) => {
-  await openCollectionTab(page);
-  await page.locator("summary", { hasText: "Display settings" }).click();
+  await page.getByRole("button", { name: /^Display$/ }).click();
+  await expect(page.getByRole("button", { name: /Switch to.*theme/ })).toBeVisible();
 };
 
 test.describe("Keyboard Navigation", () => {
@@ -75,6 +75,7 @@ test.describe("Keyboard Navigation", () => {
     // Press Enter to dismiss
     await page.keyboard.press("Enter");
     await expect(onboardingDialog).toBeHidden();
+    await expectSearchReady(page);
   });
 
   test("can close modal with Escape key", async ({ page }) => {
@@ -96,10 +97,9 @@ test.describe("Keyboard Navigation", () => {
 
     // Dismiss onboarding first
     await dismissOnboarding(page);
-    await openCollectionTab(page);
 
     // Click upload button
-    await page.getByRole("button", { name: /Upload CSV/ }).first().click();
+    await page.getByRole("button", { name: /^Upload CSV$/ }).click();
 
     // Wait for upload modal
     await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeVisible();
@@ -134,7 +134,7 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
 
     // Focus on primary commander input
     const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
@@ -156,7 +156,7 @@ test.describe("Keyboard Navigation", () => {
       await page.keyboard.press("Enter");
 
       // Verify selection
-      await expect(primaryInput).toHaveValue(/Atraxa/);
+      await expect(page).toHaveURL(/\/commander\/atraxa-grand-unifier/);
     }
   });
 
@@ -213,7 +213,7 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
 
     // Check primary commander input
     const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
@@ -227,10 +227,9 @@ test.describe("ARIA Attributes", () => {
 
     // Dismiss onboarding
     await dismissOnboarding(page);
-    await openCollectionTab(page);
 
     // Open upload modal and provide a CSV to surface status messaging
-    await page.getByRole("button", { name: /Upload CSV/i }).click();
+    await page.getByRole("button", { name: /^Upload CSV$/ }).click();
     const uploadDialog = page.getByRole("dialog", { name: /Import your CSV/i });
     await expect(uploadDialog).toBeVisible();
     const fileInput = uploadDialog.locator('input[type="file"]');
@@ -245,7 +244,7 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
 
     // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
+    await dismissOnboarding(page);
 
     // Type invalid search to trigger error
     const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
@@ -266,10 +265,9 @@ test.describe("Focus Management", () => {
 
     // Dismiss onboarding
     await dismissOnboarding(page);
-    await openCollectionTab(page);
 
     // Click upload button and track it
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
+    const uploadButton = page.getByRole("button", { name: /^Upload CSV$/ });
     await uploadButton.click();
 
     // Wait for modal

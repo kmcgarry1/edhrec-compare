@@ -1,10 +1,10 @@
 <template>
-  <CInline align="start" justify="between" gap="md">
-    <CStack gap="xs">
+  <CInline align="start" justify="between" gap="md" class="flex-col xl:flex-row">
+    <CStack gap="xs" class="min-w-0">
       <CText tag="p" variant="eyebrow" tone="muted">
         {{ topHeader }}
       </CText>
-      <CText tag="h2" variant="title" class="text-lg">
+      <CText tag="h2" variant="title" class="text-xl">
         Top {{ topLimit }} commanders
       </CText>
       <CText tag="p" variant="body" tone="muted">
@@ -12,11 +12,11 @@
       </CText>
     </CStack>
 
-    <CInline gap="md">
+    <CInline gap="md" class="flex-wrap">
       <CSurface
         size="none"
         radius="pill"
-        variant="muted"
+        variant="content"
         class="inline-flex p-1"
         role="group"
         aria-label="Choose top commanders range"
@@ -40,7 +40,7 @@
       <CSurface
         size="none"
         radius="pill"
-        variant="muted"
+        variant="content"
         class="inline-flex p-1"
         role="group"
         aria-label="Sort commanders"

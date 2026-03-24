@@ -16,22 +16,24 @@ export const useEdhrecData = (url: Ref<string | null>) => {
 
     await withLoading(
       async () => {
-        await requestCache.dedupe(`edhrec:${targetUrl}`, async () => {
-          try {
+        try {
+          const payload = await requestCache.dedupe(`edhrec:${targetUrl}`, async () => {
             const response = await fetch(targetUrl);
             if (!response.ok) {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
-            data.value = await response.json();
-          } catch (err) {
-            const handled = handleError(err, {
-              notify: true,
-              fallbackMessage: "Unable to fetch commander data from EDHREC.",
-              context: "EDHREC request failed",
-            });
-            error.value = handled.userMessage;
-          }
-        });
+            return (await response.json()) as EdhrecData;
+          });
+
+          data.value = payload;
+        } catch (err) {
+          const handled = handleError(err, {
+            notify: true,
+            fallbackMessage: "Unable to fetch commander data from EDHREC.",
+            context: "EDHREC request failed",
+          });
+          error.value = handled.userMessage;
+        }
       },
       "Fetching commander data...",
       readerScope

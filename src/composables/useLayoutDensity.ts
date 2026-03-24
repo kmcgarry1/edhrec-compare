@@ -5,15 +5,15 @@ export type Density = "comfortable" | "cozy" | "compact";
 const STORAGE_KEY = "commander-scout:layout-density";
 
 const normalizeDensity = (value: string | null): Density => {
-  if (value === "cozy" || value === "compact") {
+  if (value === "comfortable" || value === "cozy" || value === "compact") {
     return value;
   }
-  return "comfortable";
+  return "cozy";
 };
 
 const readInitialDensity = (): Density => {
   if (typeof window === "undefined") {
-    return "comfortable";
+    return "cozy";
   }
   const stored = window.localStorage.getItem(STORAGE_KEY);
   return normalizeDensity(stored);

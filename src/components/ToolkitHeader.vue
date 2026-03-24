@@ -7,7 +7,7 @@
       border="border border-[color:var(--border)]"
       background="bg-[color:var(--surface)]"
       shadow="shadow-[var(--shadow-soft)]"
-      class="backdrop-blur flex flex-col gap-2.5 text-xs"
+      class="flex flex-col gap-2.5 text-xs"
     >
       <div class="flex flex-wrap items-center justify-between gap-2 text-[0.72rem]">
         <div class="flex flex-wrap items-baseline gap-2">

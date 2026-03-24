@@ -2,8 +2,9 @@ import { computed, ref, watch, type Ref } from "vue";
 import { getCardsByNames, type ScryfallCard } from "../api/scryfallApi";
 import { useBackgroundArt } from "./useBackgroundArt";
 import { useGlobalLoading } from "./useGlobalLoading";
+import { useScryfallSymbols } from "./useScryfallSymbols";
 import { normalizeCardName } from "../utils/cardName";
-import type { CardTableRow } from "../types/cards";
+import type { CardTableRow, DisplayCardMeta, DisplayCardManaSymbol } from "../types/cards";
 import type { EdhrecCardlist, EdhrecCardview } from "../types/edhrec";
 
 type ScryfallOptions = {
@@ -12,6 +13,7 @@ type ScryfallOptions = {
 };
 
 const BACKGROUND_ART_LIMIT = 8;
+const CARD_SUPERTYPES = new Set(["Basic", "Legendary", "Snow", "World", "Ongoing"]);
 
 const resolveArtUrl = (card: ScryfallCard) => {
   if (card.image_uris?.art_crop) {
@@ -34,12 +36,51 @@ const resolveArtUrl = (card: ScryfallCard) => {
   );
 };
 
+const buildDisplayCardMeta = (
+  name: string,
+  manaCost: string,
+  typeLine: string,
+  set: string,
+  rarity: string,
+  getSvgForSymbol: (token: string) => string | null
+): DisplayCardMeta => {
+  const nameParts = name
+    .split(/\s*\/\/\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const manaSymbols: DisplayCardManaSymbol[] = (manaCost.match(/\{[^}]+\}/g) ?? [])
+    .map((token) => {
+      const svg = getSvgForSymbol(token);
+      return svg ? { token, svg } : null;
+    })
+    .filter((entry): entry is DisplayCardManaSymbol => entry !== null);
+  const leftSide = typeLine.split("—")[0]?.trim() ?? "";
+  const filteredType = leftSide
+    .split(/\s+/)
+    .filter((part) => !CARD_SUPERTYPES.has(part))
+    .join(" ");
+
+  return {
+    cardName: name || "—",
+    hasSplitName: nameParts.length > 1,
+    primaryName: nameParts[0] ?? name ?? "—",
+    secondaryName: nameParts.length > 1 ? nameParts.slice(1).join(" // ") : "",
+    cardTypeFull: typeLine || "—",
+    cardTypeShort: typeLine ? filteredType || leftSide || "—" : "—",
+    cardSet: set.toUpperCase() || "—",
+    cardRarity: rarity || "—",
+    cardMana: manaCost || "—",
+    manaSymbols,
+  };
+};
+
 export const useScryfallCardData = (
   cardlists: Ref<EdhrecCardlist[]>,
   options: ScryfallOptions
 ) => {
   const { withLoading, getScopeLoading, updateProgress } = useGlobalLoading();
   const { setBackgroundArtUrls } = useBackgroundArt();
+  const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
 
   const bulkCardScope = "scryfall-bulk";
   const bulkCardsLoading = getScopeLoading(bulkCardScope);
@@ -81,6 +122,17 @@ export const useScryfallCardData = (
   };
 
   watch(allCards, fetchAllCardData, { immediate: true });
+  watch(
+    allCards,
+    (cards) => {
+      if (cards.length) {
+        Promise.resolve(ensureSymbolsLoaded()).catch(() => {
+          /* handled globally */
+        });
+      }
+    },
+    { immediate: true }
+  );
 
   const scryfallIndex = computed(() => {
     const map = new Map<string, ScryfallCard>();
@@ -125,44 +177,68 @@ export const useScryfallCardData = (
     { immediate: true }
   );
 
-  const getTableRows = (cardlist: EdhrecCardlist): CardTableRow[] =>
-    options.filterCardviews(cardlist.cardviews).map((cardview) => {
-      const info = scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
-      const requestedNames = cardview.name.split("//").map((n) => n.trim());
-      type CardFace = NonNullable<ScryfallCard["card_faces"]>[number];
-      const faces: CardFace[] = info?.card_faces ?? [];
-      const matchedFace = faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
-      const statsSource = matchedFace ?? info;
-      const displayName = requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
+  const tableRowsByCardlist = computed(() => {
+    const rowsByCardlist = new Map<EdhrecCardlist, CardTableRow[]>();
 
-      return {
-        id: info?.id ?? `${cardlist.header}-${cardview.id}`,
-        have: options.isCardInUpload(cardview.name),
-        card: {
+    cardlists.value.forEach((cardlist) => {
+      const rows = options.filterCardviews(cardlist.cardviews).map((cardview) => {
+        const info = scryfallIndex.value.get(normalizeCardName(cardview.name)) ?? null;
+        const requestedNames = cardview.name.split("//").map((n) => n.trim());
+        type CardFace = NonNullable<ScryfallCard["card_faces"]>[number];
+        const faces: CardFace[] = info?.card_faces ?? [];
+        const matchedFace = faces.find((face) => requestedNames.includes(face.name)) ?? faces[0];
+        const statsSource = matchedFace ?? info;
+        const displayName = requestedNames.length > 1 ? cardview.name : info?.name ?? cardview.name;
+        const manaCost = statsSource?.mana_cost ?? "";
+        const typeLine = statsSource?.type_line ?? "";
+        const cardSet = info?.set ?? "";
+        const cardRarity = info?.rarity ?? "";
+
+        return {
           id: info?.id ?? `${cardlist.header}-${cardview.id}`,
-          name: displayName,
-          mana_cost: statsSource?.mana_cost ?? "",
-          type_line: statsSource?.type_line ?? "",
-          power: statsSource?.power ?? null,
-          toughness: statsSource?.toughness ?? null,
-          set: info?.set ?? "",
-          rarity: info?.rarity ?? "",
-          prices: {
-            usd: info?.prices?.usd ?? null,
-            eur: info?.prices?.eur ?? null,
+          have: options.isCardInUpload(cardview.name),
+          card: {
+            id: info?.id ?? `${cardlist.header}-${cardview.id}`,
+            name: displayName,
+            mana_cost: manaCost,
+            type_line: typeLine,
+            power: statsSource?.power ?? null,
+            toughness: statsSource?.toughness ?? null,
+            set: cardSet,
+            rarity: cardRarity,
+            prices: {
+              usd: info?.prices?.usd ?? null,
+              eur: info?.prices?.eur ?? null,
+            },
+            scryfall_uri: info?.scryfall_uri,
+            display: buildDisplayCardMeta(
+              displayName,
+              manaCost,
+              typeLine,
+              cardSet,
+              cardRarity,
+              getSvgForSymbol
+            ),
+            faces:
+              faces.length > 1
+                ? faces.map((face) => ({
+                    name: face.name,
+                    mana_cost: face.mana_cost,
+                    type_line: face.type_line,
+                  }))
+                : undefined,
           },
-          scryfall_uri: info?.scryfall_uri,
-          faces:
-            faces.length > 1
-              ? faces.map((face) => ({
-                  name: face.name,
-                  mana_cost: face.mana_cost,
-                  type_line: face.type_line,
-                }))
-              : undefined,
-        },
-      };
+        };
+      });
+
+      rowsByCardlist.set(cardlist, rows);
     });
+
+    return rowsByCardlist;
+  });
+
+  const getTableRows = (cardlist: EdhrecCardlist): CardTableRow[] =>
+    tableRowsByCardlist.value.get(cardlist) ?? [];
 
   return {
     bulkCardsLoading,

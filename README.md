@@ -18,27 +18,33 @@ Commander Scout is a Vue 3 + TypeScript + Vite application that compares EDHREC 
 
 ## Features
 
-- ?? **Commander search** � fuzzy search EDHREC commanders (including partner combinations) and fetch the JSON decklists directly from `json.edhrec.com`.
-- ??? **Inventory overlay** � upload a CSV export of your collection to highlight owned cards in every EDHREC cardlist, or filter to owned/unowned only.
-- ?? **Scryfall enrichment** � bulk Scryfall requests (75 identifiers per batch) fetch mana costs, faces, oracle text, set, rarity, and live USD/EUR prices. Handles double-faced, adventure, split, and transform cards by normalizing both halves.
-- ?? **Dynamic background** � nebula gradient changes with commander color identity but can be toggled off via the palette button (preference stored in `localStorage`).
-- ?? **Global feedback** � unobtrusive toast notifications and bottom-of-screen loaders keep users informed while bulk Scryfall calls or CSV processing occurs.
-- ?? **Toolkit header** � hideable control bar with bracket/budget/page-type filters, commander slug export, CSV upload controls, theme toggle, and background toggle.
-- **Density modes** � comfortable, cozy, and compact layout options with a persistent toggle to trade whitespace for information density on demand.
+- **Commander search** - fuzzy search EDHREC commanders, including partner combinations, and fetch JSON decklists directly from `json.edhrec.com`.
+- **Inventory overlay** - upload a CSV export of your collection to highlight owned cards in every EDHREC cardlist, or filter to owned/unowned only.
+- **Scryfall enrichment** - bulk Scryfall requests, 75 identifiers per batch, fetch mana costs, faces, oracle text, set, rarity, and live USD/EUR prices. Handles double-faced, adventure, split, and transform cards by normalizing both halves.
+- **Dynamic background** - nebula gradients react to commander color identity and can be toggled off via the palette button, with the preference stored in `localStorage`.
+- **Global feedback** - unobtrusive toast notifications and bottom-of-screen loaders keep users informed while bulk Scryfall calls or CSV processing run.
+- **Toolkit header** - route controls include bracket, budget, and page-type filters alongside commander export, CSV upload, theme, and background toggles.
+- **Density modes** - comfortable, cozy, and compact layout options let users trade whitespace for information density on demand.
 
 ## Project Structure
 
 ```
-+-- src/
-�   +-- api/               # Scryfall wrappers, EDHREC fetch helpers
-�   +-- components/        # Vue components (CommanderSearch, EdhrecReader, etc.)
-�   +-- composables/       # Reusable state (theme, background pref, commander colors)
-�   +-- utils/             # Download helpers, slugify utilities, CSV parsing
-�   +-- assets/            # Static assets (sample CSV, icons)
-+-- docs/                  # Architecture review + issue templates
-+-- tests/                 # Playwright end-to-end specs
-+-- playwright-report/     # Generated on test runs (ignored)
-+-- README.md
+src/
+├── api/                   # EDHREC/Scryfall clients, request cache, IndexedDB cache
+├── components/
+│   ├── core/              # Primitive design system (button, text, surface, badge, etc.)
+│   ├── dashboard/         # Dashboard route-specific panels and controls
+│   ├── top-commanders/    # Top commanders route UI
+│   └── ...                # Shared feature components
+├── composables/           # Shared reactive state and data-loading logic
+├── router/                # Vue Router route definitions
+├── utils/                 # Utilities, design helpers, error handling
+├── assets/                # Static assets and CSV fixtures
+└── style.css              # Global theme variables and design tokens
+docs/                      # Architecture, reviews, QA checklists
+tests/
+├── unit/                  # Vitest unit/component/composable coverage
+└── e2e/                   # Playwright end-to-end flows
 ```
 
 ## Getting Started
@@ -67,7 +73,7 @@ The following environment variables can be configured for production deployments
 
 #### Sentry Error Tracking (Production Only)
 
-- **`VITE_SENTRY_DSN`** � Sentry Data Source Name for error tracking in production
+- **`VITE_SENTRY_DSN`** - Sentry Data Source Name for error tracking in production
   - Only active when `import.meta.env.PROD` is true
   - Automatically filters out sensitive data (CSV contents)
   - Generates source maps for readable stack traces
@@ -92,11 +98,13 @@ No custom environment variables are required for local development. Network requ
 
 ## Development Workflow
 
-1. **Start Dev Server** � `npm run dev`.
-2. **Run Linting (optional)** � if you add ESLint/Prettier, include commands here.
-3. **E2E Testing** � `npm run test:e2e` executes Playwright against the built app.
-4. **Feature Flags** � background toggle + theme toggle are persisted via `localStorage` (`edhrec-background-enabled`, `edhrec-color-scheme`). When debugging display issues, clear local storage or use your browser devtools.
-5. **CSV Upload Loop** � the CSV parser lives in `src/composables/useCsvUpload.ts`. It auto-detects the `Name` column (defaults to first column) and produces normalized name variants so MDFCs or split cards match both faces.
+1. Start the dev server with `npm run dev`.
+2. Run linting with `npm run lint`.
+3. Run unit and component tests with `npm run test:unit`.
+4. Run E2E coverage with `npm run test:e2e`.
+5. For core UI changes, update the primitive docs in `src/components/core/README.md` and use `docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md` before merging.
+6. Feature flags: background toggle, theme, and density preferences are persisted in `localStorage`. When debugging display issues, clear local storage or inspect those values in devtools.
+7. The CSV parser lives in `src/composables/useCsvUpload.ts`. It auto-detects the `Name` column (defaults to first column) and produces normalized name variants so MDFCs or split cards match both faces.
 
 ## CSV Requirements
 
@@ -125,7 +133,7 @@ Lightning Greaves,1,Yes,M19
 
 ## EDHREC & Scryfall Integrations
 
-- **EDHREC** � Commander slugs are constructed via `slugifyCommander` and requests follow `https://json.edhrec.com/pages/{pageType}/{slug}/...`. Filters (bracket, modifier, companion) append extra path segments.
+- **EDHREC** - Commander slugs are constructed via `slugifyCommander` and requests follow `https://json.edhrec.com/pages/{pageType}/{slug}/...`. Filters, such as bracket, modifier, and companion, append extra path segments.
 - **Scryfall**
   - Single-card lookups use `/cards/named?fuzzy=` with sanitized names (front face only).
   - Bulk lookups use `/cards/collection` with 75-card batches plus 300ms pause to respect rate limits.
@@ -134,10 +142,13 @@ Lightning Greaves,1,Yes,M19
 
 ## Testing
 
-- **Playwright** � `npm run test:e2e`
+- **Vitest** - `npm run test:unit`
+  - Covers components, composables, utilities, API helpers, and security checks under `tests/unit`.
+  - Use `npm run test:unit:coverage` for HTML and JSON coverage reports.
+- **Playwright** - `npm run test:e2e`
   - Uses fixtures under `tests/e2e`.
   - Generated artifacts live in `playwright-report/` and `test-results/` (gitignored).
-- Add unit/component tests as needed (Vitest/Jest not currently configured).
+- Core primitive changes should update or extend tests in `tests/unit/components/core`.
 
 ## Issue Automation
 
@@ -175,6 +186,8 @@ See [docs/ISSUE_AUTOMATION.md](./docs/ISSUE_AUTOMATION.md) for supported flags, 
 ## Architecture
 
 For detailed information about the project's architecture, technology decisions, and design patterns, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+For core design system work, see [src/components/core/README.md](./src/components/core/README.md) and [docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md](./docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md).
 
 ## Comprehensive Reviews
 

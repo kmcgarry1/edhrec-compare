@@ -35,7 +35,7 @@ describe("core primitives", () => {
 
   it("renders surface and badge variants", () => {
     const surface = mount(CSurface, {
-      props: { as: "article", variant: "accent", tone: "accent", size: "sm" },
+      props: { as: "article", variant: "masthead", tone: "default", size: "sm" },
     });
     const badge = mount(CBadge, {
       props: { tone: "warn", variant: "soft" },
@@ -43,7 +43,7 @@ describe("core primitives", () => {
     });
 
     expect(surface.element.tagName).toBe("ARTICLE");
-    expect(surface.classes()).toContain("bg-[color:var(--accent-soft)]");
+    expect(surface.classes()).toContain("surface-role-masthead");
     expect(surface.classes()).toContain("p-3");
     expect(badge.classes()).toContain("bg-[color:var(--warn-soft)]");
     expect(badge.text()).toContain("Warn");

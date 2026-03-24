@@ -1,13 +1,13 @@
 <template>
-  <CInline gap="md" class="text-xs">
-    <CBadge tone="muted" variant="outline">
+  <CInline gap="md" class="text-xs flex-wrap">
+    <CBadge tone="default" variant="outline">
       Color filter
     </CBadge>
 
     <CSurface
       size="none"
       radius="pill"
-      variant="muted"
+      variant="content"
       class="inline-flex px-3 py-2"
       role="group"
       aria-label="Filter by color identity"

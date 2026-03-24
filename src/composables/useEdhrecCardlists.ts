@@ -29,6 +29,9 @@ const slugifyHeader = (value: string, index: number) => {
   return base.length ? base : `section-${index + 1}`;
 };
 
+const ACTIVE_SECTION_OFFSET = 120;
+const SCROLL_TARGET_OFFSET = 80;
+
 export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   const { showOwned } = useOwnedFilter();
   const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
@@ -185,28 +188,82 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
 
   const activeSectionId = ref<string>("");
   let scrollListener: (() => void) | null = null;
+  let resizeListener: (() => void) | null = null;
+  let resizeObserver: ResizeObserver | null = null;
+  let scrollFrameId: number | null = null;
+  let measureFrameId: number | null = null;
+  let sectionPositions: Array<{ id: string; top: number }> = [];
+
+  const cancelScrollFrame = () => {
+    if (scrollFrameId !== null && typeof window !== "undefined") {
+      window.cancelAnimationFrame(scrollFrameId);
+      scrollFrameId = null;
+    }
+  };
+
+  const cancelMeasureFrame = () => {
+    if (measureFrameId !== null && typeof window !== "undefined") {
+      window.cancelAnimationFrame(measureFrameId);
+      measureFrameId = null;
+    }
+  };
 
   const updateActiveSectionFromScroll = () => {
-    if (typeof window === "undefined" || !cardlistSections.value.length) {
+    if (
+      typeof window === "undefined" ||
+      !cardlistSections.value.length ||
+      !sectionPositions.length
+    ) {
       activeSectionId.value = "";
       return;
     }
-    const scrollPosition = window.scrollY + 120;
-    let currentId = cardlistSections.value[0]?.id ?? "";
+    const scrollPosition = window.scrollY + ACTIVE_SECTION_OFFSET;
+    let currentId = sectionPositions[0]?.id ?? cardlistSections.value[0]?.id ?? "";
 
-    for (const section of cardlistSections.value) {
-      const el = document.getElementById(section.id);
-      if (!el) {
-        continue;
-      }
-      if (el.offsetTop <= scrollPosition) {
+    for (const section of sectionPositions) {
+      if (section.top <= scrollPosition) {
         currentId = section.id;
       } else {
         break;
       }
     }
 
-    activeSectionId.value = currentId;
+    if (currentId !== activeSectionId.value) {
+      activeSectionId.value = currentId;
+    }
+  };
+
+  const measureSectionPositions = () => {
+    if (typeof window === "undefined") {
+      sectionPositions = [];
+      activeSectionId.value = "";
+      return;
+    }
+
+    sectionPositions = cardlistSections.value
+      .map((section) => {
+        const el = document.getElementById(section.id);
+        if (!el) {
+          return null;
+        }
+        return {
+          id: section.id,
+          top: el.getBoundingClientRect().top + window.scrollY,
+        };
+      })
+      .filter((section): section is { id: string; top: number } => section !== null);
+
+    updateActiveSectionFromScroll();
+  };
+
+  const scheduleSectionPositionMeasure = () => {
+    if (typeof window === "undefined" || measureFrameId !== null) {
+      return;
+    }
+    measureFrameId = window.requestAnimationFrame(() => {
+      measureFrameId = null;
+      measureSectionPositions();
+    });
   };
 
   const detachScrollListener = () => {
@@ -214,6 +271,17 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       window.removeEventListener("scroll", scrollListener);
       scrollListener = null;
     }
+    cancelScrollFrame();
+  };
+
+  const detachResizeTracking = () => {
+    if (resizeListener && typeof window !== "undefined") {
+      window.removeEventListener("resize", resizeListener);
+      resizeListener = null;
+    }
+    resizeObserver?.disconnect();
+    resizeObserver = null;
+    cancelMeasureFrame();
   };
 
   const attachScrollListener = () => {
@@ -222,10 +290,42 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     }
     detachScrollListener();
     scrollListener = () => {
-      window.requestAnimationFrame(updateActiveSectionFromScroll);
+      if (scrollFrameId !== null) {
+        return;
+      }
+      scrollFrameId = window.requestAnimationFrame(() => {
+        scrollFrameId = null;
+        updateActiveSectionFromScroll();
+      });
     };
     window.addEventListener("scroll", scrollListener, { passive: true });
-    updateActiveSectionFromScroll();
+  };
+
+  const attachResizeTracking = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    detachResizeTracking();
+    resizeListener = () => {
+      scheduleSectionPositionMeasure();
+    };
+    window.addEventListener("resize", resizeListener, { passive: true });
+
+    if (typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    resizeObserver = new ResizeObserver(() => {
+      scheduleSectionPositionMeasure();
+    });
+
+    cardlistSections.value.forEach((section) => {
+      const el = document.getElementById(section.id);
+      if (el) {
+        resizeObserver?.observe(el);
+      }
+    });
   };
 
   watch(
@@ -235,9 +335,13 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
         if (!sections.length) {
           activeSectionId.value = "";
           detachScrollListener();
+          detachResizeTracking();
+          sectionPositions = [];
           return;
         }
+        attachResizeTracking();
         attachScrollListener();
+        scheduleSectionPositionMeasure();
       });
     },
     { immediate: true }
@@ -251,16 +355,18 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     if (!el) {
       return;
     }
-    const offset = 80;
-    const targetTop = el.getBoundingClientRect().top + window.scrollY - offset;
+    const targetTop =
+      sectionPositions.find((section) => section.id === id)?.top ??
+      el.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({
-      top: targetTop,
+      top: Math.max(targetTop - SCROLL_TARGET_OFFSET, 0),
       behavior: "smooth",
     });
   };
 
   onBeforeUnmount(() => {
     detachScrollListener();
+    detachResizeTracking();
     clearDecklistCopyState();
   });
 

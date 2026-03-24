@@ -154,7 +154,7 @@
           variant="muted"
           size="none"
           radius="xl"
-          class="h-40 w-28 animate-pulse"
+          class="h-40 w-28"
         />
         <img
           v-else-if="cardImageUrl"

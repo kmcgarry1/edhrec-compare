@@ -1,5 +1,7 @@
 <template>
-  <section :class="['text-[color:var(--text)]', spacing.stackSpace]">
+  <section
+    class="grid gap-4 xl:grid-cols-[18.5rem_minmax(0,64rem)] xl:justify-center 2xl:grid-cols-[19.5rem_minmax(0,68rem)]"
+  >
     <GlobalLoadingBanner
       scope="scryfall-bulk"
       placement-class="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
@@ -7,35 +9,44 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <CSurface variant="command" size="md" radius="2xl" class="space-y-3">
-      <EdhrecControls
-        ref="controlsRef"
-        :selected-slug="currentCommanderSlug"
-        :bracket="chosenBracket"
-        :modifier="chosenModifier"
-        :page-type="chosenPageType"
-        :companion="chosenCompanion"
-        @commander-selected="handleCommanderSelection"
-        @selection-change="handleSelectionChange"
-        @update:bracket="setBracket"
-        @update:modifier="setModifier"
-        @update:page-type="setPageType"
-        @update:companion="setCompanion"
-      />
-    </CSurface>
+    <DashboardBrowseRail
+      ref="browseRailRef"
+      :selected-slug="currentCommanderSlug"
+      :bracket="chosenBracket"
+      :modifier="chosenModifier"
+      :page-type="chosenPageType"
+      :companion="chosenCompanion"
+      :sections="cardlistSections"
+      :active-id="activeSectionId"
+      :open="browseRailOpen"
+      :loading="readerLoading"
+      @close="emit('close-browse')"
+      @navigate="scrollToSection"
+      @commander-selected="handleCommanderSelection"
+      @selection-change="handleSelectionChange"
+      @update:bracket="setBracket"
+      @update:modifier="setModifier"
+      @update:page-type="setPageType"
+      @update:companion="setCompanion"
+    />
 
-    <CSurface variant="content" size="md" radius="2xl" class="space-y-4">
-      <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+    <CSurface variant="content" size="md" radius="3xl" class="min-w-0 space-y-4">
+      <div
+        class="flex flex-col gap-3 border-b border-[color:var(--border)] pb-4 sm:flex-row sm:items-end sm:justify-between"
+      >
         <EdhrecResultsHeader :list-count="cardlistSections.length" :card-count="totalCardCount" />
-
-        <FloatingCardlistNav
-          v-if="cardlistSections.length"
-          :sections="cardlistSections"
-          :active-id="activeSectionId"
-          class="xl:max-w-[36rem]"
-          @navigate="scrollToSection"
-        />
+        <CBadge tone="default" variant="outline" size="sm" text-case="normal">
+          {{ currentCommanderSlug ? "Route synced" : "Awaiting commander" }}
+        </CBadge>
       </div>
+
+      <FloatingCardlistNav
+        v-if="cardlistSections.length"
+        :sections="cardlistSections"
+        :active-id="activeSectionId"
+        class="xl:hidden"
+        @navigate="scrollToSection"
+      />
 
       <CNotice v-if="error" tone="danger" :message="`Error: ${error}`">
         <template #icon>
@@ -48,6 +59,7 @@
         :popular="popularCommanders"
         @select="selectSuggestedCommander"
       />
+
       <template v-for="entry in cardlistEntries" :key="entry.key">
         <CardlistSection
           :cardlist="entry.cardlist"
@@ -64,28 +76,31 @@
     </CSurface>
   </section>
 </template>
+
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
-import { CNotice, CSurface, CText } from "./core";
-import { useLayoutDensity } from "../composables/useLayoutDensity";
-import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
-import { useEdhrecData } from "../composables/useEdhrecData";
-import { useEdhrecCardlists } from "../composables/useEdhrecCardlists";
-import { useScryfallCardData } from "../composables/useScryfallCardData";
-import EdhrecControls from "./edhrec/EdhrecControls.vue";
-import EdhrecResultsHeader from "./edhrec/EdhrecResultsHeader.vue";
-import type { ColumnDefinition } from "./CardTable.vue";
-import type { CommanderSelection, DecklistPayload } from "../types/edhrec";
+import DashboardBrowseRail from "./DashboardBrowseRail.vue";
+import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
+import { CBadge, CNotice, CSurface, CText } from "../core";
+import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
+import { useEdhrecData } from "../../composables/useEdhrecData";
+import { useEdhrecCardlists } from "../../composables/useEdhrecCardlists";
+import { useScryfallCardData } from "../../composables/useScryfallCardData";
+import EdhrecResultsHeader from "../edhrec/EdhrecResultsHeader.vue";
+import type { ColumnDefinition } from "../CardTable.vue";
+import type { CommanderSelection, DecklistPayload } from "../../types/edhrec";
+
+const props = defineProps<{
+  browseRailOpen: boolean;
+}>();
 
 const emit = defineEmits<{
   decklistUpdate: [payload: DecklistPayload];
   "selection-change": [payload: CommanderSelection];
+  "close-browse": [];
 }>();
 
-const { spacing } = useLayoutDensity();
-
-const controlsRef = ref<InstanceType<typeof EdhrecControls> | null>(null);
+const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
 
 const {
   chosenPageType,
@@ -121,20 +136,6 @@ const { bulkCardsLoading, getTableRows } = useScryfallCardData(cardlists, {
   isCardInUpload,
 });
 
-const handleCommanderSelection = (slug: string) => {
-  setCommanderSlug(slug);
-};
-
-const handleSelectionChange = (payload: CommanderSelection) => {
-  emit("selection-change", payload);
-};
-
-watchEffect(() => {
-  if (decklistPayload.value) {
-    emit("decklistUpdate", decklistPayload.value);
-  }
-});
-
 const popularCommanders = [
   { name: "Atraxa, Grand Unifier" },
   { name: "The Ur-Dragon" },
@@ -151,8 +152,22 @@ const showEmptyState = computed(
     !error.value
 );
 
+watchEffect(() => {
+  if (decklistPayload.value) {
+    emit("decklistUpdate", decklistPayload.value);
+  }
+});
+
+const handleCommanderSelection = (slug: string) => {
+  setCommanderSlug(slug);
+};
+
+const handleSelectionChange = (payload: CommanderSelection) => {
+  emit("selection-change", payload);
+};
+
 const selectSuggestedCommander = (name: string) => {
-  controlsRef.value?.selectPrimaryCommander(name);
+  browseRailRef.value?.selectPrimaryCommander(name);
 };
 
 const cardTableColumns: ColumnDefinition[] = [
@@ -165,4 +180,7 @@ const cardTableColumns: ColumnDefinition[] = [
   { key: "usd", label: "USD", align: "right", class: "w-20" },
   { key: "eur", label: "EUR", align: "right", class: "w-20" },
 ];
+
+const __templateBindings = props;
+void __templateBindings;
 </script>

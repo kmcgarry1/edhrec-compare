@@ -6,19 +6,22 @@
     <GlobalLoadingBanner />
     <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
-    <TopCommandersHero @upload="showUploadModal = true" />
+    <TopCommandersHero
+      :has-csv-data="hasCsvData"
+      :csv-count="csvCount"
+      @upload="showUploadModal = true"
+    />
 
     <main id="main-content" class="mt-8 space-y-6">
-      <TopCommandersStatusCard
-        :has-csv-data="hasCsvData"
-        :csv-count="csvCount"
-        :last-updated="lastUpdated"
-        :failed-count="failedCount"
-        :scan-scope="scanScope"
-        :scan-error="scanError"
-      />
-
-      <Card padding="p-4 sm:p-5" class="space-y-4">
+      <Card variant="command" padding="p-4 sm:p-5" class="space-y-4">
+        <TopCommandersStatusCard
+          :has-csv-data="hasCsvData"
+          :csv-count="csvCount"
+          :last-updated="lastUpdated"
+          :failed-count="failedCount"
+          :scan-scope="scanScope"
+          :scan-error="scanError"
+        />
         <TopCommandersControls
           :top-header="topHeader"
           :top-limit="topLimit"
@@ -41,7 +44,9 @@
           @clear="clearColors"
         />
         <TopCommandersOwnedLegend />
+      </Card>
 
+      <Card variant="content" padding="p-4 sm:p-5" class="space-y-4">
         <CNotice
           v-if="topLoading"
           tone="info"
@@ -60,6 +65,7 @@
           v-else
           variant="cards"
           gap="md"
+          class="xl:grid-cols-2 2xl:grid-cols-3"
         >
           <TopCommanderCard
             v-for="commander in sortedCommanders"

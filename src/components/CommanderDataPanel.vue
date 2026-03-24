@@ -7,7 +7,7 @@
       border="border border-[color:var(--border)]"
       background="bg-[color:var(--surface)]"
       shadow="shadow-[var(--shadow)]"
-      class="backdrop-blur space-y-6"
+      class="space-y-6"
     >
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="space-y-1">
