@@ -200,23 +200,40 @@ npm run format
 - Keep components focused and single-purpose
 - Use composables for reusable logic
 - Follow the existing project structure:
-  - `components/` - Vue components
+  - `components/` - Vue components, including the primitive layer in `components/core/`
   - `composables/` - Reusable composition functions
   - `api/` - API client code
+  - `router/` - Route definitions
   - `utils/` - Utility functions
   - `assets/` - Static assets
+
+### Core UI and Design System Changes
+
+If your work changes shared visual language, treat it as primitive-layer work.
+
+- Start with `src/components/core/README.md` before introducing new wrappers or variants.
+- Prefer updating shared tokens in `src/style.css` and `src/components/core/config.ts` over copying route-local utility class strings.
+- Extend `src/components/core` only when the pattern is reusable across multiple routes or panels.
+- Preserve semantic structure by using primitive `as` and `tag` props rather than falling back to anonymous `div` wrappers.
+- Check light, dark, and high-contrast modes, plus comfortable, cozy, and compact density modes.
+- Update primitive tests in `tests/unit/components/core` when you add or change shared variants.
+- Run through `docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md` before opening a PR for non-trivial UI refactors.
 
 ### File Organization
 
 ```
 src/
-├── api/                 # API clients and wrappers
+├── api/                 # API clients, caches, and error wrappers
 ├── components/          # Vue components
-│   ├── core/           # Reusable core components
-│   └── helpers/        # Helper functions and utilities
-├── composables/        # Vue composables
-├── utils/              # Utility functions
-└── assets/             # Static assets
+│   ├── core/            # Primitive design system
+│   ├── dashboard/       # Dashboard route-specific UI
+│   ├── top-commanders/  # Top commanders route-specific UI
+│   └── helpers/         # Helper functions and utilities
+├── composables/         # Vue composables
+├── router/              # Vue Router definitions
+├── utils/               # Utility functions
+├── assets/              # Static assets
+└── style.css            # Global theme variables and design tokens
 ```
 
 ## Commit Messages
