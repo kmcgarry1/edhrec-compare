@@ -53,6 +53,13 @@
           Top commanders
         </CButton>
         <CButton
+          :as="RouterLink"
+          to="/changelog"
+          variant="soft"
+        >
+          Release notes
+        </CButton>
+        <CButton
           type="button"
           variant="secondary"
           @click="emit('jump', 'collection')"
