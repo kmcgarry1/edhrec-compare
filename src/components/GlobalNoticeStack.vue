@@ -1,68 +1,61 @@
 <template>
   <Teleport to="body">
-    <div
-      class="fixed inset-x-0 top-5 z-[9998] flex flex-col items-center gap-3 px-4 sm:items-end sm:px-6"
+    <CStack
+      as="div"
+      gap="md"
+      class="fixed inset-x-0 top-5 z-[9998] items-center px-4 sm:items-end sm:px-6"
     >
       <TransitionGroup name="notice">
-        <div
+        <CNotice
           v-for="notice in notices"
           :key="notice.id"
-          class="surface-sheen w-full max-w-sm rounded-2xl border bg-[color:var(--surface)] p-4 shadow-[var(--shadow-soft)] ring-1 ring-black/5"
-          :class="noticeClass(notice.type)"
-          role="status"
+          tone="info"
+          :title="notice.title"
+          :message="notice.message"
+          dismissible
+          dismiss-label="Close"
           :aria-live="notice.type === 'error' ? 'assertive' : 'polite'"
+          :class="noticeClass(notice.type)"
+          @dismiss="dismissNotice(notice.id)"
         >
-          <div class="flex items-start gap-3">
-            <div class="text-xl" aria-hidden="true">
+          <template #icon>
+            <CText tag="span" variant="title" weight="bold" tone="inherit">
               {{ iconForType(notice.type) }}
-            </div>
-            <div class="flex-1 text-left">
-              <p class="text-sm font-semibold">
-                {{ notice.title }}
-              </p>
-              <p class="mt-1 text-sm text-[color:var(--muted)]">
-                {{ notice.message }}
-              </p>
-            </div>
-            <button
-              type="button"
-              class="text-xs font-semibold text-[color:var(--muted)] transition hover:text-[color:var(--accent)]"
-              aria-label="Dismiss notification"
-              @click="dismissNotice(notice.id)"
-            >
-              Close
-            </button>
-          </div>
-        </div>
+            </CText>
+          </template>
+        </CNotice>
       </TransitionGroup>
-    </div>
+    </CStack>
   </Teleport>
 </template>
+
 <script setup lang="ts">
 import { useGlobalNotices } from "../composables/useGlobalNotices";
+import { CNotice, CStack, CText } from "./core";
 
 const { notices, dismissNotice } = useGlobalNotices();
 
 const noticeClass = (type: "info" | "success" | "error") => {
   if (type === "success") {
-    return "border-[color:var(--accent)] text-[color:var(--text)]";
+    return "max-w-sm bg-[color:var(--accent-soft)] border-[color:var(--accent)]";
   }
   if (type === "error") {
-    return "border-[color:var(--danger)] text-[color:var(--danger)]";
+    return "max-w-sm bg-[color:var(--danger-soft)] border-[color:var(--danger)] text-[color:var(--danger)]";
   }
-  return "border-[color:var(--border)] text-[color:var(--text)]";
+  return "max-w-sm";
 };
 
 const iconForType = (type: "info" | "success" | "error") => {
   if (type === "success") {
-    return "✅";
+    return "OK";
   }
   if (type === "error") {
-    return "⚠️";
+    return "!";
   }
-  return "ℹ️";
+  return "i";
 };
 </script>
+
 <style scoped>
 .notice-enter-active {
   animation: slide-in-bounce 0.5s var(--ease-bounce);
