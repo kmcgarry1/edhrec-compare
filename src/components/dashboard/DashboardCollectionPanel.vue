@@ -13,10 +13,10 @@
         </CBadge>
         <CBadge
           v-if="commanderSelection.primary"
-          tone="accent"
+          tone="default"
           variant="soft"
           size="sm"
-          class="normal-case tracking-[0.08em]"
+          text-case="normal"
         >
           {{ commanderSelection.primary }}
         </CBadge>

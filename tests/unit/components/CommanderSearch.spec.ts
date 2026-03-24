@@ -294,28 +294,31 @@ describe("CommanderSearch", () => {
     });
   });
 
-  describe("Commander details always visible", () => {
-    it("shows CommanderDisplay component when primary commander is selected", async () => {
+  describe("Commander summary stays visible", () => {
+    it("shows the selected commander in the summary when a primary commander is selected", async () => {
       const wrapper = mountComponent();
-      
-      expect(wrapper.findAll(".display-stub")).toHaveLength(0);
+
+      expect(wrapper.text()).toContain("Search for a commander to start.");
 
       await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
         "Atraxa, Grand Unifier"
       );
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(1);
+      expect(wrapper.text()).toContain("Selected:");
+      expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
+      expect(wrapper.find("button[aria-label='Clear commander selection']").exists()).toBe(true);
     });
 
-    it("shows both CommanderDisplay components when partner is selected", async () => {
+    it("shows the combined commander summary when a partner is selected", async () => {
       const wrapper = mountComponent();
-      
+
       await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
         .handleSelection("primary", "Atraxa");
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(1);
+      expect(wrapper.text()).toContain("Selected:");
+      expect(wrapper.text()).toContain("Atraxa");
 
       const addPartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Add partner"));
       await addPartnerButton?.trigger("click");
@@ -323,30 +326,31 @@ describe("CommanderSearch", () => {
         .handleSelection("partner", "Tymna");
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(2);
+      expect(wrapper.text()).toContain("Atraxa + Tymna");
     });
 
-    it("keeps details visible throughout partner workflow", async () => {
+    it("keeps the summary visible throughout the partner workflow", async () => {
       const wrapper = mountComponent();
-      
+
       await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
         "Atraxa, Grand Unifier"
       );
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(1);
+      expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
 
       const addPartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Add partner"));
       await addPartnerButton?.trigger("click");
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(1);
+      expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
 
       const removePartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Remove partner"));
       await removePartnerButton?.trigger("click");
       await flushPromises();
 
-      expect(wrapper.findAll(".display-stub")).toHaveLength(1);
+      expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
+      expect(wrapper.text()).not.toContain(" + ");
     });
   });
 });

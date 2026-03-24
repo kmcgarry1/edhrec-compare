@@ -7,6 +7,8 @@ const toggleTheme = vi.hoisted(() => vi.fn());
 const toggleBackground = vi.hoisted(() => vi.fn());
 const setOwnedFilter = vi.hoisted(() => vi.fn());
 const setDensity = vi.hoisted(() => vi.fn());
+const currentCommanderSlug = ref<string | null>(null);
+const commanderUrl = ref<string | null>(null);
 
 const density = ref("comfortable");
 const densityOptions = [
@@ -52,6 +54,13 @@ vi.mock("../../../src/composables/useLayoutDensity", () => ({
   }),
 }));
 
+vi.mock("../../../src/composables/useEdhrecRouteState", () => ({
+  useEdhrecRouteState: () => ({
+    currentCommanderSlug,
+    commanderUrl,
+  }),
+}));
+
 const downloadTextFile = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../src/utils/downloadTextFile", () => ({
@@ -63,19 +72,27 @@ const mountComponent = () =>
     global: {
       stubs: {
         DashboardHero: {
-          template: "<header class='dashboard-hero-stub'></header>",
+          template:
+            "<header class='dashboard-hero-stub'><button @click=\"$emit('browse')\">Browse</button><button @click=\"$emit('upload')\">Upload</button></header>",
+        },
+        DashboardCommanderMasthead: {
+          template:
+            "<header class='dashboard-masthead-stub'><button @click=\"$emit('browse')\">Browse</button><button @click=\"$emit('upload')\">Upload</button></header>",
+        },
+        DashboardSelectionStage: {
+          template: "<section class='dashboard-selection-stage-stub'></section>",
         },
         DashboardToolbar: {
           template: "<nav class='dashboard-toolbar-stub'></nav>",
         },
-        DashboardSearchPanel: {
-          template: "<section class='dashboard-search-stub'></section>",
+        DashboardWorkspace: {
+          template: "<section class='dashboard-workspace-stub'></section>",
         },
-        DashboardCollectionPanel: {
-          template: "<section class='dashboard-collection-stub'></section>",
+        TopCommanderScanPanel: {
+          template: "<section class='top-commander-scan-stub'></section>",
         },
-        DashboardExportPanel: {
-          template: "<section class='dashboard-export-stub'></section>",
+        SiteNotice: {
+          template: "<section class='site-notice-stub'></section>",
         },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
         OnboardingModal: {
@@ -100,6 +117,8 @@ describe("Dashboard", () => {
     downloadTextFile.mockClear();
     csvRows.value = [];
     density.value = "comfortable";
+    currentCommanderSlug.value = null;
+    commanderUrl.value = null;
   });
 
   it("shows onboarding prompt until dismissed or data uploaded", async () => {
@@ -107,18 +126,18 @@ describe("Dashboard", () => {
     // Wait for async component to load
     await flushPromises();
     await wrapper.vm.$nextTick();
-    
+
     // Check if onboarding modal stub exists
-    const modalStub = wrapper.find('.onboarding-stub');
+    const modalStub = wrapper.find(".onboarding-stub");
     expect(modalStub.exists()).toBe(true);
     expect(modalStub.text()).toContain("Upload your collection or scout first");
 
     // Dismiss the onboarding
-    await modalStub.find('button').trigger('click');
+    await modalStub.find("button").trigger("click");
     await wrapper.vm.$nextTick();
-    
+
     // After dismissal, modal should not exist
-    expect(wrapper.find('.onboarding-stub').exists()).toBe(false);
+    expect(wrapper.find(".onboarding-stub").exists()).toBe(false);
   });
 
   it("downloads decklist when export is available", async () => {
@@ -128,14 +147,63 @@ describe("Dashboard", () => {
       filterLabel: "Owned cards",
       sections: [],
     };
-    (wrapper.vm as { handleDecklistUpdate: (payload: typeof payload) => void }).handleDecklistUpdate(
-      payload
-    );
+    (
+      wrapper.vm as { handleDecklistUpdate: (payload: typeof payload) => void }
+    ).handleDecklistUpdate(payload);
     (
       wrapper.vm as {
         downloadDecklistFromHeader: () => void;
       }
     ).downloadDecklistFromHeader();
     expect(downloadTextFile).toHaveBeenCalledWith("1 Sol Ring", "commander-scout-owned-cards.txt");
+  });
+
+  it("renders the selection stage after a CSV is loaded but before commander selection", async () => {
+    const wrapper = mountComponent();
+    csvRows.value = [["Sol Ring"]];
+    await flushPromises();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(false);
+    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(false);
+  });
+
+  it("renders the comparison workspace shell after commander selection", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    (
+      wrapper.vm as {
+        handleSelectionChange: (payload: {
+          primary: string;
+          partner: string;
+          hasPartner: boolean;
+        }) => void;
+      }
+    ).handleSelectionChange({
+      primary: "Atraxa, Grand Unifier",
+      partner: "",
+      hasPartner: false,
+    });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);
+    expect(wrapper.find(".top-commander-scan-stub").exists()).toBe(true);
+    expect(wrapper.find(".site-notice-stub").exists()).toBe(true);
+  });
+
+  it("renders the comparison workspace shell from a commander route", async () => {
+    currentCommanderSlug.value = "atraxa-grand-unifier";
+
+    const wrapper = mountComponent();
+    await flushPromises();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".onboarding-stub").exists()).toBe(false);
+    expect(wrapper.find(".dashboard-masthead-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);
   });
 });
