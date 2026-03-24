@@ -9,23 +9,19 @@
     sheen
     class="overflow-hidden"
   >
-    <div
-      class="pointer-events-none absolute -top-24 right-6 h-48 w-48 rounded-full bg-[color:var(--accent-soft)] blur-3xl opacity-70"
-      aria-hidden="true"
-    />
-    <div
-      class="pointer-events-none absolute -bottom-24 left-4 h-52 w-64 rounded-full bg-[color:var(--warn-soft)] blur-3xl opacity-60"
-      aria-hidden="true"
-    />
-
     <div class="relative grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_20rem]">
       <CStack gap="lg" class="max-w-3xl">
         <CStack gap="md">
           <CInline gap="sm" class="flex-wrap">
-            <CBadge tone="accent" variant="solid" size="md">
+            <CBadge tone="default" variant="outline" size="md" text-case="normal">
               Ranking dashboard
             </CBadge>
-            <CBadge :tone="hasCsvData ? 'success' : 'muted'" variant="soft" size="sm">
+            <CBadge
+              :tone="hasCsvData ? 'success' : 'muted'"
+              variant="soft"
+              size="sm"
+              text-case="normal"
+            >
               {{ csvStatus }}
             </CBadge>
           </CInline>

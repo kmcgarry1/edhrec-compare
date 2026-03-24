@@ -8,20 +8,20 @@
     color-scheme: light;
     --font-body: "Manrope";
     --font-display: "Fraunces";
-    --bg: #f6f1e8;
-    --bg-strong: #efe3d2;
-    --surface: #fbf6ef;
-    --surface-strong: #ffffff;
-    --surface-muted: #f2e8d9;
-    --border: #dacdb9;
-    --text: #1f1b16;
-    --muted: #6f655a;
-    --accent: #1f7a75;
-    --accent-strong: #0d5b57;
-    --accent-soft: #d9f2ee;
+    --bg: #f1e7d7;
+    --bg-strong: #e2d3bd;
+    --surface: #f8f0e4;
+    --surface-strong: #fffaf2;
+    --surface-muted: #eee2cf;
+    --border: #ccb9a0;
+    --text: #211913;
+    --muted: #695c4d;
+    --accent: #156e68;
+    --accent-strong: #0c534f;
+    --accent-soft: #d7ece8;
     --accent-contrast: #fefbf7;
-    --accent-glow: rgba(31, 122, 117, 0.16);
-    --accent-glow-strong: rgba(31, 122, 117, 0.26);
+    --accent-glow: rgba(21, 110, 104, 0.14);
+    --accent-glow-strong: rgba(21, 110, 104, 0.2);
     --tier-blue: #3a7ba8;
     --tier-blue-soft: rgba(58, 123, 168, 0.18);
     --tier-green: #2f8f5b;
@@ -51,8 +51,8 @@
     --warn: #c96b2c;
     --warn-soft: rgba(201, 107, 44, 0.16);
     --pattern-line: rgba(31, 27, 22, 0.08);
-    --shadow: 0 26px 60px rgba(26, 22, 17, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    --shadow-soft: 0 12px 28px rgba(26, 22, 17, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    --shadow: 0 22px 44px rgba(33, 24, 18, 0.16);
+    --shadow-soft: 0 10px 20px rgba(33, 24, 18, 0.1);
     --surface-sheen:
       linear-gradient(135deg, rgba(255, 255, 255, 0.7), transparent 40%),
       radial-gradient(circle at 85% 10%, var(--accent-glow), transparent 45%);
@@ -75,20 +75,20 @@
 
   .dark {
     color-scheme: dark;
-    --bg: #0d1114;
-    --bg-strong: #121a21;
-    --surface: #121a20;
-    --surface-strong: #192229;
-    --surface-muted: #0f151c;
-    --border: #26333f;
-    --text: #f2ede5;
-    --muted: #a29687;
-    --accent: #2fc6b8;
-    --accent-strong: #9eeadf;
+    --bg: #101519;
+    --bg-strong: #151d22;
+    --surface: #162026;
+    --surface-strong: #1a252b;
+    --surface-muted: #11181f;
+    --border: #2b3945;
+    --text: #f5eee5;
+    --muted: #a59684;
+    --accent: #32c0b4;
+    --accent-strong: #9ce6db;
     --accent-soft: rgba(47, 198, 184, 0.22);
     --accent-contrast: #0b1413;
-    --accent-glow: rgba(47, 198, 184, 0.24);
-    --accent-glow-strong: rgba(47, 198, 184, 0.38);
+    --accent-glow: rgba(50, 192, 180, 0.2);
+    --accent-glow-strong: rgba(50, 192, 180, 0.3);
     --tier-blue: #7fb8e1;
     --tier-blue-soft: rgba(127, 184, 225, 0.2);
     --tier-green: #76c08f;
@@ -118,8 +118,8 @@
     --warn: #e2b266;
     --warn-soft: rgba(226, 178, 102, 0.24);
     --pattern-line: rgba(243, 237, 229, 0.09);
-    --shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    --shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    --shadow: 0 24px 46px rgba(0, 0, 0, 0.38);
+    --shadow-soft: 0 12px 24px rgba(0, 0, 0, 0.28);
     --surface-sheen:
       linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 45%),
       radial-gradient(circle at 85% 10%, var(--accent-glow), transparent 50%);
@@ -130,9 +130,8 @@
     overflow-x: hidden;
     background-color: var(--bg);
     background-image:
-      radial-gradient(circle at 12% 12%, var(--accent-glow-strong), transparent 45%),
-      radial-gradient(circle at 88% 18%, var(--warn-soft), transparent 40%),
-      radial-gradient(circle at 82% 85%, var(--danger-soft), transparent 45%),
+      radial-gradient(circle at 15% 10%, var(--accent-glow-strong), transparent 42%),
+      radial-gradient(circle at 85% 16%, var(--warn-soft), transparent 34%),
       linear-gradient(180deg, var(--bg), var(--bg-strong));
     color: var(--text);
     line-height: var(--a11y-line-height);
@@ -275,71 +274,58 @@
   .surface-role-masthead {
     background-image:
       linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--surface-strong) 82%, transparent),
-        transparent 58%
+        140deg,
+        color-mix(in srgb, var(--surface-strong) 90%, transparent),
+        color-mix(in srgb, var(--surface) 72%, transparent)
       ),
-      radial-gradient(circle at 84% 18%, var(--accent-glow), transparent 42%),
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-strong) 88%, transparent),
-        var(--surface)
-      );
-    box-shadow:
-      0 24px 56px rgba(0, 0, 0, 0.26),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      radial-gradient(circle at 84% 14%, var(--accent-glow), transparent 40%);
+    box-shadow: var(--shadow);
   }
 
   .surface-role-command {
-    background-color: color-mix(in srgb, var(--surface-strong) 76%, transparent);
-    box-shadow:
-      0 16px 38px rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background-color: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .surface-role-toolbar {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 90%, transparent),
+      color-mix(in srgb, var(--surface) 94%, transparent)
+    );
+    box-shadow: var(--shadow);
+  }
+
+  .surface-role-rail {
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 88%, transparent),
+      color-mix(in srgb, var(--surface) 96%, transparent)
+    );
+    box-shadow: var(--shadow-soft);
+  }
+
+  .surface-role-dense {
+    background-color: color-mix(in srgb, var(--surface-strong) 84%, var(--surface) 16%);
+    box-shadow: var(--shadow-soft);
   }
 
   .surface-role-content {
     background-image: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--surface) 94%, transparent),
-      color-mix(in srgb, var(--surface-muted) 72%, transparent)
+      color-mix(in srgb, var(--surface-strong) 78%, transparent),
+      color-mix(in srgb, var(--surface) 96%, transparent)
     );
-    box-shadow:
-      0 18px 44px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: var(--shadow);
   }
 
   .surface-role-utility {
     background-image: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--surface-strong) 88%, transparent),
-      color-mix(in srgb, var(--surface) 92%, transparent)
+      color-mix(in srgb, var(--surface-strong) 92%, transparent),
+      color-mix(in srgb, var(--surface-muted) 82%, transparent)
     );
-    box-shadow:
-      0 14px 32px rgba(0, 0, 0, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-
-  .command-deck-grid {
-    position: relative;
-  }
-
-  @media (min-width: 1280px) {
-    .command-deck-grid::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      left: calc(100% - 18rem - 1.5rem);
-      width: 1px;
-      background: linear-gradient(
-        180deg,
-        transparent,
-        var(--border) 14%,
-        var(--border) 86%,
-        transparent
-      );
-      opacity: 0.5;
-      pointer-events: none;
-    }
+    box-shadow: var(--shadow-soft);
   }
 
   #app {

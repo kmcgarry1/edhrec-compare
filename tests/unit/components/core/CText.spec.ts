@@ -34,8 +34,9 @@ describe('CText', () => {
             }
         });
 
-        expect(wrapper.classes()).toContain('text-base');
+        expect(wrapper.classes()).toContain('text-[1.02rem]');
         expect(wrapper.classes()).toContain('font-semibold');
+        expect(wrapper.classes()).toContain('leading-tight');
     });
 
     it('applies tone classes correctly', () => {

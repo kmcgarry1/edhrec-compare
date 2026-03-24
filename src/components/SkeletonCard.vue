@@ -1,5 +1,5 @@
 <template>
-  <div class="skeleton-card animate-pulse" role="status" aria-label="Loading card data">
+  <div class="skeleton-card" role="status" aria-label="Loading card data">
     <div class="flex gap-4">
       <!-- Card image placeholder -->
       <div class="h-32 w-24 flex-shrink-0 rounded bg-[color:var(--surface-muted)]" />
@@ -17,3 +17,9 @@
 <script setup lang="ts">
 // Skeleton loading component for card data
 </script>
+
+<style scoped>
+.skeleton-card {
+  opacity: 0.88;
+}
+</style>

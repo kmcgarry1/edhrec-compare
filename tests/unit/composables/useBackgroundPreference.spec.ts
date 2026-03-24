@@ -10,17 +10,17 @@ describe("useBackgroundPreference", () => {
     vi.resetModules();
   });
 
-  it("should initialize with default value true", async () => {
-    const { useBackgroundPreference } = await loadPreference();
-    const { backgroundEnabled } = useBackgroundPreference();
-    expect(backgroundEnabled.value).toBe(true);
-  });
-
-  it("should load false from localStorage if stored", async () => {
-    localStorage.setItem("edhrec-background-enabled", "false");
+  it("should initialize with default value false", async () => {
     const { useBackgroundPreference } = await loadPreference();
     const { backgroundEnabled } = useBackgroundPreference();
     expect(backgroundEnabled.value).toBe(false);
+  });
+
+  it("should load true from localStorage if stored", async () => {
+    localStorage.setItem("edhrec-background-enabled", "true");
+    const { useBackgroundPreference } = await loadPreference();
+    const { backgroundEnabled } = useBackgroundPreference();
+    expect(backgroundEnabled.value).toBe(true);
   });
 
   it("should set background enabled and persist to localStorage", async () => {
@@ -46,10 +46,10 @@ describe("useBackgroundPreference", () => {
     const { useBackgroundPreference } = await loadPreference();
     const { toggleBackground, backgroundEnabled } = useBackgroundPreference();
     toggleBackground();
-    expect(backgroundEnabled.value).toBe(false);
-    toggleBackground();
     expect(backgroundEnabled.value).toBe(true);
-    expect(localStorage.getItem("edhrec-background-enabled")).toBe("true");
+    toggleBackground();
+    expect(backgroundEnabled.value).toBe(false);
+    expect(localStorage.getItem("edhrec-background-enabled")).toBe("false");
   });
 
   it("should share state between multiple calls", async () => {

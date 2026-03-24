@@ -7,7 +7,7 @@ describe("SkeletonCard", () => {
     const wrapper = mount(SkeletonCard);
 
     expect(wrapper.find(".skeleton-card").exists()).toBe(true);
-    expect(wrapper.find(".animate-pulse").exists()).toBe(true);
+    expect(wrapper.find(".animate-pulse").exists()).toBe(false);
   });
 
   it("has proper accessibility attributes", () => {

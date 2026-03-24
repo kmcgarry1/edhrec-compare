@@ -3,7 +3,7 @@
     <div
       v-if="open"
       ref="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/78 px-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-title"
@@ -17,9 +17,6 @@
         shadow="shadow-[var(--shadow)]"
         class="w-full max-w-3xl overflow-hidden text-center text-[color:var(--text)]"
       >
-        <div class="pointer-events-none absolute left-8 top-6 h-28 w-28 rounded-full bg-[color:var(--accent-glow-strong)] blur-3xl" aria-hidden="true" />
-        <div class="pointer-events-none absolute bottom-0 right-6 h-28 w-40 rounded-full bg-[color:var(--warn-soft)] blur-3xl opacity-70" aria-hidden="true" />
-
         <div class="relative space-y-6">
           <div class="space-y-3">
             <p class="text-xs uppercase tracking-[0.4em] text-[color:var(--muted)]">First-time setup</p>

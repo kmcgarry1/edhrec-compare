@@ -1,6 +1,6 @@
 <template>
   <CInline gap="md" class="text-xs flex-wrap">
-    <CBadge tone="accent" variant="soft">
+    <CBadge tone="default" variant="outline">
       Color filter
     </CBadge>
 
