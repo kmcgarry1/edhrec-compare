@@ -3,7 +3,7 @@
     <button
       ref="buttonRef"
       type="button"
-      class="flex w-full items-center justify-between rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-left text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+      class="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-left shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
       :class="isOpen ? 'border-[color:var(--accent)] ring-2 ring-[color:var(--accent)]' : ''"
       :disabled="disabled"
       :aria-expanded="isOpen"
@@ -11,66 +11,75 @@
       :aria-controls="listboxId"
       @click="toggleDropdown"
     >
-      <div class="flex min-w-0 flex-1 items-center gap-2">
-        <div
-          v-if="selectedColorSymbols.length"
-          class="flex items-center gap-1"
+      <CInline justify="between" gap="md" wrap="nowrap" class="min-w-0">
+        <CInline gap="sm" wrap="nowrap" class="min-w-0 flex-1">
+          <CInline
+            v-if="selectedColorSymbols.length"
+            gap="2xs"
+            wrap="nowrap"
+            aria-hidden="true"
+          >
+            <template
+              v-for="(symbol, index) in selectedColorSymbols"
+              :key="`selected-${symbol.color}-${index}`"
+            >
+              <img
+                v-if="symbol.svg"
+                :src="symbol.svg"
+                alt=""
+                aria-hidden="true"
+                class="h-4 w-4"
+                loading="lazy"
+              />
+              <CSurface
+                v-else
+                as="span"
+                variant="muted"
+                size="none"
+                radius="pill"
+                class="flex h-4 w-4 items-center justify-center text-[10px] font-semibold uppercase"
+                aria-hidden="true"
+              >
+                {{ symbol.color }}
+              </CSurface>
+            </template>
+          </CInline>
+
+          <CStack gap="2xs" class="min-w-0">
+            <CText
+              tag="p"
+              class="truncate"
+              variant="body"
+              :tone="selectedOption ? 'default' : 'subtle'"
+            >
+              {{ selectedOption?.label ?? placeholderText }}
+            </CText>
+            <CText
+              v-if="selectedOption?.description"
+              tag="p"
+              class="truncate"
+              variant="helper"
+              tone="muted"
+            >
+              {{ selectedOption.description }}
+            </CText>
+          </CStack>
+        </CInline>
+
+        <svg
+          class="h-4 w-4 text-[color:var(--muted)] transition-transform"
+          :class="isOpen ? 'rotate-180' : ''"
+          viewBox="0 0 20 20"
+          fill="currentColor"
           aria-hidden="true"
         >
-          <template
-            v-for="(symbol, index) in selectedColorSymbols"
-            :key="`selected-${symbol.color}-${index}`"
-          >
-            <img
-              v-if="symbol.svg"
-              :src="symbol.svg"
-              alt=""
-              aria-hidden="true"
-              class="h-4 w-4"
-              loading="lazy"
-            />
-            <span
-              v-else
-              class="flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--surface-muted)] text-[10px] font-semibold uppercase text-[color:var(--text)]"
-              aria-hidden="true"
-            >
-              {{ symbol.color }}
-            </span>
-          </template>
-        </div>
-        <div class="min-w-0">
-          <CText
-            tag="p"
-            class="truncate"
-            variant="body"
-            :tone="selectedOption ? 'default' : 'subtle'"
-          >
-            {{ selectedOption?.label ?? placeholderText }}
-          </CText>
-          <CText
-            v-if="selectedOption?.description"
-            tag="p"
-            class="truncate"
-            variant="helper"
-            tone="muted"
-          >
-            {{ selectedOption.description }}
-          </CText>
-        </div>
-      </div>
-      <svg
-        class="ml-3 h-4 w-4 text-[color:var(--muted)] transition-transform"
-        :class="isOpen ? 'rotate-180' : ''"
-        viewBox="0 0 20 20"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 0 1 1.08 1.04l-4.25 4.25a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06Z"
-          clip-rule="evenodd"
-        />
-      </svg>
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 0 1 1.08 1.04l-4.25 4.25a.75.75 0 0 1-1.08 0L5.21 8.27a.75.75 0 0 1 .02-1.06Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </CInline>
     </button>
 
     <transition
@@ -97,67 +106,76 @@
             :ref="(el) => setOptionRef(el, index)"
             role="option"
             :aria-selected="selectedIndex === index"
-            class="flex cursor-pointer select-none items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm transition"
+            class="cursor-pointer select-none rounded-xl px-3 py-2 text-sm transition"
             :class="getOptionClasses(index)"
             @click="selectOption(option)"
             @mouseenter="highlightedIndex = index"
             @mouseleave="highlightedIndex = -1"
           >
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <div
-                  v-if="getOptionColorSymbols(option).length"
-                  class="flex items-center gap-1"
-                  aria-hidden="true"
-                >
-                  <template
-                    v-for="(symbol, colorIndex) in getOptionColorSymbols(option)"
-                    :key="`${option.value}-${symbol.color}-${colorIndex}`"
+            <CInline align="center" justify="between" gap="md" wrap="nowrap">
+              <CStack gap="2xs" class="min-w-0 flex-1">
+                <CInline gap="sm" wrap="nowrap" class="min-w-0">
+                  <CInline
+                    v-if="getOptionColorSymbols(option).length"
+                    gap="2xs"
+                    wrap="nowrap"
+                    aria-hidden="true"
                   >
-                    <img
-                      v-if="symbol.svg"
-                      :src="symbol.svg"
-                      alt=""
-                      aria-hidden="true"
-                      class="h-4 w-4"
-                      loading="lazy"
-                    />
-                    <span
-                      v-else
-                      class="flex h-4 w-4 items-center justify-center rounded-full bg-[color:var(--surface-muted)] text-[10px] font-semibold uppercase text-[color:var(--text)]"
-                      aria-hidden="true"
+                    <template
+                      v-for="(symbol, colorIndex) in getOptionColorSymbols(option)"
+                      :key="`${option.value}-${symbol.color}-${colorIndex}`"
                     >
-                      {{ symbol.color }}
-                    </span>
-                  </template>
-                </div>
-                <CText tag="span" class="truncate" tone="inherit">
-                  {{ option.label }}
+                      <img
+                        v-if="symbol.svg"
+                        :src="symbol.svg"
+                        alt=""
+                        aria-hidden="true"
+                        class="h-4 w-4"
+                        loading="lazy"
+                      />
+                      <CSurface
+                        v-else
+                        as="span"
+                        variant="muted"
+                        size="none"
+                        radius="pill"
+                        class="flex h-4 w-4 items-center justify-center text-[10px] font-semibold uppercase"
+                        aria-hidden="true"
+                      >
+                        {{ symbol.color }}
+                      </CSurface>
+                    </template>
+                  </CInline>
+                  <CText tag="span" class="truncate" tone="inherit">
+                    {{ option.label }}
+                  </CText>
+                </CInline>
+
+                <CText
+                  v-if="option.description"
+                  tag="p"
+                  class="mt-0.5"
+                  variant="helper"
+                  tone="inherit"
+                >
+                  {{ option.description }}
                 </CText>
-              </div>
-              <CText
-                v-if="option.description"
-                tag="p"
-                class="mt-0.5"
-                variant="helper"
-                tone="inherit"
+              </CStack>
+
+              <svg
+                v-if="selectedIndex === index"
+                viewBox="0 0 20 20"
+                class="h-4 w-4 text-[color:var(--accent)]"
+                fill="currentColor"
+                aria-hidden="true"
               >
-                {{ option.description }}
-              </CText>
-            </div>
-            <svg
-              v-if="selectedIndex === index"
-              viewBox="0 0 20 20"
-              class="h-4 w-4 text-[color:var(--accent)]"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.25 7.333a1 1 0 0 1-1.437.008l-3.5-3.5a1 1 0 0 1 1.414-1.414l2.793 2.793 6.543-6.613a1 1 0 0 1 1.431-.021Z"
-                clip-rule="evenodd"
-              />
-            </svg>
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.25 7.333a1 1 0 0 1-1.437.008l-3.5-3.5a1 1 0 0 1 1.414-1.414l2.793 2.793 6.543-6.613a1 1 0 0 1 1.431-.021Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </CInline>
           </li>
         </ul>
       </div>
@@ -176,7 +194,7 @@ import {
 } from "vue";
 import type { ComponentPublicInstance } from "vue";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
-import { CText } from "./core";
+import { CInline, CStack, CSurface, CText } from "./core";
 
 interface Option {
   value: string | number;
@@ -207,23 +225,17 @@ const listRef = ref<HTMLUListElement | null>(null);
 const optionRefs = ref<Array<HTMLElement | null>>([]);
 const listboxId = `dropdown-${Math.random().toString(36).slice(2, 9)}`;
 
-const normalizedValue = computed(
-  () => props.modelValue ?? props.defaultValue ?? ""
-);
+const normalizedValue = computed(() => props.modelValue ?? props.defaultValue ?? "");
 
 const selectedIndex = computed(() =>
-  props.options.findIndex(
-    (option) => option.value === normalizedValue.value
-  )
+  props.options.findIndex((option) => option.value === normalizedValue.value)
 );
 
 const selectedOption = computed(() =>
   selectedIndex.value >= 0 ? props.options[selectedIndex.value] : null
 );
 
-const placeholderText = computed(
-  () => props.placeholder ?? "Select an option"
-);
+const placeholderText = computed(() => props.placeholder ?? "Select an option");
 
 const hasColorOptions = computed(() =>
   props.options.some((option) => (option.colors?.length ?? 0) > 0)
@@ -261,8 +273,7 @@ const selectedColorSymbols = computed(() =>
   buildColorSymbols(selectedOption.value?.colors)
 );
 
-const getOptionColorSymbols = (option: Option) =>
-  buildColorSymbols(option.colors);
+const getOptionColorSymbols = (option: Option) => buildColorSymbols(option.colors);
 
 const loadSymbolsIfNeeded = () => {
   if (!hasColorOptions.value) {
@@ -283,9 +294,7 @@ const optionDefaultClass =
   "text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]";
 
 const getOptionClasses = (index: number) => [
-  highlightedIndex.value === index
-    ? optionHighlightClass
-    : optionDefaultClass,
+  highlightedIndex.value === index ? optionHighlightClass : optionDefaultClass,
   selectedIndex.value === index ? "font-semibold" : "",
 ];
 
@@ -319,8 +328,7 @@ const openDropdown = async () => {
     return;
   }
   isOpen.value = true;
-  highlightedIndex.value =
-    selectedIndex.value >= 0 ? selectedIndex.value : 0;
+  highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
   await nextTick();
   listRef.value?.focus();
 };
@@ -353,10 +361,7 @@ const selectOption = (option: Option) => {
 };
 
 const selectHighlighted = () => {
-  if (
-    highlightedIndex.value >= 0 &&
-    highlightedIndex.value < props.options.length
-  ) {
+  if (highlightedIndex.value >= 0 && highlightedIndex.value < props.options.length) {
     const option = props.options[highlightedIndex.value];
     if (option) {
       selectOption(option);
@@ -370,11 +375,9 @@ const moveHighlight = (delta: number) => {
   }
   let nextIndex = highlightedIndex.value;
   if (nextIndex === -1) {
-    nextIndex =
-      selectedIndex.value >= 0 ? selectedIndex.value : delta > 0 ? -1 : 0;
+    nextIndex = selectedIndex.value >= 0 ? selectedIndex.value : delta > 0 ? -1 : 0;
   }
-  nextIndex =
-    (nextIndex + delta + props.options.length) % props.options.length;
+  nextIndex = (nextIndex + delta + props.options.length) % props.options.length;
   highlightedIndex.value = nextIndex;
 };
 
@@ -421,11 +424,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 };
 
 const handleClickOutside = (event: Event) => {
-  if (
-    !isOpen.value ||
-    !rootRef.value ||
-    rootRef.value.contains(event.target as Node)
-  ) {
+  if (!isOpen.value || !rootRef.value || rootRef.value.contains(event.target as Node)) {
     return;
   }
   closeDropdown(false);
@@ -447,8 +446,7 @@ watch(
   () => {
     optionRefs.value = [];
     if (isOpen.value) {
-      highlightedIndex.value =
-        selectedIndex.value >= 0 ? selectedIndex.value : 0;
+      highlightedIndex.value = selectedIndex.value >= 0 ? selectedIndex.value : 0;
     }
     loadSymbolsIfNeeded();
   }

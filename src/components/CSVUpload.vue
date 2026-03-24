@@ -1,47 +1,51 @@
 <template>
-  <div class="w-full space-y-4 text-[color:var(--text)] lg:max-w-xl">
-    <label
-      for="collection-csv-upload"
-      class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text)]"
-    >
-      Collection CSV
-    </label>
-    <div class="space-y-2">
-      <p
-        class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
-      >
-        Use this CSV for
-      </p>
-      <div
-        class="grid gap-2 sm:grid-cols-2"
+  <CStack as="div" gap="lg" class="w-full text-[color:var(--text)] lg:max-w-xl">
+    <CFieldShell
+      label="Collection CSV"
+      label-for="collection-csv-upload"
+      helper="Your deck data stays in this browser session only and clears automatically on refresh."
+    />
+
+    <CFieldShell label="Use this CSV for" label-as="div">
+      <CGrid
+        variant="halves"
+        gap="sm"
         role="radiogroup"
         aria-label="CSV usage mode"
       >
-        <button
+        <CSurface
           v-for="option in modeOptions"
           :key="option.value"
+          as="button"
           type="button"
           role="radio"
-          class="rounded-2xl border px-4 py-3 text-left text-sm shadow-[var(--shadow-soft)] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-          :class="mode === option.value ? activeModeClass : inactiveModeClass"
+          size="sm"
+          radius="xl"
+          class="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          :background="mode === option.value ? 'bg-[color:var(--accent-soft)]' : 'bg-[color:var(--surface)]'"
+          :border="mode === option.value ? 'border border-[color:var(--accent)]' : 'border border-[color:var(--border)]'"
           :aria-checked="mode === option.value"
           @click="setMode(option.value)"
         >
-          <p class="font-semibold text-[color:var(--text)]">{{ option.label }}</p>
-          <p class="mt-1 text-xs text-[color:var(--muted)]">
-            {{ option.description }}
-          </p>
-        </button>
-      </div>
-    </div>
-    <Card
+          <CStack gap="xs">
+            <CText tag="p" variant="body" weight="semibold">
+              {{ option.label }}
+            </CText>
+            <CText tag="p" variant="helper" tone="muted">
+              {{ option.description }}
+            </CText>
+          </CStack>
+        </CSurface>
+      </CGrid>
+    </CFieldShell>
+
+    <CSurface
       as="div"
-      padding="p-6 sm:p-8 lg:p-10"
-      rounded="rounded-3xl"
-      border="border-2 border-dashed border-[color:var(--border)]"
-      background="bg-[color:var(--surface)]"
-      shadow="shadow-[var(--shadow)]"
-      class="group flex cursor-pointer flex-col items-center justify-center gap-4 text-center transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      variant="dashed"
+      size="none"
+      radius="3xl"
+      shadow="base"
+      class="group flex cursor-pointer flex-col items-center justify-center gap-4 p-6 text-center transition hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)] sm:p-8 lg:p-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
       :role="file ? undefined : 'button'"
       :tabindex="file ? undefined : 0"
       :aria-label="file ? undefined : 'Upload collection CSV'"
@@ -61,41 +65,46 @@
         aria-describedby="csv-upload-helper"
         @change="handleFileSelect"
       />
-      <div v-if="!file" class="space-y-2">
-        <p class="text-lg font-semibold text-[color:var(--text)]">Upload your collection</p>
-        <p id="csv-upload-helper" class="text-sm text-[color:var(--muted)]">
+
+      <CStack v-if="!file" gap="xs">
+        <CText tag="p" variant="title" class="text-lg">
+          Upload your collection
+        </CText>
+        <CText id="csv-upload-helper" tag="p" variant="body" tone="muted">
           Drag and drop or click to browse files. CSV only.
-        </p>
-      </div>
-      <Card
+        </CText>
+      </CStack>
+
+      <CSurface
         v-else
-        as="div"
-        padding="p-4"
-        rounded="rounded-2xl"
-        border="border border-[color:var(--border)]"
-        background="bg-[color:var(--surface)]"
-        shadow="shadow-[var(--shadow-soft)]"
-        class="flex w-full flex-col items-center gap-3 text-left text-[color:var(--text)] sm:flex-row sm:justify-between"
+        size="sm"
+        radius="xl"
+        class="flex w-full flex-col items-center gap-3 text-left sm:flex-row sm:justify-between"
       >
-        <p id="csv-upload-helper" class="sr-only">
+        <CText id="csv-upload-helper" tag="p" variant="helper" class="sr-only">
           Click to replace the uploaded CSV file.
-        </p>
-        <div>
-          <p class="font-semibold">{{ file.name }}</p>
-          <p class="text-xs text-[color:var(--muted)]">
+        </CText>
+
+        <CStack gap="xs">
+          <CText tag="p" variant="body" weight="semibold">
+            {{ file.name }}
+          </CText>
+          <CText tag="p" variant="helper" tone="muted">
             {{ csvRows.length }} rows detected
-          </p>
-        </div>
-        <button
+          </CText>
+        </CStack>
+
+        <CButton
           type="button"
-          class="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1 text-sm font-medium text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
+          variant="secondary"
+          size="sm"
           aria-label="Remove uploaded CSV file"
           @click.stop="removeFile"
         >
           Remove
-        </button>
-      </Card>
-    </Card>
+        </CButton>
+      </CSurface>
+    </CSurface>
 
     <GlobalLoadingBanner
       v-if="csvLoading"
@@ -107,109 +116,120 @@
     </GlobalLoadingBanner>
 
     <Transition name="success-checkmark">
-      <div
+      <CNotice
         v-if="validationSummary"
-        class="flex items-start gap-3 rounded-2xl border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-4 py-3 text-sm text-[color:var(--text)] shadow-[var(--shadow-soft)]"
-        role="status"
-        aria-live="polite"
+        tone="success"
+        title="Valid CSV"
+        :message="validationSummary"
       >
-        <div class="success-indicator text-[color:var(--accent)]" aria-hidden="true">
-          <svg class="checkmark" viewBox="0 0 52 52">
-            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
-            <path class="checkmark-check" d="M14 27l7.5 7.5L38 18" fill="none" />
-          </svg>
-        </div>
-        <div class="text-left">
-          <p class="font-semibold">Valid CSV</p>
-          <p>{{ validationSummary }}</p>
-        </div>
-      </div>
+        <template #icon>
+          <div class="success-indicator text-[color:var(--accent)]" aria-hidden="true">
+            <svg class="checkmark" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+              <path class="checkmark-check" d="M14 27l7.5 7.5L38 18" fill="none" />
+            </svg>
+          </div>
+        </template>
+      </CNotice>
     </Transition>
 
-    <div
+    <CNotice
       v-if="validationResult?.warnings.length"
-      class="rounded-2xl border border-[color:var(--warn)] bg-[color:var(--warn-soft)] px-4 py-3 text-sm text-[color:var(--warn)] shadow-[var(--shadow-soft)]"
-      role="status"
-      aria-live="polite"
+      tone="warn"
+      title="Warnings"
     >
-      <p class="flex items-center gap-2 font-semibold">
-        <span aria-hidden="true">⚠️</span>
-        <span>Warnings</span>
-      </p>
-      <ul class="mt-2 list-disc space-y-1 pl-5">
-        <li v-for="(warning, index) in validationResult?.warnings" :key="`${warning}-${index}`">
-          {{ warning }}
-        </li>
-      </ul>
-    </div>
+      <template #default>
+        <ul class="mt-2 list-disc space-y-1 pl-5">
+          <li
+            v-for="(warning, index) in validationResult?.warnings"
+            :key="`${warning}-${index}`"
+          >
+            {{ warning }}
+          </li>
+        </ul>
+      </template>
+    </CNotice>
 
-    <div
+    <CNotice
       v-if="validationResult?.errors.length"
-      class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-3 text-sm text-[color:var(--danger)] shadow-[var(--shadow-soft)]"
-      role="status"
+      tone="danger"
+      title="Errors"
       aria-live="assertive"
     >
-      <p class="flex items-center gap-2 font-semibold">
-        <span aria-hidden="true">❌</span>
-        <span>Errors</span>
-      </p>
-      <ul class="mt-2 list-disc space-y-1 pl-5">
-        <li v-for="(error, index) in validationResult?.errors" :key="`${error}-${index}`">
-          {{ error }}
-        </li>
-      </ul>
-    </div>
+      <template #default>
+        <ul class="mt-2 list-disc space-y-1 pl-5">
+          <li
+            v-for="(error, index) in validationResult?.errors"
+            :key="`${error}-${index}`"
+          >
+            {{ error }}
+          </li>
+        </ul>
+      </template>
+    </CNotice>
 
-    <p
+    <CNotice
       v-if="errorMessage"
-      class="rounded-2xl border border-[color:var(--danger)] bg-[color:var(--danger-soft)] px-4 py-2 text-sm font-medium text-[color:var(--danger)] shadow-[var(--shadow-soft)]"
+      tone="danger"
+      :message="errorMessage"
       role="alert"
-    >
-      {{ errorMessage }}
-    </p>
+      aria-live="assertive"
+    />
 
-    <div class="flex flex-col gap-4 text-xs text-[color:var(--muted)]">
-      <p>Your deck data stays in this browser session only and clears automatically on refresh.</p>
-      <details
-        class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-left"
-      >
+    <CStack gap="md">
+      <details class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-left">
         <summary class="cursor-pointer text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--muted)]">
           CSV format
         </summary>
-        <div class="mt-3 space-y-3 text-sm text-[color:var(--muted)]">
-          <div>
-            <p class="font-semibold text-[color:var(--text)]">Required column</p>
-            <p>Name (or Card Name) — the card name we match against EDHREC lists.</p>
-          </div>
-          <div>
-            <p class="font-semibold text-[color:var(--text)]">Optional columns</p>
+        <CStack gap="md" class="mt-3 text-sm text-[color:var(--muted)]">
+          <CStack gap="xs">
+            <CText tag="p" variant="body" weight="semibold">
+              Required column
+            </CText>
+            <CText tag="p" variant="body" tone="muted">
+              Name (or Card Name) - the card name we match against EDHREC lists.
+            </CText>
+          </CStack>
+
+          <CStack gap="xs">
+            <CText tag="p" variant="body" weight="semibold">
+              Optional columns
+            </CText>
             <ul class="mt-1 list-disc space-y-1 pl-5">
-              <li>Quantity — number of copies</li>
-              <li>Foil — Yes/No</li>
-              <li>Set — three-letter set code</li>
+              <li>Quantity - number of copies</li>
+              <li>Foil - Yes/No</li>
+              <li>Set - three-letter set code</li>
               <li>Any other columns (ignored but kept in the CSV)</li>
             </ul>
-          </div>
-          <div>
-            <p class="font-semibold text-[color:var(--text)]">Example</p>
-            <pre
-              class="mt-2 rounded-2xl bg-[color:var(--surface-muted)] p-3 text-xs font-mono text-[color:var(--text)]"
-            >Name,Quantity,Foil,Set
+          </CStack>
+
+          <CStack gap="xs">
+            <CText tag="p" variant="body" weight="semibold">
+              Example
+            </CText>
+            <pre class="mt-2 rounded-2xl bg-[color:var(--surface-muted)] p-3 text-xs font-mono text-[color:var(--text)]">Name,Quantity,Foil,Set
 Sol Ring,1,No,C21
 Lightning Greaves,1,Yes,M19</pre>
-          </div>
-          <div
-            class="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-[color:var(--border)] px-3 py-2 text-[0.75rem] text-[color:var(--muted)]"
+          </CStack>
+
+          <CSurface
+            variant="dashed"
+            size="none"
+            radius="xl"
+            class="flex flex-wrap items-center gap-2 px-3 py-2 text-[0.75rem] text-[color:var(--muted)]"
           >
-            <span class="font-semibold text-[color:var(--text)]">Need an example?</span>
-            <button
+            <CText tag="span" variant="body" weight="semibold">
+              Need an example?
+            </CText>
+            <CButton
               type="button"
-              class="rounded-full border border-[color:var(--accent)] px-3 py-1 font-semibold text-[color:var(--text)] transition hover:bg-[color:var(--accent-soft)]"
+              variant="ghost"
+              size="sm"
               aria-label="Load sample inventory CSV"
               @click="loadSampleInventory"
             >
               Use mine
-            </button>
+            </CButton>
             <a
               :href="templateCsvUrl"
               download="inventory-template.csv"
@@ -224,16 +244,25 @@ Lightning Greaves,1,Yes,M19</pre>
             >
               Download full sample
             </a>
-          </div>
-        </div>
+          </CSurface>
+        </CStack>
       </details>
-    </div>
-  </div>
+    </CStack>
+  </CStack>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Card, GlobalLoadingBanner } from ".";
+import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
+import {
+  CButton,
+  CFieldShell,
+  CGrid,
+  CNotice,
+  CStack,
+  CSurface,
+  CText,
+} from "./core";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useCsvUploadMode, type CsvUploadMode } from "../composables/useCsvUploadMode";
@@ -268,11 +297,6 @@ const modeOptions: Array<{ value: CsvUploadMode; label: string; description: str
     description: "Match your collection against average decks for top commanders.",
   },
 ];
-
-const activeModeClass =
-  "border-[color:var(--accent)] bg-[color:var(--accent-soft)]";
-const inactiveModeClass =
-  "border-[color:var(--border)] bg-[color:var(--surface)] hover:border-[color:var(--accent)]";
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
@@ -418,7 +442,6 @@ const parseCSV = (csv: string) => {
   notifySuccess(formatCardCount(importedCardCount.value));
 };
 
-// Lightweight CSV parser that respects quoted fields and escaped quotes.
 const parseCSVContent = (csv: string): string[][] => {
   const sanitized = csv.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const rows: string[][] = [];
@@ -521,7 +544,6 @@ const loadSampleInventory = async () => {
 };
 
 const __templateBindings = {
-  Card,
   GlobalLoadingBanner,
   csvLoading,
   triggerFileInput,

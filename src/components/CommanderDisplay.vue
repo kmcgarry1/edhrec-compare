@@ -6,141 +6,164 @@
     rounded="rounded-2xl"
     class="w-full bg-[color:var(--surface)] text-[color:var(--text)]"
   >
-    <div
-      class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    <CInline
+      align="center"
+      justify="between"
+      gap="lg"
+      class="flex-col sm:flex-row"
     >
-      <div class="flex-1">
-        <CText
-          tag="p"
-          variant="overline"
-          tone="inherit"
-          class="tracking-[0.3em] text-[color:var(--muted)]"
-        >
-          {{ label }}
-        </CText>
-        <CText tag="h3" variant="title" class="mt-1 text-xl">
-          {{ commanderName || "Commander pending" }}
-        </CText>
-        <div
+      <CStack gap="md" class="flex-1">
+        <CStack gap="2xs">
+          <CText
+            tag="p"
+            variant="overline"
+            tone="inherit"
+            class="tracking-[0.3em] text-[color:var(--muted)]"
+          >
+            {{ label }}
+          </CText>
+          <CText tag="h3" variant="title" class="text-xl">
+            {{ commanderName || "Commander pending" }}
+          </CText>
+        </CStack>
+
+        <CSurface
           v-if="currentPrinting"
-          class="mt-4 space-y-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-3 text-sm text-[color:var(--muted)] shadow-[var(--shadow-soft)]"
+          variant="muted"
+          size="sm"
+          class="text-sm text-[color:var(--muted)]"
         >
-          <div class="grid gap-2 sm:grid-rows-3 lg:grid-rows-3">
-            <div class="min-w-[100px] space-y-1">
-              <CText
-                variant="helper"
-                tone="muted"
-                class="uppercase tracking-wide text-[color:var(--muted)]"
-              >
-                Set
-              </CText>
-              <CText variant="body" weight="semibold">
-                {{ setLabel }}
-              </CText>
-            </div>
-            <div class="min-w-[100px] space-y-1">
-              <CText
-                variant="helper"
-                tone="muted"
-                class="uppercase tracking-wide text-[color:var(--muted)]"
-              >
-                Collector #
-              </CText>
-              <CText variant="body" weight="semibold">
-                {{ collectorNumber }}
-              </CText>
-            </div>
-            <div class="min-w-[100px] space-y-1">
-              <CText
-                variant="helper"
-                tone="muted"
-                class="uppercase tracking-wide text-[color:var(--muted)]"
-              >
-                Release
-              </CText>
-              <CText variant="body" weight="semibold">
-                {{ releaseDate }}
-              </CText>
-            </div>
-            <div>
-              <div class="min-w-[100px] space-y-1">
+          <CStack gap="md">
+            <CGrid variant="halves" gap="sm">
+              <CStack gap="xs" class="min-w-[100px]">
                 <CText
                   variant="helper"
                   tone="muted"
                   class="uppercase tracking-wide text-[color:var(--muted)]"
                 >
-                  USD Price
+                  Set
                 </CText>
-                <PriceColour
-                  :price="currentPrinting.prices?.usd ?? null"
-                  currency="$"
-                  align="start"
-                  class="w-full sm:w-auto"
-                />
-              </div>
-              <div class="min-w-[100px] space-y-1">
+                <CText variant="body" weight="semibold">
+                  {{ setLabel }}
+                </CText>
+              </CStack>
+
+              <CStack gap="xs" class="min-w-[100px]">
                 <CText
                   variant="helper"
                   tone="muted"
                   class="uppercase tracking-wide text-[color:var(--muted)]"
                 >
-                  EUR Price
+                  Collector #
                 </CText>
-                <PriceColour
-                  :price="currentPrinting.prices?.eur ?? null"
-                  currency="€"
-                  align="start"
-                  class="w-full sm:w-auto"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            v-if="printingsLoading"
-            class="flex flex-wrap items-center gap-3 pt-2"
-          >
-            <CText variant="helper" tone="muted">
-              Loading other printings...
-            </CText>
-          </div>
-          <div
-            v-else-if="canCyclePrintings"
-            class="flex flex-wrap items-center gap-3 pt-2"
-          >
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-              @click="showPreviousPrinting"
+                <CText variant="body" weight="semibold">
+                  {{ collectorNumber }}
+                </CText>
+              </CStack>
+
+              <CStack gap="xs" class="min-w-[100px]">
+                <CText
+                  variant="helper"
+                  tone="muted"
+                  class="uppercase tracking-wide text-[color:var(--muted)]"
+                >
+                  Release
+                </CText>
+                <CText variant="body" weight="semibold">
+                  {{ releaseDate }}
+                </CText>
+              </CStack>
+
+              <CStack gap="sm">
+                <CStack gap="xs" class="min-w-[100px]">
+                  <CText
+                    variant="helper"
+                    tone="muted"
+                    class="uppercase tracking-wide text-[color:var(--muted)]"
+                  >
+                    USD Price
+                  </CText>
+                  <PriceColour
+                    :price="currentPrinting.prices?.usd ?? null"
+                    currency="$"
+                    align="start"
+                    class="w-full sm:w-auto"
+                  />
+                </CStack>
+
+                <CStack gap="xs" class="min-w-[100px]">
+                  <CText
+                    variant="helper"
+                    tone="muted"
+                    class="uppercase tracking-wide text-[color:var(--muted)]"
+                  >
+                    EUR Price
+                  </CText>
+                  <PriceColour
+                    :price="currentPrinting.prices?.eur ?? null"
+                    currency="EUR "
+                    align="start"
+                    class="w-full sm:w-auto"
+                  />
+                </CStack>
+              </CStack>
+            </CGrid>
+
+            <CInline
+              v-if="printingsLoading"
+              gap="md"
+              class="pt-2"
             >
-              < Prev
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-              @click="showNextPrinting"
+              <CText variant="helper" tone="muted">
+                Loading other printings...
+              </CText>
+            </CInline>
+
+            <CInline
+              v-else-if="canCyclePrintings"
+              gap="md"
+              class="pt-2"
             >
-              Next >
-            </button>
-            <CText variant="helper" tone="muted">
-              Printing {{ printingPosition }} of {{ totalPrintings }}
-            </CText>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center justify-center">
-        <template v-if="isLoading">
-          <div
-            class="h-40 w-28 animate-pulse rounded-xl bg-[color:var(--surface-muted)]"
-          ></div>
-        </template>
+              <CButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="showPreviousPrinting"
+              >
+                &lt; Prev
+              </CButton>
+              <CButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="showNextPrinting"
+              >
+                Next &gt;
+              </CButton>
+              <CText variant="helper" tone="muted">
+                Printing {{ printingPosition }} of {{ totalPrintings }}
+              </CText>
+            </CInline>
+          </CStack>
+        </CSurface>
+      </CStack>
+
+      <CInline align="center" justify="center" class="shrink-0">
+        <CSurface
+          v-if="isLoading"
+          variant="muted"
+          size="none"
+          radius="xl"
+          class="h-40 w-28 animate-pulse"
+        />
         <img
           v-else-if="cardImageUrl"
           :src="cardImageUrl"
           :alt="commanderName"
           class="h-80 w-auto rounded-xl shadow-[var(--shadow)]"
         />
-      </div>
-    </div>
+      </CInline>
+    </CInline>
   </Card>
 </template>
 <script setup lang="ts">
@@ -151,7 +174,14 @@ import {
   type ScryfallCard,
 } from "../api/scryfallApi";
 import { Card, PriceColour } from ".";
-import { CText } from "./core";
+import {
+  CButton,
+  CGrid,
+  CInline,
+  CStack,
+  CSurface,
+  CText,
+} from "./core";
 import { useCommanderColors } from "../composables/useCommanderColors";
 
 const props = defineProps<{
@@ -161,9 +191,7 @@ const props = defineProps<{
 }>();
 
 const { setCommanderColors, clearCommanderColors } = useCommanderColors();
-const colorSourceKey = `commander-display-${Math.random()
-  .toString(36)
-  .slice(2, 9)}`;
+const colorSourceKey = `commander-display-${Math.random().toString(36).slice(2, 9)}`;
 
 const printings = ref<ScryfallCard[]>([]);
 const currentPrintingIndex = ref(0);
@@ -173,9 +201,7 @@ let activeRequestId: symbol | null = null;
 
 const label = computed(() => props.label ?? "Commander Preview");
 
-const shouldRenderCard = computed(
-  () => isLoading.value || printings.value.length > 0
-);
+const shouldRenderCard = computed(() => isLoading.value || printings.value.length > 0);
 
 const currentPrinting = computed<ScryfallCard | null>(() => {
   const entries = printings.value;
@@ -186,7 +212,7 @@ const currentPrinting = computed<ScryfallCard | null>(() => {
   if (active) {
     return active;
   }
-  return entries[0]!;
+  return entries[0] ?? null;
 });
 
 watch(
@@ -209,32 +235,28 @@ const cardImageUrl = computed(() => {
   if (card.image_uris?.normal) {
     return card.image_uris.normal;
   }
-  const faceWithImage = card.card_faces?.find(
-    (face) => face.image_uris?.normal
-  );
+  const faceWithImage = card.card_faces?.find((face) => face.image_uris?.normal);
   return faceWithImage?.image_uris?.normal ?? "";
 });
 
 const setLabel = computed(() => {
   const card = currentPrinting.value;
   if (!card) {
-    return "—";
+    return "--";
   }
   const code = card.set ? card.set.toUpperCase() : null;
   if (card.set_name && code) {
     return `${card.set_name} (${code})`;
   }
-  return card.set_name ?? code ?? "—";
+  return card.set_name ?? code ?? "--";
 });
 
-const collectorNumber = computed(
-  () => currentPrinting.value?.collector_number ?? "—"
-);
+const collectorNumber = computed(() => currentPrinting.value?.collector_number ?? "--");
 
 const releaseDate = computed(() => {
   const date = currentPrinting.value?.released_at;
   if (!date) {
-    return "—";
+    return "--";
   }
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -257,8 +279,7 @@ const showNextPrinting = () => {
   if (!printings.value.length) {
     return;
   }
-  currentPrintingIndex.value =
-    (currentPrintingIndex.value + 1) % printings.value.length;
+  currentPrintingIndex.value = (currentPrintingIndex.value + 1) % printings.value.length;
 };
 
 const showPreviousPrinting = () => {
@@ -266,8 +287,7 @@ const showPreviousPrinting = () => {
     return;
   }
   currentPrintingIndex.value =
-    (currentPrintingIndex.value - 1 + printings.value.length) %
-    printings.value.length;
+    (currentPrintingIndex.value - 1 + printings.value.length) % printings.value.length;
 };
 
 const loadCommanderData = async () => {
