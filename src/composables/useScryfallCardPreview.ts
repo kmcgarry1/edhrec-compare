@@ -1,4 +1,11 @@
-import { onBeforeUnmount, onMounted, ref, computed, type Ref } from "vue";
+import {
+  computed,
+  getCurrentInstance,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  type Ref,
+} from "vue";
 import { getCardImage } from "../api/scryfallApi";
 import { useGlobalLoading } from "./useGlobalLoading";
 import { handleError } from "../utils/errorHandler";
@@ -70,28 +77,28 @@ export const useScryfallCardPreview = (card: Ref<DisplayCard>) => {
   };
 
   const updateImagePosition = (event: MouseEvent | PointerEvent) => {
+    const preferredY = event.clientY - PREVIEW_HEIGHT / 2;
+
     if (typeof window === "undefined") {
       imagePosition.value = {
         x: event.clientX + PREVIEW_GAP,
-        y: event.clientY + PREVIEW_GAP,
+        y: preferredY,
       };
       return;
     }
 
-    const halfWidth = PREVIEW_WIDTH / 2;
-    const halfHeight = PREVIEW_HEIGHT / 2;
-    const preferredRight = event.clientX + PREVIEW_GAP + halfWidth;
-    const preferredLeft = event.clientX - PREVIEW_GAP - halfWidth;
-    const minX = VIEWPORT_MARGIN + halfWidth;
-    const maxX = window.innerWidth - VIEWPORT_MARGIN - halfWidth;
-    const minY = VIEWPORT_MARGIN + halfHeight;
-    const maxY = window.innerHeight - VIEWPORT_MARGIN - halfHeight;
+    const preferredRight = event.clientX + PREVIEW_GAP;
+    const preferredLeft = event.clientX - PREVIEW_GAP - PREVIEW_WIDTH;
+    const minX = VIEWPORT_MARGIN;
+    const maxX = Math.max(window.innerWidth - VIEWPORT_MARGIN - PREVIEW_WIDTH, minX);
+    const minY = VIEWPORT_MARGIN;
+    const maxY = Math.max(window.innerHeight - VIEWPORT_MARGIN - PREVIEW_HEIGHT, minY);
 
-    const x =
-      preferredRight <= maxX
-        ? preferredRight
-        : Math.max(preferredLeft, minX);
-    const y = Math.min(Math.max(event.clientY, minY), maxY);
+    const x = Math.min(
+      Math.max(preferredRight <= maxX ? preferredRight : preferredLeft, minX),
+      maxX
+    );
+    const y = Math.min(Math.max(preferredY, minY), maxY);
 
     imagePosition.value = {
       x,
@@ -278,22 +285,24 @@ export const useScryfallCardPreview = (card: Ref<DisplayCard>) => {
     listener: null as ((event: MediaQueryListEvent) => void) | null,
   };
 
-  onMounted(() => {
-    setupHoverDetection();
-  });
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      setupHoverDetection();
+    });
 
-  onBeforeUnmount(() => {
-    if (
-      hoverMediaQueryState.query &&
-      hoverMediaQueryState.listener &&
-      "removeEventListener" in hoverMediaQueryState.query
-    ) {
-      hoverMediaQueryState.query.removeEventListener(
-        "change",
-        hoverMediaQueryState.listener
-      );
-    }
-  });
+    onBeforeUnmount(() => {
+      if (
+        hoverMediaQueryState.query &&
+        hoverMediaQueryState.listener &&
+        "removeEventListener" in hoverMediaQueryState.query
+      ) {
+        hoverMediaQueryState.query.removeEventListener(
+          "change",
+          hoverMediaQueryState.listener
+        );
+      }
+    });
+  }
 
   return {
     hoveredCardImage,

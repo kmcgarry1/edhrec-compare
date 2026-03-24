@@ -21,14 +21,22 @@ export type EdhrecCardview = {
   name: string;
 };
 
+export type EdhrecCommanderCard = {
+  name?: string;
+  sanitized?: string;
+  color_identity?: string[];
+};
+
 export type EdhrecCardlist = {
   header: string;
   cardviews: EdhrecCardview[];
 };
 
 export type EdhrecData = {
+  header?: string;
   container?: {
     json_dict?: {
+      card?: EdhrecCommanderCard;
       cardlists?: EdhrecCardlist[];
     };
   };

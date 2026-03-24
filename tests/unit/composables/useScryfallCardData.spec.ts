@@ -8,6 +8,8 @@ const mockWithLoading = vi.fn();
 const mockGetScopeLoading = vi.fn();
 const mockUpdateProgress = vi.fn();
 const mockSetBackgroundArtUrls = vi.fn();
+const mockEnsureSymbolsLoaded = vi.fn();
+const mockGetSvgForSymbol = vi.fn();
 
 vi.mock("../../../src/api/scryfallApi", () => ({
   getCardsByNames: mockGetCardsByNames,
@@ -27,6 +29,14 @@ vi.mock("../../../src/composables/useBackgroundArt", () => ({
   }),
 }));
 
+vi.mock("../../../src/composables/useScryfallSymbols", () => ({
+  useScryfallSymbols: () => ({
+    ensureSymbolsLoaded: mockEnsureSymbolsLoaded,
+    getSvgForSymbol: mockGetSvgForSymbol,
+    isLoading: ref(false),
+  }),
+}));
+
 type ScryfallCardDataModule = typeof import("../../../src/composables/useScryfallCardData");
 let useScryfallCardData: ScryfallCardDataModule["useScryfallCardData"];
 
@@ -38,6 +48,8 @@ beforeEach(async () => {
   mockWithLoading.mockImplementation(async (fn) => await fn());
   mockGetScopeLoading.mockReturnValue(ref(false));
   mockGetCardsByNames.mockResolvedValue([]);
+  mockEnsureSymbolsLoaded.mockResolvedValue(undefined);
+  mockGetSvgForSymbol.mockImplementation((token: string) => `${token}.svg`);
 
   const module = await import("../../../src/composables/useScryfallCardData");
   useScryfallCardData = module.useScryfallCardData;
@@ -124,6 +136,7 @@ describe("useScryfallCardData", () => {
         [{ name: "Test Card 1" }, { name: "Test Card 2" }],
         expect.any(Function)
       );
+      expect(mockEnsureSymbolsLoaded).toHaveBeenCalled();
     });
   });
 
@@ -268,6 +281,61 @@ describe("useScryfallCardData", () => {
 
       const rows = composable.getTableRows(cardlists.value[0]);
       expect(rows[0].card.id).toBe("delver-id");
+    });
+
+    it("should return the same cached rows for the same cardlist until inputs change", async () => {
+      const cardlists = ref<EdhrecCardlist[]>([
+        createMockCardlist("Creatures", [createMockCardview("Test Card")]),
+      ]);
+
+      const options = {
+        filterCardviews: (cv: EdhrecCardview[]) => cv,
+        isCardInUpload: () => false,
+      };
+
+      mockGetCardsByNames.mockResolvedValue([createMockScryfallCard("Test Card", { id: "cached-id" })]);
+
+      const composable = useScryfallCardData(cardlists, options);
+
+      await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
+
+      const firstRows = composable.getTableRows(cardlists.value[0]);
+      const secondRows = composable.getTableRows(cardlists.value[0]);
+
+      expect(secondRows).toBe(firstRows);
+      expect(secondRows[0]?.card.id).toBe("cached-id");
+    });
+
+    it("precomputes display metadata for row rendering", async () => {
+      const cardlists = ref<EdhrecCardlist[]>([
+        createMockCardlist("Creatures", [
+          createMockCardview("Delver of Secrets // Insectile Aberration"),
+        ]),
+      ]);
+
+      const options = {
+        filterCardviews: (cv: EdhrecCardview[]) => cv,
+        isCardInUpload: () => false,
+      };
+
+      mockGetCardsByNames.mockResolvedValue([
+        createMockScryfallCard("Delver of Secrets // Insectile Aberration", {
+          mana_cost: "{U}",
+          type_line: "Legendary Creature — Human Wizard",
+        }),
+      ]);
+
+      const composable = useScryfallCardData(cardlists, options);
+
+      await nextTick();
+      await vi.waitFor(() => mockGetCardsByNames.mock.calls.length > 0);
+
+      const row = composable.getTableRows(cardlists.value[0])[0];
+      expect(row?.card.display?.primaryName).toBe("Delver of Secrets");
+      expect(row?.card.display?.secondaryName).toBe("Insectile Aberration");
+      expect(row?.card.display?.cardTypeShort).toBe("Creature");
+      expect(row?.card.display?.manaSymbols).toEqual([{ token: "{U}", svg: "{U}.svg" }]);
     });
   });
 
