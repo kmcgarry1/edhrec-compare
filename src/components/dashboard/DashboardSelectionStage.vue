@@ -12,22 +12,39 @@
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div class="space-y-3">
               <CInline gap="sm" class="flex-wrap">
-                <CBadge tone="success" variant="soft" size="sm" text-case="normal">
-                  {{ csvCount }} cards loaded
+                <CBadge
+                  :tone="hasCsvData ? 'success' : 'default'"
+                  variant="soft"
+                  size="sm"
+                  text-case="normal"
+                >
+                  {{ hasCsvData ? `${csvCount} cards loaded` : "Search-first mode" }}
                 </CBadge>
-                <CBadge tone="default" variant="outline" size="sm" text-case="normal">
-                  Collection ready
+                <CBadge
+                  :tone="hasCsvData ? 'default' : 'muted'"
+                  variant="outline"
+                  size="sm"
+                  text-case="normal"
+                >
+                  {{ hasCsvData ? "Collection ready" : "Collection optional" }}
                 </CBadge>
               </CInline>
 
               <div class="space-y-2">
                 <CText tag="p" variant="eyebrow" tone="muted"> Next deck </CText>
                 <CText tag="h1" variant="display" class="max-w-3xl text-balance">
-                  Choose the commander to compare next
+                  {{
+                    hasCsvData
+                      ? "Choose the commander to compare next"
+                      : "Choose a commander to start scouting"
+                  }}
                 </CText>
                 <CText tag="p" variant="body" tone="muted" class="max-w-2xl sm:text-base">
-                  Search once. The full comparison workspace opens as soon as a commander is
-                  selected.
+                  {{
+                    hasCsvData
+                      ? "Search once. The full comparison workspace opens as soon as a commander is selected."
+                      : "Search once. Upload a collection later when you want owned and unowned overlays."
+                  }}
                 </CText>
               </div>
             </div>
@@ -40,7 +57,7 @@
                 {{ utilityDrawerOpen ? "Hide display" : "Display" }}
               </CButton>
               <CButton type="button" variant="secondary" size="sm" @click="emit('open-upload')">
-                Replace CSV
+                {{ hasCsvData ? "Replace CSV" : "Upload CSV" }}
               </CButton>
             </CInline>
           </div>
@@ -94,13 +111,18 @@
             <div class="flex items-start justify-between gap-3">
               <div class="space-y-1">
                 <CText tag="p" variant="overline" tone="muted"> Collection </CText>
-                <CText tag="p" variant="title"> Ready for comparison </CText>
+                <CText tag="p" variant="title">
+                  {{ hasCsvData ? "Ready for comparison" : "Optional ownership overlay" }}
+                </CText>
               </div>
-              <CText tag="p" variant="metric">{{ csvCount }}</CText>
+              <CText tag="p" variant="metric">{{ hasCsvData ? csvCount : "Later" }}</CText>
             </div>
             <CText tag="p" variant="helper" tone="muted">
-              Your ownership lens is loaded. Pick a commander and the results well will switch from
-              discovery into comparison mode.
+              {{
+                hasCsvData
+                  ? "Your ownership lens is loaded. Pick a commander and the results well will switch from discovery into comparison mode."
+                  : "Start with commander discovery now. Upload a CSV later to turn on owned and unowned matching."
+              }}
             </CText>
           </CSurface>
 
@@ -228,6 +250,7 @@ import type { Theme } from "../../composables/useTheme";
 import type { CommanderSelection } from "../../types/edhrec";
 
 const props = defineProps<{
+  hasCsvData: boolean;
   csvCount: number;
   density: Density;
   densityOptions: ReadonlyArray<{ value: Density; label: string }>;

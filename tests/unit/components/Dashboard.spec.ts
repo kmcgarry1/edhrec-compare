@@ -138,6 +138,7 @@ describe("Dashboard", () => {
 
     // After dismissal, modal should not exist
     expect(wrapper.find(".onboarding-stub").exists()).toBe(false);
+    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
   });
 
   it("downloads decklist when export is available", async () => {

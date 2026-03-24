@@ -79,11 +79,7 @@ const dismissOnboarding = async (page: Page) => {
   await expect(onboardingDialog).toBeVisible();
   await page.getByRole("button", { name: /Start searching/ }).click();
   await expect(onboardingDialog).toBeHidden();
-};
-
-const openExportTab = async (page: Page) => {
-  await page.getByRole("tab", { name: /^Export$/ }).click();
-  await expect(page.locator("#panel-export")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: /Primary commander/i })).toBeVisible();
 };
 
 test.describe("Onboarding and CSV upload", () => {
@@ -117,7 +113,6 @@ test.describe("Commander workflow", () => {
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
 
     const copyButton = page.getByTestId("header-copy-decklist");
-    await openExportTab(page);
     await expect(copyButton).toBeVisible();
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
     await copyButton.click();
@@ -183,7 +178,9 @@ const selectCommander = async (page: Page) => {
     (response) => response.url().includes("/cards/search"),
     { timeout: 10_000 }
   );
-  await page.getByPlaceholder("Atraxa, Grand Unifier...").fill("Atraxa");
+  const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
+  await expect(primaryInput).toBeVisible();
+  await primaryInput.fill("Atraxa");
   await searchResponse;
   const option = page
     .locator("li", { hasText: "Atraxa, Grand Unifier" })

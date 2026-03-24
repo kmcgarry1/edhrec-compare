@@ -12,7 +12,7 @@
       :aria-hidden="showOnboarding ? 'true' : undefined"
     >
       <DashboardHero
-        v-if="!hasCommander && !hasCsvData"
+        v-if="!hasCommander && !hasCsvData && showOnboarding"
         @browse="openBrowseRail"
         @upload="openUploadModal"
       />
@@ -35,7 +35,8 @@
 
       <main id="main-content" ref="mainContentRef" class="mt-6 space-y-5">
         <DashboardSelectionStage
-          v-if="hasCsvData && !hasCommander"
+          v-if="!hasCommander"
+          :has-csv-data="hasCsvData"
           :csv-count="csvCount"
           :density="density"
           :density-options="densityOptions"
