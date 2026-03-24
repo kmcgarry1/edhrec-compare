@@ -39,6 +39,8 @@
         v-if="scanError"
         tone="danger"
         :message="scanError"
+        role="alert"
+        aria-live="assertive"
       />
     </CStack>
   </CSurface>

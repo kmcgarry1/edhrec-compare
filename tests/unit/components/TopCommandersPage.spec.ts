@@ -159,4 +159,15 @@ describe("TopCommandersPage", () => {
 
     expect(wrapper.findAll(".commander-card-stub")).toHaveLength(2);
   });
+
+  it("renders top commander fetch errors as alerts", async () => {
+    topError.value = "Unable to load top commanders.";
+
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    const alert = wrapper.get("[role='alert']");
+    expect(alert.text()).toContain("Unable to load top commanders.");
+    expect(alert.attributes("aria-live")).toBe("assertive");
+  });
 });

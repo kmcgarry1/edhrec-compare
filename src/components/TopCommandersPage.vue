@@ -52,6 +52,8 @@
           v-else-if="topError"
           tone="danger"
           :message="topError"
+          role="alert"
+          aria-live="assertive"
         />
 
         <CGrid
