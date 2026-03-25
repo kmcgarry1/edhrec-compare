@@ -3,6 +3,7 @@
     <label
       :for="fieldId"
       class="text-xs font-semibold uppercase tracking-[0.24em] text-[color:var(--text)]"
+      :class="{ 'sr-only': labelSrOnly }"
     >
       {{ label }}
     </label>
@@ -11,7 +12,12 @@
         class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-base text-[color:var(--text)] shadow-[var(--shadow-soft)] focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
         :class="containerClass"
       >
-        <svg viewBox="0 0 24 24" class="h-4 w-4 text-[color:var(--muted)]" fill="currentColor" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          class="h-4 w-4 text-[color:var(--muted)]"
+          fill="currentColor"
+          aria-hidden="true"
+        >
           <path :d="iconPath" />
         </svg>
         <input
@@ -36,26 +42,19 @@
         </button>
       </div>
     </div>
-    <div class="flex items-center justify-between text-xs text-[color:var(--muted)]">
-      <p :id="helperId">
+    <div
+      v-if="helperText || loading"
+      class="flex items-center justify-between text-xs text-[color:var(--muted)]"
+    >
+      <p :id="helperId" :class="{ 'sr-only': helperSrOnly }">
         {{ helperText }}
       </p>
       <span v-if="loading">Searching...</span>
     </div>
-    <p
-      v-if="hasWarning"
-      :id="warningId"
-      class="text-xs text-[color:var(--warn)]"
-      role="status"
-    >
+    <p v-if="hasWarning" :id="warningId" class="text-xs text-[color:var(--warn)]" role="status">
       {{ warningText }}
     </p>
-    <p
-      v-else-if="hasError"
-      :id="errorId"
-      class="text-xs text-[color:var(--danger)]"
-      role="alert"
-    >
+    <p v-else-if="hasError" :id="errorId" class="text-xs text-[color:var(--danger)]" role="alert">
       {{ error }}
     </p>
     <Card
@@ -106,12 +105,16 @@ const props = withDefaults(
     warningText?: string;
     iconPath: string;
     showClear?: boolean;
+    labelSrOnly?: boolean;
+    helperSrOnly?: boolean;
   }>(),
   {
     disabled: false,
     warningText: "",
     error: "",
     showClear: false,
+    labelSrOnly: false,
+    helperSrOnly: false,
   }
 );
 
@@ -129,7 +132,7 @@ const hasWarning = computed(() => Boolean(props.disabled && props.warningText));
 const hasError = computed(() => !hasWarning.value && Boolean(props.error));
 
 const describedBy = computed(() => {
-  const ids = [helperId.value];
+  const ids = props.helperText ? [helperId.value] : [];
   if (hasWarning.value) {
     ids.push(warningId.value);
   } else if (hasError.value) {
