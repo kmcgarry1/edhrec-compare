@@ -132,6 +132,22 @@ describe("CommanderSearch", () => {
     expect(notifyError).toHaveBeenCalled();
   });
 
+  it("renders a single-field landing mode when minimal mode is enabled", async () => {
+    const wrapper = mountComponent({ mode: "minimal" });
+
+    expect(wrapper.find("#partner-commander-search").exists()).toBe(false);
+    expect(wrapper.find("button[aria-label='Clear commander selection']").exists()).toBe(false);
+
+    await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
+      "Atraxa, Grand Unifier"
+    );
+    await flushPromises();
+
+    expect(wrapper.find("#partner-commander-search").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("Add partner");
+    expect(wrapper.text()).not.toContain("Remove partner");
+  });
+
   it("disables partner search until primary selection is made", async () => {
     const wrapper = mountComponent();
     const findButton = (label: string) =>
@@ -156,11 +172,13 @@ describe("CommanderSearch", () => {
     const wrapper = mountComponent();
     const findButton = (label: string) =>
       wrapper.findAll("button").find((button) => button.text().includes(label));
-    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-      .handleSelection("primary", "Atraxa");
+    await (
+      wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+    ).handleSelection("primary", "Atraxa");
     await findButton("Add partner")?.trigger("click");
-    await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-      .handleSelection("partner", "Tymna");
+    await (
+      wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+    ).handleSelection("partner", "Tymna");
     await flushPromises();
 
     expect(wrapper.text()).toContain("G + G");
@@ -172,10 +190,10 @@ describe("CommanderSearch", () => {
 
     it("shows 'Add partner' button when primary commander is selected", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       const addPartnerButton = findButton(wrapper, "Add partner");
@@ -191,15 +209,15 @@ describe("CommanderSearch", () => {
 
     it("reveals partner section when 'Add partner' button is clicked", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       const addPartnerButton = findButton(wrapper, "Add partner");
       expect(addPartnerButton?.exists()).toBe(true);
-      
+
       await addPartnerButton?.trigger("click");
       await flushPromises();
 
@@ -209,10 +227,10 @@ describe("CommanderSearch", () => {
 
     it("replaces 'Add partner' button with 'Remove partner' button after clicking", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       const addPartnerButton = findButton(wrapper, "Add partner");
@@ -229,10 +247,10 @@ describe("CommanderSearch", () => {
 
     it("hides partner section when 'Remove partner' button is clicked", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       const addPartnerButton = findButton(wrapper, "Add partner");
@@ -251,17 +269,19 @@ describe("CommanderSearch", () => {
 
     it("clears partner selection when 'Remove partner' button is clicked", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("primary", "Atraxa");
+
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("primary", "Atraxa");
       await flushPromises();
 
       const addPartnerButton = findButton(wrapper, "Add partner");
       await addPartnerButton?.trigger("click");
       await flushPromises();
 
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("partner", "Tymna");
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("partner", "Tymna");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Atraxa + Tymna");
@@ -277,13 +297,15 @@ describe("CommanderSearch", () => {
 
     it("emits correct slug after removing partner", async () => {
       const wrapper = mountComponent();
-      
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("primary", "Atraxa");
+
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("primary", "Atraxa");
       const addPartnerButton = findButton(wrapper, "Add partner");
       await addPartnerButton?.trigger("click");
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("partner", "Tymna");
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("partner", "Tymna");
       await flushPromises();
 
       const removePartnerButton = findButton(wrapper, "Remove partner");
@@ -300,9 +322,9 @@ describe("CommanderSearch", () => {
 
       expect(wrapper.text()).toContain("Search for a commander to start.");
 
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Selected:");
@@ -313,17 +335,21 @@ describe("CommanderSearch", () => {
     it("shows the combined commander summary when a partner is selected", async () => {
       const wrapper = mountComponent();
 
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("primary", "Atraxa");
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("primary", "Atraxa");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Selected:");
       expect(wrapper.text()).toContain("Atraxa");
 
-      const addPartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Add partner"));
+      const addPartnerButton = wrapper
+        .findAll("button")
+        .find((button) => button.text().includes("Add partner"));
       await addPartnerButton?.trigger("click");
-      await (wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> })
-        .handleSelection("partner", "Tymna");
+      await (
+        wrapper.vm as { handleSelection: (type: string, name: string) => Promise<void> }
+      ).handleSelection("partner", "Tymna");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Atraxa + Tymna");
@@ -332,20 +358,24 @@ describe("CommanderSearch", () => {
     it("keeps the summary visible throughout the partner workflow", async () => {
       const wrapper = mountComponent();
 
-      await (wrapper.vm as { selectPrimaryCommander: (name: string) => void }).selectPrimaryCommander(
-        "Atraxa, Grand Unifier"
-      );
+      await (
+        wrapper.vm as { selectPrimaryCommander: (name: string) => void }
+      ).selectPrimaryCommander("Atraxa, Grand Unifier");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
 
-      const addPartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Add partner"));
+      const addPartnerButton = wrapper
+        .findAll("button")
+        .find((button) => button.text().includes("Add partner"));
       await addPartnerButton?.trigger("click");
       await flushPromises();
 
       expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
 
-      const removePartnerButton = wrapper.findAll("button").find((button) => button.text().includes("Remove partner"));
+      const removePartnerButton = wrapper
+        .findAll("button")
+        .find((button) => button.text().includes("Remove partner"));
       await removePartnerButton?.trigger("click");
       await flushPromises();
 
