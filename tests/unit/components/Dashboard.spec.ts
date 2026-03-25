@@ -71,16 +71,13 @@ const mountComponent = () =>
   mount(Dashboard, {
     global: {
       stubs: {
-        DashboardHero: {
-          template:
-            "<header class='dashboard-hero-stub'><button @click=\"$emit('browse')\">Browse</button><button @click=\"$emit('upload')\">Upload</button></header>",
-        },
         DashboardCommanderMasthead: {
           template:
             "<header class='dashboard-masthead-stub'><button @click=\"$emit('browse')\">Browse</button><button @click=\"$emit('upload')\">Upload</button></header>",
         },
         DashboardSelectionStage: {
-          template: "<section class='dashboard-selection-stage-stub'></section>",
+          template:
+            "<section class='dashboard-selection-stage-stub'><button class='selection-upload-trigger' @click=\"$emit('open-upload')\">Upload</button></section>",
         },
         DashboardToolbar: {
           template: "<nav class='dashboard-toolbar-stub'></nav>",
@@ -95,11 +92,6 @@ const mountComponent = () =>
           template: "<section class='site-notice-stub'></section>",
         },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
-        OnboardingModal: {
-          template:
-            "<div v-if='open' class='onboarding-stub'>Upload your collection or scout first <button @click=\"$emit('dismiss')\">Dismiss</button><button @click=\"$emit('upload')\">Upload</button></div>",
-          props: ["open"],
-        },
         CsvUploadModal: {
           template: "<div v-if='open' class='csv-modal-stub'></div>",
           props: ["open"],
@@ -121,24 +113,25 @@ describe("Dashboard", () => {
     commanderUrl.value = null;
   });
 
-  it("shows onboarding prompt until dismissed or data uploaded", async () => {
+  it("renders the selection stage immediately when no commander is selected", async () => {
     const wrapper = mountComponent();
-    // Wait for async component to load
     await flushPromises();
     await wrapper.vm.$nextTick();
 
-    // Check if onboarding modal stub exists
-    const modalStub = wrapper.find(".onboarding-stub");
-    expect(modalStub.exists()).toBe(true);
-    expect(modalStub.text()).toContain("Upload your collection or scout first");
+    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(false);
+    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(false);
+  });
 
-    // Dismiss the onboarding
-    await modalStub.find("button").trigger("click");
+  it("opens the CSV modal from the landing selection stage", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
     await wrapper.vm.$nextTick();
 
-    // After dismissal, modal should not exist
-    expect(wrapper.find(".onboarding-stub").exists()).toBe(false);
-    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
+    await wrapper.find(".selection-upload-trigger").trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(".csv-modal-stub").exists()).toBe(true);
   });
 
   it("downloads decklist when export is available", async () => {
@@ -202,7 +195,6 @@ describe("Dashboard", () => {
     await flushPromises();
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.find(".onboarding-stub").exists()).toBe(false);
     expect(wrapper.find(".dashboard-masthead-stub").exists()).toBe(true);
     expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(true);
     expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);

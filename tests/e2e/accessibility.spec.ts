@@ -1,8 +1,8 @@
 import { test, expect, Page } from "@playwright/test";
 import path from "node:path";
+import { SCRYFALL_RANDOM_CARD_RESPONSE } from "./fixtures";
 
 const interceptNetwork = async (page: Page) => {
-  // Stub network calls to avoid rate limiting
   await page.route("**/json.edhrec.com/pages/**", (route) =>
     route.fulfill({
       status: 200,
@@ -24,6 +24,14 @@ const interceptNetwork = async (page: Page) => {
       }),
     })
   );
+
+  await page.route("**/api.scryfall.com/cards/random**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(SCRYFALL_RANDOM_CARD_RESPONSE),
+    })
+  );
 };
 
 const setupApp = async (page: Page) => {
@@ -31,227 +39,110 @@ const setupApp = async (page: Page) => {
   await page.goto("/");
 };
 
-const expectSearchReady = async (page: Page) => {
-  await expect(page.getByRole("textbox", { name: /Primary commander/i })).toBeVisible();
+const getLandingUploadButton = (page: Page) =>
+  page.getByRole("button", { name: /^Upload CSV$/ }).first();
+
+const expectLandingReady = async (page: Page) => {
+  await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeVisible();
+  await expect(getLandingUploadButton(page)).toBeVisible();
 };
 
-const dismissOnboarding = async (page: Page) => {
-  const onboardingDialog = page.getByRole("dialog", {
-    name: /Upload your collection or scout first/i,
-  });
-  await expect(onboardingDialog).toBeVisible();
-  await page.getByRole("button", { name: /Start searching/ }).click();
-  await expect(onboardingDialog).toBeHidden();
-  await expectSearchReady(page);
-};
-
-const openDisplaySettings = async (page: Page) => {
-  await page.getByRole("button", { name: /^Display$/ }).click();
-  await expect(page.getByRole("button", { name: /Switch to.*theme/ })).toBeVisible();
+const openUploadModal = async (page: Page) => {
+  await getLandingUploadButton(page).click();
+  const dialog = page.getByRole("dialog", { name: /Import your CSV/i });
+  await expect(dialog).toBeVisible();
+  return dialog;
 };
 
 test.describe("Keyboard Navigation", () => {
-  test("can navigate onboarding modal with keyboard", async ({ page }) => {
+  test("landing controls are keyboard reachable", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Wait for onboarding modal
-    const onboardingDialog = page.getByRole("dialog", {
-      name: /Upload your collection or scout first/i,
-    });
-    await expect(onboardingDialog).toBeVisible();
-
-    // Tab to first button
     await page.keyboard.press("Tab");
-    const uploadButton = onboardingDialog.getByRole("button", {
-      name: /Upload CSV collection file/i,
-    });
-    await expect(uploadButton).toBeFocused();
+    await expect(page.locator(":focus")).toHaveAttribute("href", "#main-content");
 
-    // Tab to second button
     await page.keyboard.press("Tab");
-    const dismissButton = onboardingDialog.getByRole("button", { name: /Start searching/ });
-    await expect(dismissButton).toBeFocused();
+    await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeFocused();
 
-    // Press Enter to dismiss
-    await page.keyboard.press("Enter");
-    await expect(onboardingDialog).toBeHidden();
-    await expectSearchReady(page);
+    await page.keyboard.press("Tab");
+    await expect(getLandingUploadButton(page)).toBeFocused();
   });
 
-  test("can close modal with Escape key", async ({ page }) => {
+  test("can close CSV upload modal with Escape", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
+    await openUploadModal(page);
 
-    // Wait for onboarding modal
-    const onboardingDialog = page.getByRole("dialog", {
-      name: /Upload your collection or scout first/i,
-    });
-    await expect(onboardingDialog).toBeVisible();
-
-    // Press Escape to close
-    await page.keyboard.press("Escape");
-    await expect(onboardingDialog).toBeHidden();
-  });
-
-  test("can navigate CSV upload modal with keyboard", async ({ page }) => {
-    await setupApp(page);
-
-    // Dismiss onboarding first
-    await dismissOnboarding(page);
-
-    // Click upload button
-    await page.getByRole("button", { name: /^Upload CSV$/ }).click();
-
-    // Wait for upload modal
-    await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeVisible();
-
-    // Press Escape to close
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeHidden();
   });
 
-  test("focus trap works in modals", async ({ page }) => {
-    await setupApp(page);
-
-    // Wait for onboarding modal
-    const onboardingDialog = page.getByRole("dialog", {
-      name: /Upload your collection or scout first/i,
-    });
-    await expect(onboardingDialog).toBeVisible();
-
-    // Tab through all focusable elements
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-
-    // Next tab should wrap back to first element
-    await page.keyboard.press("Tab");
-    const uploadButton = onboardingDialog.getByRole("button", {
-      name: /Upload CSV collection file/i,
-    });
-    await expect(uploadButton).toBeFocused();
-  });
-
   test("can navigate commander search with keyboard", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Dismiss onboarding
-    await dismissOnboarding(page);
-
-    // Focus on primary commander input
-    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
+    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
     await primaryInput.focus();
     await expect(primaryInput).toBeFocused();
 
-    // Type to search
     await primaryInput.fill("Atra");
 
-    // Wait for search results to appear
     const firstResult = page.locator("li", { hasText: "Atraxa" }).first();
-    await expect(firstResult).toBeVisible({ timeout: 3000 }).catch(() => {
-      // Results may not always appear in stub environment
-    });
+    await expect(firstResult)
+      .toBeVisible({ timeout: 3000 })
+      .catch(() => {
+        // Results may not always appear in the stubbed environment.
+      });
 
-    // Use keyboard to select result if available
     if (await firstResult.isVisible().catch(() => false)) {
       await firstResult.focus();
       await page.keyboard.press("Enter");
-
-      // Verify selection
       await expect(page).toHaveURL(/\/commander\/atraxa-grand-unifier/);
     }
-  });
-
-  test("can toggle theme with keyboard", async ({ page }) => {
-    await setupApp(page);
-
-    // Dismiss onboarding
-    await dismissOnboarding(page);
-    await openDisplaySettings(page);
-
-    // Find theme toggle button
-    const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
-    await themeToggle.focus();
-    await expect(themeToggle).toBeFocused();
-
-    // Press Enter or Space to toggle
-    await page.keyboard.press("Enter");
-
-    // Verify aria-pressed changes
-    const pressed = await themeToggle.getAttribute("aria-pressed");
-    expect(pressed).toBeTruthy();
   });
 });
 
 test.describe("ARIA Attributes", () => {
-  test("modals have proper ARIA attributes", async ({ page }) => {
+  test("landing search field has accessible description", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Check onboarding modal
-    const onboardingDialog = page.getByRole("dialog");
-    await expect(onboardingDialog).toBeVisible();
-    await expect(onboardingDialog).toHaveAttribute("aria-modal", "true");
-    await expect(onboardingDialog).toHaveAttribute("aria-labelledby");
-    await expect(onboardingDialog).toHaveAttribute("aria-describedby");
-  });
-
-  test("buttons have appropriate aria-labels", async ({ page }) => {
-    await setupApp(page);
-
-    // Dismiss onboarding
-    await dismissOnboarding(page);
-    await openDisplaySettings(page);
-
-    // Check theme toggle has aria-label
-    const themeToggle = page.getByRole("button", { name: /Switch to.*theme/ });
-    await expect(themeToggle).toBeVisible();
-
-    // Check upload button has aria-label
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
-    await expect(uploadButton).toBeVisible();
-  });
-
-  test("form fields have aria-describedby", async ({ page }) => {
-    await setupApp(page);
-
-    // Dismiss onboarding
-    await dismissOnboarding(page);
-
-    // Check primary commander input
-    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
+    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
     const describedBy = await primaryInput.getAttribute("aria-describedby");
     expect(describedBy).toBeTruthy();
     expect(describedBy).toContain("helper-text");
   });
 
-  test("loading states have aria-live regions", async ({ page }) => {
+  test("upload modal has proper ARIA attributes", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Dismiss onboarding
-    await dismissOnboarding(page);
-
-    // Open upload modal and provide a CSV to surface status messaging
-    await page.getByRole("button", { name: /^Upload CSV$/ }).click();
-    const uploadDialog = page.getByRole("dialog", { name: /Import your CSV/i });
-    await expect(uploadDialog).toBeVisible();
-    const fileInput = uploadDialog.locator('input[type="file"]');
-    await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
-
-    await expect(uploadDialog.getByText("Valid CSV")).toBeVisible();
-    const liveRegions = uploadDialog.locator('[aria-live="polite"]');
-    await expect(liveRegions.first()).toBeVisible();
+    const dialog = await openUploadModal(page);
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+    await expect(dialog).toHaveAttribute("aria-labelledby");
+    await expect(dialog).toHaveAttribute("aria-describedby");
   });
 
-  test("error messages have role alert", async ({ page }) => {
+  test("loading states have aria-live regions", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Dismiss onboarding
-    await dismissOnboarding(page);
+    const dialog = await openUploadModal(page);
+    const fileInput = dialog.locator('input[type="file"]');
+    await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
 
-    // Type invalid search to trigger error
-    const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
+    await expect(dialog.getByText("Valid CSV")).toBeVisible();
+    await expect(dialog.locator('[aria-live="polite"]').first()).toBeVisible();
+  });
+
+  test("error messages use role alert when search fails", async ({ page }) => {
+    await setupApp(page);
+    await expectLandingReady(page);
+
+    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
     await primaryInput.fill("xyz");
 
-    // Wait for potential error (may not always appear, but checking structure)
-    // The test validates that IF an error appears, it has role="alert"
     const errorElements = page.locator('[role="alert"]');
     if ((await errorElements.count()) > 0) {
       await expect(errorElements.first()).toBeVisible();
@@ -260,60 +151,27 @@ test.describe("ARIA Attributes", () => {
 });
 
 test.describe("Focus Management", () => {
-  test("focus returns to trigger after modal closes", async ({ page }) => {
+  test("focus stays within the CSV upload modal", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Dismiss onboarding
-    await dismissOnboarding(page);
+    const dialog = await openUploadModal(page);
 
-    // Click upload button and track it
-    const uploadButton = page.getByRole("button", { name: /^Upload CSV$/ });
-    await uploadButton.click();
-
-    // Wait for modal
-    await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeVisible();
-
-    // Close modal
-    await page.keyboard.press("Escape");
-
-    // Wait for modal to close
-    await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeHidden();
-    // Note: Full focus restoration testing requires more setup
-  });
-
-  test("focus is trapped within modal", async ({ page }) => {
-    await setupApp(page);
-
-    // Wait for modal
-    const onboardingDialog = page.getByRole("dialog", {
-      name: /Upload your collection or scout first/i,
-    });
-    await expect(onboardingDialog).toBeVisible();
-
-    // Try to tab outside modal - should stay within
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i += 1) {
       await page.keyboard.press("Tab");
     }
 
-    // Should still be on a button within the modal
-    const focusedElement = page.locator(":focus");
-    const isButton = await focusedElement.evaluate((el) => el.tagName === "BUTTON");
-    expect(isButton).toBe(true);
+    await expect
+      .poll(() => dialog.evaluate((element) => element.contains(document.activeElement)))
+      .toBe(true);
   });
 
-  test("visible focus indicators on interactive elements", async ({ page }) => {
+  test("landing controls show visible focus targets", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    // Dismiss onboarding
-    await page.getByRole("button", { name: /Start searching/ }).click();
-
-    // Tab to focus an element
     await page.keyboard.press("Tab");
-
-    // Check if focused element has visible focus ring
     const focusedElement = page.locator(":focus");
     await expect(focusedElement).toBeVisible();
-
-    // Note: Visual focus indicator testing would require screenshot comparison
   });
 });

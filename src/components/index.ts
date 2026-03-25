@@ -20,7 +20,6 @@ export { default as ToolkitHeader } from "./ToolkitHeader.vue";
 export { default as EdhrecEmptyState } from "./EdhrecEmptyState.vue";
 // Lazy-loaded components are not exported from index.ts to enable code splitting
 // export { default as Dashboard } from "./Dashboard.vue";
-// export { default as OnboardingModal } from "./OnboardingModal.vue";
 // export { default as CsvUploadModal } from "./CsvUploadModal.vue";
 // export { default as DecklistExport } from "./DecklistExport.vue";
 // export { default as NebulaBackground } from "./NebulaBackground.vue";

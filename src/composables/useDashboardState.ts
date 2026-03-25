@@ -85,7 +85,6 @@ export const useDashboardState = () => {
     spotlightLoading: commanderSpotlightLoading,
     backdropUrl: commanderSpotlightBackdropUrl,
   } = useCommanderSpotlight(commanderSelection);
-  const onboardingDismissed = ref(false);
   const routeCommanderLabel = ref<string | null>(null);
   let routeCommanderRequestId: symbol | null = null;
   let decklistCopyHandle: ReturnType<typeof setTimeout> | null = null;
@@ -103,9 +102,6 @@ export const useDashboardState = () => {
   );
   const hasDecklist = computed(() => Boolean(decklistExport.value?.text));
   const decklistSectionCount = computed(() => decklistExport.value?.sections.length ?? 0);
-  const showOnboarding = computed(
-    () => !onboardingDismissed.value && !hasCsvData.value && !hasCommander.value
-  );
 
   watch(
     commanderUrl,
@@ -353,21 +349,6 @@ export const useDashboardState = () => {
     clearDecklistCopiedState();
   });
 
-  watch(hasCsvData, (value) => {
-    if (value) {
-      onboardingDismissed.value = true;
-    }
-  });
-
-  const dismissOnboarding = () => {
-    onboardingDismissed.value = true;
-  };
-
-  const openUploadModalFromOnboarding = () => {
-    onboardingDismissed.value = true;
-    openUploadModal();
-  };
-
   return {
     theme,
     toggleTheme,
@@ -390,7 +371,6 @@ export const useDashboardState = () => {
     hasCsvData,
     hasDecklist,
     decklistSectionCount,
-    showOnboarding,
     csvCount,
     inventorySummary,
     nextStepLabel,
@@ -409,7 +389,5 @@ export const useDashboardState = () => {
     copyDecklistFromHeader,
     downloadDecklistFromHeader,
     setOwnedFilter,
-    dismissOnboarding,
-    openUploadModalFromOnboarding,
   };
 };

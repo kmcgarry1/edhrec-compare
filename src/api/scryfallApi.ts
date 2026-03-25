@@ -175,9 +175,7 @@ export async function getCard(cardName: string): Promise<ScryfallCard | null> {
     apiCall<ScryfallCard | null>(
       async () => {
         const response = await fetch(
-          `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(
-            sanitizedName
-          )}`
+          `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(sanitizedName)}`
         );
 
         if (!response.ok) {
@@ -224,10 +222,65 @@ export async function getCardImage(cardName: string): Promise<string | null> {
     return card.image_uris.normal;
   }
 
-  const faceWithImage = card.card_faces?.find(
-    (face) => face.image_uris?.normal
-  );
+  const faceWithImage = card.card_faces?.find((face) => face.image_uris?.normal);
   return faceWithImage?.image_uris?.normal ?? null;
+}
+
+export type RandomCardArt = {
+  name: string;
+  imageUrl: string;
+  scryfallUri?: string;
+};
+
+const extractArtImageUrl = (card: ScryfallCard): string | null => {
+  if (card.image_uris?.art_crop) {
+    return card.image_uris.art_crop;
+  }
+
+  if (card.image_uris?.normal) {
+    return card.image_uris.normal;
+  }
+
+  const faceWithArt = card.card_faces?.find(
+    (face) => face.image_uris?.art_crop || face.image_uris?.normal
+  );
+  return faceWithArt?.image_uris?.art_crop ?? faceWithArt?.image_uris?.normal ?? null;
+};
+
+export async function getRandomCardArt(
+  query = "is:commander game:paper unique:art"
+): Promise<RandomCardArt | null> {
+  return apiCall<RandomCardArt | null>(
+    async () => {
+      const response = await fetch(
+        `https://api.scryfall.com/cards/random?q=${encodeURIComponent(query)}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status}`);
+      }
+
+      const card: ScryfallCard = await response.json();
+      const imageUrl = extractArtImageUrl(card);
+
+      if (!imageUrl) {
+        return null;
+      }
+
+      return {
+        name: card.name,
+        imageUrl,
+        scryfallUri: card.scryfall_uri,
+      };
+    },
+    "Unable to load spotlight art.",
+    {
+      notify: false,
+      suppressError: true,
+      fallbackValue: null,
+      context: "getRandomCardArt",
+    }
+  );
 }
 
 /**
@@ -254,7 +307,7 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
   const searchTerm = sanitizeCardName(trimmed) || trimmed;
   // Deduplicate search requests by normalized search term
   const requestKey = `scryfall:search:${searchTerm.toLowerCase()}`;
-  
+
   return requestCache.dedupe(requestKey, () =>
     apiCall<string[]>(
       async () => {
@@ -276,9 +329,7 @@ export async function searchCardNames(partialName: string): Promise<string[]> {
 
         return (
           searchResult.data
-            ?.map(
-              (card: ScryfallCard) => sanitizeCardName(card.name) || card.name
-            )
+            ?.map((card: ScryfallCard) => sanitizeCardName(card.name) || card.name)
             .filter((name: string) => {
               const normalized = name.trim().toLowerCase();
               if (!normalized || seen.has(normalized)) {
@@ -334,38 +385,36 @@ export async function getCardsByNames(
 
   return requestCache.dedupe(requestKey, () =>
     apiCall<ScryfallCard[]>(
-    async () => {
-      const batchSize = 75;
-      const totalBatches = Math.ceil(cardNames.length / batchSize);
-      const requests = cardNames.map(({ name }) => {
-        const sanitized = sanitizeCardName(name);
-        return {
-          sanitized,
-          cacheKey: sanitized.toLowerCase(),
-        };
-      });
+      async () => {
+        const batchSize = 75;
+        const totalBatches = Math.ceil(cardNames.length / batchSize);
+        const requests = cardNames.map(({ name }) => {
+          const sanitized = sanitizeCardName(name);
+          return {
+            sanitized,
+            cacheKey: sanitized.toLowerCase(),
+          };
+        });
 
-      const cachedResults = new Map<string, ScryfallCard>();
-      const missingRequests = new Map<string, string>();
+        const cachedResults = new Map<string, ScryfallCard>();
+        const missingRequests = new Map<string, string>();
 
-      for (const request of requests) {
-        const cached = await cardCache.getCachedCard(request.cacheKey);
-        if (cached) {
-          cachedResults.set(request.cacheKey, cached);
-        } else if (!missingRequests.has(request.cacheKey)) {
-          missingRequests.set(request.cacheKey, request.sanitized);
+        for (const request of requests) {
+          const cached = await cardCache.getCachedCard(request.cacheKey);
+          if (cached) {
+            cachedResults.set(request.cacheKey, cached);
+          } else if (!missingRequests.has(request.cacheKey)) {
+            missingRequests.set(request.cacheKey, request.sanitized);
+          }
         }
-      }
 
-      const missingIdentifiers = Array.from(missingRequests.values());
-      const fetchedResults = new Map<string, ScryfallCard>();
-      let batchesCompleted = 0;
+        const missingIdentifiers = Array.from(missingRequests.values());
+        const fetchedResults = new Map<string, ScryfallCard>();
+        let batchesCompleted = 0;
 
-      for (let i = 0; i < missingIdentifiers.length; i += batchSize) {
-        const batch = missingIdentifiers.slice(i, i + batchSize);
-        const response = await fetch(
-          `https://api.scryfall.com/cards/collection`,
-          {
+        for (let i = 0; i < missingIdentifiers.length; i += batchSize) {
+          const batch = missingIdentifiers.slice(i, i + batchSize);
+          const response = await fetch(`https://api.scryfall.com/cards/collection`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -375,49 +424,43 @@ export async function getCardsByNames(
                 name,
               })),
             }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Scryfall API error: ${response.status}`);
           }
-        );
 
-        if (!response.ok) {
-          throw new Error(`Scryfall API error: ${response.status}`);
+          const fetchResult = await response.json();
+          const cards = (fetchResult.data as ScryfallCard[]) ?? [];
+
+          for (const card of cards) {
+            const cacheKey = getCacheKey(card.name);
+            fetchedResults.set(cacheKey, card);
+            await cardCache.setCachedCard(cacheKey, card);
+          }
+
+          batchesCompleted += 1;
+          onProgress?.(Math.min(batchesCompleted, totalBatches), totalBatches);
+
+          if (i + batchSize < missingIdentifiers.length) {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+          }
         }
 
-        const fetchResult = await response.json();
-        const cards = (fetchResult.data as ScryfallCard[]) ?? [];
-
-        for (const card of cards) {
-          const cacheKey = getCacheKey(card.name);
-          fetchedResults.set(cacheKey, card);
-          await cardCache.setCachedCard(cacheKey, card);
+        if (!missingIdentifiers.length || batchesCompleted < totalBatches) {
+          onProgress?.(totalBatches, totalBatches);
         }
 
-        batchesCompleted += 1;
-        onProgress?.(
-          Math.min(batchesCompleted, totalBatches),
-          totalBatches
-        );
-
-        if (i + batchSize < missingIdentifiers.length) {
-          await new Promise((resolve) => setTimeout(resolve, 300));
+        const resolvedCards: ScryfallCard[] = [];
+        for (const request of requests) {
+          const card = cachedResults.get(request.cacheKey) ?? fetchedResults.get(request.cacheKey);
+          if (card) {
+            resolvedCards.push(card);
+          }
         }
-      }
 
-      if (!missingIdentifiers.length || batchesCompleted < totalBatches) {
-        onProgress?.(totalBatches, totalBatches);
-      }
-
-      const resolvedCards: ScryfallCard[] = [];
-      for (const request of requests) {
-        const card =
-          cachedResults.get(request.cacheKey) ??
-          fetchedResults.get(request.cacheKey);
-        if (card) {
-          resolvedCards.push(card);
-        }
-      }
-
-      return resolvedCards;
-    },
+        return resolvedCards;
+      },
       "Unable to fetch detailed card data from Scryfall.",
       { context: "getCardsByNames" }
     )
@@ -446,8 +489,7 @@ export async function getAllSymbols(): Promise<ScryfallSymbol[]> {
         throw new Error(`Scryfall API error: ${response.status}`);
       }
       const payload = await response.json();
-      const symbols =
-        (payload.data as Array<{ symbol: string; svg_uri: string }>) ?? [];
+      const symbols = (payload.data as Array<{ symbol: string; svg_uri: string }>) ?? [];
       return symbols.map(({ symbol, svg_uri }) => ({
         symbol,
         svg_uri,
@@ -483,9 +525,7 @@ const MAX_PRINTING_RESULTS = 60;
  * }
  * ```
  */
-export async function getCardPrintings(
-  printsSearchUri: string
-): Promise<ScryfallCard[]> {
+export async function getCardPrintings(printsSearchUri: string): Promise<ScryfallCard[]> {
   const result = await apiCall<ScryfallCard[]>(
     async () => {
       let nextPage: string | null = printsSearchUri;
@@ -507,9 +547,7 @@ export async function getCardPrintings(
         nextPage = page.next_page ?? null;
 
         if (nextPage) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, PRINTINGS_PAGE_DELAY)
-          );
+          await new Promise((resolve) => setTimeout(resolve, PRINTINGS_PAGE_DELAY));
         }
       }
 
