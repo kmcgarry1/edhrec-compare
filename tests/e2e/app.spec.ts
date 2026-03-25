@@ -6,6 +6,7 @@ import {
   SCRYFALL_SEARCH_RESPONSE,
   SCRYFALL_SYMBOLS_RESPONSE,
   SCRYFALL_CARD_IMAGE,
+  SCRYFALL_RANDOM_CARD_RESPONSE,
 } from "./fixtures";
 
 const interceptNetwork = async (page: Page) => {
@@ -48,6 +49,14 @@ const interceptNetwork = async (page: Page) => {
       body: JSON.stringify(SCRYFALL_CARD_IMAGE),
     })
   );
+
+  await page.route("**/api.scryfall.com/cards/random**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(SCRYFALL_RANDOM_CARD_RESPONSE),
+    })
+  );
 };
 
 const stubClipboard = async (page: Page) => {
@@ -72,25 +81,17 @@ const setupApp = async (page: Page) => {
   await page.goto("/");
 };
 
-const dismissOnboarding = async (page: Page) => {
-  const onboardingDialog = page.getByRole("dialog", {
-    name: /Upload your collection or scout first/i,
-  });
-  await expect(onboardingDialog).toBeVisible();
-  await page.getByRole("button", { name: /Start searching/ }).click();
-  await expect(onboardingDialog).toBeHidden();
-  await expect(page.getByRole("textbox", { name: /Primary commander/i })).toBeVisible();
+const expectLandingReady = async (page: Page) => {
+  await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Upload CSV$/ }).first()).toBeVisible();
 };
 
-test.describe("Onboarding and CSV upload", () => {
-  test("prompts user and accepts CSV upload", async ({ page }) => {
+test.describe("Landing and CSV upload", () => {
+  test("opens CSV upload from the landing page and accepts a file", async ({ page }) => {
     await setupApp(page);
+    await expectLandingReady(page);
 
-    const onboardingDialog = page.getByRole("dialog", {
-      name: /Upload your collection or scout first/i,
-    });
-    await expect(onboardingDialog).toBeVisible();
-    await onboardingDialog.getByRole("button", { name: /Upload CSV collection file/i }).click();
+    await page.getByRole("button", { name: /^Upload CSV$/ }).first().click();
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
@@ -106,7 +107,7 @@ test.describe("Onboarding and CSV upload", () => {
 test.describe("Commander workflow", () => {
   test("searches commanders and exports decklists", async ({ page }) => {
     await setupApp(page);
-    await dismissOnboarding(page);
+    await expectLandingReady(page);
 
     await selectCommander(page);
 
@@ -116,9 +117,9 @@ test.describe("Commander workflow", () => {
     await expect(copyButton).toBeVisible();
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
     await copyButton.click();
-    await expect.poll(() =>
-      page.evaluate(() => (window as { __copiedDecklist: string }).__copiedDecklist)
-    ).toContain("Sol Ring");
+    await expect
+      .poll(() => page.evaluate(() => (window as { __copiedDecklist: string }).__copiedDecklist))
+      .toContain("Sol Ring");
 
     const downloadPromise = page.waitForEvent("download");
     await page.getByTestId("header-download-decklist").click();
@@ -131,12 +132,9 @@ test.describe("Mobile card modal", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test("opens modal with details and links to Scryfall", async ({ page }, testInfo) => {
-    test.skip(
-      testInfo.project.name !== "mobile-chromium",
-      "Only run on the mobile project"
-    );
+    test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");
     await setupApp(page);
-    await dismissOnboarding(page);
+    await expectLandingReady(page);
 
     await selectCommander(page);
 
@@ -178,13 +176,11 @@ const selectCommander = async (page: Page) => {
     (response) => response.url().includes("/cards/search"),
     { timeout: 10_000 }
   );
-  const primaryInput = page.getByRole("textbox", { name: /Primary commander/i });
+  const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
   await expect(primaryInput).toBeVisible();
   await primaryInput.fill("Atraxa");
   await searchResponse;
-  const option = page
-    .locator("li", { hasText: "Atraxa, Grand Unifier" })
-    .first();
+  const option = page.locator("li", { hasText: "Atraxa, Grand Unifier" }).first();
   await expect(option).toBeVisible({ timeout: 10_000 });
   await option.click();
 };

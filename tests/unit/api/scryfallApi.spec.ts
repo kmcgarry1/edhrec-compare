@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, type MockedFunction } from "vites
 import {
   getCard,
   getCardImage,
+  getRandomCardArt,
   searchCardNames,
   getCardsByNames,
   getAllSymbols,
@@ -172,6 +173,88 @@ describe("scryfallApi", () => {
       });
 
       const result = await getCardImage("Nonexistent Card");
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("getRandomCardArt", () => {
+    it("should fetch random commander art", async () => {
+      const mockCard: ScryfallCard = {
+        id: "spotlight-1",
+        name: "Atraxa, Grand Unifier",
+        cmc: 7,
+        type_line: "Legendary Creature",
+        colors: ["W", "U", "B", "G"],
+        set: "one",
+        rarity: "mythic",
+        image_uris: {
+          art_crop: "https://example.com/atraxa-art.jpg",
+        },
+        prices: {},
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCard,
+      });
+
+      const result = await getRandomCardArt();
+
+      expect(result).toEqual({
+        name: "Atraxa, Grand Unifier",
+        imageUrl: "https://example.com/atraxa-art.jpg",
+        scryfallUri: undefined,
+      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        "https://api.scryfall.com/cards/random?q=is%3Acommander%20game%3Apaper%20unique%3Aart"
+      );
+    });
+
+    it("should fall back to face art when card image_uris are missing", async () => {
+      const mockCard: ScryfallCard = {
+        id: "spotlight-2",
+        name: "Esika, God of the Tree // The Prismatic Bridge",
+        cmc: 3,
+        type_line: "Legendary Creature",
+        colors: ["G"],
+        set: "khm",
+        rarity: "mythic",
+        card_faces: [
+          {
+            name: "Esika, God of the Tree",
+            image_uris: { art_crop: "https://example.com/esika-art.jpg" },
+          },
+        ],
+        prices: {},
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCard,
+      });
+
+      const result = await getRandomCardArt("is:commander");
+      expect(result?.imageUrl).toBe("https://example.com/esika-art.jpg");
+    });
+
+    it("should return null when no usable art is available", async () => {
+      const mockCard: ScryfallCard = {
+        id: "spotlight-3",
+        name: "Nameless Utility Card",
+        cmc: 2,
+        type_line: "Artifact",
+        colors: [],
+        set: "test",
+        rarity: "common",
+        prices: {},
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCard,
+      });
+
+      const result = await getRandomCardArt();
       expect(result).toBeNull();
     });
   });

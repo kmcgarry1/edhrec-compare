@@ -95,3 +95,13 @@ export const SCRYFALL_CARD_IMAGE = {
   },
   scryfall_uri: "https://scryfall.com/card/test/sol-ring",
 };
+
+export const SCRYFALL_RANDOM_CARD_RESPONSE = {
+  id: "random-spotlight-card",
+  name: "Atraxa, Grand Unifier",
+  image_uris: {
+    art_crop: "https://example.com/atraxa-art.jpg",
+    normal: "https://example.com/atraxa.jpg",
+  },
+  scryfall_uri: "https://scryfall.com/card/test/atraxa-grand-unifier",
+};

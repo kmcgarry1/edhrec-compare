@@ -161,19 +161,16 @@ const interceptNetwork = async (
   const delay = options?.topCommandersDelayMs ?? 0;
   const colorDelay = options?.colorCommandersDelayMs ?? 0;
   // Mock EDHREC Top Commanders API
-  await page.route(
-    "**/json.edhrec.com/pages/commanders/year.json",
-    async (route) => {
-      if (delay > 0) {
-        await page.waitForTimeout(delay);
-      }
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(TOP_COMMANDERS_FIXTURE),
-      });
+  await page.route("**/json.edhrec.com/pages/commanders/year.json", async (route) => {
+    if (delay > 0) {
+      await page.waitForTimeout(delay);
     }
-  );
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(TOP_COMMANDERS_FIXTURE),
+    });
+  });
 
   // Mock EDHREC color-filtered commanders
   await page.route("**/json.edhrec.com/pages/commanders/*.json", async (route) => {
@@ -235,6 +232,21 @@ const interceptNetwork = async (
       body: JSON.stringify({ data: [] }),
     })
   );
+
+  await page.route("**/api.scryfall.com/cards/random**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "random-spotlight-card",
+        name: "Atraxa, Grand Unifier",
+        image_uris: {
+          art_crop: "https://example.com/atraxa-art.jpg",
+          normal: "https://example.com/atraxa.jpg",
+        },
+      }),
+    })
+  );
 };
 
 const setupPage = async (page: Page) => {
@@ -243,16 +255,9 @@ const setupPage = async (page: Page) => {
 };
 
 test.describe("Top Commanders Page - Navigation", () => {
-  test("navigates to Top Commanders page from dashboard", async ({ page }) => {
+  test("loads the Top Commanders page directly", async ({ page }) => {
     await setupPage(page);
-
-    // Dismiss onboarding modal
-    await page.getByRole("button", { name: /Start searching/ }).click();
-
-    // Navigate to Top Commanders page
-    const topCommandersLink = page.getByRole("link", { name: /^Top commanders$/i });
-    await expect(topCommandersLink).toBeVisible();
-    await topCommandersLink.click();
+    await page.goto("/top-commanders");
 
     // Verify page loaded
     await expect(page).toHaveURL(/\/top-commanders/);
@@ -664,7 +669,7 @@ test.describe("Top Commanders Page - Refresh Functionality", () => {
     await expect(page.getByText("Atraxa, Grand Unifier")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("disables refresh button while loading", async ({ page }) => {
+  test("disables refresh button while loading", async ({ page: _page }) => {
     // This test is flaky because the refresh is too fast, so skip it
     // The functionality is tested by the "refreshes commander list when clicked" test
     test.skip();
@@ -780,9 +785,7 @@ test.describe("Top Commanders Page - Accessibility", () => {
 
     await page.goto("/top-commanders");
 
-    const error = page
-      .getByRole("alert")
-      .filter({ hasText: /Unable to load top commanders/i });
+    const error = page.getByRole("alert").filter({ hasText: /Unable to load top commanders/i });
     await expect(error).toBeVisible({ timeout: 10_000 });
   });
 });
@@ -794,7 +797,7 @@ test.describe("Top Commanders Page - Visual Feedback", () => {
 
     // Check for the ownership range visual
     await expect(page.getByText("Owned range", { exact: false })).toBeVisible();
-    
+
     // The gradient has three labels - verify they exist but don't check for visibility
     // due to strict mode violations with percentage text appearing multiple places
     const labels = await page.getByText(/^\d+%$/).all();
