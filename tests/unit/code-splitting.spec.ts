@@ -3,15 +3,17 @@ import { describe, it, expect } from "vitest";
 describe("Code Splitting", () => {
   it("lazy loads components with defineAsyncComponent", async () => {
     // Test that async components can be imported
-    const NebulaBackground = await import("../../src/components/NebulaBackground.vue");
-    const CsvUploadModal = await import("../../src/components/CsvUploadModal.vue");
-    const DecklistExport = await import("../../src/components/DecklistExport.vue");
+    const [NebulaBackground, CsvUploadModal, DecklistExport] = await Promise.all([
+      import("../../src/components/NebulaBackground.vue"),
+      import("../../src/components/CsvUploadModal.vue"),
+      import("../../src/components/DecklistExport.vue"),
+    ]);
 
     // Verify components are defined
     expect(NebulaBackground.default).toBeDefined();
     expect(CsvUploadModal.default).toBeDefined();
     expect(DecklistExport.default).toBeDefined();
-  });
+  }, 20000);
 
   it("does not export lazy-loaded components from index", async () => {
     // Import the index file

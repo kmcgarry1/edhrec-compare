@@ -8,6 +8,12 @@ const getRandomCardArt = vi.hoisted(() => vi.fn());
 const setBackgroundArtUrls = vi.hoisted(() => vi.fn());
 const setCommanderSlug = vi.hoisted(() => vi.fn());
 const selectPrimaryCommanderSpy = vi.hoisted(() => vi.fn());
+const scheduleWhenPageIdle = vi.hoisted(() =>
+  vi.fn((callback: () => void) => {
+    callback();
+    return vi.fn();
+  })
+);
 const currentCommanderSlug = ref<string | null>(null);
 
 vi.mock("../../../src/api/scryfallApi", () => ({
@@ -25,6 +31,10 @@ vi.mock("../../../src/composables/useEdhrecRouteState", () => ({
     currentCommanderSlug,
     setCommanderSlug,
   }),
+}));
+
+vi.mock("../../../src/utils/idle", () => ({
+  scheduleWhenPageIdle,
 }));
 
 vi.mock("../../../src/utils/animations", () => ({
@@ -79,6 +89,7 @@ describe("DashboardSelectionStage", () => {
     setBackgroundArtUrls.mockReset();
     setCommanderSlug.mockReset();
     selectPrimaryCommanderSpy.mockReset();
+    scheduleWhenPageIdle.mockClear();
     currentCommanderSlug.value = null;
   });
 
@@ -91,6 +102,7 @@ describe("DashboardSelectionStage", () => {
     const wrapper = mountComponent();
     await flushPromises();
 
+    expect(scheduleWhenPageIdle).toHaveBeenCalledTimes(1);
     expect(wrapper.text()).not.toContain("Random spotlight");
     expect(setBackgroundArtUrls).toHaveBeenCalledWith(["https://example.com/a.jpg"]);
   });

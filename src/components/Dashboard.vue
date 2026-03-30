@@ -60,10 +60,12 @@
 </template>
 
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import DashboardSelectionStage from "./dashboard/DashboardSelectionStage.vue";
-import DashboardWorkspace from "./dashboard/DashboardWorkspace.vue";
 import { useDashboardState } from "../composables/useDashboardState";
+
+const DashboardWorkspace = defineAsyncComponent(() => import("./dashboard/DashboardWorkspace.vue"));
 
 const {
   decklistExport,

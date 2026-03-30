@@ -136,6 +136,12 @@
                 <span class="selection-stage-random-card-name">{{ card.name }}</span>
               </div>
             </button>
+            <div
+              v-for="index in Math.max(0, RANDOM_ART_TARGET - 1 - floatingCards.length)"
+              :key="`floating-card-placeholder-${index}`"
+              class="selection-stage-random-card selection-stage-random-card-placeholder"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </div>
@@ -150,6 +156,7 @@ import { getRandomCardArt, type RandomCardArt } from "../../api/scryfallApi";
 import { useBackgroundArt } from "../../composables/useBackgroundArt";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
 import type { CommanderSelection } from "../../types/edhrec";
+import { scheduleWhenPageIdle } from "../../utils/idle";
 import { prefersReducedMotion } from "../../utils/animations";
 import { buildCommanderSlug } from "../../utils/slugifyCommander";
 import CommanderSearch from "../CommanderSearch.vue";
@@ -158,6 +165,10 @@ import { CButton, CText } from "../core";
 
 const RANDOM_ART_TARGET = 3;
 const RANDOM_ART_MAX_ATTEMPTS = 8;
+const DESKTOP_RANDOM_ART_BREAKPOINT = 1024;
+
+let cachedRandomCommanderArt: RandomCardArt[] | null = null;
+let randomCommanderArtPromise: Promise<RandomCardArt[]> | null = null;
 
 defineProps<{
   hasCsvData: boolean;
@@ -182,7 +193,7 @@ const buildCardStyles = (imageUrl: string) =>
     "--selection-stage-card-art": `url("${imageUrl}")`,
   }) as CSSProperties;
 
-const loadRandomCommanders = async () => {
+const buildRandomCommanderArtSet = async () => {
   const seen = new Set<string>();
   const cards: RandomCardArt[] = [];
 
@@ -195,6 +206,33 @@ const loadRandomCommanders = async () => {
     seen.add(card.name);
     cards.push(card);
   }
+
+  return cards;
+};
+
+const getRandomCommanderArtSet = async () => {
+  if (cachedRandomCommanderArt?.length) {
+    return cachedRandomCommanderArt;
+  }
+
+  if (!randomCommanderArtPromise) {
+    randomCommanderArtPromise = buildRandomCommanderArtSet()
+      .then((cards) => {
+        if (cards.length) {
+          cachedRandomCommanderArt = cards;
+        }
+        return cards;
+      })
+      .finally(() => {
+        randomCommanderArtPromise = null;
+      });
+  }
+
+  return randomCommanderArtPromise;
+};
+
+const loadRandomCommanders = async () => {
+  const cards = await getRandomCommanderArtSet();
 
   const [spotlight, ...others] = cards;
   spotlightArtUrl.value = spotlight?.imageUrl ?? "";
@@ -232,12 +270,22 @@ watch(
   { immediate: true }
 );
 
+let cancelRandomCommanderSchedule: () => void = () => undefined;
+
 onMounted(() => {
   playIntro.value = !prefersReducedMotion();
-  void loadRandomCommanders();
+
+  if (typeof window !== "undefined" && window.innerWidth < DESKTOP_RANDOM_ART_BREAKPOINT) {
+    return;
+  }
+
+  cancelRandomCommanderSchedule = scheduleWhenPageIdle(() => {
+    void loadRandomCommanders();
+  });
 });
 
 onBeforeUnmount(() => {
+  cancelRandomCommanderSchedule();
   setBackgroundArtUrls([]);
 });
 
@@ -506,6 +554,7 @@ defineExpose({
 .selection-stage-card-stack {
   display: grid;
   gap: 1rem;
+  min-height: 23rem;
 }
 
 .selection-stage-random-card {
@@ -603,6 +652,23 @@ defineExpose({
   outline-offset: 4px;
 }
 
+.selection-stage-random-card-placeholder {
+  border-color: rgba(155, 182, 188, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(14, 27, 35, 0.88), rgba(17, 31, 38, 0.78));
+  box-shadow: 0 20px 36px rgba(3, 10, 15, 0.16);
+}
+
+.selection-stage-random-card-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 45%, transparent 100%);
+  transform: translateX(-100%);
+}
+
 .selection-stage-random-card:hover .selection-stage-random-card-sheen,
 .selection-stage-random-card:focus-visible .selection-stage-random-card-sheen {
   background:
@@ -650,6 +716,10 @@ defineExpose({
 
   .selection-stage-halo-amber {
     animation: selection-stage-drift 22s ease-in-out infinite alternate-reverse;
+  }
+
+  .selection-stage-random-card-placeholder::before {
+    animation: selection-stage-placeholder-sheen 2.4s ease-in-out infinite;
   }
 
   .selection-stage-shell-intro .selection-stage-mark,
@@ -719,6 +789,12 @@ defineExpose({
 
   50% {
     transform: translateY(-8px);
+  }
+}
+
+@keyframes selection-stage-placeholder-sheen {
+  100% {
+    transform: translateX(100%);
   }
 }
 </style>
