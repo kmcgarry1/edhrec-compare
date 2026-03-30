@@ -1,5 +1,6 @@
 export { default as EdhrecReader } from "./EdhrecReader.vue";
 export { default as AccessibilityControls } from "./AccessibilityControls.vue";
+export { default as AppShellHeader } from "./AppShellHeader.vue";
 export { default as CSVUpload } from "./CSVUpload.vue";
 export { default as CommanderSearch } from "./CommanderSearch.vue";
 export { default as CommanderFilters } from "./CommanderFilters.vue";

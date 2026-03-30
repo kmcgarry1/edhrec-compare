@@ -7,14 +7,13 @@ import { useBackgroundPreference } from "./useBackgroundPreference";
 import { useLayoutDensity } from "./useLayoutDensity";
 import { useCommanderSpotlight } from "./useCommanderSpotlight";
 import { useEdhrecRouteState } from "./useEdhrecRouteState";
+import { useUploadModal } from "./useUploadModal";
 import { requestCache } from "../api/requestCache";
 import { downloadTextFile } from "../utils/downloadTextFile";
 import { handleError } from "../utils/errorHandler";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
 import type { CommanderSelection, DecklistPayload, EdhrecData } from "../types/edhrec";
 import type { OwnedFilterOption } from "../types/dashboard";
-
-type NextStepAction = "browse" | "upload" | "filter" | "copy" | null;
 
 const EMPTY_COMMANDER_SELECTION: CommanderSelection = {
   primary: "",
@@ -63,27 +62,33 @@ const sameCommanderSelection = (left: CommanderSelection, right: CommanderSelect
 export const useDashboardState = () => {
   const { theme, toggleTheme } = useTheme();
   const { backgroundEnabled, toggleBackground } = useBackgroundPreference();
-  const { rows: csvRows } = useCsvUpload();
+  const {
+    rows: csvRows,
+    sourceName: csvSourceName,
+    importedAt: csvImportedAt,
+    clearCsvData,
+  } = useCsvUpload();
   const { mode: csvUploadMode } = useCsvUploadMode();
   const { showOwned, setOwnedFilter } = useOwnedFilter();
   const { density, setDensity, densityOptions } = useLayoutDensity();
   const { currentCommanderSlug, commanderUrl } = useEdhrecRouteState();
+  const { openUploadModal: openGlobalUploadModal } = useUploadModal();
 
-  const showUploadModal = ref(false);
   const decklistExport = ref<DecklistPayload | null>(null);
   const decklistCopied = ref(false);
   const mainContentRef = ref<HTMLElement | null>(null);
-  const browseRailOpen = ref(true);
-  const utilityDrawerOpen = ref(false);
+  const controlPanelOpen = ref(false);
   const commanderSelection = ref<CommanderSelection>({
     primary: "",
     partner: "",
     hasPartner: false,
   });
   const {
-    spotlightCards: commanderSpotlightCards,
+    commanderProfiles,
     spotlightLoading: commanderSpotlightLoading,
     backdropUrl: commanderSpotlightBackdropUrl,
+    showNextPrinting,
+    showPreviousPrinting,
   } = useCommanderSpotlight(commanderSelection);
   const routeCommanderLabel = ref<string | null>(null);
   let routeCommanderRequestId: symbol | null = null;
@@ -102,6 +107,13 @@ export const useDashboardState = () => {
   );
   const hasDecklist = computed(() => Boolean(decklistExport.value?.text));
   const decklistSectionCount = computed(() => decklistExport.value?.sections.length ?? 0);
+  const canonicalEdhrecHref = computed(() => {
+    const slug = currentCommanderSlug.value || localCommanderSlug.value;
+    if (!slug) {
+      return null;
+    }
+    return `https://edhrec.com/commanders/${slug}`;
+  });
 
   watch(
     commanderUrl,
@@ -176,121 +188,87 @@ export const useDashboardState = () => {
   };
 
   const openUploadModal = () => {
-    showUploadModal.value = true;
+    controlPanelOpen.value = false;
+    openGlobalUploadModal();
     focusWorkspace();
   };
 
-  const openBrowseRail = () => {
-    browseRailOpen.value = true;
+  const clearUploadedCollection = () => {
+    clearCsvData();
+    controlPanelOpen.value = false;
     focusWorkspace();
   };
 
-  const closeBrowseRail = () => {
-    browseRailOpen.value = false;
+  const openControlPanel = () => {
+    controlPanelOpen.value = true;
+    focusWorkspace();
   };
 
-  const toggleBrowseRail = () => {
-    browseRailOpen.value = !browseRailOpen.value;
-    if (browseRailOpen.value) {
+  const closeControlPanel = () => {
+    controlPanelOpen.value = false;
+  };
+
+  const toggleControlPanel = () => {
+    controlPanelOpen.value = !controlPanelOpen.value;
+    if (controlPanelOpen.value) {
       focusWorkspace();
     }
   };
 
-  const toggleUtilityDrawer = () => {
-    utilityDrawerOpen.value = !utilityDrawerOpen.value;
-  };
-
   const inventorySummary = computed(() => {
     if (!csvCount.value) {
-      return "Upload a CSV to enable owned/unowned filters and collection matching.";
+      return "Upload your collection to compare owned and missing cards.";
     }
     const count = csvCount.value;
     if (csvUploadMode.value === "top-50") {
       return `${count} card${count === 1 ? "" : "s"} loaded. Top commander scan ready.`;
     }
-    return `${count} card${count === 1 ? "" : "s"} loaded. Filters now match your collection.`;
+    return `${count} card${count === 1 ? "" : "s"} loaded. Deck view now reflects your collection.`;
   });
 
-  const nextStepAction = computed<NextStepAction>(() => {
-    if (!hasCommander.value) {
-      return "browse";
-    }
-    if (!hasCsvData.value) {
-      return "upload";
-    }
-    if (!hasDecklist.value) {
-      return "filter";
-    }
-    return "copy";
-  });
+  const collectionModeLabel = computed(() =>
+    csvUploadMode.value === "top-50" ? "Top commander scan" : "Commander compare"
+  );
+
+  const collectionModeHint = computed(() =>
+    csvUploadMode.value === "top-50"
+      ? "This upload was last used for the ranking scan and is also available in compare."
+      : "This upload is active for owned and missing deck views in the compare workflow."
+  );
 
   const nextStepLabel = computed(() => {
     if (!hasCommander.value) {
-      return "Select a commander to load cardlists.";
+      return "Choose a commander to load decklists.";
     }
     if (!hasCsvData.value) {
-      return "Upload your collection to enable owned/unowned filters.";
+      return "Upload your collection to unlock owned and missing views.";
     }
     if (!decklistExport.value) {
       return "Fetching decklists from EDHREC.";
     }
     if (!decklistExport.value.text) {
-      return "No cards match this filter.";
+      return "No cards match the current deck view.";
     }
     return "Decklist ready to export.";
   });
 
-  const nextStepActionLabel = computed(() => {
-    switch (nextStepAction.value) {
-      case "browse":
-        return "Browse commanders";
-      case "upload":
-        return "Upload CSV";
-      case "filter":
-        return "Review filters";
-      case "copy":
-        return "Copy decklist";
-      default:
-        return null;
-    }
-  });
-
-  const handleNextStepAction = () => {
-    switch (nextStepAction.value) {
-      case "browse":
-        openBrowseRail();
-        break;
-      case "filter":
-        focusWorkspace();
-        break;
-      case "upload":
-        openUploadModal();
-        break;
-      case "copy":
-        void copyDecklistFromHeader();
-        break;
-      default:
-        break;
-    }
-  };
-
   const exportHelperText = computed(() => {
     if (!hasCommander.value) {
-      return "Select a commander in Search to generate decklists.";
+      return "Choose a commander to generate decklists.";
     }
     if (!decklistExport.value) {
       return "Fetching decklists from EDHREC.";
     }
     if (!decklistExport.value.text) {
-      return "No cards match the current filter. Try another filter.";
+      return "No cards match the current deck view. Try another filter.";
     }
     return "Copy or download the filtered decklist for your deck builder.";
   });
 
   const filterOptions = computed<OwnedFilterOption[]>(() => [
     { label: "Owned", value: true, active: showOwned.value === true },
-    { label: "Unowned", value: false, active: showOwned.value === false },
-    { label: "All", value: null, active: showOwned.value === null },
+    { label: "Missing", value: false, active: showOwned.value === false },
+    { label: "All cards", value: null, active: showOwned.value === null },
   ]);
 
   const clearDecklistCopiedState = () => {
@@ -307,7 +285,9 @@ export const useDashboardState = () => {
 
   const handleSelectionChange = (payload: CommanderSelection) => {
     commanderSelection.value = payload;
-    browseRailOpen.value = false;
+    if (payload.primary && (!payload.hasPartner || Boolean(payload.partner))) {
+      controlPanelOpen.value = false;
+    }
   };
 
   const copyDecklistFromHeader = async () => {
@@ -345,6 +325,14 @@ export const useDashboardState = () => {
     downloadTextFile(decklistExport.value.text, filename);
   };
 
+  const showNextCommanderPrinting = (profileIndex = 0) => {
+    showNextPrinting(profileIndex);
+  };
+
+  const showPreviousCommanderPrinting = (profileIndex = 0) => {
+    showPreviousPrinting(profileIndex);
+  };
+
   onBeforeUnmount(() => {
     clearDecklistCopiedState();
   });
@@ -357,37 +345,44 @@ export const useDashboardState = () => {
     density,
     setDensity,
     densityOptions,
-    showUploadModal,
     decklistExport,
     decklistCopied,
     mainContentRef,
-    browseRailOpen,
-    utilityDrawerOpen,
+    controlPanelOpen,
     commanderSelection,
-    commanderSpotlightCards,
+    commanderProfiles,
     commanderSpotlightLoading,
     commanderSpotlightBackdropUrl,
+    canonicalEdhrecHref,
     hasCommander,
     hasCsvData,
     hasDecklist,
     decklistSectionCount,
     csvCount,
     inventorySummary,
+    collectionModeLabel,
+    collectionModeHint,
+    collectionSourceName: csvSourceName,
+    collectionImportedAt: csvImportedAt,
     nextStepLabel,
-    nextStepActionLabel,
     exportHelperText,
     filterOptions,
     focusWorkspace,
     openUploadModal,
-    openBrowseRail,
-    closeBrowseRail,
-    toggleBrowseRail,
-    toggleUtilityDrawer,
-    handleNextStepAction,
+    clearUploadedCollection,
+    openControlPanel,
+    closeControlPanel,
+    toggleControlPanel,
+    browseRailOpen: controlPanelOpen,
+    openBrowseRail: openControlPanel,
+    closeBrowseRail: closeControlPanel,
+    toggleBrowseRail: toggleControlPanel,
     handleDecklistUpdate,
     handleSelectionChange,
     copyDecklistFromHeader,
     downloadDecklistFromHeader,
+    showNextCommanderPrinting,
+    showPreviousCommanderPrinting,
     setOwnedFilter,
   };
 };

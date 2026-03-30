@@ -26,7 +26,15 @@
 
     <CSurface variant="content" size="md" radius="2xl" class="space-y-4">
       <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-        <EdhrecResultsHeader :list-count="cardlistSections.length" :card-count="totalCardCount" />
+        <EdhrecResultsHeader
+          :list-count="cardlistSections.length"
+          :total-section-count="totalSectionCount"
+          :card-count="visibleCardCount"
+          :deck-view-label="deckFilterLabel"
+          :ownership-summary="`Showing ${deckFilterLabel.toLowerCase()}.`"
+          :all-expanded="allSectionsExpanded"
+          @toggle-expand-all="handleToggleExpandAll"
+        />
 
         <FloatingCardlistNav
           v-if="cardlistSections.length"
@@ -57,6 +65,7 @@
           :decklist-text="entry.decklistText"
           :copied-section-id="decklistCopySectionId"
           :loading="bulkCardsLoading"
+          @toggle="toggleSection(entry.sectionMeta.id)"
           @copy="handleCopyDecklist(entry.cardlist, entry.index)"
           @download="handleDownloadDecklist(entry.cardlist, entry.index)"
         />
@@ -101,14 +110,21 @@ const {
   setCompanion,
 } = useEdhrecRouteState();
 
-const { cardlists, error, totalCardCount, readerLoading } = useEdhrecData(commanderUrl);
+const { cardlists, error, readerLoading } = useEdhrecData(commanderUrl);
 
 const {
   cardlistSections,
   cardlistEntries,
+  totalSectionCount,
+  visibleCardCount,
+  deckFilterLabel,
   decklistPayload,
   decklistCopySectionId,
   activeSectionId,
+  allSectionsExpanded,
+  toggleSection,
+  expandAllSections,
+  collapseAllSections,
   scrollToSection,
   filterCardviews,
   isCardInUpload,
@@ -153,6 +169,14 @@ const showEmptyState = computed(
 
 const selectSuggestedCommander = (name: string) => {
   controlsRef.value?.selectPrimaryCommander(name);
+};
+
+const handleToggleExpandAll = () => {
+  if (allSectionsExpanded.value) {
+    collapseAllSections();
+    return;
+  }
+  expandAllSections();
 };
 
 const cardTableColumns: ColumnDefinition[] = [

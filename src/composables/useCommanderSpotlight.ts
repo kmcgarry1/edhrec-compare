@@ -1,15 +1,41 @@
 import { computed, ref, watch, type Ref } from "vue";
-import { getCard, type ScryfallCard } from "../api/scryfallApi";
+import { getCard, getCardPrintings, type ScryfallCard } from "../api/scryfallApi";
 import { handleError } from "../utils/errorHandler";
 import type { CommanderSelection } from "../types/edhrec";
 
-export type CommanderSpotlightCard = {
+type CommanderProfileEntry = {
+  key: string;
+  printings: ScryfallCard[];
+  currentPrintingIndex: number;
+  printingsLoading: boolean;
+};
+
+export type CommanderProfile = {
+  id: string;
   name: string;
   imageUrl: string;
   artUrl: string;
+  hasArtwork: boolean;
+  scryfallUri?: string;
+  printsSearchUri?: string;
+  prices: {
+    usd: string | null;
+    eur: string | null;
+  };
+  setCode: string;
+  setName: string;
+  collectorNumber: string;
+  releasedAt: string;
+  totalPrintings: number;
+  printingPosition: number;
+  canCyclePrintings: boolean;
+  printingsLoading: boolean;
 };
 
-const resolveImageUrl = (card: ScryfallCard) => {
+const resolveImageUrl = (card: ScryfallCard | null) => {
+  if (!card) {
+    return "";
+  }
   if (card.image_uris?.normal) {
     return card.image_uris.normal;
   }
@@ -24,7 +50,10 @@ const resolveImageUrl = (card: ScryfallCard) => {
   return faceWithImage?.image_uris?.normal ?? faceWithImage?.image_uris?.large ?? "";
 };
 
-const resolveArtUrl = (card: ScryfallCard) => {
+const resolveArtUrl = (card: ScryfallCard | null) => {
+  if (!card) {
+    return "";
+  }
   if (card.image_uris?.art_crop) {
     return card.image_uris.art_crop;
   }
@@ -55,8 +84,37 @@ const resolveArtUrl = (card: ScryfallCard) => {
   );
 };
 
+const toCommanderProfile = (entry: CommanderProfileEntry): CommanderProfile => {
+  const activePrinting =
+    entry.printings[entry.currentPrintingIndex] ?? entry.printings[0] ?? null;
+  const imageUrl = resolveImageUrl(activePrinting);
+  const artUrl = resolveArtUrl(activePrinting);
+
+  return {
+    id: activePrinting?.id ?? entry.key,
+    name: activePrinting?.name ?? entry.key,
+    imageUrl: imageUrl || artUrl,
+    artUrl: artUrl || imageUrl,
+    hasArtwork: Boolean(imageUrl || artUrl),
+    scryfallUri: activePrinting?.scryfall_uri,
+    printsSearchUri: activePrinting?.prints_search_uri,
+    prices: {
+      usd: activePrinting?.prices?.usd ?? null,
+      eur: activePrinting?.prices?.eur ?? null,
+    },
+    setCode: activePrinting?.set?.toUpperCase() ?? "",
+    setName: activePrinting?.set_name ?? "",
+    collectorNumber: activePrinting?.collector_number ?? "",
+    releasedAt: activePrinting?.released_at ?? "",
+    totalPrintings: entry.printings.length,
+    printingPosition: entry.printings.length ? entry.currentPrintingIndex + 1 : 0,
+    canCyclePrintings: entry.printings.length > 1,
+    printingsLoading: entry.printingsLoading,
+  };
+};
+
 export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
-  const spotlightCards = ref<CommanderSpotlightCard[]>([]);
+  const commanderProfileEntries = ref<CommanderProfileEntry[]>([]);
   const spotlightLoading = ref(false);
   const activeRequestId = ref<symbol | null>(null);
 
@@ -67,6 +125,10 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
     ].filter(Boolean)
   );
 
+  const commanderProfiles = computed(() =>
+    commanderProfileEntries.value.map((entry) => toCommanderProfile(entry))
+  );
+
   watch(
     selectedNames,
     async (names) => {
@@ -74,7 +136,7 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
       activeRequestId.value = requestId;
 
       if (!names.length) {
-        spotlightCards.value = [];
+        commanderProfileEntries.value = [];
         spotlightLoading.value = false;
         return;
       }
@@ -87,28 +149,23 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
           return;
         }
 
-        spotlightCards.value = cards.flatMap((card) => {
+        commanderProfileEntries.value = cards.flatMap((card, index) => {
           if (!card) {
-            return [];
-          }
-
-          const imageUrl = resolveImageUrl(card);
-          const artUrl = resolveArtUrl(card);
-          if (!imageUrl && !artUrl) {
             return [];
           }
 
           return [
             {
-              name: card.name,
-              imageUrl: imageUrl || artUrl,
-              artUrl: artUrl || imageUrl,
+              key: `${names[index] ?? card.name}-${index}`,
+              printings: [card],
+              currentPrintingIndex: 0,
+              printingsLoading: !selection.value.hasPartner && index === 0 && Boolean(card.prints_search_uri),
             },
           ];
         });
       } catch (error) {
         if (activeRequestId.value === requestId) {
-          spotlightCards.value = [];
+          commanderProfileEntries.value = [];
           handleError(error, {
             notify: false,
             fallbackMessage: "Unable to load commander artwork.",
@@ -120,17 +177,92 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
           spotlightLoading.value = false;
         }
       }
+
+      if (selection.value.hasPartner) {
+        return;
+      }
+
+      const primaryCard = commanderProfileEntries.value[0]?.printings[0];
+      if (!primaryCard?.prints_search_uri) {
+        return;
+      }
+
+      try {
+        const printings = await getCardPrintings(primaryCard.prints_search_uri);
+        if (activeRequestId.value !== requestId) {
+          return;
+        }
+
+        commanderProfileEntries.value = commanderProfileEntries.value.map((entry, index) => {
+          if (index !== 0) {
+            return entry;
+          }
+
+          return {
+            ...entry,
+            printings: printings.length ? printings : entry.printings,
+            currentPrintingIndex: 0,
+            printingsLoading: false,
+          };
+        });
+      } catch (error) {
+        if (activeRequestId.value === requestId) {
+          commanderProfileEntries.value = commanderProfileEntries.value.map((entry, index) => {
+            if (index !== 0) {
+              return entry;
+            }
+            return {
+              ...entry,
+              printingsLoading: false,
+            };
+          });
+          handleError(error, {
+            notify: false,
+            fallbackMessage: "Unable to load commander printings.",
+            context: "Commander spotlight printings",
+          });
+        }
+      }
     },
     { immediate: true }
   );
 
   const backdropUrl = computed(
-    () => spotlightCards.value[0]?.artUrl ?? spotlightCards.value[0]?.imageUrl ?? ""
+    () => commanderProfiles.value[0]?.artUrl ?? commanderProfiles.value[0]?.imageUrl ?? ""
   );
 
+  const showNextPrinting = (profileIndex: number) => {
+    commanderProfileEntries.value = commanderProfileEntries.value.map((entry, index) => {
+      if (index !== profileIndex || entry.printings.length <= 1) {
+        return entry;
+      }
+
+      return {
+        ...entry,
+        currentPrintingIndex: (entry.currentPrintingIndex + 1) % entry.printings.length,
+      };
+    });
+  };
+
+  const showPreviousPrinting = (profileIndex: number) => {
+    commanderProfileEntries.value = commanderProfileEntries.value.map((entry, index) => {
+      if (index !== profileIndex || entry.printings.length <= 1) {
+        return entry;
+      }
+
+      return {
+        ...entry,
+        currentPrintingIndex:
+          (entry.currentPrintingIndex - 1 + entry.printings.length) % entry.printings.length,
+      };
+    });
+  };
+
   return {
-    spotlightCards,
+    commanderProfiles,
     spotlightLoading,
     backdropUrl,
+    showNextPrinting,
+    showPreviousPrinting,
   };
 };

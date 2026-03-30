@@ -4,29 +4,13 @@
   >
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <GlobalLoadingBanner />
-    <DashboardCommanderMasthead
-      v-if="hasCommander"
-      :commander-selection="commanderSelection"
-      :spotlight-cards="commanderSpotlightCards"
-      :spotlight-loading="commanderSpotlightLoading"
-      :backdrop-url="commanderSpotlightBackdropUrl"
-      :csv-count="csvCount"
-      :has-csv-data="hasCsvData"
-      :decklist-ready="Boolean(decklistExport?.text)"
-      :decklist-section-count="decklistSectionCount"
-      :next-step-label="nextStepLabel"
-      @browse="openBrowseRail"
-      @upload="openUploadModal"
-    />
-
-    <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
     <main
       id="main-content"
       ref="mainContentRef"
       :class="
         hasCommander
-          ? 'mt-6 flex-1 space-y-5'
+          ? 'mt-5 flex-1 space-y-4'
           : 'mt-2 flex min-h-[calc(100vh-5.5rem)] flex-1 items-center'
       "
     >
@@ -40,99 +24,78 @@
       />
 
       <template v-else-if="hasCommander">
-        <DashboardToolbar
+        <DashboardWorkspace
+          :control-panel-open="controlPanelOpen"
+          :commander-selection="commanderSelection"
+          :commander-profiles="commanderProfiles"
+          :commander-spotlight-loading="commanderSpotlightLoading"
+          :commander-spotlight-backdrop-url="commanderSpotlightBackdropUrl"
+          :canonical-edhrec-href="canonicalEdhrecHref"
           :next-step-label="nextStepLabel"
-          :next-step-action-label="nextStepActionLabel"
-          :has-commander="hasCommander"
           :has-csv-data="hasCsvData"
           :csv-count="csvCount"
           :inventory-summary="inventorySummary"
+          :collection-source-name="collectionSourceName"
+          :collection-imported-at="collectionImportedAt"
+          :collection-mode-label="collectionModeLabel"
+          :collection-mode-hint="collectionModeHint"
           :filter-options="filterOptions"
           :decklist-text="decklistExport?.text"
-          :decklist-section-count="decklistSectionCount"
-          :copied="decklistCopied"
-          :density="density"
-          :density-options="densityOptions"
-          :theme="theme"
-          :background-enabled="backgroundEnabled"
-          :browse-rail-open="browseRailOpen"
-          :utility-drawer-open="utilityDrawerOpen"
-          @next-action="handleNextStepAction"
-          @open-upload="openUploadModal"
-          @filter-change="setOwnedFilter"
-          @copy="copyDecklistFromHeader"
-          @download="downloadDecklistFromHeader"
-          @density-change="setDensity"
-          @toggle-theme="toggleTheme"
-          @toggle-background="toggleBackground"
-          @toggle-browse="toggleBrowseRail"
-          @toggle-utility="toggleUtilityDrawer"
-        />
-
-        <DashboardWorkspace
-          :browse-rail-open="browseRailOpen"
+          :decklist-copied="decklistCopied"
+          :export-helper-text="exportHelperText"
           @decklistUpdate="handleDecklistUpdate"
           @selection-change="handleSelectionChange"
-          @close-browse="closeBrowseRail"
+          @filter-change="setOwnedFilter"
+          @open-control-panel="openControlPanel"
+          @open-upload="openUploadModal"
+          @clear-upload="clearUploadedCollection"
+          @previous-printing="showPreviousCommanderPrinting"
+          @next-printing="showNextCommanderPrinting"
+          @close-control-panel="closeControlPanel"
+          @copy-header-decklist="copyDecklistFromHeader"
+          @download-header-decklist="downloadDecklistFromHeader"
         />
-
-        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start">
-          <TopCommanderScanPanel />
-          <SiteNotice />
-        </div>
       </template>
     </main>
   </section>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
-import SiteNotice from "./SiteNotice.vue";
-import TopCommanderScanPanel from "./TopCommanderScanPanel.vue";
-import DashboardCommanderMasthead from "./dashboard/DashboardCommanderMasthead.vue";
 import DashboardSelectionStage from "./dashboard/DashboardSelectionStage.vue";
-import DashboardToolbar from "./dashboard/DashboardToolbar.vue";
 import DashboardWorkspace from "./dashboard/DashboardWorkspace.vue";
 import { useDashboardState } from "../composables/useDashboardState";
 
-const CsvUploadModal = defineAsyncComponent(() => import("./CsvUploadModal.vue"));
-
 const {
-  theme,
-  toggleTheme,
-  backgroundEnabled,
-  toggleBackground,
-  density,
-  setDensity,
-  densityOptions,
-  showUploadModal,
   decklistExport,
   decklistCopied,
-  browseRailOpen,
-  utilityDrawerOpen,
+  controlPanelOpen,
   commanderSelection,
-  commanderSpotlightCards,
+  commanderProfiles,
   commanderSpotlightLoading,
   commanderSpotlightBackdropUrl,
+  canonicalEdhrecHref,
   hasCommander,
   hasCsvData,
-  decklistSectionCount,
   csvCount,
   inventorySummary,
+  collectionModeLabel,
+  collectionModeHint,
+  collectionSourceName,
+  collectionImportedAt,
   nextStepLabel,
-  nextStepActionLabel,
+  exportHelperText,
   filterOptions,
   openUploadModal,
-  openBrowseRail,
-  closeBrowseRail,
-  toggleBrowseRail,
-  toggleUtilityDrawer,
-  handleNextStepAction,
+  clearUploadedCollection,
+  openControlPanel,
+  closeControlPanel,
   handleDecklistUpdate,
   handleSelectionChange,
   copyDecklistFromHeader,
   downloadDecklistFromHeader,
+  showNextCommanderPrinting,
+  showPreviousCommanderPrinting,
   setOwnedFilter,
 } = useDashboardState();
 </script>

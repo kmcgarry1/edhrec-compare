@@ -12,15 +12,12 @@
         <div class="selection-stage-grid"></div>
         <div class="selection-stage-halo selection-stage-halo-cyan"></div>
         <div class="selection-stage-halo selection-stage-halo-amber"></div>
-        <div class="selection-stage-beam"></div>
       </div>
 
       <div
-        class="selection-stage-layout relative grid gap-12 lg:grid-cols-[minmax(0,1.04fr)_minmax(19rem,0.96fr)] lg:items-center"
+        class="selection-stage-layout relative grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.95fr)] lg:items-start"
       >
-        <div
-          class="selection-stage-copy flex flex-col items-center justify-center gap-8 text-center lg:items-start lg:text-left"
-        >
+        <div class="selection-stage-copy flex flex-col gap-8">
           <div class="selection-stage-mark" aria-hidden="true">
             <span></span>
             <span></span>
@@ -28,21 +25,46 @@
           </div>
 
           <div class="space-y-5">
+            <CText tag="p" variant="eyebrow" tone="muted"> Dashboard-first workflow </CText>
             <CText tag="h1" variant="display" class="selection-stage-title text-balance">
-              Search commanders
+              Search commanders, match your collection, and export faster
             </CText>
             <CText
               tag="p"
               variant="body"
               tone="muted"
-              class="selection-stage-description mx-auto max-w-2xl sm:text-base lg:mx-0"
+              class="selection-stage-description max-w-3xl sm:text-base"
             >
-              Find a commander first, then turn on collection overlays when you want owned and
-              unowned comparisons.
+              Start with a commander. Add your collection when you want owned and missing views.
+              Export the resulting decklist once the compare view looks right.
             </CText>
           </div>
 
-          <div class="selection-stage-search-shell w-full max-w-[45rem]">
+          <div class="grid gap-3 sm:grid-cols-3">
+            <article class="selection-stage-step-card">
+              <span class="selection-stage-step-number">1</span>
+              <CText tag="p" variant="title">Choose a commander</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                Search a commander and optional partner without leaving the dashboard.
+              </CText>
+            </article>
+            <article class="selection-stage-step-card">
+              <span class="selection-stage-step-number">2</span>
+              <CText tag="p" variant="title">Upload collection</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                {{ hasCsvData ? `${csvCount} cards are already loaded for compare.` : "Load your CSV when you want owned and missing views." }}
+              </CText>
+            </article>
+            <article class="selection-stage-step-card">
+              <span class="selection-stage-step-number">3</span>
+              <CText tag="p" variant="title">Compare and export</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                Scan the live decklists, switch deck views, and export the list you need.
+              </CText>
+            </article>
+          </div>
+
+          <div class="selection-stage-search-shell w-full max-w-[48rem]">
             <CommanderSearch
               ref="commanderSearchRef"
               mode="minimal"
@@ -53,21 +75,7 @@
             />
           </div>
 
-          <div class="selection-stage-upload-panel w-full max-w-[45rem]">
-            <div class="selection-stage-upload-copy">
-              <CText tag="p" variant="eyebrow" tone="muted"> Collection overlay </CText>
-              <CText tag="p" variant="title" class="selection-stage-upload-title">
-                {{ hasCsvData ? "Collection loaded and ready" : "Upload CSV to match what you own" }}
-              </CText>
-              <CText tag="p" variant="helper" tone="muted" class="selection-stage-upload-helper">
-                {{
-                  hasCsvData
-                    ? `${csvCount} cards loaded. Ownership overlays are ready as soon as you pick a commander.`
-                    : "Bring in your collection to highlight owned and unowned cards across every EDHREC list."
-                }}
-              </CText>
-            </div>
-
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <CButton
               type="button"
               variant="primary"
@@ -75,18 +83,40 @@
               class="selection-stage-upload-button"
               @click="emit('open-upload')"
             >
-              {{ hasCsvData ? "Replace CSV" : "Upload CSV" }}
+              {{ hasCsvData ? "Replace collection CSV" : "Upload collection CSV" }}
             </CButton>
+            <CButton :as="RouterLink" to="/top-commanders" variant="secondary" size="lg">
+              Explore top commanders
+            </CButton>
+          </div>
+
+          <div class="selection-stage-upload-panel w-full max-w-[48rem]">
+            <div class="selection-stage-upload-copy">
+              <CText tag="p" variant="eyebrow" tone="muted"> Collection status </CText>
+              <CText tag="p" variant="title" class="selection-stage-upload-title">
+                {{ hasCsvData ? "Collection loaded and ready" : "Start with search, add collection when ready" }}
+              </CText>
+              <CText tag="p" variant="helper" tone="muted" class="selection-stage-upload-helper">
+                {{
+                  hasCsvData
+                    ? `${csvCount} cards loaded. Owned and missing views activate as soon as you choose a commander.`
+                    : "You can begin comparing immediately. Uploading a CSV adds owned and missing card views across every decklist."
+                }}
+              </CText>
+            </div>
           </div>
         </div>
 
-        <div class="selection-stage-art relative hidden min-h-[26rem] lg:block">
-          <div class="selection-stage-orbit" aria-hidden="true">
-            <span class="selection-stage-orbit-ring selection-stage-orbit-ring-lg"></span>
-            <span class="selection-stage-orbit-ring selection-stage-orbit-ring-md"></span>
-            <span class="selection-stage-orbit-ring selection-stage-orbit-ring-sm"></span>
-            <span class="selection-stage-orbit-dot selection-stage-orbit-dot-cyan"></span>
-            <span class="selection-stage-orbit-dot selection-stage-orbit-dot-amber"></span>
+        <div class="selection-stage-art relative hidden lg:block">
+          <div class="selection-stage-sidecard space-y-3">
+            <CText tag="p" variant="eyebrow" tone="muted"> Discovery </CText>
+            <CText tag="p" variant="title">Need a starting point?</CText>
+            <CText tag="p" variant="helper" tone="muted">
+              Browse ranked commanders, then jump straight into the compare workflow.
+            </CText>
+            <CButton :as="RouterLink" to="/top-commanders" variant="soft" size="sm">
+              Open top commanders
+            </CButton>
           </div>
 
           <div class="selection-stage-card-stack">
@@ -95,7 +125,6 @@
               :key="`${card.name}-${index}`"
               type="button"
               class="selection-stage-random-card"
-              :class="index === 0 ? 'selection-stage-random-card-front' : 'selection-stage-random-card-back'"
               :style="buildCardStyles(card.imageUrl)"
               :aria-label="`Open commander ${card.name}`"
               @click="handleFloatingCardSelection(card.name)"
@@ -103,7 +132,7 @@
               <div class="selection-stage-random-card-art"></div>
               <div class="selection-stage-random-card-sheen"></div>
               <div class="selection-stage-random-card-meta">
-                <span class="selection-stage-random-card-label">Random commander</span>
+                <span class="selection-stage-random-card-label">Quick pick</span>
                 <span class="selection-stage-random-card-name">{{ card.name }}</span>
               </div>
             </button>
@@ -116,6 +145,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch, type CSSProperties } from "vue";
+import { RouterLink } from "vue-router";
 import { getRandomCardArt, type RandomCardArt } from "../../api/scryfallApi";
 import { useBackgroundArt } from "../../composables/useBackgroundArt";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
@@ -218,7 +248,7 @@ defineExpose({
 
 <style scoped>
 .selection-stage-shell {
-  min-height: clamp(36rem, 78vh, 52rem);
+  min-height: clamp(34rem, 72vh, 46rem);
   background:
     linear-gradient(
       135deg,
@@ -242,8 +272,8 @@ defineExpose({
 .selection-stage-shell::after {
   content: "";
   position: absolute;
-  inset: auto 10% -4rem 10%;
-  height: 8rem;
+  inset: auto 12% -3rem 12%;
+  height: 6rem;
   border-radius: 999px;
   background: linear-gradient(
     90deg,
@@ -292,17 +322,8 @@ defineExpose({
   background: radial-gradient(circle, rgba(255, 179, 102, 0.16), transparent 68%);
 }
 
-.selection-stage-beam {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(120deg, transparent 0%, rgba(56, 211, 205, 0.08) 46%, transparent 62%),
-    radial-gradient(circle at 74% 26%, rgba(56, 211, 205, 0.14), transparent 16%);
-  opacity: 0.8;
-}
-
 .selection-stage-layout {
-  min-height: clamp(32rem, 70vh, 44rem);
+  min-height: clamp(28rem, 64vh, 38rem);
 }
 
 .selection-stage-copy {
@@ -339,7 +360,7 @@ defineExpose({
 }
 
 .selection-stage-title {
-  max-width: 9.5ch;
+  max-width: 12ch;
   letter-spacing: -0.05em;
   text-shadow: 0 0 32px rgba(56, 211, 205, 0.12);
 }
@@ -350,7 +371,7 @@ defineExpose({
 
 .selection-stage-search-shell {
   position: relative;
-  padding: 0.9rem;
+  padding: 0.85rem;
   border: 1px solid rgba(138, 164, 172, 0.18);
   border-radius: 1.9rem;
   background:
@@ -435,7 +456,7 @@ defineExpose({
 
 .selection-stage-upload-panel {
   display: grid;
-  gap: 1.2rem;
+  gap: 0.75rem;
   padding: 1.2rem 1.35rem;
   border: 1px solid rgba(56, 211, 205, 0.22);
   border-radius: 1.6rem;
@@ -453,7 +474,7 @@ defineExpose({
 }
 
 .selection-stage-upload-title {
-  max-width: 24rem;
+  max-width: 32rem;
   font-size: 1.2rem;
 }
 
@@ -462,71 +483,35 @@ defineExpose({
 }
 
 .selection-stage-upload-button {
-  justify-self: start;
-  min-width: 11rem;
-  padding-inline: 1.4rem;
   box-shadow: 0 18px 36px rgba(26, 181, 185, 0.18);
 }
 
 .selection-stage-art {
   position: relative;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
 }
 
-.selection-stage-orbit {
-  position: absolute;
-  inset: 1rem 0 1rem 3rem;
-}
-
-.selection-stage-orbit-ring {
-  position: absolute;
-  border: 1px solid rgba(137, 164, 172, 0.12);
-  border-radius: 999px;
-}
-
-.selection-stage-orbit-ring-lg {
-  inset: 0.5rem 0 0 1rem;
-}
-
-.selection-stage-orbit-ring-md {
-  inset: 4rem 3rem 3rem 4rem;
-}
-
-.selection-stage-orbit-ring-sm {
-  inset: 7rem 6rem 6rem 7rem;
-}
-
-.selection-stage-orbit-dot {
-  position: absolute;
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 999px;
-  box-shadow: 0 0 18px currentColor;
-}
-
-.selection-stage-orbit-dot-cyan {
-  top: 2.8rem;
-  right: 3.4rem;
-  color: rgba(56, 211, 205, 0.95);
-  background: currentColor;
-}
-
-.selection-stage-orbit-dot-amber {
-  bottom: 3.8rem;
-  left: 4.2rem;
-  color: rgba(255, 179, 102, 0.86);
-  background: currentColor;
+.selection-stage-sidecard {
+  padding: 1.2rem 1.3rem;
+  border: 1px solid rgba(138, 164, 172, 0.18);
+  border-radius: 1.6rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(15, 27, 35, 0.9), rgba(13, 23, 31, 0.84));
+  box-shadow: 0 22px 40px rgba(3, 10, 15, 0.18);
 }
 
 .selection-stage-card-stack {
-  position: absolute;
-  inset: 1.5rem 0.6rem 1.5rem 4.5rem;
+  display: grid;
+  gap: 1rem;
 }
 
 .selection-stage-random-card {
-  position: absolute;
   display: block;
-  width: min(18rem, 100%);
-  aspect-ratio: 63 / 88;
+  width: 100%;
+  min-height: 11rem;
   overflow: hidden;
   padding: 0;
   border: 1px solid rgba(155, 182, 188, 0.18);
@@ -535,18 +520,6 @@ defineExpose({
   box-shadow: 0 28px 54px rgba(3, 10, 15, 0.26);
   cursor: pointer;
   text-align: left;
-}
-
-.selection-stage-random-card-front {
-  top: 1.2rem;
-  left: 1.4rem;
-  transform: rotate(-7deg);
-}
-
-.selection-stage-random-card-back {
-  right: 0.6rem;
-  bottom: 1rem;
-  transform: rotate(11deg);
 }
 
 .selection-stage-random-card-art,
@@ -559,7 +532,7 @@ defineExpose({
   background-image:
     linear-gradient(180deg, rgba(7, 16, 22, 0.04), rgba(7, 16, 22, 0.74)),
     var(--selection-stage-card-art);
-  background-position: center center;
+  background-position: center top;
   background-size: cover;
 }
 
@@ -582,6 +555,31 @@ defineExpose({
   border-radius: 1rem;
   background: rgba(7, 16, 22, 0.7);
   backdrop-filter: blur(16px);
+}
+
+.selection-stage-step-card {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem 1rem 1.1rem;
+  border: 1px solid rgba(138, 164, 172, 0.18);
+  border-radius: 1.4rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(14, 27, 35, 0.88), rgba(17, 31, 38, 0.78));
+  box-shadow: 0 14px 28px rgba(3, 10, 15, 0.14);
+}
+
+.selection-stage-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  background: rgba(56, 211, 205, 0.14);
+  color: rgba(247, 248, 249, 0.92);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .selection-stage-random-card-label {
@@ -614,7 +612,7 @@ defineExpose({
 
 @media (max-width: 1023px) {
   .selection-stage-shell {
-    min-height: clamp(32rem, 74vh, 42rem);
+    min-height: clamp(30rem, 68vh, 40rem);
   }
 
   .selection-stage-shell::before {
@@ -622,7 +620,7 @@ defineExpose({
   }
 
   .selection-stage-title {
-    max-width: 10.5ch;
+    max-width: 13ch;
   }
 
   .selection-stage-search-shell,
@@ -633,20 +631,14 @@ defineExpose({
 
 @media (max-width: 639px) {
   .selection-stage-shell {
-    min-height: 30rem;
+    min-height: 28rem;
   }
 
   .selection-stage-search-shell {
     padding: 0.75rem;
   }
 
-  .selection-stage-upload-panel {
-    justify-items: center;
-    text-align: center;
-  }
-
   .selection-stage-upload-button {
-    justify-self: center;
     width: 100%;
   }
 }
@@ -658,18 +650,6 @@ defineExpose({
 
   .selection-stage-halo-amber {
     animation: selection-stage-drift 22s ease-in-out infinite alternate-reverse;
-  }
-
-  .selection-stage-random-card-front {
-    animation: selection-stage-float-front 8s ease-in-out infinite;
-  }
-
-  .selection-stage-random-card-back {
-    animation: selection-stage-float-back 9s ease-in-out infinite;
-  }
-
-  .selection-stage-beam {
-    animation: selection-stage-pulse 12s ease-in-out infinite;
   }
 
   .selection-stage-shell-intro .selection-stage-mark,
@@ -717,17 +697,6 @@ defineExpose({
   }
 }
 
-@keyframes selection-stage-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-
-  50% {
-    opacity: 0.88;
-  }
-}
-
 @keyframes selection-stage-rise {
   from {
     opacity: 0;
@@ -742,25 +711,14 @@ defineExpose({
   }
 }
 
-@keyframes selection-stage-float-front {
+@keyframes selection-stage-float {
   0%,
   100% {
-    transform: rotate(-7deg) translateY(0);
+    transform: translateY(0);
   }
 
   50% {
-    transform: rotate(-5deg) translateY(-12px);
-  }
-}
-
-@keyframes selection-stage-float-back {
-  0%,
-  100% {
-    transform: rotate(11deg) translateY(0);
-  }
-
-  50% {
-    transform: rotate(9deg) translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 </style>

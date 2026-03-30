@@ -398,7 +398,7 @@ const validationSummary = computed(() => {
   return formatCardCount(importedCardCount.value);
 });
 
-const parseCSV = (csv: string) => {
+const parseCSV = (csv: string, overrideSourceName?: string) => {
   resetValidation();
   errorMessage.value = null;
   const data = parseCSVContent(csv);
@@ -436,7 +436,10 @@ const parseCSV = (csv: string) => {
     return;
   }
   importedCardCount.value = usableRows.length;
-  setCsvData(usableRows, headerRow);
+  setCsvData(usableRows, headerRow, {
+    sourceName: overrideSourceName ?? file.value?.name ?? "collection.csv",
+    importedAt: new Date(),
+  });
   emit("upload", csvRows.value, csvHeaders.value);
   emit("file-uploaded", csvRows.value, csvHeaders.value);
   notifySuccess(formatCardCount(importedCardCount.value));
@@ -524,7 +527,7 @@ const loadSampleInventory = async () => {
           throw new Error(`HTTP ${response.status}`);
         }
         const csv = await response.text();
-        parseCSV(csv);
+        parseCSV(csv, "inventory.csv");
         if (typeof File !== "undefined") {
           file.value = new File([csv], "inventory.csv", { type: "text/csv" });
         } else {

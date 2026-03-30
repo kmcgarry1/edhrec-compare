@@ -87,12 +87,31 @@ export const SCRYFALL_SYMBOLS_RESPONSE = {
   ],
 };
 
+export const SCRYFALL_COMMANDER_RESPONSE = {
+  id: "atraxa-grand-unifier",
+  name: "Atraxa, Grand Unifier",
+  set: "one",
+  set_name: "Phyrexia: All Will Be One",
+  collector_number: "196",
+  released_at: "2023-02-03",
+  prices: { usd: "12.00", eur: "11.00" },
+  image_uris: {
+    normal: "https://example.com/atraxa.jpg",
+    art_crop: "https://example.com/atraxa-art.jpg",
+  },
+  scryfall_uri: "https://scryfall.com/card/one/196/atraxa-grand-unifier",
+};
+
 export const SCRYFALL_CARD_IMAGE = {
   id: "modal-card",
   name: "Sol Ring",
   image_uris: {
     normal: "https://example.com/sol-ring.jpg",
   },
+  prices: { usd: "2.00", eur: "1.80" },
+  set: "cmm",
+  set_name: "Commander Masters",
+  released_at: "2023-08-04",
   scryfall_uri: "https://scryfall.com/card/test/sol-ring",
 };
 

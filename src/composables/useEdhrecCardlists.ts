@@ -16,7 +16,7 @@ import type {
 type CardlistEntry = {
   key: string;
   cardlist: EdhrecCardlist;
-  sectionMeta: CardlistSectionMeta | null;
+  sectionMeta: CardlistSectionMeta;
   decklistText: string;
   index: number;
 };
@@ -65,23 +65,44 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       return "Owned cards";
     }
     if (showOwned.value === false) {
-      return "Unowned cards";
+      return "Missing cards";
     }
     return "All cards";
   };
 
-  const cardlistSections = computed<CardlistSectionMeta[]>(() =>
-    cardlists.value.map((cardlist, index) => {
-      const id = slugifyHeader(cardlist.header, index);
-      const iconConfig = getCardlistIcon(id);
-      return {
-        id,
-        label: cardlist.header || `Cardlist ${index + 1}`,
-        iconPath: iconConfig?.path,
-        iconColor: iconConfig?.color,
-      };
-    })
+  const expandedSectionIds = ref<string[]>([]);
+
+  const cardlistEntries = computed<CardlistEntry[]>(() =>
+    allCardlistEntries.value.filter((entry) => entry.sectionMeta.isPopulated)
   );
+
+  const cardlistSections = computed<CardlistSectionMeta[]>(() =>
+    cardlistEntries.value.map((entry) => entry.sectionMeta)
+  );
+
+  const totalSectionCount = computed(() => allCardlistEntries.value.length);
+  const visibleCardCount = computed(() =>
+    cardlistEntries.value.reduce(
+      (sum, entry) => sum + entry.sectionMeta.summaryCounts.totalCards,
+      0
+    )
+  );
+  const deckViewCounts = computed(() =>
+    cardlists.value.reduce(
+      (totals, cardlist) => {
+        const allCards = cardlist.cardviews.length;
+        const ownedCards = cardlist.cardviews.filter((card) => isCardInUpload(card.name)).length;
+        const missingCards = Math.max(allCards - ownedCards, 0);
+        return {
+          owned: totals.owned + ownedCards,
+          missing: totals.missing + missingCards,
+          all: totals.all + allCards,
+        };
+      },
+      { owned: 0, missing: 0, all: 0 }
+    )
+  );
+  const deckFilterLabel = computed(() => getDeckFilterLabel());
 
   const buildDecklistText = (cardlist: EdhrecCardlist) => {
     const cards = filterCardviews(cardlist.cardviews);
@@ -91,21 +112,69 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     return cards.map((card) => `1 ${card.name}`).join("\n");
   };
 
-  const cardlistDecklists = computed(() =>
-    cardlists.value.map((cardlist) => buildDecklistText(cardlist))
-  );
+  const baseCardlistEntries = computed<CardlistEntry[]>(() => {
+    const populatedSectionIds: string[] = [];
 
-  const cardlistEntries = computed<CardlistEntry[]>(() =>
-    cardlists.value.map((cardlist, index) => {
-      const sectionMeta = cardlistSections.value[index] ?? null;
+    const entries = cardlists.value.map((cardlist, index) => {
+      const id = slugifyHeader(cardlist.header, index);
+      const iconConfig = getCardlistIcon(id);
+      const filteredCards = filterCardviews(cardlist.cardviews);
+      const totalCards = filteredCards.length;
+      const ownedCount = filteredCards.filter((card) => isCardInUpload(card.name)).length;
+      const unownedCount = Math.max(totalCards - ownedCount, 0);
+      const ownedPercent = totalCards ? Math.round((ownedCount / totalCards) * 100) : 0;
+
+      if (totalCards > 0) {
+        populatedSectionIds.push(id);
+      }
+
       return {
-        key: sectionMeta?.id ?? `${index}`,
+        key: id,
         cardlist,
-        sectionMeta,
-        decklistText: cardlistDecklists.value[index] ?? "",
+        sectionMeta: {
+          id,
+          label: cardlist.header || `Cardlist ${index + 1}`,
+          iconPath: iconConfig?.path,
+          iconColor: iconConfig?.color,
+          isPopulated: totalCards > 0,
+          defaultExpanded: populatedSectionIds.slice(0, 3).includes(id),
+          expanded: false,
+          summaryCounts: {
+            totalCards,
+            ownedCount,
+            unownedCount,
+            ownedPercent,
+          },
+        },
+        decklistText: buildDecklistText(cardlist),
         index,
       };
-    })
+    });
+
+    const defaultExpandedIds = new Set(populatedSectionIds.slice(0, 3));
+
+    return entries.map((entry) => ({
+      ...entry,
+      sectionMeta: {
+        ...entry.sectionMeta,
+        defaultExpanded: defaultExpandedIds.has(entry.sectionMeta.id),
+      },
+    }));
+  });
+
+  const allCardlistEntries = computed<CardlistEntry[]>(() => {
+    const activeExpandedIds = new Set(expandedSectionIds.value);
+    return baseCardlistEntries.value.map((entry) => ({
+      ...entry,
+      sectionMeta: {
+        ...entry.sectionMeta,
+        expanded: activeExpandedIds.has(entry.sectionMeta.id),
+      },
+    }));
+  });
+
+  const cardlistDecklists = computed(() =>
+    cardlists.value.map((cardlist) => buildDecklistText(cardlist))
   );
 
   const decklistPayload = computed<DecklistPayload | null>(() => {
@@ -113,7 +182,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       return null;
     }
     const sections: DecklistSection[] = cardlists.value.map((cardlist, index) => {
-      const sectionMeta = cardlistSections.value[index];
+      const sectionMeta = allCardlistEntries.value[index]?.sectionMeta;
       const text = cardlistDecklists.value[index] ?? "";
       return {
         id: sectionMeta?.id ?? slugifyHeader(cardlist.header, index),
@@ -150,7 +219,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       console.warn("Clipboard API is unavailable in this environment.");
       return;
     }
-    const sectionMeta = cardlistSections.value[index];
+    const sectionMeta = allCardlistEntries.value[index]?.sectionMeta;
     try {
       clearDecklistCopyState();
       decklistCopySectionId.value = sectionMeta?.id ?? slugifyHeader(cardlist.header, index);
@@ -169,7 +238,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   };
 
   const handleDownloadDecklist = (cardlist: EdhrecCardlist, index: number) => {
-    const sectionMeta = cardlistSections.value[index];
+    const sectionMeta = allCardlistEntries.value[index]?.sectionMeta;
     const text = cardlistDecklists.value[index] ?? "";
     if (!text) {
       return;
@@ -329,6 +398,17 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   };
 
   watch(
+    baseCardlistEntries,
+    (entries) => {
+      expandedSectionIds.value = entries
+        .filter((entry) => entry.sectionMeta.isPopulated)
+        .filter((entry) => entry.sectionMeta.defaultExpanded)
+        .map((entry) => entry.sectionMeta.id);
+    },
+    { immediate: true }
+  );
+
+  watch(
     cardlistSections,
     (sections) => {
       nextTick(() => {
@@ -347,20 +427,59 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     { immediate: true }
   );
 
+  const expandSection = (id: string) => {
+    if (!cardlistSections.value.some((section) => section.id === id)) {
+      return;
+    }
+    if (!expandedSectionIds.value.includes(id)) {
+      expandedSectionIds.value = [...expandedSectionIds.value, id];
+    }
+  };
+
+  const collapseSection = (id: string) => {
+    expandedSectionIds.value = expandedSectionIds.value.filter((sectionId) => sectionId !== id);
+  };
+
+  const toggleSection = (id: string) => {
+    if (expandedSectionIds.value.includes(id)) {
+      collapseSection(id);
+      return;
+    }
+    expandSection(id);
+  };
+
+  const expandAllSections = () => {
+    expandedSectionIds.value = cardlistSections.value.map((section) => section.id);
+  };
+
+  const collapseAllSections = () => {
+    expandedSectionIds.value = [];
+  };
+
+  const allSectionsExpanded = computed(
+    () =>
+      cardlistSections.value.length > 0 &&
+      cardlistSections.value.every((section) => section.expanded)
+  );
+
   const scrollToSection = (id: string) => {
     if (typeof window === "undefined") {
       return;
     }
-    const el = document.getElementById(id);
-    if (!el) {
-      return;
-    }
-    const targetTop =
-      sectionPositions.find((section) => section.id === id)?.top ??
-      el.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({
-      top: Math.max(targetTop - SCROLL_TARGET_OFFSET, 0),
-      behavior: "smooth",
+    expandSection(id);
+    void nextTick(() => {
+      measureSectionPositions();
+      const el = document.getElementById(id);
+      if (!el) {
+        return;
+      }
+      const targetTop =
+        sectionPositions.find((section) => section.id === id)?.top ??
+        el.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: Math.max(targetTop - SCROLL_TARGET_OFFSET, 0),
+        behavior: "smooth",
+      });
     });
   };
 
@@ -374,9 +493,17 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     cardlistSections,
     cardlistEntries,
     cardlistDecklists,
+    totalSectionCount,
+    visibleCardCount,
+    deckViewCounts,
+    deckFilterLabel,
     decklistPayload,
     decklistCopySectionId,
     activeSectionId,
+    allSectionsExpanded,
+    toggleSection,
+    expandAllSections,
+    collapseAllSections,
     scrollToSection,
     filterCardviews,
     isCardInUpload,

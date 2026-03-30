@@ -72,7 +72,7 @@
       <span :class="rarityBadgeClass">{{ cardRarity }}</span>
     </td>
     <td :class="tableCellClasses.status">
-      <span :class="statusLabelClass">Loading preview…</span>
+      <span v-if="isCardLoading" :class="statusLabelClass">Loading preview...</span>
     </td>
     <PriceColour
       tag="td"
@@ -85,7 +85,7 @@
       tag="td"
       :pill="false"
       :price="eurPrice"
-      currency="€"
+      currency="EUR"
       :class="tableCellClasses.price"
     />
   </tr>
@@ -121,6 +121,7 @@ defineProps<{
   cardRarity: string;
   rarityBadgeClass: string | string[];
   statusLabelClass: string | string[];
+  isCardLoading: boolean;
   checkboxClass: string;
   tableCellClasses: TableCellClasses;
   tableRowClass: string;
@@ -147,4 +148,4 @@ const emit = defineEmits<{
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
-</style>
+</style>

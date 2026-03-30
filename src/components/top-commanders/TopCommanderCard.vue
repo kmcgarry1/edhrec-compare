@@ -16,6 +16,16 @@
           <CText tag="p" variant="body" weight="semibold" class="text-left text-base">
             {{ commander.name }}
           </CText>
+          <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
+            <span
+              v-for="color in colors"
+              :key="`${commander.slug}-${color}`"
+              class="inline-flex h-2.5 w-2.5 rounded-full ring-1 ring-white/20"
+              :class="colorDotClass(color)"
+              :title="colorLabel(color)"
+              :aria-label="colorLabel(color)"
+            />
+          </div>
         </CStack>
 
         <CSurface
@@ -89,9 +99,16 @@
         </CStack>
       </div>
 
-      <CText tag="p" variant="helper" tone="muted" class="mt-auto">
-        Open commander route
-      </CText>
+      <div class="mt-auto flex items-center justify-between gap-3">
+        <CText tag="p" variant="helper" tone="muted">
+          {{ ctaSupportText }}
+        </CText>
+        <span
+          class="inline-flex items-center rounded-full border border-[color:var(--border)] px-3 py-1 text-[0.72rem] font-semibold text-[color:var(--text)] transition group-hover:border-[color:var(--accent)] group-hover:text-[color:var(--accent)]"
+        >
+          Compare deck
+        </span>
+      </div>
     </CSurface>
   </RouterLink>
 </template>
@@ -102,6 +119,7 @@ import { RouterLink } from "vue-router";
 import { CStack, CSurface, CText } from "../core";
 import type { TopCommander } from "../../api/edhrecApi";
 import type { CommanderScanResult } from "../../composables/useTopCommanderScan";
+import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
 
 type ScanResult = CommanderScanResult | null;
 
@@ -111,6 +129,7 @@ const props = defineProps<{
   hasCsvData: boolean;
   imageStack: string[];
   imageLoading: boolean;
+  colors: CommanderColor[];
 }>();
 
 const numberFormatter = new Intl.NumberFormat("en-US");
@@ -153,6 +172,16 @@ const percentToneClass = computed(() => {
 
 const detailLabel = computed(() => {
   return `${numberFormatter.format(props.commander.deckCount)} decks`;
+});
+
+const ctaSupportText = computed(() => {
+  if (!props.hasCsvData) {
+    return "Open this commander route.";
+  }
+  if (!props.scanResult) {
+    return "Open route while scan data loads.";
+  }
+  return `${Math.round(props.scanResult.ownedPercent)}% overlap ready to inspect.`;
 });
 
 const ownedSummary = computed(() => {
@@ -221,4 +250,7 @@ const commanderLink = computed(() => ({
   params: { slug: props.commander.slug },
   query: { pageType: "average-decks" },
 }));
+
+const colorDotClass = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.dot ?? "";
+const colorLabel = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.label ?? color;
 </script>

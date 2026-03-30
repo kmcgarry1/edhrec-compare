@@ -28,6 +28,15 @@ const baseProps = {
     label: "Core",
     iconPath: "M0 0h24v24H0z",
     iconColor: "#ff0000",
+    isPopulated: true,
+    defaultExpanded: true,
+    expanded: true,
+    summaryCounts: {
+      totalCards: 2,
+      ownedCount: 1,
+      unownedCount: 1,
+      ownedPercent: 50,
+    },
   },
   rows,
   columns,
@@ -103,8 +112,8 @@ describe("CardlistSection", () => {
   it("emits copy and download when decklist is available", async () => {
     const wrapper = mountComponent({ copiedSectionId: "core" });
     const buttons = wrapper.findAll("button");
-    await buttons[0]?.trigger("click");
     await buttons[1]?.trigger("click");
+    await buttons[2]?.trigger("click");
 
     expect(wrapper.emitted("copy")).toBeTruthy();
     expect(wrapper.emitted("download")).toBeTruthy();
@@ -114,10 +123,25 @@ describe("CardlistSection", () => {
   it("disables export actions when decklist is empty", async () => {
     const wrapper = mountComponent({ decklistText: "" });
     const buttons = wrapper.findAll("button");
-    expect(buttons[0]?.attributes("disabled")).toBeDefined();
     expect(buttons[1]?.attributes("disabled")).toBeDefined();
+    expect(buttons[2]?.attributes("disabled")).toBeDefined();
 
-    await buttons[0]?.trigger("click");
+    await buttons[1]?.trigger("click");
     expect(wrapper.emitted("copy")).toBeFalsy();
+  });
+
+  it("renders a collapsed summary card and emits toggle", async () => {
+    const wrapper = mountComponent({
+      sectionMeta: {
+        ...baseProps.sectionMeta,
+        expanded: false,
+      },
+    });
+
+    expect(wrapper.find(".table-stub").exists()).toBe(false);
+    expect(wrapper.text()).toContain("Expand");
+
+    await wrapper.find("button").trigger("click");
+    expect(wrapper.emitted("toggle")).toBeTruthy();
   });
 });

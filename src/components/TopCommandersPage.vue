@@ -4,46 +4,163 @@
   >
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <GlobalLoadingBanner />
-    <CsvUploadModal :open="showUploadModal" @close="showUploadModal = false" />
 
-    <TopCommandersHero
-      :has-csv-data="hasCsvData"
-      :csv-count="csvCount"
-      @upload="showUploadModal = true"
-    />
+    <main id="main-content" class="mt-5 space-y-4">
+      <Card
+        variant="command"
+        padding="p-4 sm:p-5"
+        class="sticky top-24 z-20 space-y-4 border border-[color:var(--border)] bg-[color:var(--surface-strong)] backdrop-blur"
+      >
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div class="space-y-3">
+            <div class="flex flex-wrap gap-2">
+              <CBadge tone="default" variant="outline" size="sm" text-case="normal">
+                Ranking dashboard
+              </CBadge>
+              <CBadge
+                :tone="hasCsvData ? 'success' : 'muted'"
+                variant="soft"
+                size="sm"
+                text-case="normal"
+              >
+                {{ csvStatusLabel }}
+              </CBadge>
+              <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+                {{ topHeader }}
+              </CBadge>
+            </div>
 
-    <main id="main-content" class="mt-8 space-y-6">
-      <Card variant="command" padding="p-4 sm:p-5" class="space-y-4">
-        <TopCommandersStatusCard
-          :has-csv-data="hasCsvData"
-          :csv-count="csvCount"
-          :last-updated="lastUpdated"
-          :failed-count="failedCount"
-          :scan-scope="scanScope"
-          :scan-error="scanError"
+            <div class="space-y-1">
+              <CText tag="h1" variant="title" class="text-xl sm:text-2xl">
+                Scan commanders and jump straight into compare
+              </CText>
+              <CText tag="p" variant="helper" tone="muted" class="max-w-3xl">
+                Filter the ranking, sort by owned overlap when a collection is loaded, and open a
+                commander route as soon as something looks promising.
+              </CText>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <CButton type="button" variant="primary" size="sm" @click="openUploadModal">
+              {{ hasCsvData ? "Replace collection CSV" : "Upload collection CSV" }}
+            </CButton>
+            <CButton
+              type="button"
+              variant="secondary"
+              size="sm"
+              :disabled="topLoading"
+              @click="refreshTopCommanders"
+            >
+              Refresh list
+            </CButton>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+            {{ topLimit }} ranked
+          </CBadge>
+          <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+            {{ sortedCommanders.length }} visible
+          </CBadge>
+          <CBadge tone="accent" variant="soft" size="sm" text-case="normal">
+            {{ sortMode === "owned" ? "Sorted by owned overlap" : "Sorted by rank" }}
+          </CBadge>
+          <CBadge
+            v-if="formattedLastUpdated"
+            tone="muted"
+            variant="soft"
+            size="sm"
+            text-case="normal"
+          >
+            Updated {{ formattedLastUpdated }}
+          </CBadge>
+          <CBadge
+            v-if="failedCount"
+            tone="warn"
+            variant="soft"
+            size="sm"
+            text-case="normal"
+          >
+            {{ failedCount }} failed to load
+          </CBadge>
+        </div>
+
+        <div class="grid gap-3 xl:grid-cols-[auto_auto_minmax(0,1fr)] xl:items-end">
+          <section class="space-y-2">
+            <CText tag="p" variant="eyebrow" tone="muted">Range</CText>
+            <div
+              class="inline-flex flex-wrap items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1"
+              role="group"
+              aria-label="Choose top commanders range"
+            >
+              <CButton
+                v-for="option in limitOptions"
+                :key="option"
+                type="button"
+                size="sm"
+                :variant="topLimit === option ? 'soft' : 'ghost'"
+                :class="topLimit === option ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]' : ''"
+                :aria-pressed="topLimit === option"
+                @click="handleTopLimitChange(option)"
+              >
+                Top {{ option }}
+              </CButton>
+            </div>
+          </section>
+
+          <section class="space-y-2">
+            <CText tag="p" variant="eyebrow" tone="muted">Sort</CText>
+            <div
+              class="inline-flex flex-wrap items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1"
+              role="group"
+              aria-label="Sort commanders"
+            >
+              <CButton
+                v-for="option in sortOptions"
+                :key="option.value"
+                type="button"
+                size="sm"
+                :variant="sortMode === option.value ? 'soft' : 'ghost'"
+                :class="sortMode === option.value ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]' : ''"
+                :aria-pressed="sortMode === option.value"
+                @click="setSortMode(option.value)"
+              >
+                {{ option.label }}
+              </CButton>
+            </div>
+          </section>
+
+          <section class="space-y-2">
+            <CText tag="p" variant="eyebrow" tone="muted">Color identity</CText>
+            <TopCommandersColorFilter
+              :color-options="colorOptions"
+              :selected-colors="selectedColors"
+              :mana-symbol="manaSymbol"
+              :color-dot-class="colorDotClass"
+              :color-pill-class="colorPillClass"
+              :color-label="colorLabel"
+              @toggle-color="toggleColor"
+              @clear="clearColors"
+            />
+          </section>
+        </div>
+
+        <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <TopCommandersOwnedLegend />
+          <CText tag="p" variant="helper" tone="muted">
+            {{ scanStatusLabel }}
+          </CText>
+        </div>
+
+        <CNotice
+          v-if="scanError"
+          tone="danger"
+          :message="scanError"
+          role="alert"
+          aria-live="assertive"
         />
-        <TopCommandersControls
-          :top-header="topHeader"
-          :top-limit="topLimit"
-          :limit-options="limitOptions"
-          :sort-options="sortOptions"
-          :sort-mode="sortMode"
-          :top-loading="topLoading"
-          @limit-change="handleTopLimitChange"
-          @sort-change="setSortMode"
-          @refresh="refreshTopCommanders"
-        />
-        <TopCommandersColorFilter
-          :color-options="colorOptions"
-          :selected-colors="selectedColors"
-          :mana-symbol="manaSymbol"
-          :color-dot-class="colorDotClass"
-          :color-pill-class="colorPillClass"
-          :color-label="colorLabel"
-          @toggle-color="toggleColor"
-          @clear="clearColors"
-        />
-        <TopCommandersOwnedLegend />
       </Card>
 
       <Card variant="content" padding="p-4 sm:p-5" class="space-y-4">
@@ -75,37 +192,30 @@
             :has-csv-data="hasCsvData"
             :image-stack="getImageStack(commander.name)"
             :image-loading="imageLoading"
+            :colors="combinedColorIdentity(commander.name)"
           />
         </CGrid>
       </Card>
-
-      <SiteNotice />
     </main>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { computed, onMounted, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import { Card, GlobalLoadingBanner, SiteNotice } from ".";
-import { CGrid, CNotice } from "./core";
+import { Card, GlobalLoadingBanner } from ".";
+import { CBadge, CButton, CGrid, CNotice, CText } from "./core";
+import TopCommandersColorFilter from "./top-commanders/TopCommandersColorFilter.vue";
+import TopCommandersOwnedLegend from "./top-commanders/TopCommandersOwnedLegend.vue";
+import TopCommanderCard from "./top-commanders/TopCommanderCard.vue";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useTopCommandersData } from "../composables/useTopCommandersData";
 import { useTopCommanderImages } from "../composables/useTopCommanderImages";
 import { useTopCommanderFilters } from "../composables/useTopCommanderFilters";
+import { useUploadModal } from "../composables/useUploadModal";
 import { type CommanderColor } from "../utils/colorIdentity";
-import TopCommandersHero from "./top-commanders/TopCommandersHero.vue";
-import TopCommandersStatusCard from "./top-commanders/TopCommandersStatusCard.vue";
-import TopCommandersControls from "./top-commanders/TopCommandersControls.vue";
-import TopCommandersColorFilter from "./top-commanders/TopCommandersColorFilter.vue";
-import TopCommandersOwnedLegend from "./top-commanders/TopCommandersOwnedLegend.vue";
-import TopCommanderCard from "./top-commanders/TopCommanderCard.vue";
-
-const CsvUploadModal = defineAsyncComponent(() => import("./CsvUploadModal.vue"));
-
-const showUploadModal = ref(false);
 
 const { rows, headers } = useCsvUpload();
 const {
@@ -113,7 +223,6 @@ const {
   lastUpdated,
   error: scanError,
   failedCount,
-  scope: scanScope,
   runScan,
   clearResults,
 } = useTopCommanderScan();
@@ -148,9 +257,31 @@ const {
 } = useTopCommanderFilters({ getCommanderColors: combinedColorIdentity });
 
 const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
+const { openUploadModal } = useUploadModal();
 
 const hasCsvData = computed(() => rows.value.length > 0);
 const csvCount = computed(() => rows.value.length);
+const csvStatusLabel = computed(() =>
+  hasCsvData.value ? `${csvCount.value} cards loaded` : "Collection upload optional"
+);
+const formattedLastUpdated = computed(() => {
+  if (!lastUpdated.value) {
+    return "";
+  }
+  return lastUpdated.value.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+});
+const scanStatusLabel = computed(() => {
+  if (!hasCsvData.value) {
+    return "Upload a collection to surface owned overlap across the ranking.";
+  }
+  if (!results.value.length) {
+    return "Collection loaded. Ownership scan will fill in as commander averages finish loading.";
+  }
+  return `Ownership scan is active for ${results.value.length} ranked commanders.`;
+});
 
 const scanLookup = computed(() => {
   const map = new Map<string, (typeof results.value)[number]>();

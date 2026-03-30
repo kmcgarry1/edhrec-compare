@@ -21,7 +21,6 @@
 
           <CStack gap="sm" class="min-w-0">
             <CInline gap="sm" class="flex-wrap text-[0.72rem] font-semibold">
-              <CBadge tone="muted" variant="outline" size="sm"> EDHREC </CBadge>
               <CBadge
                 v-if="sectionMeta?.label"
                 tone="default"
@@ -32,26 +31,25 @@
                 {{ sectionMeta.label }}
               </CBadge>
               <span class="text-[color:var(--muted)]"> {{ totalCards }} cards </span>
+              <span class="text-[color:var(--muted)]"> {{ ownedPercent }}% owned </span>
             </CInline>
 
             <CText
               tag="h2"
               variant="title"
-              class="text-xl leading-tight text-balance sm:text-[1.35rem]"
+              class="text-xl leading-tight text-balance sm:text-[1.3rem]"
             >
               {{ cardlist.header }}
+            </CText>
+
+            <CText tag="p" variant="helper" tone="muted">
+              {{ ownedCount }} owned | {{ unownedCount }} missing
             </CText>
 
             <CInline
               gap="sm"
               class="flex-wrap text-[0.72rem] font-semibold text-[color:var(--muted)]"
             >
-              <CBadge tone="default" variant="soft" size="sm" text-case="normal">
-                {{ ownedCount }} owned
-              </CBadge>
-              <CBadge tone="default" variant="soft" size="sm" text-case="normal">
-                {{ unownedCount }} unowned
-              </CBadge>
               <CBadge
                 tone="accent"
                 variant="soft"
@@ -79,66 +77,73 @@
       </div>
 
       <CInline gap="sm" class="flex-wrap text-xs font-semibold xl:justify-end">
-        <CButton
-          type="button"
-          variant="secondary"
-          size="sm"
-          :disabled="!decklistText.length"
-          @click="emitCopy"
-        >
-          <span class="sm:hidden">
-            {{ isCopied ? "Copied" : "Copy" }}
-          </span>
-          <span class="hidden sm:inline">
-            {{ isCopied ? "Copied!" : "Copy decklist" }}
-          </span>
+        <CButton type="button" variant="soft" size="sm" @click="emit('toggle')">
+          {{ isExpanded ? "Collapse" : "Expand" }}
         </CButton>
-        <CButton
-          type="button"
-          variant="primary"
-          size="sm"
-          :disabled="!decklistText.length"
-          @click="emitDownload"
-        >
-          <span class="sm:hidden">Save</span>
-          <span class="hidden sm:inline">Download .txt</span>
-        </CButton>
+        <template v-if="isExpanded">
+          <CButton
+            type="button"
+            variant="secondary"
+            size="sm"
+            :disabled="!decklistText.length"
+            @click="emitCopy"
+          >
+            <span class="sm:hidden">
+              {{ isCopied ? "Copied" : "Copy" }}
+            </span>
+            <span class="hidden sm:inline">
+              {{ isCopied ? "Copied!" : "Copy decklist" }}
+            </span>
+          </CButton>
+          <CButton
+            type="button"
+            variant="primary"
+            size="sm"
+            :disabled="!decklistText.length"
+            @click="emitDownload"
+          >
+            <span class="sm:hidden">Save</span>
+            <span class="hidden sm:inline">Download .txt</span>
+          </CButton>
+        </template>
       </CInline>
     </div>
 
-    <CStack v-if="loading" gap="md">
-      <SkeletonCard v-for="i in 5" :key="i" />
-    </CStack>
+    <template v-if="isExpanded">
+      <CStack v-if="loading" gap="md">
+        <SkeletonCard v-for="i in 5" :key="i" />
+      </CStack>
 
-    <div v-else-if="isDesktopViewport">
-      <CardTable
-        :columns="columns"
-        :rows="rows"
-        row-key="id"
-        tableClass="w-full"
-        aria-live="polite"
-        :virtual="true"
-        :virtual-item-size="virtualRowSize"
-        :virtual-overscan="12"
-      >
-        <template #default="{ row }">
-          <ScryfallCardRow
-            :card="(row as CardTableRow).card"
-            :have="Boolean((row as CardTableRow).have)"
-          />
-        </template>
-      </CardTable>
-    </div>
+      <div v-else-if="isDesktopViewport">
+        <CardTable
+          :columns="columns"
+          :rows="rows"
+          row-key="id"
+          tableClass="w-full"
+          aria-live="polite"
+          :virtual="true"
+          :virtual-item-size="virtualRowSize"
+          :virtual-overscan="12"
+        >
+          <template #default="{ row }">
+            <ScryfallCardRow
+              :card="(row as CardTableRow).card"
+              :have="Boolean((row as CardTableRow).have)"
+            />
+          </template>
+        </CardTable>
+      </div>
 
-    <CStack v-else gap="md">
-      <ScryfallCardRow
-        v-for="row in rows"
-        :key="row.id + '-mobile'"
-        :card="row.card"
-        :have="Boolean(row.have)"
-        variant="card"
-      />
-    </CStack>
+      <CStack v-else gap="md">
+        <ScryfallCardRow
+          v-for="row in rows"
+          :key="row.id + '-mobile'"
+          :card="row.card"
+          :have="Boolean(row.have)"
+          variant="card"
+        />
+      </CStack>
+    </template>
   </Card>
 </template>
 
@@ -150,20 +155,14 @@ import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";
 import type { ColumnDefinition } from "./CardTable.vue";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
+import type { CardlistSectionMeta } from "../types/edhrec";
 
 const DESKTOP_BREAKPOINT_PX = 768;
-
-type SectionMeta = {
-  id: string;
-  label: string;
-  iconPath?: string;
-  iconColor?: string;
-} | null;
 
 const props = withDefaults(
   defineProps<{
     cardlist: { header: string; cardviews: { id: string; name: string }[] };
-    sectionMeta: SectionMeta;
+    sectionMeta: CardlistSectionMeta | null;
     rows: CardTableRow[];
     columns: ColumnDefinition[];
     decklistText: string;
@@ -176,6 +175,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
+  toggle: [];
   copy: [];
   download: [];
 }>();
@@ -203,15 +203,28 @@ onBeforeUnmount(() => {
   }
 });
 
-const totalCards = computed(() => props.rows.length);
-const ownedCount = computed(() => props.rows.filter((row) => Boolean(row.have)).length);
-const unownedCount = computed(() => Math.max(totalCards.value - ownedCount.value, 0));
-const ownedPercent = computed(() => {
-  if (!totalCards.value) {
-    return 0;
+const rowCount = computed(() => props.rows.length);
+const summaryCounts = computed(() => {
+  if (props.sectionMeta?.summaryCounts) {
+    return props.sectionMeta.summaryCounts;
   }
-  return Math.round((ownedCount.value / totalCards.value) * 100);
+
+  const ownedCount = props.rows.filter((row) => Boolean(row.have)).length;
+  const unownedCount = Math.max(rowCount.value - ownedCount, 0);
+  const ownedPercent = rowCount.value ? Math.round((ownedCount / rowCount.value) * 100) : 0;
+
+  return {
+    totalCards: rowCount.value,
+    ownedCount,
+    unownedCount,
+    ownedPercent,
+  };
 });
+const totalCards = computed(() => summaryCounts.value.totalCards);
+const ownedCount = computed(() => summaryCounts.value.ownedCount);
+const unownedCount = computed(() => summaryCounts.value.unownedCount);
+const ownedPercent = computed(() => summaryCounts.value.ownedPercent);
+const isExpanded = computed(() => props.sectionMeta?.expanded ?? true);
 const ownedSegments = computed(() => {
   const segments = 12;
   if (!totalCards.value) {

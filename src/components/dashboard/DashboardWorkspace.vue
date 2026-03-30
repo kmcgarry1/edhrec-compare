@@ -1,6 +1,6 @@
 <template>
   <section
-    class="grid gap-4 xl:grid-cols-[18.5rem_minmax(0,64rem)] xl:justify-center 2xl:grid-cols-[19.5rem_minmax(0,68rem)]"
+    class="grid gap-4 xl:grid-cols-[20.5rem_minmax(0,1fr)] 2xl:grid-cols-[21.5rem_minmax(0,1fr)]"
   >
     <GlobalLoadingBanner
       scope="scryfall-bulk"
@@ -9,98 +9,170 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <DashboardBrowseRail
-      ref="browseRailRef"
+    <DashboardControlPanel
+      ref="controlPanelRef"
       :selected-slug="currentCommanderSlug"
+      :selection="commanderSelection"
       :bracket="chosenBracket"
       :modifier="chosenModifier"
       :page-type="chosenPageType"
       :companion="chosenCompanion"
-      :sections="cardlistSections"
-      :active-id="activeSectionId"
-      :open="browseRailOpen"
-      :loading="readerLoading"
-      @close="emit('close-browse')"
-      @navigate="scrollToSection"
+      :open="controlPanelOpen"
+      :has-csv-data="hasCsvData"
+      :csv-count="csvCount"
+      :inventory-summary="inventorySummary"
+      :collection-source-name="collectionSourceName"
+      :collection-imported-at="collectionImportedAt"
+      :collection-mode-label="collectionModeLabel"
+      :collection-mode-hint="collectionModeHint"
+      :filter-options="deckViewFilterOptions"
+      :decklist-text="decklistText"
+      :copied="decklistCopied"
+      :export-helper-text="exportHelperText"
+      @close="emit('close-control-panel')"
+      @filter-change="emit('filter-change', $event)"
       @commander-selected="handleCommanderSelection"
       @selection-change="handleSelectionChange"
       @update:bracket="setBracket"
       @update:modifier="setModifier"
       @update:page-type="setPageType"
       @update:companion="setCompanion"
+      @open-upload="emit('open-upload')"
+      @clear-upload="emit('clear-upload')"
+      @copy="emit('copy-header-decklist')"
+      @download="emit('download-header-decklist')"
     />
 
-    <CSurface variant="content" size="md" radius="3xl" class="min-w-0 space-y-4">
+    <div class="min-w-0 space-y-4">
+      <DashboardCommanderMasthead
+        :commander-selection="commanderSelection"
+        :commander-profiles="commanderProfiles"
+        :spotlight-loading="commanderSpotlightLoading"
+        :backdrop-url="commanderSpotlightBackdropUrl"
+        :next-step-label="nextStepLabel"
+        :canonical-edhrec-href="canonicalEdhrecHref"
+        :status-items="mastheadStatusItems"
+        @change-commander="focusCommanderEditor"
+        @open-controls="emit('open-control-panel')"
+        @previous-printing="emit('previous-printing', $event)"
+        @next-printing="emit('next-printing', $event)"
+      />
+
+      <CSurface variant="content" size="sm" radius="3xl" class="space-y-4">
+        <EdhrecResultsHeader
+          :list-count="cardlistSections.length"
+          :total-section-count="totalSectionCount"
+          :card-count="visibleCardCount"
+          :deck-view-label="deckFilterLabel"
+          :ownership-summary="ownershipSummary"
+          :all-expanded="allSectionsExpanded"
+          @toggle-expand-all="handleToggleExpandAll"
+        />
+
+        <FloatingCardlistNav
+          v-if="cardlistSections.length"
+          :sections="cardlistSections"
+          :active-id="activeSectionId"
+          @navigate="scrollToSection"
+        />
+
+        <CNotice v-if="error" tone="danger" :message="`Error: ${error}`">
+          <template #icon>
+            <CText tag="span" variant="title" weight="bold" tone="inherit"> X </CText>
+          </template>
+        </CNotice>
+
+        <EdhrecEmptyState
+          v-if="showEmptyState"
+          :popular="popularCommanders"
+          @select="selectSuggestedCommander"
+        />
+
+        <CNotice
+          v-else-if="showNoMatchingSections"
+          tone="info"
+          message="No cardlists match the current deck view. Try another filter or upload a collection."
+          class="bg-[color:var(--surface-muted)]"
+        />
+      </CSurface>
+
       <div
-        class="flex flex-col gap-3 border-b border-[color:var(--border)] pb-4 sm:flex-row sm:items-end sm:justify-between"
+        v-if="cardlistEntries.length"
+        class="space-y-4"
       >
-        <EdhrecResultsHeader :list-count="cardlistSections.length" :card-count="totalCardCount" />
-        <CBadge tone="default" variant="outline" size="sm" text-case="normal">
-          {{ currentCommanderSlug ? "Route synced" : "Awaiting commander" }}
-        </CBadge>
+        <template v-for="entry in cardlistEntries" :key="entry.key">
+          <CardlistSection
+            :cardlist="entry.cardlist"
+            :section-meta="entry.sectionMeta"
+            :rows="getTableRows(entry.cardlist)"
+            :columns="cardTableColumns"
+            :decklist-text="entry.decklistText"
+            :copied-section-id="decklistCopySectionId"
+            :loading="bulkCardsLoading"
+            @toggle="toggleSection(entry.sectionMeta.id)"
+            @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+            @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+          />
+        </template>
       </div>
 
-      <FloatingCardlistNav
-        v-if="cardlistSections.length"
-        :sections="cardlistSections"
-        :active-id="activeSectionId"
-        class="xl:hidden"
-        @navigate="scrollToSection"
-      />
-
-      <CNotice v-if="error" tone="danger" :message="`Error: ${error}`">
-        <template #icon>
-          <CText tag="span" variant="title" weight="bold" tone="inherit"> X </CText>
-        </template>
-      </CNotice>
-
-      <EdhrecEmptyState
-        v-if="showEmptyState"
-        :popular="popularCommanders"
-        @select="selectSuggestedCommander"
-      />
-
-      <template v-for="entry in cardlistEntries" :key="entry.key">
-        <CardlistSection
-          :cardlist="entry.cardlist"
-          :section-meta="entry.sectionMeta"
-          :rows="getTableRows(entry.cardlist)"
-          :columns="cardTableColumns"
-          :decklist-text="entry.decklistText"
-          :copied-section-id="decklistCopySectionId"
-          :loading="bulkCardsLoading"
-          @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-          @download="handleDownloadDecklist(entry.cardlist, entry.index)"
-        />
-      </template>
-    </CSurface>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import DashboardBrowseRail from "./DashboardBrowseRail.vue";
+import DashboardControlPanel from "./DashboardControlPanel.vue";
+import DashboardCommanderMasthead from "./DashboardCommanderMasthead.vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
-import { CBadge, CNotice, CSurface, CText } from "../core";
+import { CNotice, CSurface, CText } from "../core";
+import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "../helpers/enums";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../../composables/useEdhrecData";
 import { useEdhrecCardlists } from "../../composables/useEdhrecCardlists";
 import { useScryfallCardData } from "../../composables/useScryfallCardData";
 import EdhrecResultsHeader from "../edhrec/EdhrecResultsHeader.vue";
+import type { CommanderProfile } from "../../composables/useCommanderSpotlight";
 import type { ColumnDefinition } from "../CardTable.vue";
 import type { CommanderSelection, DecklistPayload } from "../../types/edhrec";
+import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard";
 
 const props = defineProps<{
-  browseRailOpen: boolean;
+  controlPanelOpen: boolean;
+  commanderSelection: CommanderSelection;
+  commanderProfiles: CommanderProfile[];
+  commanderSpotlightLoading: boolean;
+  commanderSpotlightBackdropUrl?: string;
+  canonicalEdhrecHref?: string | null;
+  nextStepLabel: string;
+  hasCsvData: boolean;
+  csvCount: number;
+  inventorySummary: string;
+  collectionSourceName?: string | null;
+  collectionImportedAt?: Date | null;
+  collectionModeLabel: string;
+  collectionModeHint: string;
+  filterOptions: OwnedFilterOption[];
+  decklistText?: string | null;
+  decklistCopied: boolean;
+  exportHelperText: string;
 }>();
 
 const emit = defineEmits<{
   decklistUpdate: [payload: DecklistPayload];
   "selection-change": [payload: CommanderSelection];
-  "close-browse": [];
+  "close-control-panel": [];
+  "open-control-panel": [];
+  "open-upload": [];
+  "clear-upload": [];
+  "filter-change": [value: OwnedFilterValue];
+  "previous-printing": [index: number];
+  "next-printing": [index: number];
+  "copy-header-decklist": [];
+  "download-header-decklist": [];
 }>();
 
-const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
+const controlPanelRef = ref<InstanceType<typeof DashboardControlPanel> | null>(null);
 
 const {
   chosenPageType,
@@ -116,14 +188,22 @@ const {
   setCompanion,
 } = useEdhrecRouteState();
 
-const { cardlists, error, totalCardCount, readerLoading } = useEdhrecData(commanderUrl);
+const { cardlists, error, readerLoading } = useEdhrecData(commanderUrl);
 
 const {
   cardlistSections,
   cardlistEntries,
+  totalSectionCount,
+  visibleCardCount,
+  deckViewCounts,
+  deckFilterLabel,
   decklistPayload,
   decklistCopySectionId,
   activeSectionId,
+  allSectionsExpanded,
+  toggleSection,
+  expandAllSections,
+  collapseAllSections,
   scrollToSection,
   filterCardviews,
   isCardInUpload,
@@ -144,11 +224,116 @@ const popularCommanders = [
   { name: "Chulane, Teller of Tales" },
 ];
 
+const ownershipSummary = computed(() => {
+  if (!cardlistEntries.value.length) {
+    return `Showing ${deckFilterLabel.value.toLowerCase()}.`;
+  }
+  return `Showing ${deckFilterLabel.value.toLowerCase()} across ${cardlistEntries.value.length} active section${cardlistEntries.value.length === 1 ? "" : "s"}.`;
+});
+
+const deckViewFilterOptions = computed(() =>
+  props.filterOptions.map((option) => ({
+    ...option,
+    count:
+      option.value === true
+        ? deckViewCounts.value.owned
+        : option.value === false
+          ? deckViewCounts.value.missing
+          : deckViewCounts.value.all,
+  }))
+);
+
+const findLabel = (
+  options: ReadonlyArray<{ value: string; label: string }>,
+  value: string,
+  fallback: string
+) => options.find((option) => option.value === value)?.label ?? fallback;
+
+const pageTypeLabel = computed(() =>
+  findLabel(Object.values(EDHRECPageType), chosenPageType.value, "Commander")
+);
+const bracketLabel = computed(() => {
+  if (!chosenBracket.value) {
+    return "";
+  }
+  const label = findLabel(Object.values(EDHRECBracket), chosenBracket.value, "Bracket");
+  const bracketNumber = label.match(/^(\d+)/)?.[1];
+  return bracketNumber ? `Bracket ${bracketNumber}` : label;
+});
+const modifierLabel = computed(() =>
+  chosenModifier.value
+    ? findLabel(Object.values(EDHRECPageModifier), chosenModifier.value, "Budget")
+    : ""
+);
+const companionLabel = computed(() =>
+  chosenCompanion.value
+    ? `${findLabel(Object.values(EDHRECCompanion), chosenCompanion.value, "Companion")} companion`
+    : ""
+);
+const deckViewChipLabel = computed(() => {
+  if (deckFilterLabel.value === "Owned cards") {
+    return "Owned";
+  }
+  if (deckFilterLabel.value === "Missing cards") {
+    return "Missing";
+  }
+  return deckFilterLabel.value;
+});
+const deckViewTone = computed(() => {
+  if (deckFilterLabel.value === "Owned cards") {
+    return "success" as const;
+  }
+  if (deckFilterLabel.value === "Missing cards") {
+    return "warn" as const;
+  }
+  return "default" as const;
+});
+const mastheadStatusItems = computed(() => {
+  const items: Array<{
+    label: string;
+    tone?: "default" | "accent" | "success" | "warn" | "danger" | "muted";
+  }> = [
+    {
+      label: props.hasCsvData ? "Collection loaded" : "No collection upload",
+      tone: props.hasCsvData ? "accent" : "muted",
+    },
+    {
+      label: deckViewChipLabel.value,
+      tone: deckViewTone.value,
+    },
+    {
+      label: pageTypeLabel.value,
+      tone:
+        chosenPageType.value === EDHRECPageType.AVERAGE_DECK.value ? "accent" : "default",
+    },
+  ];
+
+  if (bracketLabel.value) {
+    items.push({ label: bracketLabel.value });
+  }
+  if (modifierLabel.value) {
+    items.push({ label: modifierLabel.value });
+  }
+  if (companionLabel.value) {
+    items.push({ label: companionLabel.value });
+  }
+
+  return items;
+});
+
 const showEmptyState = computed(
   () =>
     !cardlistSections.value.length &&
     !readerLoading.value &&
     !currentCommanderSlug.value &&
+    !error.value
+);
+
+const showNoMatchingSections = computed(
+  () =>
+    !cardlistEntries.value.length &&
+    !readerLoading.value &&
+    Boolean(currentCommanderSlug.value) &&
     !error.value
 );
 
@@ -166,8 +351,24 @@ const handleSelectionChange = (payload: CommanderSelection) => {
   emit("selection-change", payload);
 };
 
+const handleToggleExpandAll = () => {
+  if (allSectionsExpanded.value) {
+    collapseAllSections();
+    return;
+  }
+  expandAllSections();
+};
+
 const selectSuggestedCommander = (name: string) => {
-  browseRailRef.value?.selectPrimaryCommander(name);
+  controlPanelRef.value?.selectPrimaryCommander(name);
+};
+
+const startPartnerSelection = () => {
+  controlPanelRef.value?.startPartnerSelection?.();
+};
+
+const focusCommanderEditor = () => {
+  controlPanelRef.value?.focusPrimarySearch?.();
 };
 
 const cardTableColumns: ColumnDefinition[] = [
@@ -181,6 +382,7 @@ const cardTableColumns: ColumnDefinition[] = [
   { key: "eur", label: "EUR", align: "right", class: "w-20" },
 ];
 
-const __templateBindings = props;
-void __templateBindings;
+defineExpose({
+  startPartnerSelection,
+});
 </script>

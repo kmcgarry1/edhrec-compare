@@ -1,252 +1,326 @@
 <template>
-  <Card
-    as="header"
-    variant="masthead"
-    padding="p-4 sm:p-5"
-    rounded="rounded-[32px]"
-    shadow="shadow-[var(--shadow)]"
-    class="overflow-hidden"
-  >
+  <CSurface variant="command" size="md" radius="3xl" class="relative overflow-hidden">
     <div
       v-if="heroBackdropUrl"
-      class="pointer-events-none absolute inset-y-0 right-0 hidden w-[48%] commander-masthead-backdrop lg:block"
+      class="pointer-events-none absolute inset-y-0 right-0 hidden w-28 xl:block commander-inspector-backdrop"
       :style="{ backgroundImage: `url(${heroBackdropUrl})` }"
       aria-hidden="true"
     />
-    <div class="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] 2xl:grid-cols-[minmax(0,1fr)_20rem]">
+
+    <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_8.75rem] xl:items-start">
       <div class="space-y-4">
-        <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-          <CStack gap="sm" class="min-w-0">
-            <CInline align="center" gap="sm" class="flex-wrap">
-              <CBadge tone="default" variant="outline" size="sm" text-case="normal">
-                Commander workspace
-              </CBadge>
-              <CBadge
-                :tone="hasCsvData ? 'success' : 'muted'"
-                variant="soft"
-                size="sm"
-                text-case="normal"
-              >
-                {{ csvLabel }}
-              </CBadge>
-              <CBadge
-                :tone="decklistReady ? 'accent' : 'muted'"
-                variant="soft"
-                size="sm"
-                text-case="normal"
-              >
-                {{ decklistStatus }}
-              </CBadge>
-            </CInline>
-
-            <div class="space-y-1">
-              <CText tag="h1" variant="display" class="max-w-3xl text-balance">
-                {{ displayPrimaryName }}
-              </CText>
-              <CText
-                v-if="commanderSelection.hasPartner"
-                tag="p"
-                variant="body"
-                tone="muted"
-                class="sm:text-base"
-              >
-                Partnered with {{ displayPartnerName }}
-              </CText>
-              <CText tag="p" variant="body" tone="muted" class="max-w-3xl sm:text-base">
-                {{ nextStepLabel }}
-              </CText>
-            </div>
-          </CStack>
-
-          <CInline gap="sm" class="flex-wrap xl:justify-end">
-            <CButton type="button" variant="secondary" size="sm" @click="emit('browse')">
-              Browse rail
-            </CButton>
-            <CButton type="button" variant="primary" size="sm" @click="emit('upload')">
-              {{ hasCsvData ? "Replace CSV" : "Upload CSV" }}
-            </CButton>
-          </CInline>
+        <div class="space-y-2">
+          <CText tag="p" variant="eyebrow" tone="muted">Commander</CText>
+          <CText tag="h2" variant="title" class="text-[clamp(1.35rem,2vw,1.9rem)] leading-tight">
+            {{ displayTitle }}
+          </CText>
+          <CText v-if="titleSupportText" tag="p" variant="body" tone="muted">
+            {{ titleSupportText }}
+          </CText>
+          <CText tag="p" variant="helper" tone="muted" class="max-w-3xl">
+            {{ nextStepLabel }}
+          </CText>
         </div>
 
-        <div class="grid gap-3 md:grid-cols-3">
-          <CSurface variant="dense" size="sm" class="min-h-[4.75rem]">
-            <CStack gap="xs">
-              <CText tag="p" variant="overline" tone="muted"> Collection </CText>
-              <CText tag="p" variant="metric">
-                {{ csvCount }}
-              </CText>
-              <CText tag="p" variant="helper" tone="muted">
-                card{{ csvCount === 1 ? "" : "s" }} loaded into the ownership lens
-              </CText>
-            </CStack>
-          </CSurface>
-
-          <CSurface variant="dense" size="sm" class="min-h-[4.75rem]">
-            <CStack gap="xs">
-              <CText tag="p" variant="overline" tone="muted"> Cardlists </CText>
-              <CText tag="p" variant="metric">
-                {{ decklistSectionCount }}
-              </CText>
-              <CText tag="p" variant="helper" tone="muted">
-                sections available in the current comparison route
-              </CText>
-            </CStack>
-          </CSurface>
-
-          <CSurface variant="dense" size="sm" class="min-h-[4.75rem]">
-            <CStack gap="xs">
-              <CText tag="p" variant="overline" tone="muted"> Export state </CText>
-              <CText tag="p" variant="metric">
-                {{ decklistReady ? "Ready" : "Pending" }}
-              </CText>
-              <CText tag="p" variant="helper" tone="muted">
-                {{
-                  decklistReady
-                    ? "Copy or download from the toolbar below."
-                    : "Change the lens or load more context to build an export."
-                }}
-              </CText>
-            </CStack>
-          </CSurface>
-        </div>
-      </div>
-
-      <CSurface variant="dense" size="sm" class="space-y-3 overflow-hidden">
-        <div class="flex items-start justify-between gap-3">
-          <div class="space-y-1">
-            <CText tag="p" variant="overline" tone="muted"> Commander spotlight </CText>
-            <CText tag="p" variant="title"> Visual anchor </CText>
-          </div>
-          <CBadge tone="accent" variant="soft" size="sm" text-case="normal">
-            {{ commanderSelection.hasPartner ? "Partner pair" : "Single commander" }}
+        <div v-if="statusItems.length" class="flex flex-wrap gap-2">
+          <CBadge
+            v-for="item in statusItems"
+            :key="item.label"
+            :tone="item.tone ?? 'default'"
+            variant="soft"
+            size="sm"
+            text-case="normal"
+          >
+            {{ item.label }}
           </CBadge>
         </div>
 
-        <div
-          v-if="spotlightLoading && !hasSpotlight"
-          class="grid gap-3"
-          :class="commanderSelection.hasPartner ? 'grid-cols-2' : 'grid-cols-1'"
-        >
-          <div
-            v-for="index in commanderSelection.hasPartner ? 2 : 1"
-            :key="index"
-            class="aspect-[63/88] rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-strong)]"
-          />
+        <div class="flex flex-wrap items-center gap-2">
+          <CButton
+            class="hidden lg:inline-flex"
+            type="button"
+            variant="secondary"
+            size="sm"
+            @click="emit('change-commander')"
+          >
+            Change commander
+          </CButton>
+          <CButton
+            class="lg:hidden"
+            type="button"
+            variant="soft"
+            size="sm"
+            data-testid="dashboard-control-trigger"
+            @click="emit('open-controls')"
+          >
+            Compare controls
+          </CButton>
+          <CButton
+            v-if="canonicalEdhrecHref"
+            as="a"
+            :href="canonicalEdhrecHref"
+            target="_blank"
+            rel="noreferrer"
+            variant="secondary"
+            size="sm"
+          >
+            View on EDHREC
+          </CButton>
+          <CButton
+            v-if="showPrintingsAction"
+            type="button"
+            variant="ghost"
+            size="sm"
+            @click="showPrintingBrowser = !showPrintingBrowser"
+          >
+            {{ showPrintingBrowser ? "Hide printings" : `Printings (${primaryProfile?.totalPrintings ?? 0})` }}
+          </CButton>
         </div>
 
-        <div
-          v-else-if="hasSpotlight"
-          class="grid gap-3"
-          :class="spotlightCardsToRender.length > 1 ? 'grid-cols-2' : 'grid-cols-1'"
-        >
-          <figure
-            v-for="(card, index) in spotlightCardsToRender"
-            :key="card.name"
-            class="relative overflow-hidden rounded-[24px] border border-[color:rgba(255,255,255,0.08)] bg-[color:var(--surface-strong)] shadow-[var(--shadow-soft)]"
-            :class="spotlightCardsToRender.length > 1 && index === 1 ? 'md:translate-y-5' : ''"
-          >
-            <img
-              :src="card.imageUrl"
-              :alt="card.name"
-              class="aspect-[63/88] h-full w-full object-cover object-top"
-            />
+        <template v-if="spotlightLoading && !hasProfiles">
+          <div class="space-y-2">
+            <CText tag="p" variant="helper" tone="muted">Loading commander details...</CText>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
+              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="commanderSelection.hasPartner && profilesToRender.length">
+          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
             <div
-              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(3,9,13,0.96)] via-[rgba(3,9,13,0.72)] to-transparent px-3 pb-3 pt-8"
+              v-for="(profile, index) in profilesToRender"
+              :key="`${profile.id}-snapshot`"
+              class="flex flex-wrap items-start justify-between gap-3 rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
             >
-              <CBadge tone="accent" variant="soft" size="sm" text-case="normal">
-                {{ spotlightRoleLabel(index) }}
-              </CBadge>
-              <CText
-                tag="figcaption"
-                variant="helper"
-                tone="inverse"
-                class="mt-2 text-[0.76rem] font-semibold leading-snug"
+              <div class="space-y-1">
+                <CText tag="p" variant="overline" tone="muted">
+                  {{ profileRoleLabel(index) }}
+                </CText>
+                <CText tag="p" variant="body" weight="semibold">
+                  {{ profile.name }}
+                </CText>
+                <CText tag="p" variant="helper" tone="muted">
+                  {{ formatProfileSet(profile) }} | {{ formatReleaseDate(profile.releasedAt) }}
+                </CText>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <PriceColour :price="profile.prices.usd" currency="$" align="start" />
+                <PriceColour :price="profile.prices.eur" currency="EUR " align="start" />
+              </div>
+            </div>
+          </CSurface>
+        </template>
+
+        <template v-else-if="primaryProfile">
+          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="space-y-1">
+                <CText tag="p" variant="overline" tone="muted">Current printing</CText>
+                <CText tag="p" variant="body" weight="semibold">
+                  {{ formatProfileSet(primaryProfile) }}
+                </CText>
+                <CText tag="p" variant="helper" tone="muted">
+                  Released {{ formatReleaseDate(primaryProfile.releasedAt) }}
+                </CText>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <PriceColour :price="primaryProfile.prices.usd" currency="$" align="start" />
+                <PriceColour :price="primaryProfile.prices.eur" currency="EUR " align="start" />
+              </div>
+            </div>
+
+            <div
+              v-if="showPrintingBrowser"
+              class="flex flex-wrap items-center gap-2 rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
+            >
+              <CButton
+                v-if="primaryProfile.canCyclePrintings"
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="emit('previous-printing', 0)"
               >
-                {{ card.name }}
+                Prev
+              </CButton>
+              <CBadge tone="muted" variant="soft" size="sm" text-case="normal">
+                {{
+                  primaryProfile.canCyclePrintings
+                    ? `Printing ${primaryProfile.printingPosition} of ${primaryProfile.totalPrintings}`
+                    : "Single printing shown"
+                }}
+              </CBadge>
+              <CButton
+                v-if="primaryProfile.canCyclePrintings"
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="emit('next-printing', 0)"
+              >
+                Next
+              </CButton>
+              <CText v-if="primaryProfile.printingsLoading" tag="p" variant="helper" tone="muted">
+                Loading printings...
               </CText>
             </div>
-          </figure>
-        </div>
+          </CSurface>
+        </template>
 
         <div
           v-else
           class="rounded-[24px] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-4"
         >
-          <CText tag="p" variant="title"> Artwork unavailable </CText>
+          <CText tag="p" variant="title">Commander details unavailable</CText>
           <CText tag="p" variant="helper" tone="muted" class="mt-2">
-            The comparison workspace still works, but Scryfall did not return a usable image for
-            this commander selection.
+            Compare still works, but the commander snapshot could not be loaded.
           </CText>
         </div>
+      </div>
 
-        <CText tag="p" variant="helper" tone="muted">
-          {{
-            commanderSelection.hasPartner
-              ? "Partner art is stacked so the deck identity reads as one combined selection."
-              : "Commander art anchors the page so the data well feels attached to the deck you are comparing."
-          }}
-        </CText>
-      </CSurface>
+      <div class="hidden xl:block">
+        <div
+          v-if="artProfiles.length"
+          class="grid gap-2"
+          :class="artProfiles.length > 1 ? 'grid-cols-2' : 'grid-cols-1'"
+        >
+          <figure
+            v-for="(profile, index) in artProfiles"
+            :key="`${profile.id}-art`"
+            class="relative overflow-hidden rounded-[22px] border border-[color:rgba(255,255,255,0.08)] bg-[color:var(--surface-strong)] shadow-[var(--shadow-soft)]"
+          >
+            <img
+              :src="profile.imageUrl"
+              :alt="profile.name"
+              class="aspect-[63/88] h-full w-full object-cover object-top"
+            />
+            <div
+              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(3,9,13,0.96)] via-[rgba(3,9,13,0.72)] to-transparent px-2 pb-2 pt-6"
+            >
+              <CText
+                tag="figcaption"
+                variant="helper"
+                tone="inverse"
+                class="text-[0.68rem] font-semibold leading-snug"
+              >
+                {{ artProfiles.length > 1 ? profileRoleLabel(index) : profile.name }}
+              </CText>
+            </div>
+          </figure>
+        </div>
+      </div>
     </div>
-  </Card>
+  </CSurface>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import Card from "../Card.vue";
-import { CBadge, CButton, CInline, CStack, CSurface, CText } from "../core";
+import { computed, ref, watch } from "vue";
+import PriceColour from "../PriceColour.vue";
+import { CBadge, CButton, CSurface, CText } from "../core";
+import type { CommanderProfile } from "../../composables/useCommanderSpotlight";
 import type { CommanderSelection } from "../../types/edhrec";
-import type { CommanderSpotlightCard } from "../../composables/useCommanderSpotlight";
 
-const props = defineProps<{
-  commanderSelection: CommanderSelection;
-  spotlightCards: CommanderSpotlightCard[];
-  spotlightLoading: boolean;
-  backdropUrl?: string;
-  csvCount: number;
-  hasCsvData: boolean;
-  decklistReady: boolean;
-  decklistSectionCount: number;
-  nextStepLabel: string;
-}>();
+type MastheadStatusTone = "default" | "accent" | "success" | "warn" | "danger" | "muted";
+
+type MastheadStatusItem = {
+  label: string;
+  tone?: MastheadStatusTone;
+};
+
+const props = withDefaults(
+  defineProps<{
+    commanderSelection: CommanderSelection;
+    commanderProfiles: CommanderProfile[];
+    spotlightLoading: boolean;
+    backdropUrl?: string;
+    nextStepLabel: string;
+    canonicalEdhrecHref?: string | null;
+    statusItems?: MastheadStatusItem[];
+  }>(),
+  {
+    backdropUrl: "",
+    canonicalEdhrecHref: null,
+    statusItems: () => [],
+  }
+);
 
 const emit = defineEmits<{
-  browse: [];
-  upload: [];
+  "open-controls": [];
+  "change-commander": [];
+  "previous-printing": [index: number];
+  "next-printing": [index: number];
 }>();
 
-const csvLabel = computed(() => {
-  if (!props.hasCsvData) {
-    return "CSV pending";
-  }
-  return `${props.csvCount} card${props.csvCount === 1 ? "" : "s"} loaded`;
-});
+const showPrintingBrowser = ref(false);
 
-const primarySpotlight = computed(() => props.spotlightCards[0] ?? null);
-const partnerSpotlight = computed(() => props.spotlightCards[1] ?? null);
-const spotlightCardsToRender = computed(() =>
-  props.spotlightCards.slice(0, props.commanderSelection.hasPartner ? 2 : 1)
+const primaryProfile = computed(() => props.commanderProfiles[0] ?? null);
+const partnerProfile = computed(() => props.commanderProfiles[1] ?? null);
+const profilesToRender = computed(() =>
+  props.commanderProfiles.slice(0, props.commanderSelection.hasPartner ? 2 : 1)
 );
-const hasSpotlight = computed(() => spotlightCardsToRender.value.length > 0);
+const artProfiles = computed(() =>
+  profilesToRender.value.filter((profile) => profile.hasArtwork).slice(0, 2)
+);
+const hasProfiles = computed(() => profilesToRender.value.length > 0);
 const displayPrimaryName = computed(
-  () => primarySpotlight.value?.name ?? props.commanderSelection.primary
+  () => primaryProfile.value?.name ?? props.commanderSelection.primary
 );
 const displayPartnerName = computed(
-  () => partnerSpotlight.value?.name ?? props.commanderSelection.partner
+  () => partnerProfile.value?.name ?? props.commanderSelection.partner
+);
+const displayTitle = computed(() => {
+  if (!props.commanderSelection.hasPartner) {
+    return displayPrimaryName.value;
+  }
+  return `${displayPrimaryName.value} + ${displayPartnerName.value}`;
+});
+const titleSupportText = computed(() =>
+  props.commanderSelection.hasPartner ? "Partner commanders selected" : ""
 );
 const heroBackdropUrl = computed(
-  () => props.backdropUrl || primarySpotlight.value?.artUrl || primarySpotlight.value?.imageUrl || ""
+  () => props.backdropUrl || primaryProfile.value?.artUrl || primaryProfile.value?.imageUrl || ""
 );
-const decklistStatus = computed(() => (props.decklistReady ? "Export ready" : "Awaiting decklist"));
+const showPrintingsAction = computed(
+  () => !props.commanderSelection.hasPartner && Boolean(primaryProfile.value?.canCyclePrintings)
+);
 
-const spotlightRoleLabel = (index: number) => (index === 0 ? "Primary" : "Partner");
+watch(
+  () => [props.commanderSelection.primary, props.commanderSelection.partner].join("|"),
+  () => {
+    showPrintingBrowser.value = false;
+  }
+);
+
+const formatProfileSet = (profile: CommanderProfile) => {
+  if (profile.setName && profile.setCode) {
+    return `${profile.setName} (${profile.setCode})`;
+  }
+  return profile.setName || profile.setCode || "Set unavailable";
+};
+
+const formatReleaseDate = (value: string) => {
+  if (!value) {
+    return "Release unavailable";
+  }
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+};
+
+const profileRoleLabel = (index: number) => (index === 0 ? "Primary" : "Partner");
 </script>
 
 <style scoped>
-.commander-masthead-backdrop {
+.commander-inspector-backdrop {
   background-position: center right;
   background-size: cover;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.24) 20%, #000 58%);
-  opacity: 0.28;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.2) 30%, #000 100%);
+  opacity: 0.18;
 }
 </style>

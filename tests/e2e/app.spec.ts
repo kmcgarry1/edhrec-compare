@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   EDHREC_FIXTURE,
   SCRYFALL_COLLECTION_RESPONSE,
+  SCRYFALL_COMMANDER_RESPONSE,
   SCRYFALL_SEARCH_RESPONSE,
   SCRYFALL_SYMBOLS_RESPONSE,
   SCRYFALL_CARD_IMAGE,
@@ -42,13 +43,18 @@ const interceptNetwork = async (page: Page) => {
     })
   );
 
-  await page.route("**/api.scryfall.com/cards/named**", (route) =>
-    route.fulfill({
+  await page.route("**/api.scryfall.com/cards/named**", (route) => {
+    const url = route.request().url();
+    const body = url.includes("Atraxa")
+      ? SCRYFALL_COMMANDER_RESPONSE
+      : SCRYFALL_CARD_IMAGE;
+
+    return route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(SCRYFALL_CARD_IMAGE),
-    })
-  );
+      body: JSON.stringify(body),
+    });
+  });
 
   await page.route("**/api.scryfall.com/cards/random**", (route) =>
     route.fulfill({
@@ -112,6 +118,7 @@ test.describe("Commander workflow", () => {
     await selectCommander(page);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
+    await page.getByTestId("dashboard-settings-trigger").click();
 
     const copyButton = page.getByTestId("header-copy-decklist");
     await expect(copyButton).toBeVisible();

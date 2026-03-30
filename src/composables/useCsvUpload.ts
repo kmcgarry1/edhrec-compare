@@ -14,7 +14,7 @@
  * // Set parsed CSV data
  * setCsvData([['Sol Ring', '1'], ['Mana Crypt', '1']], ['Name', 'Quantity']);
  *
- * // Access parsed data
+ * // Access parsed CSV data
  * console.log(headers.value); // ['Name', 'Quantity']
  * console.log(rows.value);    // [['Sol Ring', '1'], ['Mana Crypt', '1']]
  *
@@ -25,8 +25,15 @@
 
 import { ref } from "vue";
 
+type CsvUploadMetadata = {
+  sourceName?: string | null;
+  importedAt?: Date | null;
+};
+
 const rows = ref<string[][]>([]);
 const headers = ref<string[]>([]);
+const sourceName = ref<string | null>(null);
+const importedAt = ref<Date | null>(null);
 
 /**
  * Composable for managing CSV upload state
@@ -41,28 +48,38 @@ export const useCsvUpload = () => {
    *
    * @param nextRows - Array of row data (each row is an array of cell values)
    * @param nextHeaders - Array of column header names
+   * @param metadata - Optional upload metadata for status surfaces
    *
    * @example
    * ```typescript
    * setCsvData(
    *   [['Lightning Bolt', '0.50'], ['Sol Ring', '2.00']],
-   *   ['Card Name', 'Price']
+   *   ['Card Name', 'Price'],
+   *   { sourceName: 'collection.csv', importedAt: new Date() }
    * );
    * ```
    */
-  const setCsvData = (nextRows: string[][], nextHeaders: string[]) => {
+  const setCsvData = (
+    nextRows: string[][],
+    nextHeaders: string[],
+    metadata: CsvUploadMetadata = {}
+  ) => {
     rows.value = nextRows;
     headers.value = nextHeaders;
+    sourceName.value = metadata.sourceName ?? null;
+    importedAt.value = metadata.importedAt ?? new Date();
   };
 
   /**
    * Clear all CSV data
    *
-   * Resets both rows and headers to empty arrays.
+   * Resets rows, headers, and upload metadata.
    */
   const clearCsvData = () => {
     rows.value = [];
     headers.value = [];
+    sourceName.value = null;
+    importedAt.value = null;
   };
 
   return {
@@ -70,6 +87,10 @@ export const useCsvUpload = () => {
     rows,
     /** CSV column headers */
     headers,
+    /** Uploaded CSV file name when available */
+    sourceName,
+    /** Timestamp for the last successful import */
+    importedAt,
     /** Set parsed CSV data */
     setCsvData,
     /** Clear all CSV data */

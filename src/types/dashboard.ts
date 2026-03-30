@@ -4,4 +4,5 @@ export type OwnedFilterOption = {
   label: string;
   value: OwnedFilterValue;
   active: boolean;
+  count?: number;
 };

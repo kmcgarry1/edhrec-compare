@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
 import { RouterView } from "vue-router";
-import { GlobalNoticeStack } from "./components";
+import { AppShellHeader, GlobalNoticeStack, SiteNotice } from "./components";
 import { useBackgroundPreference } from "./composables/useBackgroundPreference";
+import { useUploadModal } from "./composables/useUploadModal";
 
 const environment = ref<boolean>(import.meta.env.PROD);
 const { backgroundEnabled } = useBackgroundPreference();
@@ -21,13 +22,26 @@ const SpeedInsights = defineAsyncComponent(() =>
 const Analytics = defineAsyncComponent(() =>
   import("@vercel/analytics/vue").then((m) => m.Analytics)
 );
+
+const CsvUploadModal = defineAsyncComponent(() => import("./components/CsvUploadModal.vue"));
+const { uploadModalOpen, closeUploadModal } = useUploadModal();
 </script>
 
 <template>
   <SpeedInsights v-if="environment" />
   <Analytics v-if="environment" />
   <NebulaBackground v-if="backgroundEnabled" />
-  <RouterView />
+
+  <div class="relative z-10 min-h-screen">
+    <AppShellHeader />
+    <RouterView />
+
+    <div class="mx-auto w-full max-w-7xl px-4 pb-6 pt-2 sm:px-6 lg:px-8 2xl:max-w-[90rem] 2xl:px-10">
+      <SiteNotice />
+    </div>
+  </div>
+
+  <CsvUploadModal :open="uploadModalOpen" @close="closeUploadModal" />
   <GlobalNoticeStack />
 </template>
 

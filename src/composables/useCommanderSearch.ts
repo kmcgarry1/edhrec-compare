@@ -6,13 +6,19 @@ import { useGlobalNotices } from "./useGlobalNotices";
 import { buildCommanderSlug } from "../utils/slugifyCommander";
 import type { CommanderSelection } from "../types/edhrec";
 
-type CommanderOption = { id: string; name: string };
+export type CommanderOption = { id: string; name: string };
 
 type CommanderSearchOptions = {
   selectedSlug: Ref<string | null | undefined>;
+  selectedSelection?: Ref<CommanderSelection | null | undefined>;
   onCommanderSelected: (slug: string) => void;
   onSelectionChange: (payload: CommanderSelection) => void;
 };
+
+const RECENT_COMMANDERS_KEY = "commander-scout:recent-commanders";
+const RECENT_COMMANDERS_LIMIT = 5;
+const recentCommanders = ref<string[]>([]);
+let recentInitialized = false;
 
 const formatSlugForDisplay = (slug: string) =>
   slug
@@ -32,22 +38,65 @@ const formatManaCost = (value: string) => {
   return symbols.map((symbol) => symbol.replace(/[{}]/g, "")).join(" ");
 };
 
+const ensureRecentInitialized = () => {
+  if (recentInitialized || typeof window === "undefined") {
+    return;
+  }
+  try {
+    const stored = window.localStorage.getItem(RECENT_COMMANDERS_KEY);
+    if (!stored) {
+      recentInitialized = true;
+      return;
+    }
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed)) {
+      recentCommanders.value = parsed
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+        .slice(0, RECENT_COMMANDERS_LIMIT);
+    }
+  } catch {
+    recentCommanders.value = [];
+  }
+  recentInitialized = true;
+};
+
+const persistRecentCommanders = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(
+    RECENT_COMMANDERS_KEY,
+    JSON.stringify(recentCommanders.value.slice(0, RECENT_COMMANDERS_LIMIT))
+  );
+};
+
+const rememberCommander = (name: string) => {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return;
+  }
+  ensureRecentInitialized();
+  recentCommanders.value = [
+    trimmed,
+    ...recentCommanders.value.filter((existing) => existing !== trimmed),
+  ].slice(0, RECENT_COMMANDERS_LIMIT);
+  persistRecentCommanders();
+};
+
 export const useCommanderSearch = (options: CommanderSearchOptions) => {
+  ensureRecentInitialized();
+
   const searchScope = "commander-search";
   const { withLoading } = useGlobalLoading();
   const { notifyError } = useGlobalNotices();
 
   const primarySelection = ref("");
   const partnerSelection = ref("");
-  const hasPartner = ref(false);
-
   const partnerDisabled = computed(() => !primarySelection.value);
+  const hasPartner = computed(() => Boolean(partnerSelection.value));
 
   const currentSlug = computed(() =>
-    buildCommanderSlug(
-      primarySelection.value,
-      hasPartner.value ? partnerSelection.value : ""
-    )
+    buildCommanderSlug(primarySelection.value, partnerSelection.value)
   );
 
   const primaryManaCost = ref("");
@@ -55,23 +104,13 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
   const primaryManaRequestId = ref<symbol | null>(null);
   const partnerManaRequestId = ref<symbol | null>(null);
 
-  const summaryName = computed(() => {
-    if (!primarySelection.value) {
-      return "";
-    }
-    if (hasPartner.value && partnerSelection.value) {
-      return `${primarySelection.value} + ${partnerSelection.value}`;
-    }
-    return primarySelection.value;
-  });
-
   const summaryManaCost = computed(() => {
     if (!primarySelection.value) {
       return "";
     }
     const primaryCost = formatManaCost(primaryManaCost.value);
     const partnerCost = formatManaCost(partnerManaCost.value);
-    if (hasPartner.value && partnerSelection.value) {
+    if (partnerSelection.value) {
       const combined = [primaryCost, partnerCost].filter(Boolean).join(" + ");
       return combined || "...";
     }
@@ -197,13 +236,14 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
   const partnerError = partnerField.error;
   const partnerLoading = partnerField.loading;
 
-  watch(hasPartner, (value) => {
-    if (!value && partnerSelection.value) {
-      partnerSelection.value = "";
-      partnerQuery.value = "";
-      partnerResults.value = [];
-    }
-  });
+  const primaryRecentResults = computed<CommanderOption[]>(() =>
+    recentCommanders.value
+      .filter((name) => name !== primarySelection.value)
+      .map((name, index) => ({
+        id: `recent-primary-${index}-${name}`,
+        name,
+      }))
+  );
 
   const hydrateFromSlug = (slug: string | null | undefined) => {
     if (!slug) {
@@ -213,7 +253,6 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       partnerSelection.value = "";
       partnerQuery.value = "";
       partnerResults.value = [];
-      hasPartner.value = false;
       return;
     }
 
@@ -228,22 +267,55 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     partnerSelection.value = "";
     partnerQuery.value = "";
     partnerResults.value = [];
-    hasPartner.value = false;
   };
+
+  const hydrateFromSelection = (selection: CommanderSelection | null | undefined) => {
+    if (!selection?.primary) {
+      return false;
+    }
+
+    primarySelection.value = selection.primary;
+    primaryQuery.value = selection.primary;
+    primaryResults.value = [];
+    primaryError.value = "";
+    partnerSelection.value = selection.partner || "";
+    partnerQuery.value = selection.partner || "";
+    partnerResults.value = [];
+    partnerError.value = "";
+    return true;
+  };
+
+  if (options.selectedSelection) {
+    watch(
+      () => options.selectedSelection?.value,
+      (selection) => {
+        if (hydrateFromSelection(selection)) {
+          return;
+        }
+        if (!selection?.primary) {
+          hydrateFromSlug(options.selectedSlug.value);
+        }
+      },
+      { immediate: true }
+    );
+  }
 
   watch(
     () => options.selectedSlug.value,
     (slug) => {
+      if (options.selectedSelection?.value?.primary) {
+        return;
+      }
       hydrateFromSlug(slug);
     },
     { immediate: true }
   );
 
-  watch([primarySelection, partnerSelection, hasPartner], () => {
+  watch([primarySelection, partnerSelection], () => {
     options.onSelectionChange({
       primary: primarySelection.value,
       partner: partnerSelection.value,
-      hasPartner: hasPartner.value,
+      hasPartner: Boolean(partnerSelection.value),
     });
   });
 
@@ -253,26 +325,26 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       return;
     }
 
-    const slug = buildCommanderSlug(
-      primarySelection.value,
-      partnerSelection.value
-    );
-
-    options.onCommanderSelected(slug);
+    options.onCommanderSelected(currentSlug.value);
   };
 
   const handleSelection = (field: "primary" | "partner", commanderName: string) => {
     if (field === "primary") {
-      primarySelection.value = commanderName;
-      primaryQuery.value = commanderName;
+      const name = commanderName.trim();
+      primarySelection.value = name;
+      primaryQuery.value = name;
       primaryResults.value = [];
+      primaryError.value = "";
       partnerSelection.value = "";
       partnerQuery.value = "";
       partnerResults.value = [];
+      partnerError.value = "";
+      rememberCommander(name);
     } else {
-      partnerSelection.value = commanderName;
-      partnerQuery.value = commanderName;
+      partnerSelection.value = commanderName.trim();
+      partnerQuery.value = commanderName.trim();
       partnerResults.value = [];
+      partnerError.value = "";
     }
 
     emitCommanderSelection();
@@ -288,7 +360,6 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       partnerQuery.value = "";
       partnerResults.value = [];
       partnerError.value = "";
-      hasPartner.value = false;
     } else {
       partnerSelection.value = "";
       partnerQuery.value = "";
@@ -325,19 +396,18 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     primarySelection.value = name;
     primaryQuery.value = name;
     primaryResults.value = [];
+    primaryError.value = "";
     partnerSelection.value = "";
     partnerQuery.value = "";
     partnerResults.value = [];
-    hasPartner.value = false;
+    partnerError.value = "";
+    rememberCommander(name);
     emitCommanderSelection();
   };
 
-  const addPartner = () => {
-    hasPartner.value = true;
-  };
+  const addPartner = () => undefined;
 
   const removePartner = () => {
-    hasPartner.value = false;
     partnerSelection.value = "";
     partnerQuery.value = "";
     partnerResults.value = [];
@@ -350,10 +420,10 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     partnerSelection,
     hasPartner,
     partnerDisabled,
-    summaryName,
     summaryManaCost,
     primaryQuery,
     primaryResults,
+    primaryRecentResults,
     primaryError,
     primaryLoading,
     partnerQuery,

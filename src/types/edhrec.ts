@@ -47,4 +47,13 @@ export type CardlistSectionMeta = {
   label: string;
   iconPath?: string;
   iconColor?: string;
+  isPopulated: boolean;
+  defaultExpanded: boolean;
+  expanded: boolean;
+  summaryCounts: {
+    totalCards: number;
+    ownedCount: number;
+    unownedCount: number;
+    ownedPercent: number;
+  };
 };

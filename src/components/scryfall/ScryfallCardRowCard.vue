@@ -51,7 +51,7 @@
           />
         </template>
         <template v-else-if="symbolsLoading">
-          <span>…</span>
+          <span>...</span>
         </template>
         <template v-else>
           {{ cardMana }}
@@ -65,11 +65,11 @@
         />
         <PriceColour
           :price="eurPrice"
-          currency="€"
+          currency="EUR"
           class="text-[11px]"
         />
       </div>
-      <span :class="statusLabelClass">Loading preview…</span>
+      <span v-if="isCardLoading" :class="statusLabelClass">Loading preview...</span>
     </div>
   </div>
 </template>
@@ -92,6 +92,7 @@ defineProps<{
   rarityBadgeClass: string | string[];
   setBadgeClass: string;
   statusLabelClass: string | string[];
+  isCardLoading: boolean;
   checkboxClass: string;
   cardRowClass: string;
   have: boolean;
@@ -108,4 +109,4 @@ const emit = defineEmits<{
   pointerleave: [event: PointerEvent];
   activate: [];
 }>();
-</script>
+</script>

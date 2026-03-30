@@ -1,202 +1,207 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mount, flushPromises } from "@vue/test-utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { flushPromises, mount } from "@vue/test-utils";
 import { ref } from "vue";
 import Dashboard from "../../../src/components/Dashboard.vue";
 
-const toggleTheme = vi.hoisted(() => vi.fn());
-const toggleBackground = vi.hoisted(() => vi.fn());
-const setOwnedFilter = vi.hoisted(() => vi.fn());
-const setDensity = vi.hoisted(() => vi.fn());
-const currentCommanderSlug = ref<string | null>(null);
-const commanderUrl = ref<string | null>(null);
+const hasCommander = ref(false);
+const hasCsvData = ref(false);
+const csvCount = ref(0);
+const controlPanelOpen = ref(false);
+const decklistExport = ref<{ text: string } | null>(null);
+const decklistCopied = ref(false);
+const commanderSelection = ref({
+  primary: "",
+  partner: "",
+  hasPartner: false,
+});
 
-const density = ref("comfortable");
-const densityOptions = [
-  { value: "comfortable", label: "Comfortable" },
-  { value: "cozy", label: "Cozy" },
-  { value: "compact", label: "Compact" },
-] as const;
+const openUploadModal = vi.fn();
+const clearUploadedCollection = vi.fn();
+const openControlPanel = vi.fn();
+const closeControlPanel = vi.fn();
+const handleDecklistUpdate = vi.fn();
+const handleSelectionChange = vi.fn();
+const copyDecklistFromHeader = vi.fn();
+const downloadDecklistFromHeader = vi.fn();
+const showNextCommanderPrinting = vi.fn();
+const showPreviousCommanderPrinting = vi.fn();
+const setOwnedFilter = vi.fn();
 
-vi.mock("../../../src/composables/useTheme", () => ({
-  useTheme: () => ({
-    theme: ref("light"),
-    toggleTheme,
-  }),
-}));
-
-vi.mock("../../../src/composables/useBackgroundPreference", () => ({
-  useBackgroundPreference: () => ({
-    backgroundEnabled: ref(true),
-    toggleBackground,
-  }),
-}));
-
-const csvRows = ref<string[][]>([]);
-
-vi.mock("../../../src/composables/useCsvUpload", () => ({
-  useCsvUpload: () => ({
-    rows: csvRows,
-  }),
-}));
-
-vi.mock("../../../src/composables/useOwnedFilter", () => ({
-  useOwnedFilter: () => ({
-    showOwned: ref(null),
+vi.mock("../../../src/composables/useDashboardState", () => ({
+  useDashboardState: () => ({
+    decklistExport,
+    decklistCopied,
+    controlPanelOpen,
+    commanderSelection,
+    commanderProfiles: ref([]),
+    commanderSpotlightLoading: ref(false),
+    commanderSpotlightBackdropUrl: ref(""),
+    canonicalEdhrecHref: ref("https://edhrec.com/commanders/atraxa-grand-unifier"),
+    hasCommander,
+    hasCsvData,
+    csvCount,
+    inventorySummary: ref("Collection ready."),
+    collectionModeLabel: ref("Commander compare"),
+    collectionModeHint: ref("Collection ready for compare."),
+    collectionSourceName: ref("collection.csv"),
+    collectionImportedAt: ref(new Date("2026-03-25T12:00:00Z")),
+    nextStepLabel: ref("Decklist ready to export."),
+    exportHelperText: ref("Copy or download the filtered decklist."),
+    filterOptions: ref([
+      { label: "Owned", value: true, active: false },
+      { label: "Missing", value: false, active: false },
+      { label: "All cards", value: null, active: true },
+    ]),
+    openUploadModal,
+    clearUploadedCollection,
+    openControlPanel,
+    closeControlPanel,
+    handleDecklistUpdate,
+    handleSelectionChange,
+    copyDecklistFromHeader,
+    downloadDecklistFromHeader,
+    showNextCommanderPrinting,
+    showPreviousCommanderPrinting,
     setOwnedFilter,
   }),
-}));
-
-vi.mock("../../../src/composables/useLayoutDensity", () => ({
-  useLayoutDensity: () => ({
-    density,
-    setDensity,
-    densityOptions,
-  }),
-}));
-
-vi.mock("../../../src/composables/useEdhrecRouteState", () => ({
-  useEdhrecRouteState: () => ({
-    currentCommanderSlug,
-    commanderUrl,
-  }),
-}));
-
-const downloadTextFile = vi.hoisted(() => vi.fn());
-
-vi.mock("../../../src/utils/downloadTextFile", () => ({
-  downloadTextFile,
 }));
 
 const mountComponent = () =>
   mount(Dashboard, {
     global: {
       stubs: {
-        DashboardCommanderMasthead: {
-          template:
-            "<header class='dashboard-masthead-stub'><button @click=\"$emit('browse')\">Browse</button><button @click=\"$emit('upload')\">Upload</button></header>",
-        },
         DashboardSelectionStage: {
           template:
-            "<section class='dashboard-selection-stage-stub'><button class='selection-upload-trigger' @click=\"$emit('open-upload')\">Upload</button></section>",
-        },
-        DashboardToolbar: {
-          template: "<nav class='dashboard-toolbar-stub'></nav>",
+            "<section class='dashboard-selection-stage-stub'><button class='selection-upload-trigger' @click=\"$emit('open-upload')\">Upload</button><button class='selection-change-trigger' @click=\"$emit('selection-change', { primary: 'Atraxa, Grand Unifier', partner: '', hasPartner: false })\">Select</button></section>",
         },
         DashboardWorkspace: {
-          template: "<section class='dashboard-workspace-stub'></section>",
-        },
-        TopCommanderScanPanel: {
-          template: "<section class='top-commander-scan-stub'></section>",
-        },
-        SiteNotice: {
-          template: "<section class='site-notice-stub'></section>",
+          template:
+            "<section class='dashboard-workspace-stub'><button class='workspace-controls-trigger' @click=\"$emit('open-control-panel')\">Controls</button><button class='workspace-close-trigger' @click=\"$emit('close-control-panel')\">Close</button><button class='workspace-upload-trigger' @click=\"$emit('open-upload')\">Upload</button><button class='workspace-copy-trigger' @click=\"$emit('copy-header-decklist')\">Copy</button><button class='workspace-download-trigger' @click=\"$emit('download-header-decklist')\">Download</button><button class='workspace-decklist-trigger' @click=\"$emit('decklistUpdate', { text: '1 Sol Ring' })\">Decklist</button></section>",
+          props: [
+            "controlPanelOpen",
+            "commanderSelection",
+            "commanderProfiles",
+            "commanderSpotlightLoading",
+            "commanderSpotlightBackdropUrl",
+            "canonicalEdhrecHref",
+            "nextStepLabel",
+            "hasCsvData",
+            "csvCount",
+            "inventorySummary",
+            "collectionSourceName",
+            "collectionImportedAt",
+            "collectionModeLabel",
+            "collectionModeHint",
+            "filterOptions",
+            "decklistText",
+            "decklistCopied",
+            "exportHelperText",
+          ],
         },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
-        CsvUploadModal: {
-          template: "<div v-if='open' class='csv-modal-stub'></div>",
-          props: ["open"],
-        },
       },
     },
   });
 
 describe("Dashboard", () => {
   beforeEach(() => {
-    toggleTheme.mockClear();
-    toggleBackground.mockClear();
-    setOwnedFilter.mockClear();
-    setDensity.mockClear();
-    downloadTextFile.mockClear();
-    csvRows.value = [];
-    density.value = "comfortable";
-    currentCommanderSlug.value = null;
-    commanderUrl.value = null;
-  });
-
-  it("renders the selection stage immediately when no commander is selected", async () => {
-    const wrapper = mountComponent();
-    await flushPromises();
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
-    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(false);
-    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(false);
-  });
-
-  it("opens the CSV modal from the landing selection stage", async () => {
-    const wrapper = mountComponent();
-    await flushPromises();
-    await wrapper.vm.$nextTick();
-
-    await wrapper.find(".selection-upload-trigger").trigger("click");
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.find(".csv-modal-stub").exists()).toBe(true);
-  });
-
-  it("downloads decklist when export is available", async () => {
-    const wrapper = mountComponent();
-    const payload = {
-      text: "1 Sol Ring",
-      filterLabel: "Owned cards",
-      sections: [],
+    hasCommander.value = false;
+    hasCsvData.value = false;
+    csvCount.value = 0;
+    controlPanelOpen.value = false;
+    decklistExport.value = null;
+    decklistCopied.value = false;
+    commanderSelection.value = {
+      primary: "",
+      partner: "",
+      hasPartner: false,
     };
-    (
-      wrapper.vm as { handleDecklistUpdate: (payload: typeof payload) => void }
-    ).handleDecklistUpdate(payload);
-    (
-      wrapper.vm as {
-        downloadDecklistFromHeader: () => void;
-      }
-    ).downloadDecklistFromHeader();
-    expect(downloadTextFile).toHaveBeenCalledWith("1 Sol Ring", "commander-scout-owned-cards.txt");
+    openUploadModal.mockClear();
+    clearUploadedCollection.mockClear();
+    openControlPanel.mockClear();
+    closeControlPanel.mockClear();
+    handleDecklistUpdate.mockClear();
+    handleSelectionChange.mockClear();
+    copyDecklistFromHeader.mockClear();
+    downloadDecklistFromHeader.mockClear();
+    showNextCommanderPrinting.mockClear();
+    showPreviousCommanderPrinting.mockClear();
+    setOwnedFilter.mockClear();
   });
 
-  it("renders the selection stage after a CSV is loaded but before commander selection", async () => {
+  it("renders the selection stage when no commander is active", async () => {
     const wrapper = mountComponent();
-    csvRows.value = [["Sol Ring"]];
     await flushPromises();
-    await wrapper.vm.$nextTick();
 
     expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
-    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(false);
     expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(false);
   });
 
-  it("renders the comparison workspace shell after commander selection", async () => {
+  it("keeps the selection stage visible when a CSV is loaded but no commander is selected", async () => {
+    hasCsvData.value = true;
+    csvCount.value = 42;
+
     const wrapper = mountComponent();
     await flushPromises();
 
-    (
-      wrapper.vm as {
-        handleSelectionChange: (payload: {
-          primary: string;
-          partner: string;
-          hasPartner: boolean;
-        }) => void;
-      }
-    ).handleSelectionChange({
+    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(false);
+  });
+
+  it("delegates upload actions from the selection stage to dashboard state", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get(".selection-upload-trigger").trigger("click");
+
+    expect(openUploadModal).toHaveBeenCalledTimes(1);
+  });
+
+  it("delegates selection changes from the onboarding stage to dashboard state", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get(".selection-change-trigger").trigger("click");
+
+    expect(handleSelectionChange).toHaveBeenCalledWith({
       primary: "Atraxa, Grand Unifier",
       partner: "",
       hasPartner: false,
     });
-    await wrapper.vm.$nextTick();
-
-    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(true);
-    expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);
-    expect(wrapper.find(".top-commander-scan-stub").exists()).toBe(true);
-    expect(wrapper.find(".site-notice-stub").exists()).toBe(true);
   });
 
-  it("renders the comparison workspace shell from a commander route", async () => {
-    currentCommanderSlug.value = "atraxa-grand-unifier";
+  it("renders the workspace when a commander is active", async () => {
+    hasCommander.value = true;
+    commanderSelection.value = {
+      primary: "Atraxa, Grand Unifier",
+      partner: "",
+      hasPartner: false,
+    };
 
     const wrapper = mountComponent();
     await flushPromises();
-    await wrapper.vm.$nextTick();
 
-    expect(wrapper.find(".dashboard-masthead-stub").exists()).toBe(true);
-    expect(wrapper.find(".dashboard-toolbar-stub").exists()).toBe(true);
+    expect(wrapper.find(".dashboard-selection-stage-stub").exists()).toBe(false);
     expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);
+  });
+
+  it("delegates workspace toolbar actions to dashboard state", async () => {
+    hasCommander.value = true;
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get(".workspace-controls-trigger").trigger("click");
+    await wrapper.get(".workspace-close-trigger").trigger("click");
+    await wrapper.get(".workspace-upload-trigger").trigger("click");
+    await wrapper.get(".workspace-copy-trigger").trigger("click");
+    await wrapper.get(".workspace-download-trigger").trigger("click");
+    await wrapper.get(".workspace-decklist-trigger").trigger("click");
+
+    expect(openControlPanel).toHaveBeenCalledTimes(1);
+    expect(closeControlPanel).toHaveBeenCalledTimes(1);
+    expect(openUploadModal).toHaveBeenCalledTimes(1);
+    expect(copyDecklistFromHeader).toHaveBeenCalledTimes(1);
+    expect(downloadDecklistFromHeader).toHaveBeenCalledTimes(1);
+    expect(handleDecklistUpdate).toHaveBeenCalledWith({ text: "1 Sol Ring" });
   });
 });

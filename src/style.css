@@ -16,13 +16,13 @@
     --border: #ccb9a0;
     --text: #211913;
     --muted: #695c4d;
-    --accent: #156e68;
-    --accent-strong: #0c534f;
+    --accent: #6e1558;
+    --accent-strong: #510c53;
     --accent-soft: #d7ece8;
     --accent-contrast: #fefbf7;
     --accent-glow: rgba(21, 110, 104, 0.14);
     --accent-glow-strong: rgba(21, 110, 104, 0.2);
-    --tier-blue: #3a7ba8;
+    --tier-blue: #963aa8;
     --tier-blue-soft: rgba(58, 123, 168, 0.18);
     --tier-green: #2f8f5b;
     --tier-green-soft: rgba(47, 143, 91, 0.18);
@@ -326,6 +326,58 @@
       color-mix(in srgb, var(--surface-muted) 82%, transparent)
     );
     box-shadow: var(--shadow-soft);
+  }
+
+  .dashboard-control-panel-shell {
+    display: flex;
+    max-height: calc(100vh - 7.25rem);
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-strong) 90%, transparent),
+        color-mix(in srgb, var(--surface) 96%, transparent)
+      ),
+      radial-gradient(circle at top right, var(--accent-glow), transparent 34%);
+  }
+
+  .dashboard-control-panel-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.15rem;
+    scrollbar-width: thin;
+  }
+
+  .dashboard-control-panel-section + .dashboard-control-panel-section {
+    border-top: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+    padding-top: 1.25rem;
+  }
+
+  .dashboard-control-panel-footer {
+    border-top: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 95%, transparent),
+      color-mix(in srgb, var(--surface-muted) 88%, transparent)
+    );
+    padding: 1rem 1.15rem 1.15rem;
+  }
+
+  .dashboard-control-view-option {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-radius: 1.15rem;
+    border: 1px solid var(--border);
+    padding: 0.85rem 0.95rem;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
   }
 
   #app {
