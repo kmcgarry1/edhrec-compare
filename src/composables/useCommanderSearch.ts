@@ -92,11 +92,14 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
 
   const primarySelection = ref("");
   const partnerSelection = ref("");
+  const hasPartner = ref(false);
   const partnerDisabled = computed(() => !primarySelection.value);
-  const hasPartner = computed(() => Boolean(partnerSelection.value));
 
   const currentSlug = computed(() =>
-    buildCommanderSlug(primarySelection.value, partnerSelection.value)
+    buildCommanderSlug(
+      primarySelection.value,
+      hasPartner.value ? partnerSelection.value : ""
+    )
   );
 
   const primaryManaCost = ref("");
@@ -104,13 +107,23 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
   const primaryManaRequestId = ref<symbol | null>(null);
   const partnerManaRequestId = ref<symbol | null>(null);
 
+  const summaryName = computed(() => {
+    if (!primarySelection.value) {
+      return "";
+    }
+    if (hasPartner.value && partnerSelection.value) {
+      return `${primarySelection.value} + ${partnerSelection.value}`;
+    }
+    return primarySelection.value;
+  });
+
   const summaryManaCost = computed(() => {
     if (!primarySelection.value) {
       return "";
     }
     const primaryCost = formatManaCost(primaryManaCost.value);
     const partnerCost = formatManaCost(partnerManaCost.value);
-    if (partnerSelection.value) {
+    if (hasPartner.value && partnerSelection.value) {
       const combined = [primaryCost, partnerCost].filter(Boolean).join(" + ");
       return combined || "...";
     }
@@ -245,14 +258,22 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       }))
   );
 
+  const clearPartnerState = () => {
+    partnerSelection.value = "";
+    partnerQuery.value = "";
+    partnerResults.value = [];
+    partnerError.value = "";
+    partnerManaCost.value = "";
+    partnerManaRequestId.value = null;
+  };
+
   const hydrateFromSlug = (slug: string | null | undefined) => {
     if (!slug) {
       primarySelection.value = "";
       primaryQuery.value = "";
       primaryResults.value = [];
-      partnerSelection.value = "";
-      partnerQuery.value = "";
-      partnerResults.value = [];
+      hasPartner.value = false;
+      clearPartnerState();
       return;
     }
 
@@ -264,9 +285,8 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     primarySelection.value = displayName;
     primaryQuery.value = displayName;
     primaryResults.value = [];
-    partnerSelection.value = "";
-    partnerQuery.value = "";
-    partnerResults.value = [];
+    hasPartner.value = false;
+    clearPartnerState();
   };
 
   const hydrateFromSelection = (selection: CommanderSelection | null | undefined) => {
@@ -278,6 +298,7 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     primaryQuery.value = selection.primary;
     primaryResults.value = [];
     primaryError.value = "";
+    hasPartner.value = Boolean(selection.hasPartner);
     partnerSelection.value = selection.partner || "";
     partnerQuery.value = selection.partner || "";
     partnerResults.value = [];
@@ -311,11 +332,27 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     { immediate: true }
   );
 
-  watch([primarySelection, partnerSelection], () => {
+  watch(hasPartner, (value) => {
+    if (value) {
+      return;
+    }
+    if (
+      partnerSelection.value ||
+      partnerQuery.value ||
+      partnerResults.value.length ||
+      partnerError.value ||
+      partnerManaCost.value
+    ) {
+      clearPartnerState();
+      emitCommanderSelection();
+    }
+  });
+
+  watch([primarySelection, partnerSelection, hasPartner], () => {
     options.onSelectionChange({
       primary: primarySelection.value,
       partner: partnerSelection.value,
-      hasPartner: Boolean(partnerSelection.value),
+      hasPartner: hasPartner.value,
     });
   });
 
@@ -335,14 +372,14 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       primaryQuery.value = name;
       primaryResults.value = [];
       primaryError.value = "";
-      partnerSelection.value = "";
-      partnerQuery.value = "";
-      partnerResults.value = [];
-      partnerError.value = "";
+      hasPartner.value = false;
+      clearPartnerState();
       rememberCommander(name);
     } else {
-      partnerSelection.value = commanderName.trim();
-      partnerQuery.value = commanderName.trim();
+      const name = commanderName.trim();
+      hasPartner.value = true;
+      partnerSelection.value = name;
+      partnerQuery.value = name;
       partnerResults.value = [];
       partnerError.value = "";
     }
@@ -356,15 +393,11 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
       primaryQuery.value = "";
       primaryResults.value = [];
       primaryError.value = "";
-      partnerSelection.value = "";
-      partnerQuery.value = "";
-      partnerResults.value = [];
-      partnerError.value = "";
+      hasPartner.value = false;
+      clearPartnerState();
     } else {
-      partnerSelection.value = "";
-      partnerQuery.value = "";
-      partnerResults.value = [];
-      partnerError.value = "";
+      hasPartner.value = false;
+      clearPartnerState();
     }
 
     emitCommanderSelection();
@@ -397,21 +430,19 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     primaryQuery.value = name;
     primaryResults.value = [];
     primaryError.value = "";
-    partnerSelection.value = "";
-    partnerQuery.value = "";
-    partnerResults.value = [];
-    partnerError.value = "";
+    hasPartner.value = false;
+    clearPartnerState();
     rememberCommander(name);
     emitCommanderSelection();
   };
 
-  const addPartner = () => undefined;
+  const addPartner = () => {
+    hasPartner.value = true;
+  };
 
   const removePartner = () => {
-    partnerSelection.value = "";
-    partnerQuery.value = "";
-    partnerResults.value = [];
-    partnerError.value = "";
+    hasPartner.value = false;
+    clearPartnerState();
     emitCommanderSelection();
   };
 
@@ -420,6 +451,7 @@ export const useCommanderSearch = (options: CommanderSearchOptions) => {
     partnerSelection,
     hasPartner,
     partnerDisabled,
+    summaryName,
     summaryManaCost,
     primaryQuery,
     primaryResults,

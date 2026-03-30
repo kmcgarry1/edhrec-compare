@@ -386,7 +386,8 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     }
 
     resizeObserver = new ResizeObserver(() => {
-      scheduleSectionPositionMeasure();
+      cancelMeasureFrame();
+      measureSectionPositions();
     });
 
     cardlistSections.value.forEach((section) => {

@@ -52,7 +52,12 @@ class MockResizeObserver {
 const createCardlist = (header: string): EdhrecCardlist => ({
   header,
   tag: header.toLowerCase(),
-  cardviews: [],
+  cardviews: [
+    {
+      id: `${header.toLowerCase()}-card`,
+      name: `${header} Card`,
+    },
+  ],
 });
 
 const setScrollY = (value: number) => {
@@ -192,7 +197,7 @@ describe("useEdhrecCardlists", () => {
     expect(spellsRect).not.toHaveBeenCalled();
   });
 
-  it("recomputes cached section positions when observed section sizes change", async () => {
+  it("recomputes cached section positions when layout changes", async () => {
     const cardlists = ref([createCardlist("Creatures"), createCardlist("Spells")]);
     let creaturesTop = 0;
     let spellsTop = 900;
@@ -211,7 +216,7 @@ describe("useEdhrecCardlists", () => {
     expect((wrapper.vm as { activeSectionId: string }).activeSectionId).toBe("creatures");
 
     spellsTop = 640;
-    resizeObserverInstances[0]?.callback([], {} as ResizeObserver);
+    window.dispatchEvent(new Event("resize"));
     await nextTick();
     await flushAnimationFrames();
 
