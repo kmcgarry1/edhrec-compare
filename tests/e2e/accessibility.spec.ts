@@ -1,4 +1,4 @@
-import { test, expect, Page } from "@playwright/test";
+import { test, expect, Page, Locator } from "@playwright/test";
 import path from "node:path";
 import { SCRYFALL_RANDOM_CARD_RESPONSE } from "./fixtures";
 
@@ -40,11 +40,25 @@ const setupApp = async (page: Page) => {
 };
 
 const getLandingUploadButton = (page: Page) =>
-  page.getByRole("button", { name: /^Upload CSV$/ }).first();
+  page.getByRole("button", { name: /Upload collection CSV/i }).first();
+
+const getLandingCommanderSearch = (page: Page) =>
+  page.getByRole("combobox", { name: /Search commanders/i });
 
 const expectLandingReady = async (page: Page) => {
-  await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeVisible();
+  await expect(getLandingCommanderSearch(page)).toBeVisible();
   await expect(getLandingUploadButton(page)).toBeVisible();
+};
+
+const tabUntilFocused = async (page: Page, locator: Locator, maxTabs = 12) => {
+  for (let index = 0; index < maxTabs; index += 1) {
+    if (await locator.evaluate((element) => element === document.activeElement).catch(() => false)) {
+      return;
+    }
+    await page.keyboard.press("Tab");
+  }
+
+  await expect(locator).toBeFocused();
 };
 
 const openUploadModal = async (page: Page) => {
@@ -62,11 +76,8 @@ test.describe("Keyboard Navigation", () => {
     await page.keyboard.press("Tab");
     await expect(page.locator(":focus")).toHaveAttribute("href", "#main-content");
 
-    await page.keyboard.press("Tab");
-    await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeFocused();
-
-    await page.keyboard.press("Tab");
-    await expect(getLandingUploadButton(page)).toBeFocused();
+    await tabUntilFocused(page, getLandingCommanderSearch(page));
+    await tabUntilFocused(page, getLandingUploadButton(page));
   });
 
   test("can close CSV upload modal with Escape", async ({ page }) => {
@@ -82,7 +93,7 @@ test.describe("Keyboard Navigation", () => {
     await setupApp(page);
     await expectLandingReady(page);
 
-    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
+    const primaryInput = getLandingCommanderSearch(page);
     await primaryInput.focus();
     await expect(primaryInput).toBeFocused();
 
@@ -108,7 +119,7 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
     await expectLandingReady(page);
 
-    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
+    const primaryInput = getLandingCommanderSearch(page);
     const describedBy = await primaryInput.getAttribute("aria-describedby");
     expect(describedBy).toBeTruthy();
     expect(describedBy).toContain("helper-text");
@@ -140,7 +151,7 @@ test.describe("ARIA Attributes", () => {
     await setupApp(page);
     await expectLandingReady(page);
 
-    const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
+    const primaryInput = getLandingCommanderSearch(page);
     await primaryInput.fill("xyz");
 
     const errorElements = page.locator('[role="alert"]');

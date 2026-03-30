@@ -2,7 +2,6 @@
   <section
     class="mx-auto flex min-h-screen w-full max-w-[104rem] flex-col px-4 pb-12 pt-4 sm:px-6 lg:px-8 2xl:px-10"
   >
-    <a href="#main-content" class="skip-link">Skip to main content</a>
     <GlobalLoadingBanner />
 
     <main

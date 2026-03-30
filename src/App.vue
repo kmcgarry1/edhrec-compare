@@ -33,6 +33,7 @@ const { uploadModalOpen, closeUploadModal } = useUploadModal();
   <NebulaBackground v-if="backgroundEnabled" />
 
   <div class="relative z-10 min-h-screen">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <AppShellHeader />
     <RouterView />
 

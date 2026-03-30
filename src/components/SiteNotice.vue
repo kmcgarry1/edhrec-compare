@@ -74,7 +74,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from "vue";
-import { Card } from ".";
+import Card from "./Card.vue";
 
 const expanded = ref(false);
 </script>

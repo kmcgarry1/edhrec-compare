@@ -2,8 +2,6 @@
   <section
     class="mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8 2xl:max-w-[90rem] 2xl:px-10"
   >
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-
     <CSurface
       as="header"
       variant="panel"

@@ -149,7 +149,9 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { Card, CardTable, ScryfallCardRow } from ".";
+import Card from "./Card.vue";
+import CardTable from "./CardTable.vue";
+import ScryfallCardRow from "./ScryfallCardRow.vue";
 import { CBadge, CButton, CInline, CStack, CText } from "./core";
 import SkeletonCard from "./SkeletonCard.vue";
 import type { CardTableRow } from "../types/cards";

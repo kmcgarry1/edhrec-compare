@@ -87,9 +87,30 @@ const setupApp = async (page: Page) => {
   await page.goto("/");
 };
 
+const getLandingCommanderSearch = (page: Page) =>
+  page.getByRole("combobox", { name: /Search commanders/i });
+
+const getLandingUploadButton = (page: Page) =>
+  page.getByRole("button", { name: /Upload collection CSV/i }).first();
+
+const ensureDecklistActionsVisible = async (page: Page) => {
+  const copyButton = page.getByTestId("header-copy-decklist");
+  if (await copyButton.isVisible().catch(() => false)) {
+    return copyButton;
+  }
+
+  const controlTrigger = page.getByTestId("dashboard-control-trigger");
+  if (await controlTrigger.isVisible().catch(() => false)) {
+    await controlTrigger.click();
+  }
+
+  await expect(copyButton).toBeVisible({ timeout: 10_000 });
+  return copyButton;
+};
+
 const expectLandingReady = async (page: Page) => {
-  await expect(page.getByRole("textbox", { name: /Search commanders/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Upload CSV$/ }).first()).toBeVisible();
+  await expect(getLandingCommanderSearch(page)).toBeVisible();
+  await expect(getLandingUploadButton(page)).toBeVisible();
 };
 
 test.describe("Landing and CSV upload", () => {
@@ -97,7 +118,7 @@ test.describe("Landing and CSV upload", () => {
     await setupApp(page);
     await expectLandingReady(page);
 
-    await page.getByRole("button", { name: /^Upload CSV$/ }).first().click();
+    await getLandingUploadButton(page).click();
 
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
@@ -118,9 +139,7 @@ test.describe("Commander workflow", () => {
     await selectCommander(page);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
-    await page.getByTestId("dashboard-settings-trigger").click();
-
-    const copyButton = page.getByTestId("header-copy-decklist");
+    const copyButton = await ensureDecklistActionsVisible(page);
     await expect(copyButton).toBeVisible();
     await expect(copyButton).toBeEnabled({ timeout: 10_000 });
     await copyButton.click();
@@ -183,7 +202,7 @@ const selectCommander = async (page: Page) => {
     (response) => response.url().includes("/cards/search"),
     { timeout: 10_000 }
   );
-  const primaryInput = page.getByRole("textbox", { name: /Search commanders/i });
+  const primaryInput = getLandingCommanderSearch(page);
   await expect(primaryInput).toBeVisible();
   await primaryInput.fill("Atraxa");
   await searchResponse;

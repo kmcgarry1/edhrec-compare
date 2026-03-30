@@ -173,7 +173,8 @@ import {
   getCardPrintings,
   type ScryfallCard,
 } from "../api/scryfallApi";
-import { Card, PriceColour } from ".";
+import Card from "./Card.vue";
+import PriceColour from "./PriceColour.vue";
 import {
   CButton,
   CGrid,

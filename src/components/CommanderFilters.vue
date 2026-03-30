@@ -85,7 +85,7 @@ import {
   EDHRECPageModifier,
   EDHRECPageType,
 } from "./helpers/enums";
-import { DropdownSelect } from ".";
+import DropdownSelect from "./DropdownSelect.vue";
 import { toRefs } from "vue";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 
