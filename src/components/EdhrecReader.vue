@@ -66,13 +66,16 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from ".";
 import { CNotice, CSurface, CText } from "./core";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../composables/useEdhrecData";
 import { useEdhrecCardlists } from "../composables/useEdhrecCardlists";
 import { useScryfallCardData } from "../composables/useScryfallCardData";
+import CardlistSection from "./CardlistSection.vue";
+import FloatingCardlistNav from "./FloatingCardlistNav.vue";
+import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
+import EdhrecEmptyState from "./EdhrecEmptyState.vue";
 import EdhrecControls from "./edhrec/EdhrecControls.vue";
 import EdhrecResultsHeader from "./edhrec/EdhrecResultsHeader.vue";
 import type { ColumnDefinition } from "./CardTable.vue";

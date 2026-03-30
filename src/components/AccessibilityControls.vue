@@ -182,7 +182,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Card } from ".";
+import Card from "./Card.vue";
 import {
   textScaleOptions,
   useAccessibilityPreferences,

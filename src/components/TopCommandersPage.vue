@@ -87,7 +87,9 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import { Card, GlobalLoadingBanner, SiteNotice } from ".";
+import Card from "./Card.vue";
+import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
+import SiteNotice from "./SiteNotice.vue";
 import { CGrid, CNotice } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";

@@ -157,15 +157,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
 import Card from "../Card.vue";
+import DecklistExport from "../DecklistExport.vue";
 import DashboardDisplaySettings from "./DashboardDisplaySettings.vue";
 import { CBadge, CButton, CInline, CSurface, CText } from "../core";
 import type { Density } from "../../composables/useLayoutDensity";
 import type { Theme } from "../../composables/useTheme";
 import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard";
-
-const DecklistExport = defineAsyncComponent(() => import("../DecklistExport.vue"));
 
 defineProps<{
   nextStepLabel: string;

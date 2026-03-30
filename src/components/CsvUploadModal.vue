@@ -47,8 +47,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { Card, CSVUpload } from ".";
 import { useFocusTrap } from "../composables/useFocusTrap";
+import Card from "./Card.vue";
+import CSVUpload from "./CSVUpload.vue";
 
 const props = defineProps<{
   open: boolean;
