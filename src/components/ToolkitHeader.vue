@@ -159,7 +159,8 @@ import {
   mdiClose,
 } from "@mdi/js";
 import { computed, defineAsyncComponent } from "vue";
-import { AccessibilityControls, Card } from ".";
+import AccessibilityControls from "./AccessibilityControls.vue";
+import Card from "./Card.vue";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 // Lazy load export component (only needed when decklist is available)
