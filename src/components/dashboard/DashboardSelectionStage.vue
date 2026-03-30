@@ -136,6 +136,12 @@
                 <span class="selection-stage-random-card-name">{{ card.name }}</span>
               </div>
             </button>
+            <div
+              v-for="index in Math.max(0, RANDOM_ART_TARGET - 1 - floatingCards.length)"
+              :key="`floating-card-placeholder-${index}`"
+              class="selection-stage-random-card selection-stage-random-card-placeholder"
+              aria-hidden="true"
+            />
           </div>
         </div>
       </div>
@@ -506,6 +512,7 @@ defineExpose({
 .selection-stage-card-stack {
   display: grid;
   gap: 1rem;
+  min-height: 23rem;
 }
 
 .selection-stage-random-card {
@@ -603,6 +610,23 @@ defineExpose({
   outline-offset: 4px;
 }
 
+.selection-stage-random-card-placeholder {
+  border-color: rgba(155, 182, 188, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+    linear-gradient(135deg, rgba(14, 27, 35, 0.88), rgba(17, 31, 38, 0.78));
+  box-shadow: 0 20px 36px rgba(3, 10, 15, 0.16);
+}
+
+.selection-stage-random-card-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 45%, transparent 100%);
+  transform: translateX(-100%);
+}
+
 .selection-stage-random-card:hover .selection-stage-random-card-sheen,
 .selection-stage-random-card:focus-visible .selection-stage-random-card-sheen {
   background:
@@ -650,6 +674,10 @@ defineExpose({
 
   .selection-stage-halo-amber {
     animation: selection-stage-drift 22s ease-in-out infinite alternate-reverse;
+  }
+
+  .selection-stage-random-card-placeholder::before {
+    animation: selection-stage-placeholder-sheen 2.4s ease-in-out infinite;
   }
 
   .selection-stage-shell-intro .selection-stage-mark,
@@ -719,6 +747,12 @@ defineExpose({
 
   50% {
     transform: translateY(-8px);
+  }
+}
+
+@keyframes selection-stage-placeholder-sheen {
+  100% {
+    transform: translateX(100%);
   }
 }
 </style>
