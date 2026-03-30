@@ -381,12 +381,15 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     };
     window.addEventListener("resize", resizeListener, { passive: true });
 
-    if (typeof ResizeObserver === "undefined") {
+    const ResizeObserverCtor =
+      typeof globalThis !== "undefined" ? globalThis.ResizeObserver : undefined;
+
+    if (!ResizeObserverCtor) {
       return;
     }
 
-    resizeObserver = new ResizeObserver(() => {
-      scheduleSectionPositionMeasure();
+    resizeObserver = new ResizeObserverCtor(() => {
+      measureSectionPositions();
     });
 
     cardlistSections.value.forEach((section) => {

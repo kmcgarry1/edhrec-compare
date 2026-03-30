@@ -52,7 +52,7 @@ class MockResizeObserver {
 const createCardlist = (header: string): EdhrecCardlist => ({
   header,
   tag: header.toLowerCase(),
-  cardviews: [],
+  cardviews: [{ id: `${header.toLowerCase()}-1`, name: `${header} Card` }],
 });
 
 const setScrollY = (value: number) => {
@@ -114,6 +114,7 @@ const flushAnimationFrames = async () => {
 
 describe("useEdhrecCardlists", () => {
   const originalResizeObserver = global.ResizeObserver;
+  const originalWindowResizeObserver = window.ResizeObserver;
   const originalRequestAnimationFrame = window.requestAnimationFrame;
   const originalCancelAnimationFrame = window.cancelAnimationFrame;
 
@@ -124,6 +125,7 @@ describe("useEdhrecCardlists", () => {
     resizeObserverInstances.length = 0;
     frameQueue = [];
     global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
+    window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
     window.requestAnimationFrame = ((callback: FrameRequestCallback) => {
       frameQueue.push(callback);
       return frameQueue.length;
@@ -134,6 +136,7 @@ describe("useEdhrecCardlists", () => {
 
   afterEach(() => {
     global.ResizeObserver = originalResizeObserver;
+    window.ResizeObserver = originalWindowResizeObserver;
     window.requestAnimationFrame = originalRequestAnimationFrame;
     window.cancelAnimationFrame = originalCancelAnimationFrame;
     document.body.innerHTML = "";
@@ -212,6 +215,7 @@ describe("useEdhrecCardlists", () => {
 
     spellsTop = 640;
     resizeObserverInstances[0]?.callback([], {} as ResizeObserver);
+    window.dispatchEvent(new Event("resize"));
     await nextTick();
     await flushAnimationFrames();
 
