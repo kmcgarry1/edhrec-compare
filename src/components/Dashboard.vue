@@ -19,6 +19,7 @@
         :has-csv-data="hasCsvData"
         :csv-count="csvCount"
         @open-upload="openUploadModal"
+        @open-utilities="openUtilityTray"
         @selection-change="handleSelectionChange"
       />
 
@@ -32,30 +33,56 @@
           :canonical-edhrec-href="canonicalEdhrecHref"
           :next-step-label="nextStepLabel"
           :has-csv-data="hasCsvData"
-          :csv-count="csvCount"
           :inventory-summary="inventorySummary"
-          :collection-source-name="collectionSourceName"
-          :collection-imported-at="collectionImportedAt"
-          :collection-mode-label="collectionModeLabel"
-          :collection-mode-hint="collectionModeHint"
           :filter-options="filterOptions"
-          :decklist-text="decklistExport?.text"
-          :decklist-copied="decklistCopied"
-          :export-helper-text="exportHelperText"
           @decklistUpdate="handleDecklistUpdate"
           @selection-change="handleSelectionChange"
           @filter-change="setOwnedFilter"
           @open-control-panel="openControlPanel"
-          @open-upload="openUploadModal"
-          @clear-upload="clearUploadedCollection"
+          @open-utilities="openUtilityTray"
           @previous-printing="showPreviousCommanderPrinting"
           @next-printing="showNextCommanderPrinting"
           @close-control-panel="closeControlPanel"
-          @copy-header-decklist="copyDecklistFromHeader"
-          @download-header-decklist="downloadDecklistFromHeader"
         />
       </template>
     </main>
+
+    <DashboardUtilityTray
+      :open="utilityTrayOpen"
+      :title="
+        hasCommander ? 'Collection, export, and display settings' : 'Collection, scan, and display settings'
+      "
+      :description="
+        hasCommander
+          ? 'Secondary dashboard actions stay here so the compare canvas can stay focused.'
+          : 'Keep search dominant on the landing state while collection tools and scan utilities stay tucked away.'
+      "
+      @close="closeUtilityTray"
+    >
+      <DashboardUtilityContent
+        :has-commander="hasCommander"
+        :has-csv-data="hasCsvData"
+        :inventory-summary="inventorySummary"
+        :collection-mode-label="collectionModeLabel"
+        :collection-mode-hint="collectionModeHint"
+        :collection-source-name="collectionSourceName"
+        :collection-imported-at="collectionImportedAt"
+        :decklist-text="decklistExport?.text"
+        :decklist-copied="decklistCopied"
+        :export-helper-text="exportHelperText"
+        :density="density"
+        :density-options="densityOptions"
+        :theme="theme"
+        :background-enabled="backgroundEnabled"
+        @open-upload="openUploadModal"
+        @clear-upload="clearUploadedCollection"
+        @copy-decklist="copyDecklistFromHeader"
+        @download-decklist="downloadDecklistFromHeader"
+        @density-change="setDensity"
+        @toggle-theme="toggleTheme"
+        @toggle-background="toggleBackground"
+      />
+    </DashboardUtilityTray>
   </section>
 </template>
 
@@ -63,6 +90,8 @@
 import { defineAsyncComponent } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import DashboardSelectionStage from "./dashboard/DashboardSelectionStage.vue";
+import DashboardUtilityContent from "./dashboard/DashboardUtilityContent.vue";
+import DashboardUtilityTray from "./dashboard/DashboardUtilityTray.vue";
 import { useDashboardState } from "../composables/useDashboardState";
 
 const DashboardWorkspace = defineAsyncComponent(() => import("./dashboard/DashboardWorkspace.vue"));
@@ -70,7 +99,9 @@ const DashboardWorkspace = defineAsyncComponent(() => import("./dashboard/Dashbo
 const {
   decklistExport,
   decklistCopied,
+  mainContentRef,
   controlPanelOpen,
+  utilityTrayOpen,
   commanderSelection,
   commanderProfiles,
   commanderSpotlightLoading,
@@ -80,6 +111,13 @@ const {
   hasCsvData,
   csvCount,
   inventorySummary,
+  theme,
+  toggleTheme,
+  backgroundEnabled,
+  toggleBackground,
+  density,
+  setDensity,
+  densityOptions,
   collectionModeLabel,
   collectionModeHint,
   collectionSourceName,
@@ -91,6 +129,8 @@ const {
   clearUploadedCollection,
   openControlPanel,
   closeControlPanel,
+  openUtilityTray,
+  closeUtilityTray,
   handleDecklistUpdate,
   handleSelectionChange,
   copyDecklistFromHeader,

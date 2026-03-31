@@ -78,6 +78,7 @@ export const useDashboardState = () => {
   const decklistCopied = ref(false);
   const mainContentRef = ref<HTMLElement | null>(null);
   const controlPanelOpen = ref(false);
+  const utilityTrayOpen = ref(false);
   const commanderSelection = ref<CommanderSelection>({
     primary: "",
     partner: "",
@@ -189,6 +190,7 @@ export const useDashboardState = () => {
 
   const openUploadModal = () => {
     controlPanelOpen.value = false;
+    utilityTrayOpen.value = false;
     openGlobalUploadModal();
     focusWorkspace();
   };
@@ -196,10 +198,12 @@ export const useDashboardState = () => {
   const clearUploadedCollection = () => {
     clearCsvData();
     controlPanelOpen.value = false;
+    utilityTrayOpen.value = false;
     focusWorkspace();
   };
 
   const openControlPanel = () => {
+    utilityTrayOpen.value = false;
     controlPanelOpen.value = true;
     focusWorkspace();
   };
@@ -209,8 +213,27 @@ export const useDashboardState = () => {
   };
 
   const toggleControlPanel = () => {
+    utilityTrayOpen.value = false;
     controlPanelOpen.value = !controlPanelOpen.value;
     if (controlPanelOpen.value) {
+      focusWorkspace();
+    }
+  };
+
+  const openUtilityTray = () => {
+    controlPanelOpen.value = false;
+    utilityTrayOpen.value = true;
+    focusWorkspace();
+  };
+
+  const closeUtilityTray = () => {
+    utilityTrayOpen.value = false;
+  };
+
+  const toggleUtilityTray = () => {
+    controlPanelOpen.value = false;
+    utilityTrayOpen.value = !utilityTrayOpen.value;
+    if (utilityTrayOpen.value) {
       focusWorkspace();
     }
   };
@@ -349,6 +372,7 @@ export const useDashboardState = () => {
     decklistCopied,
     mainContentRef,
     controlPanelOpen,
+    utilityTrayOpen,
     commanderSelection,
     commanderProfiles,
     commanderSpotlightLoading,
@@ -373,6 +397,9 @@ export const useDashboardState = () => {
     openControlPanel,
     closeControlPanel,
     toggleControlPanel,
+    openUtilityTray,
+    closeUtilityTray,
+    toggleUtilityTray,
     browseRailOpen: controlPanelOpen,
     openBrowseRail: openControlPanel,
     closeBrowseRail: closeControlPanel,

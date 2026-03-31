@@ -43,8 +43,8 @@ Reference docs:
 
 ## Route checks
 
-- Dashboard selection stage still reads as masthead + command/utility support shells.
-- Commander-selected dashboard still renders command masthead, workflow rail, content well, and nearby export utility in the expected sequence.
+- Dashboard selection stage still reads as a masthead-led search canvas, with collection/status utilities moved behind the tray trigger.
+- Commander-selected dashboard still renders compact command masthead, workflow rail, dominant content well, and utility tray access in the expected sequence.
 - EDHREC route still loads commander data, error states, and card list sections.
 - Top commanders route still separates masthead, command deck, utility support, and content well without flattening the hierarchy.
 - CSV upload still accepts valid files, rejects invalid files, and loads the sample inventory.

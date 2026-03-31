@@ -206,27 +206,19 @@ const mountComponent = () =>
       canonicalEdhrecHref: "https://edhrec.com/commanders/atraxa-grand-unifier",
       nextStepLabel: "Decklist ready to export.",
       hasCsvData: true,
-      csvCount: 42,
       inventorySummary: "42 cards loaded. Deck view now reflects your collection.",
-      collectionSourceName: "collection.csv",
-      collectionImportedAt: new Date("2026-03-30T12:00:00Z"),
-      collectionModeLabel: "Commander compare",
-      collectionModeHint: "This upload is active for owned and missing deck views.",
       filterOptions: [
         { label: "Owned", value: true, active: true },
         { label: "Missing", value: false, active: false },
         { label: "All cards", value: null, active: false },
       ],
-      decklistText: "1 Sol Ring",
-      decklistCopied: false,
-      exportHelperText: "Copy or download the filtered decklist for your deck builder.",
     },
     global: {
       stubs: {
         DashboardBrowseRail: DashboardBrowseRailStub,
         DashboardCommanderMasthead: {
           template:
-            "<header class='masthead-stub'><button class='masthead-open' @click=\"$emit('open-controls')\">Open</button><button class='masthead-change' @click=\"$emit('change-commander')\">Change</button></header>",
+            "<header class='masthead-stub'><button class='masthead-open' @click=\"$emit('open-controls')\">Open</button><button class='masthead-utilities' @click=\"$emit('open-utilities')\">Utilities</button><button class='masthead-change' @click=\"$emit('change-commander')\">Change</button></header>",
         },
         CardlistSection: {
           template:
@@ -273,24 +265,25 @@ describe("DashboardWorkspace", () => {
     allSectionsExpanded.value = false;
   });
 
-  it("renders the browse rail shell, content well, and export utility cluster", async () => {
+  it("renders the browse rail shell, compact masthead, and content canvas", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
     expect(wrapper.find(".browse-rail-stub").exists()).toBe(true);
     expect(wrapper.find(".masthead-stub").exists()).toBe(true);
     expect(wrapper.find(".surface-role-content").exists()).toBe(true);
-    expect(wrapper.find(".surface-role-utility").exists()).toBe(true);
-    expect(wrapper.get("[data-testid='header-copy-decklist']").exists()).toBe(true);
-    expect(wrapper.get("[data-testid='header-download-decklist']").exists()).toBe(true);
+    expect(wrapper.text()).toContain("utilities tray");
+    expect(wrapper.find("[data-testid='header-copy-decklist']").exists()).toBe(false);
+    expect(wrapper.find("[data-testid='header-download-decklist']").exists()).toBe(false);
     expect(wrapper.emitted("decklistUpdate")?.[0]?.[0]).toEqual(decklistPayload.value);
   });
 
-  it("delegates rail, masthead, section, and export actions correctly", async () => {
+  it("delegates rail, masthead, and section actions correctly", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
     await wrapper.get(".masthead-open").trigger("click");
+    await wrapper.get(".masthead-utilities").trigger("click");
     await wrapper.get(".masthead-change").trigger("click");
     await wrapper.get(".browse-rail-close").trigger("click");
     await wrapper.get(".browse-rail-filter").trigger("click");
@@ -300,10 +293,9 @@ describe("DashboardWorkspace", () => {
     await wrapper.get(".section-toggle").trigger("click");
     await wrapper.get(".section-copy").trigger("click");
     await wrapper.get(".section-download").trigger("click");
-    await wrapper.get("[data-testid='header-copy-decklist']").trigger("click");
-    await wrapper.get("[data-testid='header-download-decklist']").trigger("click");
 
     expect(wrapper.emitted("open-control-panel")).toBeTruthy();
+    expect(wrapper.emitted("open-utilities")).toBeTruthy();
     expect(wrapper.emitted("close-control-panel")).toBeTruthy();
     expect(wrapper.emitted("filter-change")?.[0]).toEqual([true]);
     expect(wrapper.emitted("selection-change")?.[0]).toEqual([
@@ -313,8 +305,6 @@ describe("DashboardWorkspace", () => {
         hasPartner: false,
       },
     ]);
-    expect(wrapper.emitted("copy-header-decklist")).toBeTruthy();
-    expect(wrapper.emitted("download-header-decklist")).toBeTruthy();
     expect(setCommanderSlug).toHaveBeenCalledWith("edgar-markov");
     expect(scrollToSection).toHaveBeenCalledWith("new-cards");
     expect(toggleSection).toHaveBeenCalledWith("new-cards");

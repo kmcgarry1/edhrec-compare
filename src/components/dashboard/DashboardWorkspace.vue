@@ -35,7 +35,7 @@
       @update:companion="setCompanion"
     />
 
-    <div class="min-w-0 space-y-4">
+    <div class="min-w-0 space-y-3">
       <DashboardCommanderMasthead
         :commander-selection="commanderSelection"
         :commander-profiles="commanderProfiles"
@@ -46,12 +46,13 @@
         :status-items="mastheadStatusItems"
         @change-commander="focusCommanderEditor"
         @open-controls="emit('open-control-panel')"
+        @open-utilities="emit('open-utilities')"
         @previous-printing="emit('previous-printing', $event)"
         @next-printing="emit('next-printing', $event)"
       />
 
       <CSurface variant="content" size="sm" radius="3xl" class="space-y-4">
-        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] xl:items-start">
+        <div class="space-y-3 border-b border-[color:var(--border)] pb-4">
           <EdhrecResultsHeader
             :list-count="cardlistSections.length"
             :total-section-count="totalSectionCount"
@@ -62,40 +63,10 @@
             @toggle-expand-all="handleToggleExpandAll"
           />
 
-          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
-            <div class="flex flex-wrap items-center gap-2">
-              <CText tag="p" variant="eyebrow" tone="muted"> Route finish </CText>
-              <CBadge
-                :tone="decklistReady ? 'accent' : 'muted'"
-                variant="soft"
-                size="sm"
-                text-case="normal"
-              >
-                {{ decklistReady ? "Decklist ready" : "Awaiting results" }}
-              </CBadge>
-              <CBadge tone="muted" variant="outline" size="sm" text-case="normal">
-                {{ collectionModeLabel }}
-              </CBadge>
-            </div>
-
-            <div class="space-y-1">
-              <CText tag="p" variant="title">Finish with your filtered list</CText>
-              <CText tag="p" variant="helper" tone="muted">
-                {{ exportHelperText }}
-              </CText>
-            </div>
-
-            <CText tag="p" variant="helper" tone="muted">
-              {{ collectionSourceSummary }}
-            </CText>
-
-            <DecklistExport
-              :disabled="!decklistReady"
-              :copied="decklistCopied"
-              @copy="emit('copy-header-decklist')"
-              @download="emit('download-header-decklist')"
-            />
-          </CSurface>
+          <CText tag="p" variant="helper" tone="muted" class="max-w-3xl">
+            Keep filters and section jumps in the workbench, then finish exports and collection
+            actions from the utilities tray.
+          </CText>
         </div>
 
         <FloatingCardlistNav
@@ -152,9 +123,8 @@
 import { computed, ref, watchEffect } from "vue";
 import DashboardBrowseRail from "./DashboardBrowseRail.vue";
 import DashboardCommanderMasthead from "./DashboardCommanderMasthead.vue";
-import DecklistExport from "../DecklistExport.vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
-import { CBadge, CNotice, CSurface, CText } from "../core";
+import { CNotice, CSurface, CText } from "../core";
 import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "../helpers/enums";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../../composables/useEdhrecData";
@@ -175,16 +145,8 @@ const props = defineProps<{
   canonicalEdhrecHref?: string | null;
   nextStepLabel: string;
   hasCsvData: boolean;
-  csvCount: number;
   inventorySummary: string;
-  collectionSourceName?: string | null;
-  collectionImportedAt?: Date | null;
-  collectionModeLabel: string;
-  collectionModeHint: string;
   filterOptions: OwnedFilterOption[];
-  decklistText?: string | null;
-  decklistCopied: boolean;
-  exportHelperText: string;
 }>();
 
 const emit = defineEmits<{
@@ -192,13 +154,10 @@ const emit = defineEmits<{
   "selection-change": [payload: CommanderSelection];
   "close-control-panel": [];
   "open-control-panel": [];
-  "open-upload": [];
-  "clear-upload": [];
+  "open-utilities": [];
   "filter-change": [value: OwnedFilterValue];
   "previous-printing": [index: number];
   "next-printing": [index: number];
-  "copy-header-decklist": [];
-  "download-header-decklist": [];
 }>();
 
 const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
@@ -258,37 +217,6 @@ const ownershipSummary = computed(() => {
     return `Showing ${deckFilterLabel.value.toLowerCase()}.`;
   }
   return `Showing ${deckFilterLabel.value.toLowerCase()} across ${cardlistEntries.value.length} active section${cardlistEntries.value.length === 1 ? "" : "s"}.`;
-});
-const decklistReady = computed(() => Boolean(props.decklistText));
-const collectionSourceSummary = computed(() => {
-  if (!props.hasCsvData) {
-    return props.collectionModeHint;
-  }
-
-  const parts: string[] = [];
-  if (props.collectionSourceName) {
-    parts.push(props.collectionSourceName);
-  }
-  if (props.collectionImportedAt) {
-    try {
-      parts.push(
-        `loaded ${new Intl.DateTimeFormat(undefined, {
-          month: "short",
-          day: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-        }).format(props.collectionImportedAt)}`
-      );
-    } catch {
-      parts.push(`loaded ${String(props.collectionImportedAt)}`);
-    }
-  }
-
-  if (!parts.length) {
-    return props.collectionModeHint;
-  }
-
-  return `${parts.join(" ")}.`;
 });
 
 const deckViewFilterOptions = computed(() =>

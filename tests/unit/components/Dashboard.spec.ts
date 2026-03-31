@@ -7,8 +7,10 @@ const hasCommander = ref(false);
 const hasCsvData = ref(false);
 const csvCount = ref(0);
 const controlPanelOpen = ref(false);
+const utilityTrayOpen = ref(false);
 const decklistExport = ref<{ text: string } | null>(null);
 const decklistCopied = ref(false);
+const mainContentRef = ref<HTMLElement | null>(null);
 const commanderSelection = ref({
   primary: "",
   partner: "",
@@ -19,6 +21,8 @@ const openUploadModal = vi.fn();
 const clearUploadedCollection = vi.fn();
 const openControlPanel = vi.fn();
 const closeControlPanel = vi.fn();
+const openUtilityTray = vi.fn();
+const closeUtilityTray = vi.fn();
 const handleDecklistUpdate = vi.fn();
 const handleSelectionChange = vi.fn();
 const copyDecklistFromHeader = vi.fn();
@@ -26,12 +30,17 @@ const downloadDecklistFromHeader = vi.fn();
 const showNextCommanderPrinting = vi.fn();
 const showPreviousCommanderPrinting = vi.fn();
 const setOwnedFilter = vi.fn();
+const toggleTheme = vi.fn();
+const toggleBackground = vi.fn();
+const setDensity = vi.fn();
 
 vi.mock("../../../src/composables/useDashboardState", () => ({
   useDashboardState: () => ({
     decklistExport,
     decklistCopied,
+    mainContentRef,
     controlPanelOpen,
+    utilityTrayOpen,
     commanderSelection,
     commanderProfiles: ref([]),
     commanderSpotlightLoading: ref(false),
@@ -41,6 +50,17 @@ vi.mock("../../../src/composables/useDashboardState", () => ({
     hasCsvData,
     csvCount,
     inventorySummary: ref("Collection ready."),
+    theme: ref("dark"),
+    toggleTheme,
+    backgroundEnabled: ref(true),
+    toggleBackground,
+    density: ref("comfortable"),
+    setDensity,
+    densityOptions: ref([
+      { value: "comfortable", label: "Comfortable" },
+      { value: "cozy", label: "Cozy" },
+      { value: "compact", label: "Compact" },
+    ]),
     collectionModeLabel: ref("Commander compare"),
     collectionModeHint: ref("Collection ready for compare."),
     collectionSourceName: ref("collection.csv"),
@@ -56,6 +76,8 @@ vi.mock("../../../src/composables/useDashboardState", () => ({
     clearUploadedCollection,
     openControlPanel,
     closeControlPanel,
+    openUtilityTray,
+    closeUtilityTray,
     handleDecklistUpdate,
     handleSelectionChange,
     copyDecklistFromHeader,
@@ -72,11 +94,11 @@ const mountComponent = () =>
       stubs: {
         DashboardSelectionStage: {
           template:
-            "<section class='dashboard-selection-stage-stub'><button class='selection-upload-trigger' @click=\"$emit('open-upload')\">Upload</button><button class='selection-change-trigger' @click=\"$emit('selection-change', { primary: 'Atraxa, Grand Unifier', partner: '', hasPartner: false })\">Select</button></section>",
+            "<section class='dashboard-selection-stage-stub'><button class='selection-upload-trigger' @click=\"$emit('open-upload')\">Upload</button><button class='selection-utility-trigger' @click=\"$emit('open-utilities')\">Utilities</button><button class='selection-change-trigger' @click=\"$emit('selection-change', { primary: 'Atraxa, Grand Unifier', partner: '', hasPartner: false })\">Select</button></section>",
         },
         DashboardWorkspace: {
           template:
-            "<section class='dashboard-workspace-stub'><button class='workspace-controls-trigger' @click=\"$emit('open-control-panel')\">Controls</button><button class='workspace-close-trigger' @click=\"$emit('close-control-panel')\">Close</button><button class='workspace-upload-trigger' @click=\"$emit('open-upload')\">Upload</button><button class='workspace-copy-trigger' @click=\"$emit('copy-header-decklist')\">Copy</button><button class='workspace-download-trigger' @click=\"$emit('download-header-decklist')\">Download</button><button class='workspace-decklist-trigger' @click=\"$emit('decklistUpdate', { text: '1 Sol Ring' })\">Decklist</button></section>",
+            "<section class='dashboard-workspace-stub'><button class='workspace-controls-trigger' @click=\"$emit('open-control-panel')\">Controls</button><button class='workspace-close-trigger' @click=\"$emit('close-control-panel')\">Close</button><button class='workspace-utility-trigger' @click=\"$emit('open-utilities')\">Utilities</button><button class='workspace-decklist-trigger' @click=\"$emit('decklistUpdate', { text: '1 Sol Ring' })\">Decklist</button></section>",
           props: [
             "controlPanelOpen",
             "commanderSelection",
@@ -86,17 +108,17 @@ const mountComponent = () =>
             "canonicalEdhrecHref",
             "nextStepLabel",
             "hasCsvData",
-            "csvCount",
             "inventorySummary",
-            "collectionSourceName",
-            "collectionImportedAt",
-            "collectionModeLabel",
-            "collectionModeHint",
             "filterOptions",
-            "decklistText",
-            "decklistCopied",
-            "exportHelperText",
           ],
+        },
+        DashboardUtilityTray: {
+          template:
+            "<aside class='dashboard-utility-tray-stub'><button class='tray-close-trigger' @click=\"$emit('close')\">Close Tray</button><slot /></aside>",
+          props: ["open", "title", "description"],
+        },
+        DashboardUtilityContent: {
+          template: "<div class='dashboard-utility-content-stub'></div>",
         },
         GlobalLoadingBanner: { template: "<div class='banner-stub'></div>" },
       },
@@ -109,6 +131,7 @@ describe("Dashboard", () => {
     hasCsvData.value = false;
     csvCount.value = 0;
     controlPanelOpen.value = false;
+    utilityTrayOpen.value = false;
     decklistExport.value = null;
     decklistCopied.value = false;
     commanderSelection.value = {
@@ -120,6 +143,8 @@ describe("Dashboard", () => {
     clearUploadedCollection.mockClear();
     openControlPanel.mockClear();
     closeControlPanel.mockClear();
+    openUtilityTray.mockClear();
+    closeUtilityTray.mockClear();
     handleDecklistUpdate.mockClear();
     handleSelectionChange.mockClear();
     copyDecklistFromHeader.mockClear();
@@ -127,6 +152,9 @@ describe("Dashboard", () => {
     showNextCommanderPrinting.mockClear();
     showPreviousCommanderPrinting.mockClear();
     setOwnedFilter.mockClear();
+    toggleTheme.mockClear();
+    toggleBackground.mockClear();
+    setDensity.mockClear();
   });
 
   it("renders the selection stage when no commander is active", async () => {
@@ -157,6 +185,15 @@ describe("Dashboard", () => {
     expect(openUploadModal).toHaveBeenCalledTimes(1);
   });
 
+  it("opens the shared utility tray from the selection stage", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get(".selection-utility-trigger").trigger("click");
+
+    expect(openUtilityTray).toHaveBeenCalledTimes(1);
+  });
+
   it("delegates selection changes from the onboarding stage to dashboard state", async () => {
     const wrapper = mountComponent();
     await flushPromises();
@@ -185,23 +222,28 @@ describe("Dashboard", () => {
     expect(wrapper.find(".dashboard-workspace-stub").exists()).toBe(true);
   });
 
-  it("delegates workspace toolbar actions to dashboard state", async () => {
+  it("delegates workspace shell actions to dashboard state", async () => {
     hasCommander.value = true;
     const wrapper = mountComponent();
     await flushPromises();
 
     await wrapper.get(".workspace-controls-trigger").trigger("click");
     await wrapper.get(".workspace-close-trigger").trigger("click");
-    await wrapper.get(".workspace-upload-trigger").trigger("click");
-    await wrapper.get(".workspace-copy-trigger").trigger("click");
-    await wrapper.get(".workspace-download-trigger").trigger("click");
+    await wrapper.get(".workspace-utility-trigger").trigger("click");
     await wrapper.get(".workspace-decklist-trigger").trigger("click");
 
     expect(openControlPanel).toHaveBeenCalledTimes(1);
     expect(closeControlPanel).toHaveBeenCalledTimes(1);
-    expect(openUploadModal).toHaveBeenCalledTimes(1);
-    expect(copyDecklistFromHeader).toHaveBeenCalledTimes(1);
-    expect(downloadDecklistFromHeader).toHaveBeenCalledTimes(1);
+    expect(openUtilityTray).toHaveBeenCalledTimes(1);
     expect(handleDecklistUpdate).toHaveBeenCalledWith({ text: "1 Sol Ring" });
+  });
+
+  it("delegates utility tray close actions to dashboard state", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get(".tray-close-trigger").trigger("click");
+
+    expect(closeUtilityTray).toHaveBeenCalledTimes(1);
   });
 });

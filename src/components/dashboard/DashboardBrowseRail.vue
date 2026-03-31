@@ -1,15 +1,15 @@
 <template>
   <aside v-if="!isMobileViewport" class="xl:sticky xl:top-24">
-    <div class="space-y-3">
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+    <CSurface variant="rail" size="sm" radius="3xl" class="space-y-5">
+      <div class="space-y-2">
         <CText tag="p" variant="eyebrow" tone="muted"> Commander workbench </CText>
         <CText tag="p" variant="body" tone="muted">
           Keep search first, refine the route, and jump through sections without leaving the
           comparison flow.
         </CText>
-      </CSurface>
+      </div>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -37,9 +37,9 @@
             @selection-change="handleSelectionChange"
           />
         </div>
-      </CSurface>
+      </section>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -109,9 +109,9 @@
             @update:companion="emit('update:companion', $event)"
           />
         </div>
-      </CSurface>
+      </section>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -163,8 +163,8 @@
             </button>
           </div>
         </div>
-      </CSurface>
-    </div>
+      </section>
+    </CSurface>
   </aside>
 
   <Teleport to="body">

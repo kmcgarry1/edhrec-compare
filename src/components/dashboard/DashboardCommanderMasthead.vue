@@ -56,6 +56,15 @@
             Open workbench
           </CButton>
           <CButton
+            type="button"
+            variant="soft"
+            size="sm"
+            data-testid="dashboard-utility-trigger"
+            @click="emit('open-utilities')"
+          >
+            Utilities
+          </CButton>
+          <CButton
             v-if="canonicalEdhrecHref"
             as="a"
             :href="canonicalEdhrecHref"
@@ -246,6 +255,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   "open-controls": [];
+  "open-utilities": [];
   "change-commander": [];
   "previous-printing": [index: number];
   "next-printing": [index: number];

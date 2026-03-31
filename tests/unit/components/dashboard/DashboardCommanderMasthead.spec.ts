@@ -60,6 +60,7 @@ describe("DashboardCommanderMasthead", () => {
     expect(wrapper.text()).toContain("EUR 40.00");
     expect(wrapper.text()).toContain("Change commander");
     expect(wrapper.text()).toContain("Open workbench");
+    expect(wrapper.text()).toContain("Utilities");
     expect(wrapper.text()).toContain("Printings (2)");
     expect(wrapper.text()).not.toContain("Printing 1 of 2");
 
@@ -71,6 +72,7 @@ describe("DashboardCommanderMasthead", () => {
       .find((button) => button.text().includes("Change commander"))
       ?.trigger("click");
     await wrapper.get('[data-testid="dashboard-control-trigger"]').trigger("click");
+    await wrapper.get('[data-testid="dashboard-utility-trigger"]').trigger("click");
     await wrapper
       .findAll("button")
       .find((button) => button.text().includes("Printings (2)"))
@@ -78,6 +80,7 @@ describe("DashboardCommanderMasthead", () => {
 
     expect(wrapper.emitted("change-commander")?.[0]).toEqual([]);
     expect(wrapper.emitted("open-controls")?.[0]).toEqual([]);
+    expect(wrapper.emitted("open-utilities")?.[0]).toEqual([]);
     expect(wrapper.text()).toContain("Printing 1 of 2");
 
     const buttons = wrapper.findAll("button");

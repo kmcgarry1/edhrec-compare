@@ -99,9 +99,9 @@ const ensureDecklistActionsVisible = async (page: Page) => {
     return copyButton;
   }
 
-  const controlTrigger = page.getByTestId("dashboard-control-trigger");
-  if (await controlTrigger.isVisible().catch(() => false)) {
-    await controlTrigger.click();
+  const utilityTrigger = page.getByTestId("dashboard-utility-trigger");
+  if (await utilityTrigger.isVisible().catch(() => false)) {
+    await utilityTrigger.click();
   }
 
   await expect(copyButton).toBeVisible({ timeout: 10_000 });
@@ -156,6 +156,27 @@ test.describe("Commander workflow", () => {
 
 test.describe("Mobile card modal", () => {
   test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps browse controls and utilities in separate mobile sheets", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");
+    await setupApp(page);
+    await expectLandingReady(page);
+
+    await selectCommander(page);
+
+    await page.getByTestId("dashboard-control-trigger").click();
+    const browseSheet = page.getByTestId("dashboard-browse-sheet");
+    await expect(browseSheet).toBeVisible();
+    await browseSheet.getByRole("button", { name: "Close" }).click();
+    await expect(browseSheet).toBeHidden();
+
+    await page.getByTestId("dashboard-utility-trigger").click();
+    const utilitySheet = page.getByTestId("dashboard-utility-sheet");
+    await expect(utilitySheet).toBeVisible();
+    await expect(page.getByTestId("header-copy-decklist")).toBeVisible();
+    await utilitySheet.getByRole("button", { name: "Close" }).click();
+    await expect(utilitySheet).toBeHidden();
+  });
 
   test("opens modal with details and links to Scryfall", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");

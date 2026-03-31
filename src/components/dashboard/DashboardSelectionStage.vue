@@ -21,10 +21,21 @@
         class="selection-stage-layout relative grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.95fr)] lg:items-start"
       >
         <div class="selection-stage-copy flex flex-col gap-8">
-          <div class="selection-stage-mark" aria-hidden="true">
-            <span></span>
-            <span></span>
-            <span></span>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="selection-stage-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <CButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              data-testid="dashboard-utility-trigger"
+              @click="emit('open-utilities')"
+            >
+              Collection + settings
+            </CButton>
           </div>
 
           <div class="space-y-5">
@@ -93,50 +104,22 @@
             >
               {{ hasCsvData ? "Replace collection CSV" : "Upload collection CSV" }}
             </CButton>
-            <CButton :as="RouterLink" to="/top-commanders" variant="secondary" size="lg">
-              Explore top commanders
-            </CButton>
           </div>
 
-          <CSurface
-            variant="utility"
-            size="none"
-            radius="2xl"
-            class="selection-stage-upload-panel w-full max-w-[48rem]"
+          <div
+            class="selection-stage-helper-row flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
           >
-            <div class="selection-stage-upload-copy">
-              <CText tag="p" variant="eyebrow" tone="muted"> Collection status </CText>
-              <CText tag="p" variant="title" class="selection-stage-upload-title">
-                {{ hasCsvData ? "Collection loaded and ready" : "Start with search, add collection when ready" }}
-              </CText>
-              <CText tag="p" variant="helper" tone="muted" class="selection-stage-upload-helper">
-                {{
-                  hasCsvData
-                    ? `${csvCount} cards loaded. Owned and missing views activate as soon as you choose a commander.`
-                    : "You can begin comparing immediately. Uploading a CSV adds owned and missing card views across every decklist."
-                }}
-              </CText>
-            </div>
-          </CSurface>
+            <CText tag="p" variant="helper" tone="muted" class="max-w-2xl">
+              Search is the fastest entry. Open utilities when you need collection status, the
+              top-50 scan, or display settings.
+            </CText>
+            <CButton :as="RouterLink" to="/top-commanders" variant="ghost" size="sm">
+              Browse top commanders
+            </CButton>
+          </div>
         </div>
 
         <div class="selection-stage-art relative hidden lg:block">
-          <CSurface
-            variant="utility"
-            size="none"
-            radius="2xl"
-            class="selection-stage-sidecard space-y-3"
-          >
-            <CText tag="p" variant="eyebrow" tone="muted"> Discovery </CText>
-            <CText tag="p" variant="title">Need a starting point?</CText>
-            <CText tag="p" variant="helper" tone="muted">
-              Browse ranked commanders, then jump straight into the compare workflow.
-            </CText>
-            <CButton :as="RouterLink" to="/top-commanders" variant="soft" size="sm">
-              Open top commanders
-            </CButton>
-          </CSurface>
-
           <div class="selection-stage-card-stack">
             <button
               v-for="(card, index) in floatingCards"
@@ -195,6 +178,7 @@ defineProps<{
 const emit = defineEmits<{
   "selection-change": [payload: CommanderSelection];
   "open-upload": [];
+  "open-utilities": [];
 }>();
 
 const commanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null>(null);
@@ -803,7 +787,7 @@ defineExpose({
   .selection-stage-shell-intro .selection-stage-title,
   .selection-stage-shell-intro .selection-stage-description,
   .selection-stage-shell-intro .selection-stage-search-shell,
-  .selection-stage-shell-intro .selection-stage-upload-panel,
+  .selection-stage-shell-intro .selection-stage-helper-row,
   .selection-stage-shell-intro .selection-stage-art {
     opacity: 0;
     animation: selection-stage-rise 760ms var(--ease-decelerate) forwards;
@@ -825,7 +809,7 @@ defineExpose({
     animation-delay: 320ms;
   }
 
-  .selection-stage-shell-intro .selection-stage-upload-panel {
+  .selection-stage-shell-intro .selection-stage-helper-row {
     animation-delay: 430ms;
   }
 
