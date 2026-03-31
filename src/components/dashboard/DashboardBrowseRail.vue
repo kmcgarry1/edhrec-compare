@@ -330,6 +330,8 @@ import type { CommanderSelection } from "../../types/edhrec";
 import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard";
 
 const MOBILE_BREAKPOINT_PX = 1280;
+type BrowseTab = "search" | "filters" | "sections";
+type BrowseTabOption = { value: BrowseTab; label: string };
 
 const props = withDefaults(
   defineProps<{
@@ -375,13 +377,13 @@ const mobileCommanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null
 const mobileSheetRef = ref<HTMLElement | null>(null);
 const fallbackIconPath = mdiCardsOutline;
 const openRailGroup = ref<"search" | "collection" | "sections">("search");
-const activeBrowseTab = ref<"search" | "filters" | "sections">("search");
+const activeBrowseTab = ref<BrowseTab>("search");
 const isMobileViewport = ref(typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false);
 const mobileSheetOpen = computed(() => props.open && isMobileViewport.value);
 const { activate, deactivate } = useFocusTrap(mobileSheetRef, mobileSheetOpen);
 const sheetTitleId = `browse-sheet-${Math.random().toString(36).slice(2, 9)}`;
 
-const browseTabs = computed(() =>
+const browseTabs = computed<BrowseTabOption[]>(() =>
   props.showSectionNavigation === false
     ? [
         { value: "search", label: "Search" },

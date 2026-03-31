@@ -26,18 +26,28 @@ import { CSurface, CText } from "../core";
 import type { Density } from "../../composables/useLayoutDensity";
 import type { Theme } from "../../composables/useTheme";
 
-defineProps<{
-  hasCsvData: boolean;
-  inventorySummary: string;
-  decklistText?: string | null;
-  decklistSectionCount: number;
-  exportHelperText: string;
-  copied: boolean;
-  density: Density;
-  densityOptions: ReadonlyArray<{ value: Density; label: string }>;
-  theme: Theme;
-  backgroundEnabled: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    hasCsvData?: boolean;
+    inventorySummary?: string;
+    decklistText?: string | null;
+    decklistSectionCount?: number;
+    exportHelperText?: string;
+    copied?: boolean;
+    density: Density;
+    densityOptions: ReadonlyArray<{ value: Density; label: string }>;
+    theme: Theme;
+    backgroundEnabled: boolean;
+  }>(),
+  {
+    hasCsvData: false,
+    inventorySummary: "",
+    decklistText: null,
+    decklistSectionCount: 0,
+    exportHelperText: "",
+    copied: false,
+  }
+);
 
 const emit = defineEmits<{
   "open-upload": [];

@@ -4,7 +4,7 @@
   >
     <GlobalLoadingBanner />
 
-    <main id="main-content" ref="mainContentRef" class="mt-5 flex-1 space-y-4">
+    <main id="main-content" :ref="setMainContentRef" class="mt-5 flex-1 space-y-4">
       <GlobalLoadingBanner
         scope="scryfall-bulk"
         placement-class="pointer-events-none fixed inset-x-0 bottom-6 z-[9998] flex justify-center px-4"
@@ -142,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, type ComponentPublicInstance } from "vue";
 import DashboardBrowseRail from "./dashboard/DashboardBrowseRail.vue";
 import DashboardUtilityContent from "./dashboard/DashboardUtilityContent.vue";
 import DashboardUtilityTray from "./dashboard/DashboardUtilityTray.vue";
@@ -158,6 +158,20 @@ import { useEdhrecData } from "../composables/useEdhrecData";
 import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
 import { useScryfallCardData } from "../composables/useScryfallCardData";
 import type { ColumnDefinition } from "./CardTable.vue";
+
+type CommanderRouteStatusTone =
+  | "default"
+  | "accent"
+  | "success"
+  | "warn"
+  | "danger"
+  | "muted";
+
+type CommanderRouteStatItem = {
+  label: string;
+  value: string;
+  tone?: CommanderRouteStatusTone;
+};
 
 const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
 
@@ -321,7 +335,7 @@ const deckViewFilterOptions = computed(() =>
 const mastheadStatusItems = computed(() => {
   const items: Array<{
     label: string;
-    tone?: "default" | "accent" | "success" | "warn" | "danger" | "muted";
+    tone?: CommanderRouteStatusTone;
   }> = [
     {
       label: collectionStateLabel.value,
@@ -351,7 +365,7 @@ const mastheadStatusItems = computed(() => {
   return items;
 });
 
-const mastheadStatItems = computed(() => [
+const mastheadStatItems = computed<CommanderRouteStatItem[]>(() => [
   {
     label: "Active sections",
     value: `${cardlistEntries.value.length} of ${totalSectionCount.value}`,
@@ -405,6 +419,10 @@ const handleToggleExpandAll = () => {
 
 const focusCommanderEditor = () => {
   browseRailRef.value?.focusPrimarySearch?.();
+};
+
+const setMainContentRef = (element: Element | ComponentPublicInstance | null) => {
+  mainContentRef.value = element instanceof HTMLElement ? element : null;
 };
 
 const cardTableColumns: ColumnDefinition[] = [

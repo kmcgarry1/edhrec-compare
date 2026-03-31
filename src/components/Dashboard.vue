@@ -6,7 +6,7 @@
 
     <main
       id="main-content"
-      ref="mainContentRef"
+      :ref="setMainContentRef"
       class="mt-2 flex min-h-[calc(100vh-5.5rem)] flex-1 items-center"
     >
       <DashboardSelectionStage
@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ComponentPublicInstance } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import DashboardSelectionStage from "./dashboard/DashboardSelectionStage.vue";
 import DashboardUtilityContent from "./dashboard/DashboardUtilityContent.vue";
@@ -87,4 +88,8 @@ const {
   copyDecklistFromHeader,
   downloadDecklistFromHeader,
 } = useDashboardState();
+
+const setMainContentRef = (element: Element | ComponentPublicInstance | null) => {
+  mainContentRef.value = element instanceof HTMLElement ? element : null;
+};
 </script>
