@@ -40,11 +40,6 @@ const mountComponent = (overrideProps = {}) =>
       stubs: {
         Teleport: true,
         Transition: false,
-        DecklistExport: {
-          template:
-            "<div><button data-testid='header-copy-decklist' :disabled='disabled' @click=\"$emit('copy')\">Copy</button><button data-testid='header-download-decklist' :disabled='disabled' @click=\"$emit('download')\">Download</button></div>",
-          props: ["disabled", "copied"],
-        },
       },
     },
   });
@@ -59,42 +54,33 @@ describe("DashboardSettingsPanel", () => {
     vi.restoreAllMocks();
   });
 
-  it("opens on desktop, closes on outside click, and emits upload/export actions", async () => {
+  it("opens on desktop, closes on outside click, and keeps display controls available", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
     expect(wrapper.find('[data-testid="dashboard-settings-panel"]').exists()).toBe(true);
+    expect(wrapper.text()).toContain("Density, theme, and accessibility");
+    expect(wrapper.text()).not.toContain("Copy or download the filtered decklist");
+    expect(wrapper.text()).not.toContain("Replace CSV");
 
     const buttons = wrapper.findAll("button");
-    const uploadButton = buttons.find((button) => button.text().includes("Replace CSV"));
-    const copyButton = wrapper.get('[data-testid="header-copy-decklist"]');
-    const downloadButton = wrapper.get('[data-testid="header-download-decklist"]');
-
-    await uploadButton?.trigger("click");
-    await copyButton.trigger("click");
-    await downloadButton.trigger("click");
+    await buttons.find((button) => button.text() === "Close")?.trigger("click");
     document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
 
-    expect(wrapper.emitted("open-upload")).toBeTruthy();
-    expect(wrapper.emitted("copy")).toBeTruthy();
-    expect(wrapper.emitted("download")).toBeTruthy();
     expect(wrapper.emitted("close")).toBeTruthy();
     wrapper.unmount();
   });
 
-  it("renders export controls as disabled when no decklist exists and wires display controls", async () => {
+  it("renders only display controls and wires theme, background, and density changes", async () => {
     const wrapper = mountComponent({
       decklistText: "",
       copied: true,
     });
     await flushPromises();
 
-    const exportButtons = wrapper.findAll('[data-testid^="header-"]');
-    expect(exportButtons).toHaveLength(2);
-    expect(exportButtons[0]?.attributes("disabled")).toBeDefined();
-    expect(exportButtons[1]?.attributes("disabled")).toBeDefined();
-
     expect(wrapper.text()).toContain("Accessibility");
+    expect(wrapper.text()).not.toContain("Copy or download the filtered decklist");
+    expect(wrapper.findAll('[data-testid^="header-"]')).toHaveLength(0);
 
     await wrapper.get('button[aria-label="Switch to dark theme"]').trigger("click");
     await wrapper.get('button[aria-label="Hide background texture"]').trigger("click");
