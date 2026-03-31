@@ -9,8 +9,8 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <DashboardControlPanel
-      ref="controlPanelRef"
+    <DashboardBrowseRail
+      ref="browseRailRef"
       :selected-slug="currentCommanderSlug"
       :selection="commanderSelection"
       :bracket="chosenBracket"
@@ -18,18 +18,14 @@
       :page-type="chosenPageType"
       :companion="chosenCompanion"
       :open="controlPanelOpen"
+      :sections="cardlistSections"
+      :active-id="activeSectionId"
+      :loading="readerLoading"
       :has-csv-data="hasCsvData"
-      :csv-count="csvCount"
       :inventory-summary="inventorySummary"
-      :collection-source-name="collectionSourceName"
-      :collection-imported-at="collectionImportedAt"
-      :collection-mode-label="collectionModeLabel"
-      :collection-mode-hint="collectionModeHint"
       :filter-options="deckViewFilterOptions"
-      :decklist-text="decklistText"
-      :copied="decklistCopied"
-      :export-helper-text="exportHelperText"
       @close="emit('close-control-panel')"
+      @navigate="scrollToSection"
       @filter-change="emit('filter-change', $event)"
       @commander-selected="handleCommanderSelection"
       @selection-change="handleSelectionChange"
@@ -37,10 +33,6 @@
       @update:modifier="setModifier"
       @update:page-type="setPageType"
       @update:companion="setCompanion"
-      @open-upload="emit('open-upload')"
-      @clear-upload="emit('clear-upload')"
-      @copy="emit('copy-header-decklist')"
-      @download="emit('download-header-decklist')"
     />
 
     <div class="min-w-0 space-y-4">
@@ -59,15 +51,52 @@
       />
 
       <CSurface variant="content" size="sm" radius="3xl" class="space-y-4">
-        <EdhrecResultsHeader
-          :list-count="cardlistSections.length"
-          :total-section-count="totalSectionCount"
-          :card-count="visibleCardCount"
-          :deck-view-label="deckFilterLabel"
-          :ownership-summary="ownershipSummary"
-          :all-expanded="allSectionsExpanded"
-          @toggle-expand-all="handleToggleExpandAll"
-        />
+        <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] xl:items-start">
+          <EdhrecResultsHeader
+            :list-count="cardlistSections.length"
+            :total-section-count="totalSectionCount"
+            :card-count="visibleCardCount"
+            :deck-view-label="deckFilterLabel"
+            :ownership-summary="ownershipSummary"
+            :all-expanded="allSectionsExpanded"
+            @toggle-expand-all="handleToggleExpandAll"
+          />
+
+          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <CText tag="p" variant="eyebrow" tone="muted"> Route finish </CText>
+              <CBadge
+                :tone="decklistReady ? 'accent' : 'muted'"
+                variant="soft"
+                size="sm"
+                text-case="normal"
+              >
+                {{ decklistReady ? "Decklist ready" : "Awaiting results" }}
+              </CBadge>
+              <CBadge tone="muted" variant="outline" size="sm" text-case="normal">
+                {{ collectionModeLabel }}
+              </CBadge>
+            </div>
+
+            <div class="space-y-1">
+              <CText tag="p" variant="title">Finish with your filtered list</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                {{ exportHelperText }}
+              </CText>
+            </div>
+
+            <CText tag="p" variant="helper" tone="muted">
+              {{ collectionSourceSummary }}
+            </CText>
+
+            <DecklistExport
+              :disabled="!decklistReady"
+              :copied="decklistCopied"
+              @copy="emit('copy-header-decklist')"
+              @download="emit('download-header-decklist')"
+            />
+          </CSurface>
+        </div>
 
         <FloatingCardlistNav
           v-if="cardlistSections.length"
@@ -94,38 +123,38 @@
           message="No cardlists match the current deck view. Try another filter or upload a collection."
           class="bg-[color:var(--surface-muted)]"
         />
+
+        <div
+          v-if="cardlistEntries.length"
+          class="space-y-4"
+        >
+          <template v-for="entry in cardlistEntries" :key="entry.key">
+            <CardlistSection
+              :cardlist="entry.cardlist"
+              :section-meta="entry.sectionMeta"
+              :rows="getTableRows(entry.cardlist)"
+              :columns="cardTableColumns"
+              :decklist-text="entry.decklistText"
+              :copied-section-id="decklistCopySectionId"
+              :loading="bulkCardsLoading"
+              @toggle="toggleSection(entry.sectionMeta.id)"
+              @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+              @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+            />
+          </template>
+        </div>
       </CSurface>
-
-      <div
-        v-if="cardlistEntries.length"
-        class="space-y-4"
-      >
-        <template v-for="entry in cardlistEntries" :key="entry.key">
-          <CardlistSection
-            :cardlist="entry.cardlist"
-            :section-meta="entry.sectionMeta"
-            :rows="getTableRows(entry.cardlist)"
-            :columns="cardTableColumns"
-            :decklist-text="entry.decklistText"
-            :copied-section-id="decklistCopySectionId"
-            :loading="bulkCardsLoading"
-            @toggle="toggleSection(entry.sectionMeta.id)"
-            @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-            @download="handleDownloadDecklist(entry.cardlist, entry.index)"
-          />
-        </template>
-      </div>
-
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import DashboardControlPanel from "./DashboardControlPanel.vue";
+import DashboardBrowseRail from "./DashboardBrowseRail.vue";
 import DashboardCommanderMasthead from "./DashboardCommanderMasthead.vue";
+import DecklistExport from "../DecklistExport.vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
-import { CNotice, CSurface, CText } from "../core";
+import { CBadge, CNotice, CSurface, CText } from "../core";
 import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "../helpers/enums";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../../composables/useEdhrecData";
@@ -172,7 +201,7 @@ const emit = defineEmits<{
   "download-header-decklist": [];
 }>();
 
-const controlPanelRef = ref<InstanceType<typeof DashboardControlPanel> | null>(null);
+const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
 
 const {
   chosenPageType,
@@ -229,6 +258,37 @@ const ownershipSummary = computed(() => {
     return `Showing ${deckFilterLabel.value.toLowerCase()}.`;
   }
   return `Showing ${deckFilterLabel.value.toLowerCase()} across ${cardlistEntries.value.length} active section${cardlistEntries.value.length === 1 ? "" : "s"}.`;
+});
+const decklistReady = computed(() => Boolean(props.decklistText));
+const collectionSourceSummary = computed(() => {
+  if (!props.hasCsvData) {
+    return props.collectionModeHint;
+  }
+
+  const parts: string[] = [];
+  if (props.collectionSourceName) {
+    parts.push(props.collectionSourceName);
+  }
+  if (props.collectionImportedAt) {
+    try {
+      parts.push(
+        `loaded ${new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        }).format(props.collectionImportedAt)}`
+      );
+    } catch {
+      parts.push(`loaded ${String(props.collectionImportedAt)}`);
+    }
+  }
+
+  if (!parts.length) {
+    return props.collectionModeHint;
+  }
+
+  return `${parts.join(" ")}.`;
 });
 
 const deckViewFilterOptions = computed(() =>
@@ -360,15 +420,15 @@ const handleToggleExpandAll = () => {
 };
 
 const selectSuggestedCommander = (name: string) => {
-  controlPanelRef.value?.selectPrimaryCommander(name);
+  browseRailRef.value?.selectPrimaryCommander(name);
 };
 
 const startPartnerSelection = () => {
-  controlPanelRef.value?.startPartnerSelection?.();
+  browseRailRef.value?.startPartnerSelection?.();
 };
 
 const focusCommanderEditor = () => {
-  controlPanelRef.value?.focusPrimarySearch?.();
+  browseRailRef.value?.focusPrimarySearch?.();
 };
 
 const cardTableColumns: ColumnDefinition[] = [

@@ -53,7 +53,7 @@
             data-testid="dashboard-control-trigger"
             @click="emit('open-controls')"
           >
-            Compare controls
+            Open workbench
           </CButton>
           <CButton
             v-if="canonicalEdhrecHref"

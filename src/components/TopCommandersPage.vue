@@ -12,40 +12,55 @@
     />
 
     <main id="main-content" class="mt-8 space-y-6">
-      <Card variant="command" padding="p-4 sm:p-5" class="space-y-4">
-        <TopCommandersStatusCard
-          :has-csv-data="hasCsvData"
-          :csv-count="csvCount"
-          :last-updated="lastUpdated"
-          :failed-count="failedCount"
-          :scan-scope="scanScope"
-          :scan-error="scanError"
-        />
-        <TopCommandersControls
-          :top-header="topHeader"
-          :top-limit="topLimit"
-          :limit-options="limitOptions"
-          :sort-options="sortOptions"
-          :sort-mode="sortMode"
-          :top-loading="topLoading"
-          @limit-change="handleTopLimitChange"
-          @sort-change="setSortMode"
-          @refresh="refreshTopCommanders"
-        />
-        <TopCommandersColorFilter
-          :color-options="colorOptions"
-          :selected-colors="selectedColors"
-          :mana-symbol="manaSymbol"
-          :color-dot-class="colorDotClass"
-          :color-pill-class="colorPillClass"
-          :color-label="colorLabel"
-          @toggle-color="toggleColor"
-          @clear="clearColors"
-        />
-        <TopCommandersOwnedLegend />
-      </Card>
+      <CSurface variant="command" size="md" radius="3xl" class="space-y-5">
+        <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] xl:items-start">
+          <div class="space-y-4">
+            <TopCommandersStatusCard
+              :has-csv-data="hasCsvData"
+              :csv-count="csvCount"
+              :last-updated="lastUpdated"
+              :failed-count="failedCount"
+              :scan-scope="scanScope"
+              :scan-error="scanError"
+            />
+            <TopCommandersControls
+              :top-header="topHeader"
+              :top-limit="topLimit"
+              :limit-options="limitOptions"
+              :sort-options="sortOptions"
+              :sort-mode="sortMode"
+              :top-loading="topLoading"
+              @limit-change="handleTopLimitChange"
+              @sort-change="setSortMode"
+              @refresh="refreshTopCommanders"
+            />
+            <TopCommandersColorFilter
+              :color-options="colorOptions"
+              :selected-colors="selectedColors"
+              :mana-symbol="manaSymbol"
+              :color-dot-class="colorDotClass"
+              :color-pill-class="colorPillClass"
+              :color-label="colorLabel"
+              @toggle-color="toggleColor"
+              @clear="clearColors"
+            />
+          </div>
 
-      <Card variant="content" padding="p-4 sm:p-5" class="space-y-4">
+          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
+            <div class="space-y-1">
+              <CText tag="p" variant="eyebrow" tone="muted"> Scan support </CText>
+              <CText tag="p" variant="title">Tune the ranking lens</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                Use rank to browse the field, then switch to highest owned once a CSV upload reveals
+                real overlap.
+              </CText>
+            </div>
+            <TopCommandersOwnedLegend />
+          </CSurface>
+        </div>
+      </CSurface>
+
+      <CSurface variant="content" size="md" radius="3xl" class="space-y-4">
         <CNotice
           v-if="topLoading"
           tone="info"
@@ -77,7 +92,7 @@
             :colors="combinedColorIdentity(commander.name)"
           />
         </CGrid>
-      </Card>
+      </CSurface>
 
       <SiteNotice />
     </main>
@@ -87,10 +102,9 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import Card from "./Card.vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import SiteNotice from "./SiteNotice.vue";
-import { CGrid, CNotice } from "./core";
+import { CGrid, CNotice, CSurface, CText } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";

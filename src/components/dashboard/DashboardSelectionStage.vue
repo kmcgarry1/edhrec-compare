@@ -1,11 +1,14 @@
 <template>
   <section>
-    <Card
+    <CSurface
+      as="article"
       variant="masthead"
-      padding="p-6 sm:p-8 lg:p-10"
-      rounded="rounded-[34px]"
-      shadow="shadow-[var(--shadow)]"
-      class="selection-stage-shell relative overflow-hidden"
+      tone="default"
+      size="none"
+      radius="3xl"
+      shadow="base"
+      sheen
+      class="selection-stage-shell relative overflow-hidden p-6 sm:p-8 lg:p-10"
       :class="{ 'selection-stage-shell-intro': playIntro }"
     >
       <div class="selection-stage-backdrop pointer-events-none absolute inset-0" aria-hidden="true">
@@ -41,30 +44,35 @@
           </div>
 
           <div class="grid gap-3 sm:grid-cols-3">
-            <article class="selection-stage-step-card">
+            <CSurface as="article" variant="dense" size="none" radius="2xl" class="selection-stage-step-card">
               <span class="selection-stage-step-number">1</span>
               <CText tag="p" variant="title">Choose a commander</CText>
               <CText tag="p" variant="helper" tone="muted">
                 Search a commander and optional partner without leaving the dashboard.
               </CText>
-            </article>
-            <article class="selection-stage-step-card">
+            </CSurface>
+            <CSurface as="article" variant="dense" size="none" radius="2xl" class="selection-stage-step-card">
               <span class="selection-stage-step-number">2</span>
               <CText tag="p" variant="title">Upload collection</CText>
               <CText tag="p" variant="helper" tone="muted">
                 {{ hasCsvData ? `${csvCount} cards are already loaded for compare.` : "Load your CSV when you want owned and missing views." }}
               </CText>
-            </article>
-            <article class="selection-stage-step-card">
+            </CSurface>
+            <CSurface as="article" variant="dense" size="none" radius="2xl" class="selection-stage-step-card">
               <span class="selection-stage-step-number">3</span>
               <CText tag="p" variant="title">Compare and export</CText>
               <CText tag="p" variant="helper" tone="muted">
                 Scan the live decklists, switch deck views, and export the list you need.
               </CText>
-            </article>
+            </CSurface>
           </div>
 
-          <div class="selection-stage-search-shell w-full max-w-[48rem]">
+          <CSurface
+            variant="command"
+            size="none"
+            radius="2xl"
+            class="selection-stage-search-shell w-full max-w-[48rem]"
+          >
             <CommanderSearch
               ref="commanderSearchRef"
               mode="minimal"
@@ -73,7 +81,7 @@
               @commander-selected="handleCommanderSelection"
               @selection-change="emit('selection-change', $event)"
             />
-          </div>
+          </CSurface>
 
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
             <CButton
@@ -90,7 +98,12 @@
             </CButton>
           </div>
 
-          <div class="selection-stage-upload-panel w-full max-w-[48rem]">
+          <CSurface
+            variant="utility"
+            size="none"
+            radius="2xl"
+            class="selection-stage-upload-panel w-full max-w-[48rem]"
+          >
             <div class="selection-stage-upload-copy">
               <CText tag="p" variant="eyebrow" tone="muted"> Collection status </CText>
               <CText tag="p" variant="title" class="selection-stage-upload-title">
@@ -104,11 +117,16 @@
                 }}
               </CText>
             </div>
-          </div>
+          </CSurface>
         </div>
 
         <div class="selection-stage-art relative hidden lg:block">
-          <div class="selection-stage-sidecard space-y-3">
+          <CSurface
+            variant="utility"
+            size="none"
+            radius="2xl"
+            class="selection-stage-sidecard space-y-3"
+          >
             <CText tag="p" variant="eyebrow" tone="muted"> Discovery </CText>
             <CText tag="p" variant="title">Need a starting point?</CText>
             <CText tag="p" variant="helper" tone="muted">
@@ -117,7 +135,7 @@
             <CButton :as="RouterLink" to="/top-commanders" variant="soft" size="sm">
               Open top commanders
             </CButton>
-          </div>
+          </CSurface>
 
           <div class="selection-stage-card-stack">
             <button
@@ -145,7 +163,7 @@
           </div>
         </div>
       </div>
-    </Card>
+    </CSurface>
   </section>
 </template>
 
@@ -160,8 +178,7 @@ import { scheduleWhenPageIdle } from "../../utils/idle";
 import { prefersReducedMotion } from "../../utils/animations";
 import { buildCommanderSlug } from "../../utils/slugifyCommander";
 import CommanderSearch from "../CommanderSearch.vue";
-import Card from "../Card.vue";
-import { CButton, CText } from "../core";
+import { CButton, CSurface, CText } from "../core";
 
 const RANDOM_ART_TARGET = 3;
 const RANDOM_ART_MAX_ATTEMPTS = 8;
@@ -300,18 +317,18 @@ defineExpose({
   background:
     linear-gradient(
       135deg,
-      rgba(5, 13, 20, 0.92),
-      rgba(6, 16, 24, 0.84) 38%,
-      rgba(16, 26, 31, 0.8)
+      color-mix(in srgb, var(--surface-strong) 92%, var(--bg) 8%),
+      color-mix(in srgb, var(--surface) 86%, var(--bg-strong) 14%) 38%,
+      color-mix(in srgb, var(--surface-muted) 82%, var(--bg-strong) 18%)
     ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 56%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 56%);
 }
 
 .selection-stage-shell::before {
   content: "";
   position: absolute;
   inset: 1rem;
-  border: 1px solid rgba(150, 180, 188, 0.12);
+  border: 1px solid color-mix(in srgb, var(--border) 64%, transparent);
   border-radius: 1.8rem;
   opacity: 0.9;
   pointer-events: none;
@@ -325,9 +342,9 @@ defineExpose({
   border-radius: 999px;
   background: linear-gradient(
     90deg,
-    rgba(56, 211, 205, 0.14),
-    rgba(56, 211, 205, 0.04) 38%,
-    rgba(255, 179, 102, 0.16)
+    color-mix(in srgb, var(--accent-soft) 72%, transparent),
+    color-mix(in srgb, var(--accent-glow) 72%, transparent) 38%,
+    color-mix(in srgb, var(--warn-soft) 82%, transparent)
   );
   filter: blur(44px);
   pointer-events: none;
@@ -341,8 +358,12 @@ defineExpose({
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--pattern-line) 80%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--pattern-line) 70%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 6.5rem 6.5rem;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.75), transparent 84%);
   opacity: 0.18;
@@ -359,7 +380,7 @@ defineExpose({
   left: 36%;
   width: 24rem;
   height: 24rem;
-  background: radial-gradient(circle, rgba(26, 181, 185, 0.24), transparent 68%);
+  background: radial-gradient(circle, var(--accent-glow-strong), transparent 68%);
 }
 
 .selection-stage-halo-amber {
@@ -367,7 +388,7 @@ defineExpose({
   bottom: -6rem;
   width: 20rem;
   height: 20rem;
-  background: radial-gradient(circle, rgba(255, 179, 102, 0.16), transparent 68%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--warn-soft) 92%, transparent), transparent 68%);
 }
 
 .selection-stage-layout {
@@ -389,8 +410,12 @@ defineExpose({
   display: block;
   height: 0.4rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(56, 211, 205, 0.95), rgba(255, 179, 102, 0.68));
-  box-shadow: 0 0 16px rgba(56, 211, 205, 0.28);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 92%, white 8%),
+    color-mix(in srgb, var(--warn) 76%, white 24%)
+  );
+  box-shadow: 0 0 16px color-mix(in srgb, var(--accent-glow-strong) 72%, transparent);
 }
 
 .selection-stage-mark span:nth-child(1) {
@@ -410,7 +435,7 @@ defineExpose({
 .selection-stage-title {
   max-width: 12ch;
   letter-spacing: -0.05em;
-  text-shadow: 0 0 32px rgba(56, 211, 205, 0.12);
+  text-shadow: 0 0 32px color-mix(in srgb, var(--accent-glow) 82%, transparent);
 }
 
 .selection-stage-description {
@@ -420,14 +445,22 @@ defineExpose({
 .selection-stage-search-shell {
   position: relative;
   padding: 0.85rem;
-  border: 1px solid rgba(138, 164, 172, 0.18);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   border-radius: 1.9rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01)),
-    linear-gradient(135deg, rgba(10, 24, 33, 0.86), rgba(18, 35, 42, 0.74));
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 48%, transparent),
+      color-mix(in srgb, var(--surface) 18%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 88%, var(--bg-strong) 12%),
+      color-mix(in srgb, var(--surface) 72%, var(--bg-strong) 28%)
+    );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 24px 52px rgba(3, 10, 15, 0.22);
+    inset 0 1px 0 color-mix(in srgb, var(--surface-strong) 54%, transparent),
+    var(--shadow);
 }
 
 .selection-stage-search-shell::before {
@@ -437,7 +470,7 @@ defineExpose({
   right: 28%;
   top: 0;
   height: 1px;
-  background: linear-gradient(90deg, rgba(56, 211, 205, 0.85), transparent 72%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 84%, white 16%), transparent 72%);
 }
 
 .selection-stage-search-shell::after {
@@ -448,7 +481,7 @@ defineExpose({
   width: 7rem;
   height: 4rem;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(56, 211, 205, 0.12), transparent 72%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-glow) 92%, transparent), transparent 72%);
   filter: blur(18px);
 }
 
@@ -463,22 +496,30 @@ defineExpose({
 
 .selection-stage-search :deep(.commander-search-minimal-field > .flex > div) {
   min-height: 4.35rem;
-  border: 1px solid rgba(124, 150, 160, 0.34);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   border-radius: 1.3rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(34, 50, 58, 0.64), rgba(30, 45, 52, 0.78));
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 32%, transparent),
+      color-mix(in srgb, var(--surface) 18%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 78%, var(--bg-strong) 22%),
+      color-mix(in srgb, var(--surface) 68%, var(--bg-strong) 32%)
+    );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 12px 28px rgba(3, 10, 15, 0.16);
+    inset 0 1px 0 color-mix(in srgb, var(--surface-strong) 46%, transparent),
+    var(--shadow-soft);
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field > .flex > div:focus-within) {
-  border-color: rgba(56, 211, 205, 0.84);
+  border-color: color-mix(in srgb, var(--accent) 84%, white 16%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 0 0 1px rgba(56, 211, 205, 0.18),
-    0 16px 36px rgba(18, 57, 61, 0.24);
+    inset 0 1px 0 color-mix(in srgb, var(--surface-strong) 54%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-soft) 68%, transparent),
+    0 16px 36px color-mix(in srgb, var(--accent-glow-strong) 88%, transparent);
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field input) {
@@ -487,33 +528,45 @@ defineExpose({
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field input::placeholder) {
-  color: rgba(208, 217, 220, 0.76);
+  color: color-mix(in srgb, var(--muted) 82%, white 18%);
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field svg) {
-  color: rgba(255, 179, 102, 0.86);
+  color: color-mix(in srgb, var(--warn) 82%, white 18%);
 }
 
 .selection-stage-search :deep([aria-live="polite"]) {
   border-radius: 1.2rem;
-  border-color: rgba(124, 150, 160, 0.22);
+  border-color: color-mix(in srgb, var(--border) 68%, transparent);
   background:
-    linear-gradient(180deg, rgba(20, 32, 39, 0.96), rgba(17, 27, 34, 0.96)) !important;
-  box-shadow: 0 20px 32px rgba(3, 10, 15, 0.2);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 95%, var(--bg-strong) 5%),
+      color-mix(in srgb, var(--surface) 92%, var(--bg-strong) 8%)
+    ) !important;
+  box-shadow: var(--shadow-soft);
 }
 
 .selection-stage-upload-panel {
   display: grid;
   gap: 0.75rem;
   padding: 1.2rem 1.35rem;
-  border: 1px solid rgba(56, 211, 205, 0.22);
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 92%, var(--border) 8%);
   border-radius: 1.6rem;
   background:
-    linear-gradient(180deg, rgba(56, 211, 205, 0.13), rgba(56, 211, 205, 0.05)),
-    linear-gradient(135deg, rgba(11, 24, 31, 0.9), rgba(17, 33, 39, 0.86));
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent-soft) 74%, transparent),
+      color-mix(in srgb, var(--surface-muted) 48%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 88%, var(--bg-strong) 12%),
+      color-mix(in srgb, var(--surface) 76%, var(--bg-strong) 24%)
+    );
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.04),
-    0 18px 34px rgba(3, 10, 15, 0.18);
+    inset 0 1px 0 color-mix(in srgb, var(--surface-strong) 54%, transparent),
+    var(--shadow-soft);
 }
 
 .selection-stage-upload-copy {
@@ -543,12 +596,20 @@ defineExpose({
 
 .selection-stage-sidecard {
   padding: 1.2rem 1.3rem;
-  border: 1px solid rgba(138, 164, 172, 0.18);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   border-radius: 1.6rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(15, 27, 35, 0.9), rgba(13, 23, 31, 0.84));
-  box-shadow: 0 22px 40px rgba(3, 10, 15, 0.18);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 44%, transparent),
+      color-mix(in srgb, var(--surface) 18%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 86%, var(--bg-strong) 14%),
+      color-mix(in srgb, var(--surface) 72%, var(--bg-strong) 28%)
+    );
+  box-shadow: var(--shadow-soft);
 }
 
 .selection-stage-card-stack {
@@ -563,10 +624,10 @@ defineExpose({
   min-height: 11rem;
   overflow: hidden;
   padding: 0;
-  border: 1px solid rgba(155, 182, 188, 0.18);
+  border: 1px solid color-mix(in srgb, var(--border) 68%, transparent);
   border-radius: 1.8rem;
   background: transparent;
-  box-shadow: 0 28px 54px rgba(3, 10, 15, 0.26);
+  box-shadow: var(--shadow);
   cursor: pointer;
   text-align: left;
 }
@@ -588,7 +649,7 @@ defineExpose({
 .selection-stage-random-card-sheen {
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.18), transparent 24%),
-    radial-gradient(circle at top right, rgba(56, 211, 205, 0.16), transparent 34%);
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-glow) 92%, transparent), transparent 34%);
 }
 
 .selection-stage-random-card-meta {
@@ -600,9 +661,9 @@ defineExpose({
   flex-direction: column;
   gap: 0.2rem;
   padding: 0.85rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
   border-radius: 1rem;
-  background: rgba(7, 16, 22, 0.7);
+  background: color-mix(in srgb, var(--bg-strong) 84%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -610,12 +671,20 @@ defineExpose({
   display: grid;
   gap: 0.55rem;
   padding: 1rem 1rem 1.1rem;
-  border: 1px solid rgba(138, 164, 172, 0.18);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
   border-radius: 1.4rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(14, 27, 35, 0.88), rgba(17, 31, 38, 0.78));
-  box-shadow: 0 14px 28px rgba(3, 10, 15, 0.14);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 40%, transparent),
+      color-mix(in srgb, var(--surface) 18%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 82%, var(--bg-strong) 18%),
+      color-mix(in srgb, var(--surface) 72%, var(--bg-strong) 28%)
+    );
+  box-shadow: var(--shadow-soft);
 }
 
 .selection-stage-step-number {
@@ -625,14 +694,14 @@ defineExpose({
   width: 1.85rem;
   height: 1.85rem;
   border-radius: 999px;
-  background: rgba(56, 211, 205, 0.14);
-  color: rgba(247, 248, 249, 0.92);
+  background: color-mix(in srgb, var(--accent-soft) 92%, transparent);
+  color: color-mix(in srgb, var(--text) 92%, white 8%);
   font-size: 0.72rem;
   font-weight: 700;
 }
 
 .selection-stage-random-card-label {
-  color: rgba(190, 202, 206, 0.68);
+  color: color-mix(in srgb, var(--muted) 72%, white 28%);
   font-size: 0.56rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -640,7 +709,7 @@ defineExpose({
 }
 
 .selection-stage-random-card-name {
-  color: rgba(247, 248, 249, 0.94);
+  color: color-mix(in srgb, white 92%, var(--accent-soft) 8%);
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -648,16 +717,24 @@ defineExpose({
 }
 
 .selection-stage-random-card:focus-visible {
-  outline: 2px solid rgba(56, 211, 205, 0.9);
+  outline: 2px solid color-mix(in srgb, var(--accent) 88%, white 12%);
   outline-offset: 4px;
 }
 
 .selection-stage-random-card-placeholder {
-  border-color: rgba(155, 182, 188, 0.1);
+  border-color: color-mix(in srgb, var(--border) 44%, transparent);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
-    linear-gradient(135deg, rgba(14, 27, 35, 0.88), rgba(17, 31, 38, 0.78));
-  box-shadow: 0 20px 36px rgba(3, 10, 15, 0.16);
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-strong) 42%, transparent),
+      color-mix(in srgb, var(--surface) 16%, transparent)
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 82%, var(--bg-strong) 18%),
+      color-mix(in srgb, var(--surface) 72%, var(--bg-strong) 28%)
+    );
+  box-shadow: var(--shadow-soft);
 }
 
 .selection-stage-random-card-placeholder::before {
@@ -673,7 +750,7 @@ defineExpose({
 .selection-stage-random-card:focus-visible .selection-stage-random-card-sheen {
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.26), transparent 26%),
-    radial-gradient(circle at top right, rgba(56, 211, 205, 0.22), transparent 38%);
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-glow-strong) 96%, transparent), transparent 38%);
 }
 
 @media (max-width: 1023px) {

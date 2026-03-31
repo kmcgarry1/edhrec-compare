@@ -4,13 +4,13 @@
       <CText tag="p" variant="eyebrow" tone="muted"> Results </CText>
       <div class="flex flex-wrap items-center gap-2">
         <CText tag="h2" variant="title" class="text-lg sm:text-xl"> Cardlists </CText>
-        <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+        <CBadge tone="muted" variant="soft" size="sm" text-case="normal">
           {{ listCount }} active of {{ totalSectionCount }}
         </CBadge>
-        <CBadge tone="default" variant="soft" size="sm" text-case="normal">
+        <CBadge tone="muted" variant="soft" size="sm" text-case="normal">
           {{ cardCount }} cards
         </CBadge>
-        <CBadge tone="accent" variant="soft" size="sm" text-case="normal">
+        <CBadge :tone="deckViewTone" variant="soft" size="sm" text-case="normal">
           {{ deckViewLabel }}
         </CBadge>
       </div>
@@ -28,9 +28,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { CBadge, CButton, CStack, CText } from "../core";
 
-defineProps<{
+const props = defineProps<{
   listCount: number;
   totalSectionCount: number;
   cardCount: number;
@@ -42,4 +43,14 @@ defineProps<{
 const emit = defineEmits<{
   "toggle-expand-all": [];
 }>();
+
+const deckViewTone = computed(() => {
+  if (props.deckViewLabel === "Owned cards") {
+    return "success" as const;
+  }
+  if (props.deckViewLabel === "Missing cards") {
+    return "warn" as const;
+  }
+  return "accent" as const;
+});
 </script>

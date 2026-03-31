@@ -18,11 +18,13 @@ Reference docs:
 ## Primitive-specific checks
 
 - `CText` variants still preserve readable hierarchy and line length.
-- `CSurface` variants still communicate the right weight between masthead, command, content, and utility shells.
+- `CSurface` variants still communicate the right weight between `masthead`, `command`, `rail`, `content`, `utility`, and `dense` shells.
+- Route shells use the role mapping from `src/components/core/README.md` before relying on custom chrome.
 - `CBadge` remains legible at both sizes and across soft, solid, and outline treatments.
 - `CButton` variants still have clear primary vs secondary emphasis and visible disabled states.
 - `CNotice` tone, icon, and border treatment still align with status severity.
 - `CFieldShell` still keeps label, helper, and status text aligned with the underlying control.
+- `Card.vue` is only left in place for untouched compatibility areas, not for new shell work.
 
 ## Interaction
 
@@ -41,9 +43,10 @@ Reference docs:
 
 ## Route checks
 
-- Dashboard hero, toolbar, collection panels, and export panel still render in sequence.
+- Dashboard selection stage still reads as masthead + command/utility support shells.
+- Commander-selected dashboard still renders command masthead, workflow rail, content well, and nearby export utility in the expected sequence.
 - EDHREC route still loads commander data, error states, and card list sections.
-- Top commanders route still loads filters, status card, loading/error states, and commander cards.
+- Top commanders route still separates masthead, command deck, utility support, and content well without flattening the hierarchy.
 - CSV upload still accepts valid files, rejects invalid files, and loads the sample inventory.
 
 ## Documentation follow-up

@@ -70,8 +70,8 @@ const mountComponent = () =>
     global: {
       stubs: {
         CommanderSearch: CommanderSearchStub,
-        Card: {
-          template: "<div class='card-stub'><slot /></div>",
+        CSurface: {
+          template: "<div class='surface-stub'><slot /></div>",
         },
         CButton: {
           template: "<button class='cbutton-stub' @click=\"$emit('click')\"><slot /></button>",

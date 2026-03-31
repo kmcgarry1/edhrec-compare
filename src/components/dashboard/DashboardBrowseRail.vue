@@ -441,6 +441,13 @@ const startPartnerSelection = () => {
   mobileCommanderSearchRef.value?.startPartnerSelection?.();
 };
 
+const focusPrimarySearch = () => {
+  openRailGroup.value = "search";
+  activeBrowseTab.value = "search";
+  void commanderSearchRef.value?.focusPrimarySearch?.();
+  void mobileCommanderSearchRef.value?.focusPrimarySearch?.();
+};
+
 const sectionButtonClass = (active: boolean) =>
   [
     "flex items-center gap-2 rounded-2xl border px-3 py-2 text-left text-[0.76rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]",
@@ -476,5 +483,6 @@ onBeforeUnmount(() => {
 defineExpose({
   selectPrimaryCommander,
   startPartnerSelection,
+  focusPrimarySearch,
 });
 </script>

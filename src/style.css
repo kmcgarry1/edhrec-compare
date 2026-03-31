@@ -267,63 +267,82 @@
   }
 
   .surface-role-panel {
-    background-color: var(--surface);
+    background-color: color-mix(in srgb, var(--surface) 94%, transparent);
   }
 
   .surface-role-masthead {
     background-image:
       linear-gradient(
-        140deg,
-        color-mix(in srgb, var(--surface-strong) 90%, transparent),
-        color-mix(in srgb, var(--surface) 72%, transparent)
+        145deg,
+        color-mix(in srgb, var(--surface-strong) 94%, transparent),
+        color-mix(in srgb, var(--surface) 78%, transparent) 44%,
+        color-mix(in srgb, var(--surface-muted) 62%, transparent)
       ),
-      radial-gradient(circle at 84% 14%, var(--accent-glow), transparent 40%);
+      radial-gradient(circle at 84% 14%, var(--accent-glow-strong), transparent 42%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 58%);
     box-shadow: var(--shadow);
   }
 
   .surface-role-command {
-    background-color: color-mix(in srgb, var(--surface-strong) 78%, transparent);
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-strong) 96%, transparent),
+        color-mix(in srgb, var(--surface) 86%, transparent)
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--accent-soft) 42%, transparent),
+        transparent 50%
+      );
     box-shadow: var(--shadow-soft);
   }
 
   .surface-role-toolbar {
     background-image: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--surface-strong) 90%, transparent),
-      color-mix(in srgb, var(--surface) 94%, transparent)
+      color-mix(in srgb, var(--surface-strong) 92%, transparent),
+      color-mix(in srgb, var(--surface) 90%, transparent)
     );
     box-shadow: var(--shadow);
   }
 
   .surface-role-rail {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 88%, transparent),
-      color-mix(in srgb, var(--surface) 96%, transparent)
-    );
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-muted) 54%, var(--surface-strong) 46%),
+        color-mix(in srgb, var(--surface) 92%, transparent)
+      ),
+      radial-gradient(circle at top right, var(--accent-glow), transparent 48%);
     box-shadow: var(--shadow-soft);
   }
 
   .surface-role-dense {
-    background-color: color-mix(in srgb, var(--surface-strong) 84%, var(--surface) 16%);
+    background-color: color-mix(in srgb, var(--surface-muted) 68%, var(--surface-strong) 32%);
     box-shadow: var(--shadow-soft);
   }
 
   .surface-role-content {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 78%, transparent),
-      color-mix(in srgb, var(--surface) 96%, transparent)
-    );
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-strong) 98%, transparent),
+        color-mix(in srgb, var(--surface) 94%, transparent) 36%,
+        color-mix(in srgb, var(--surface-muted) 28%, var(--surface) 72%)
+      ),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 62%);
     box-shadow: var(--shadow);
   }
 
   .surface-role-utility {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 92%, transparent),
-      color-mix(in srgb, var(--surface-muted) 82%, transparent)
-    );
+    background-image:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-muted) 58%, var(--surface-strong) 42%),
+        color-mix(in srgb, var(--surface-muted) 78%, transparent)
+      ),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 68%);
     box-shadow: var(--shadow-soft);
   }
 

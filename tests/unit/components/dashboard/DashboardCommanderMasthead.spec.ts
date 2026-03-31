@@ -59,7 +59,7 @@ describe("DashboardCommanderMasthead", () => {
     expect(wrapper.text()).toContain("$45.00");
     expect(wrapper.text()).toContain("EUR 40.00");
     expect(wrapper.text()).toContain("Change commander");
-    expect(wrapper.text()).toContain("Compare controls");
+    expect(wrapper.text()).toContain("Open workbench");
     expect(wrapper.text()).toContain("Printings (2)");
     expect(wrapper.text()).not.toContain("Printing 1 of 2");
 
