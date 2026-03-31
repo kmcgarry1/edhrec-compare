@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import DashboardCommanderMasthead from "../../../../src/components/dashboard/DashboardCommanderMasthead.vue";
+import CommanderRouteMasthead from "../../../../src/components/commander-route/CommanderRouteMasthead.vue";
 
 const baseProps = {
   commanderSelection: {
-    primary: "Atraxa Grand Unifier",
+    primary: "Atraxa, Grand Unifier",
     partner: "",
     hasPartner: false,
   },
@@ -15,6 +15,7 @@ const baseProps = {
       imageUrl: "https://example.com/atraxa-card.jpg",
       artUrl: "https://example.com/atraxa-art.jpg",
       hasArtwork: true,
+      colorIdentity: ["W", "U", "B", "G"],
       scryfallUri: "https://scryfall.com/card/one/196/atraxa-grand-unifier",
       printsSearchUri: "https://api.scryfall.com/cards/search/atraxa-printings",
       prices: { usd: "45", eur: "40" },
@@ -28,41 +29,44 @@ const baseProps = {
       printingsLoading: false,
     },
   ],
+  commanderColorIdentity: ["W", "U", "B", "G"],
   spotlightLoading: false,
   backdropUrl: "https://example.com/atraxa-art.jpg",
   nextStepLabel: "Decklist ready to export.",
   canonicalEdhrecHref: "https://edhrec.com/commanders/atraxa-grand-unifier",
   statusItems: [
     { label: "Collection loaded", tone: "accent" },
-    { label: "Missing", tone: "warn" },
-    { label: "Average Decks", tone: "accent" },
+    { label: "Owned cards", tone: "success" },
+    { label: "Commander", tone: "default" },
+  ],
+  statItems: [
+    { label: "Active sections", value: "2 of 4" },
+    { label: "Visible cards", value: "18", tone: "accent" },
   ],
 } as const;
 
 const mountComponent = (overrideProps = {}) =>
-  mount(DashboardCommanderMasthead, {
+  mount(CommanderRouteMasthead, {
     props: {
       ...baseProps,
       ...overrideProps,
     },
   });
 
-describe("DashboardCommanderMasthead", () => {
-  it("renders a compare-first single-commander masthead with status chips and a compact printings toggle", async () => {
+describe("CommanderRouteMasthead", () => {
+  it("renders the destination masthead with color identity, stats, and primary actions", async () => {
     const wrapper = mountComponent();
 
+    expect(wrapper.text()).toContain("Commander destination");
     expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
-    expect(wrapper.text()).toContain("Commander");
     expect(wrapper.text()).toContain("Decklist ready to export.");
     expect(wrapper.text()).toContain("Collection loaded");
-    expect(wrapper.text()).toContain("Missing");
+    expect(wrapper.text()).toContain("Visible cards");
+    expect(wrapper.text()).toContain("18");
+    expect(wrapper.text()).toContain("W");
+    expect(wrapper.text()).toContain("U");
     expect(wrapper.text()).toContain("$45.00");
-    expect(wrapper.text()).toContain("EUR 40.00");
-    expect(wrapper.text()).toContain("Change commander");
-    expect(wrapper.text()).toContain("Open workbench");
-    expect(wrapper.text()).toContain("Utilities");
     expect(wrapper.text()).toContain("Printings (2)");
-    expect(wrapper.text()).not.toContain("Printing 1 of 2");
 
     const edhrecLink = wrapper.find('a[href="https://edhrec.com/commanders/atraxa-grand-unifier"]');
     expect(edhrecLink.exists()).toBe(true);
@@ -82,19 +86,9 @@ describe("DashboardCommanderMasthead", () => {
     expect(wrapper.emitted("open-controls")?.[0]).toEqual([]);
     expect(wrapper.emitted("open-utilities")?.[0]).toEqual([]);
     expect(wrapper.text()).toContain("Printing 1 of 2");
-
-    const buttons = wrapper.findAll("button");
-    const previousPrintingButton = buttons.find((button) => button.text() === "Prev");
-    const nextPrintingButton = buttons.find((button) => button.text() === "Next");
-
-    await previousPrintingButton?.trigger("click");
-    await nextPrintingButton?.trigger("click");
-
-    expect(wrapper.emitted("previous-printing")?.[0]).toEqual([0]);
-    expect(wrapper.emitted("next-printing")?.[0]).toEqual([0]);
   });
 
-  it("renders partner visuals with a merged summary and no printings toggle", () => {
+  it("renders partner profiles without a printings toggle", () => {
     const wrapper = mountComponent({
       commanderSelection: {
         primary: "Tymna the Weaver",
@@ -106,10 +100,9 @@ describe("DashboardCommanderMasthead", () => {
           ...baseProps.commanderProfiles[0],
           id: "tymna",
           name: "Tymna the Weaver",
-          prices: { usd: "18", eur: "16" },
-          totalPrintings: 1,
-          printingPosition: 1,
+          colorIdentity: ["W", "B"],
           canCyclePrintings: false,
+          totalPrintings: 1,
         },
         {
           ...baseProps.commanderProfiles[0],
@@ -117,35 +110,19 @@ describe("DashboardCommanderMasthead", () => {
           name: "Thrasios, Triton Hero",
           imageUrl: "https://example.com/thrasios-card.jpg",
           artUrl: "https://example.com/thrasios-art.jpg",
-          prices: { usd: "32", eur: "29" },
-          totalPrintings: 1,
-          printingPosition: 1,
+          colorIdentity: ["U", "G"],
           canCyclePrintings: false,
+          totalPrintings: 1,
         },
       ],
+      commanderColorIdentity: ["W", "U", "B", "G"],
     });
 
-    expect(wrapper.text()).toContain("Commander");
     expect(wrapper.text()).toContain("Tymna the Weaver + Thrasios, Triton Hero");
     expect(wrapper.text()).toContain("Partner commanders selected");
     expect(wrapper.text()).toContain("Primary");
     expect(wrapper.text()).toContain("Partner");
     expect(wrapper.text()).not.toContain("Printings (");
     expect(wrapper.findAll("img")).toHaveLength(2);
-  });
-
-  it("renders placeholder spotlight cards while commander data is loading", () => {
-    const wrapper = mountComponent({
-      commanderProfiles: [],
-      spotlightLoading: true,
-      commanderSelection: {
-        primary: "Tymna the Weaver",
-        partner: "Thrasios, Triton Hero",
-        hasPartner: true,
-      },
-    });
-
-    expect(wrapper.text()).toContain("Loading commander details");
-    expect(wrapper.findAll(".animate-pulse")).toHaveLength(2);
   });
 });

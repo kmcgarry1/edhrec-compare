@@ -47,6 +47,8 @@ export type CardlistSectionMeta = {
   label: string;
   iconPath?: string;
   iconColor?: string;
+  tone?: "default" | "accent" | "success" | "warn" | "danger" | "muted";
+  summary?: string;
   isPopulated: boolean;
   defaultExpanded: boolean;
   expanded: boolean;

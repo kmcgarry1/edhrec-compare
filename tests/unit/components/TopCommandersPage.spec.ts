@@ -145,6 +145,9 @@ describe("TopCommandersPage", () => {
     const wrapper = mountComponent();
     await flushPromises();
 
+    expect(wrapper.find(".surface-role-command").exists()).toBe(true);
+    expect(wrapper.find(".surface-role-utility").exists()).toBe(true);
+    expect(wrapper.find(".surface-role-content").exists()).toBe(true);
     expect(wrapper.text()).toContain("Loading top commanders...");
   });
 

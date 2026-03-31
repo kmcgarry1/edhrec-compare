@@ -2,6 +2,7 @@ import { computed, ref, watch, type Ref } from "vue";
 import { getCard, getCardPrintings, type ScryfallCard } from "../api/scryfallApi";
 import { handleError } from "../utils/errorHandler";
 import type { CommanderSelection } from "../types/edhrec";
+import { COLOR_IDENTITY_ORDER, type CommanderColor } from "../utils/colorIdentity";
 
 type CommanderProfileEntry = {
   key: string;
@@ -16,6 +17,7 @@ export type CommanderProfile = {
   imageUrl: string;
   artUrl: string;
   hasArtwork: boolean;
+  colorIdentity: CommanderColor[];
   scryfallUri?: string;
   printsSearchUri?: string;
   prices: {
@@ -30,6 +32,32 @@ export type CommanderProfile = {
   printingPosition: number;
   canCyclePrintings: boolean;
   printingsLoading: boolean;
+};
+
+const isCommanderColor = (value: string): value is CommanderColor =>
+  COLOR_IDENTITY_ORDER.includes(value as CommanderColor);
+
+const resolveColorIdentity = (card: ScryfallCard | null) => {
+  if (!card) {
+    return [] as CommanderColor[];
+  }
+
+  const merged = new Set<CommanderColor>();
+  const sources = [
+    ...(card.color_identity?.length ? card.color_identity : card.colors ?? []),
+    ...(card.card_faces?.flatMap((face) =>
+      face.color_identity?.length ? face.color_identity : face.colors ?? []
+    ) ?? []),
+  ];
+
+  sources.forEach((color) => {
+    const normalized = color?.toUpperCase();
+    if (normalized && isCommanderColor(normalized)) {
+      merged.add(normalized);
+    }
+  });
+
+  return COLOR_IDENTITY_ORDER.filter((color) => merged.has(color));
 };
 
 const resolveImageUrl = (card: ScryfallCard | null) => {
@@ -96,6 +124,7 @@ const toCommanderProfile = (entry: CommanderProfileEntry): CommanderProfile => {
     imageUrl: imageUrl || artUrl,
     artUrl: artUrl || imageUrl,
     hasArtwork: Boolean(imageUrl || artUrl),
+    colorIdentity: resolveColorIdentity(activePrinting),
     scryfallUri: activePrinting?.scryfall_uri,
     printsSearchUri: activePrinting?.prints_search_uri,
     prices: {
@@ -128,6 +157,13 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
   const commanderProfiles = computed(() =>
     commanderProfileEntries.value.map((entry) => toCommanderProfile(entry))
   );
+  const mergedColorIdentity = computed(() => {
+    const merged = new Set<CommanderColor>();
+    commanderProfiles.value.forEach((profile) => {
+      profile.colorIdentity.forEach((color) => merged.add(color));
+    });
+    return COLOR_IDENTITY_ORDER.filter((color) => merged.has(color));
+  });
 
   watch(
     selectedNames,
@@ -260,6 +296,7 @@ export const useCommanderSpotlight = (selection: Ref<CommanderSelection>) => {
 
   return {
     commanderProfiles,
+    mergedColorIdentity,
     spotlightLoading,
     backdropUrl,
     showNextPrinting,

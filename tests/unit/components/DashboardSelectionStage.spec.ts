@@ -70,11 +70,12 @@ const mountComponent = () =>
     global: {
       stubs: {
         CommanderSearch: CommanderSearchStub,
-        Card: {
-          template: "<div class='card-stub'><slot /></div>",
+        CSurface: {
+          template: "<div class='surface-stub'><slot /></div>",
         },
         CButton: {
-          template: "<button class='cbutton-stub' @click=\"$emit('click')\"><slot /></button>",
+          template:
+            "<button class='cbutton-stub' v-bind=\"$attrs\" @click=\"$emit('click')\"><slot /></button>",
         },
         CText: {
           template: "<span class='ctext-stub'><slot /></span>",
@@ -125,5 +126,14 @@ describe("DashboardSelectionStage", () => {
     await randomCardButtons[0]!.trigger("click");
 
     expect(selectPrimaryCommanderSpy).toHaveBeenCalledWith("Miirym, Sentinel Wyrm");
+  });
+
+  it("emits a utility tray event from the landing shell", async () => {
+    const wrapper = mountComponent();
+    await flushPromises();
+
+    await wrapper.get('[data-testid="dashboard-utility-trigger"]').trigger("click");
+
+    expect(wrapper.emitted("open-utilities")?.[0]).toEqual([]);
   });
 });

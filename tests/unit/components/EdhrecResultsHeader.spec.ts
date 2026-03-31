@@ -25,6 +25,7 @@ describe("EdhrecResultsHeader", () => {
     const badges = wrapper.findAll(".c-badge");
     expect(badges).toHaveLength(3);
     expect(badges[0]?.classes()).toContain("normal-case");
+    expect(badges[2]?.classes()).toContain("bg-[color:var(--warn-soft)]");
     expect(wrapper.text()).toContain("Missing cards");
 
     await wrapper.get("button").trigger("click");

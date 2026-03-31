@@ -33,9 +33,24 @@ describe("core primitives", () => {
     expect(grid.classes()).toContain("sm:grid-cols-2");
   });
 
-  it("renders surface and badge variants", () => {
+  it("renders surface role variants and badge variants", () => {
     const surface = mount(CSurface, {
       props: { as: "article", variant: "masthead", tone: "default", size: "sm" },
+    });
+    const commandSurface = mount(CSurface, {
+      props: { variant: "command", size: "sm", sheen: true },
+    });
+    const railSurface = mount(CSurface, {
+      props: { variant: "rail", size: "sm" },
+    });
+    const contentSurface = mount(CSurface, {
+      props: { variant: "content", size: "sm" },
+    });
+    const utilitySurface = mount(CSurface, {
+      props: { variant: "utility", size: "sm" },
+    });
+    const denseSurface = mount(CSurface, {
+      props: { variant: "dense", size: "sm" },
     });
     const badge = mount(CBadge, {
       props: { tone: "warn", variant: "soft" },
@@ -45,6 +60,12 @@ describe("core primitives", () => {
     expect(surface.element.tagName).toBe("ARTICLE");
     expect(surface.classes()).toContain("surface-role-masthead");
     expect(surface.classes()).toContain("p-3");
+    expect(commandSurface.classes()).toContain("surface-role-command");
+    expect(commandSurface.classes()).toContain("surface-sheen");
+    expect(railSurface.classes()).toContain("surface-role-rail");
+    expect(contentSurface.classes()).toContain("surface-role-content");
+    expect(utilitySurface.classes()).toContain("surface-role-utility");
+    expect(denseSurface.classes()).toContain("surface-role-dense");
     expect(badge.classes()).toContain("bg-[color:var(--warn-soft)]");
     expect(badge.text()).toContain("Warn");
   });

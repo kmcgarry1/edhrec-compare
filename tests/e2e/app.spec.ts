@@ -63,6 +63,17 @@ const interceptNetwork = async (page: Page) => {
       body: JSON.stringify(SCRYFALL_RANDOM_CARD_RESPONSE),
     })
   );
+
+  await page.route("**/api.scryfall.com/cards/search?q=atraxa-printings", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: [SCRYFALL_COMMANDER_RESPONSE],
+        has_more: false,
+      }),
+    })
+  );
 };
 
 const stubClipboard = async (page: Page) => {
@@ -99,9 +110,9 @@ const ensureDecklistActionsVisible = async (page: Page) => {
     return copyButton;
   }
 
-  const controlTrigger = page.getByTestId("dashboard-control-trigger");
-  if (await controlTrigger.isVisible().catch(() => false)) {
-    await controlTrigger.click();
+  const utilityTrigger = page.getByTestId("dashboard-utility-trigger");
+  if (await utilityTrigger.isVisible().catch(() => false)) {
+    await utilityTrigger.click();
   }
 
   await expect(copyButton).toBeVisible({ timeout: 10_000 });
@@ -137,6 +148,7 @@ test.describe("Commander workflow", () => {
     await expectLandingReady(page);
 
     await selectCommander(page);
+    await expect(page).toHaveURL(/\/commander\/atraxa-grand-unifier$/);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
     const copyButton = await ensureDecklistActionsVisible(page);
@@ -152,10 +164,42 @@ test.describe("Commander workflow", () => {
     const download = await downloadPromise;
     await assertDownloadContains(download, "Lightning Greaves");
   });
+
+  test("loads the dedicated commander route directly", async ({ page }) => {
+    await stubClipboard(page);
+    await interceptNetwork(page);
+    await page.goto("/commander/atraxa-grand-unifier");
+
+    await expect(page.getByTestId("commander-results-command-bar")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Atraxa, Grand Unifier/i })).toBeVisible();
+    await expect(page.getByText("Commander destination", { exact: false })).toBeVisible();
+    await expect(page.locator("#new-cards")).toContainText("Sol Ring");
+  });
 });
 
 test.describe("Mobile card modal", () => {
   test.use({ viewport: { width: 390, height: 844 } });
+
+  test("keeps browse controls and utilities in separate mobile sheets", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");
+    await setupApp(page);
+    await expectLandingReady(page);
+
+    await selectCommander(page);
+
+    await page.getByTestId("dashboard-control-trigger").click();
+    const browseSheet = page.getByTestId("dashboard-browse-sheet");
+    await expect(browseSheet).toBeVisible();
+    await browseSheet.getByRole("button", { name: "Close" }).click();
+    await expect(browseSheet).toBeHidden();
+
+    await page.getByTestId("dashboard-utility-trigger").click();
+    const utilitySheet = page.getByTestId("dashboard-utility-sheet");
+    await expect(utilitySheet).toBeVisible();
+    await expect(page.getByTestId("header-copy-decklist")).toBeVisible();
+    await utilitySheet.getByRole("button", { name: "Close" }).click();
+    await expect(utilitySheet).toBeHidden();
+  });
 
   test("opens modal with details and links to Scryfall", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");

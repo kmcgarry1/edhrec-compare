@@ -20,6 +20,7 @@
     "docs": "typedoc",
     "docs:serve": "typedoc && npx http-server docs/api -o",
     "issues:export": "node scripts/export-issues-for-boards.mjs",
+    "issues:create:visual-audit": "node scripts/create-visual-audit-issues.mjs",
     "size": "size-limit",
     "prepare": "husky"
   },

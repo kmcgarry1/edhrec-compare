@@ -1,22 +1,46 @@
 <template>
-  <CSurface variant="command" size="md" radius="3xl" class="relative overflow-hidden">
+  <CSurface variant="masthead" size="md" radius="3xl" class="commander-route-masthead relative overflow-hidden">
     <div
       v-if="heroBackdropUrl"
-      class="pointer-events-none absolute inset-y-0 right-0 hidden w-28 xl:block commander-inspector-backdrop"
+      class="commander-route-masthead-backdrop pointer-events-none absolute inset-0"
       :style="{ backgroundImage: `url(${heroBackdropUrl})` }"
       aria-hidden="true"
     />
 
-    <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_8.75rem] xl:items-start">
-      <div class="space-y-4">
-        <div class="space-y-2">
-          <CText tag="p" variant="eyebrow" tone="muted">Commander</CText>
-          <CText tag="h2" variant="title" class="text-[clamp(1.35rem,2vw,1.9rem)] leading-tight">
+    <div class="relative grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_18rem] xl:items-start">
+      <div class="space-y-5">
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <CText tag="p" variant="eyebrow" tone="muted"> Commander destination </CText>
+            <div v-if="commanderColorIdentity.length" class="flex flex-wrap gap-2">
+              <span
+                v-for="color in commanderColorIdentity"
+                :key="`commander-color-${color}`"
+                class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.68rem] font-semibold"
+                :class="COLOR_IDENTITY_META[color].pill"
+              >
+                <span
+                  class="inline-flex h-2 w-2 rounded-full"
+                  :class="COLOR_IDENTITY_META[color].dot"
+                  aria-hidden="true"
+                />
+                {{ color }}
+              </span>
+            </div>
+          </div>
+
+          <CText
+            tag="h1"
+            variant="display"
+            class="text-balance text-[clamp(2rem,3.2vw,3rem)] leading-[0.95]"
+          >
             {{ displayTitle }}
           </CText>
+
           <CText v-if="titleSupportText" tag="p" variant="body" tone="muted">
             {{ titleSupportText }}
           </CText>
+
           <CText tag="p" variant="helper" tone="muted" class="max-w-3xl">
             {{ nextStepLabel }}
           </CText>
@@ -39,7 +63,7 @@
           <CButton
             class="hidden lg:inline-flex"
             type="button"
-            variant="secondary"
+            variant="primary"
             size="sm"
             @click="emit('change-commander')"
           >
@@ -53,7 +77,7 @@
             data-testid="dashboard-control-trigger"
             @click="emit('open-controls')"
           >
-            Open workbench
+            Browse rail
           </CButton>
           <CButton
             type="button"
@@ -86,50 +110,59 @@
           </CButton>
         </div>
 
+        <div v-if="statItems.length" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <CSurface
+            v-for="item in statItems"
+            :key="item.label"
+            variant="command"
+            size="sm"
+            radius="2xl"
+            :class="statCardClass(item.tone)"
+          >
+            <CText tag="p" variant="eyebrow" tone="muted">{{ item.label }}</CText>
+            <CText tag="p" variant="title" class="mt-2">{{ item.value }}</CText>
+          </CSurface>
+        </div>
+
         <template v-if="spotlightLoading && !hasProfiles">
-          <div class="space-y-2">
-            <CText tag="p" variant="helper" tone="muted">Loading commander details...</CText>
-            <div class="grid gap-2 sm:grid-cols-2">
-              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
-              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
-            </div>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div
+              v-for="index in 2"
+              :key="`masthead-loading-${index}`"
+              class="h-24 animate-pulse rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
+            />
           </div>
         </template>
 
         <template v-else-if="commanderSelection.hasPartner && profilesToRender.length">
-          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
-            <div
+          <div class="grid gap-3 sm:grid-cols-2">
+            <CSurface
               v-for="(profile, index) in profilesToRender"
-              :key="`${profile.id}-snapshot`"
-              class="flex flex-wrap items-start justify-between gap-3 rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
+              :key="`${profile.id}-profile`"
+              variant="utility"
+              size="sm"
+              radius="2xl"
+              class="space-y-2"
             >
-              <div class="space-y-1">
-                <CText tag="p" variant="overline" tone="muted">
-                  {{ profileRoleLabel(index) }}
-                </CText>
-                <CText tag="p" variant="body" weight="semibold">
-                  {{ profile.name }}
-                </CText>
-                <CText tag="p" variant="helper" tone="muted">
-                  {{ formatProfileSet(profile) }} | {{ formatReleaseDate(profile.releasedAt) }}
-                </CText>
-              </div>
+              <CText tag="p" variant="eyebrow" tone="muted">{{ profileRoleLabel(index) }}</CText>
+              <CText tag="p" variant="title">{{ profile.name }}</CText>
+              <CText tag="p" variant="helper" tone="muted">
+                {{ formatProfileSet(profile) }} | {{ formatReleaseDate(profile.releasedAt) }}
+              </CText>
               <div class="flex flex-wrap gap-2">
                 <PriceColour :price="profile.prices.usd" currency="$" align="start" />
                 <PriceColour :price="profile.prices.eur" currency="EUR " align="start" />
               </div>
-            </div>
-          </CSurface>
+            </CSurface>
+          </div>
         </template>
 
         <template v-else-if="primaryProfile">
           <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div class="space-y-1">
-                <CText tag="p" variant="overline" tone="muted">Current printing</CText>
-                <CText tag="p" variant="body" weight="semibold">
-                  {{ formatProfileSet(primaryProfile) }}
-                </CText>
+                <CText tag="p" variant="eyebrow" tone="muted"> Current printing </CText>
+                <CText tag="p" variant="title">{{ formatProfileSet(primaryProfile) }}</CText>
                 <CText tag="p" variant="helper" tone="muted">
                   Released {{ formatReleaseDate(primaryProfile.releasedAt) }}
                 </CText>
@@ -182,7 +215,7 @@
         >
           <CText tag="p" variant="title">Commander details unavailable</CText>
           <CText tag="p" variant="helper" tone="muted" class="mt-2">
-            Compare still works, but the commander snapshot could not be loaded.
+            The deck route is still available, but the commander snapshot could not be loaded.
           </CText>
         </div>
       </div>
@@ -190,13 +223,13 @@
       <div class="hidden xl:block">
         <div
           v-if="artProfiles.length"
-          class="grid gap-2"
+          class="grid gap-3"
           :class="artProfiles.length > 1 ? 'grid-cols-2' : 'grid-cols-1'"
         >
           <figure
             v-for="(profile, index) in artProfiles"
             :key="`${profile.id}-art`"
-            class="relative overflow-hidden rounded-[22px] border border-[color:rgba(255,255,255,0.08)] bg-[color:var(--surface-strong)] shadow-[var(--shadow-soft)]"
+            class="relative overflow-hidden rounded-[26px] border border-[color:rgba(255,255,255,0.08)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
           >
             <img
               :src="profile.imageUrl"
@@ -204,14 +237,9 @@
               class="aspect-[63/88] h-full w-full object-cover object-top"
             />
             <div
-              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(3,9,13,0.96)] via-[rgba(3,9,13,0.72)] to-transparent px-2 pb-2 pt-6"
+              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(3,9,13,0.95)] via-[rgba(3,9,13,0.78)] to-transparent px-3 pb-3 pt-8"
             >
-              <CText
-                tag="figcaption"
-                variant="helper"
-                tone="inverse"
-                class="text-[0.68rem] font-semibold leading-snug"
-              >
+              <CText tag="figcaption" variant="helper" tone="inverse" class="font-semibold">
                 {{ artProfiles.length > 1 ? profileRoleLabel(index) : profile.name }}
               </CText>
             </div>
@@ -228,28 +256,38 @@ import PriceColour from "../PriceColour.vue";
 import { CBadge, CButton, CSurface, CText } from "../core";
 import type { CommanderProfile } from "../../composables/useCommanderSpotlight";
 import type { CommanderSelection } from "../../types/edhrec";
+import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
 
-type MastheadStatusTone = "default" | "accent" | "success" | "warn" | "danger" | "muted";
+type StatusTone = "default" | "accent" | "success" | "warn" | "danger" | "muted";
 
-type MastheadStatusItem = {
+type StatusItem = {
   label: string;
-  tone?: MastheadStatusTone;
+  tone?: StatusTone;
+};
+
+type StatItem = {
+  label: string;
+  value: string;
+  tone?: StatusTone;
 };
 
 const props = withDefaults(
   defineProps<{
     commanderSelection: CommanderSelection;
     commanderProfiles: CommanderProfile[];
+    commanderColorIdentity: CommanderColor[];
     spotlightLoading: boolean;
     backdropUrl?: string;
     nextStepLabel: string;
     canonicalEdhrecHref?: string | null;
-    statusItems?: MastheadStatusItem[];
+    statusItems?: StatusItem[];
+    statItems?: StatItem[];
   }>(),
   {
     backdropUrl: "",
     canonicalEdhrecHref: null,
     statusItems: () => [],
+    statItems: () => [],
   }
 );
 
@@ -273,7 +311,7 @@ const artProfiles = computed(() =>
 );
 const hasProfiles = computed(() => profilesToRender.value.length > 0);
 const displayPrimaryName = computed(
-  () => primaryProfile.value?.name ?? props.commanderSelection.primary
+  () => primaryProfile.value?.name ?? props.commanderSelection.primary ?? "Commander route"
 );
 const displayPartnerName = computed(
   () => partnerProfile.value?.name ?? props.commanderSelection.partner
@@ -301,6 +339,21 @@ watch(
   }
 );
 
+const statCardClass = (tone?: StatusTone) => {
+  switch (tone) {
+    case "success":
+      return "border-[color:color-mix(in_srgb,var(--success-soft)_92%,var(--border)_8%)]";
+    case "warn":
+      return "border-[color:color-mix(in_srgb,var(--warn-soft)_92%,var(--border)_8%)]";
+    case "accent":
+      return "border-[color:color-mix(in_srgb,var(--accent-soft)_92%,var(--border)_8%)]";
+    case "muted":
+      return "opacity-90";
+    default:
+      return "";
+  }
+};
+
 const formatProfileSet = (profile: CommanderProfile) => {
   if (profile.setName && profile.setCode) {
     return `${profile.setName} (${profile.setCode})`;
@@ -327,10 +380,30 @@ const profileRoleLabel = (index: number) => (index === 0 ? "Primary" : "Partner"
 </script>
 
 <style scoped>
-.commander-inspector-backdrop {
+.commander-route-masthead {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-strong) 94%, var(--bg) 6%),
+      color-mix(in srgb, var(--surface) 82%, var(--bg-strong) 18%) 46%,
+      color-mix(in srgb, var(--surface-muted) 78%, var(--bg-strong) 22%)
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 56%);
+}
+
+.commander-route-masthead::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 2rem;
+  pointer-events: none;
+}
+
+.commander-route-masthead-backdrop {
   background-position: center right;
   background-size: cover;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.2) 30%, #000 100%);
-  opacity: 0.18;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.12) 30%, #000 100%);
+  opacity: 0.16;
 }
 </style>

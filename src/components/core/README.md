@@ -44,6 +44,20 @@ The goal is consistency, not maximal abstraction.
 - Route-level layouts should use `useLayoutDensity()` rather than hard-coding
   repeated padding and gap shifts.
 
+### Surface role mapping
+
+For route shells, `CSurface` role variants are the primary hierarchy language:
+
+- `masthead`: route identity, entry point, and hero-level framing
+- `command`: compact action deck or route command shell
+- `rail`: workflow controls, navigation, and section jumping
+- `content`: primary reading well, results container, or main canvas
+- `utility`: secondary support, metadata, export helpers, and side context
+- `dense`: compact supporting blocks nested inside larger shells
+
+Use role variants to make hierarchy obvious before adding route-local chrome.
+If a route still feels flat, adjust the shell roles first.
+
 ## Primitive inventory
 
 | Primitive     | Use it for                                      | Notes                                                                                                |
@@ -76,6 +90,18 @@ usually be a primitive. Common examples:
 - replace a styled `div` with `CSurface`
 - replace a flex utility wrapper with `CInline` or `CStack`
 - replace a styled metadata `span` with `CText` or `CBadge`
+
+### When `Card` is still acceptable
+
+`Card.vue` remains a compatibility wrapper for untouched legacy areas. It is
+acceptable when:
+
+- the component has not been migrated to direct primitives yet
+- the wrapper header/footer slot behavior is already stable and out of scope
+- the work does not need shell-level hierarchy changes
+
+For any new route shell, major shell refactor, or shared design pass, prefer
+direct `CSurface` usage instead of adding more `Card`-based chrome.
 
 ### Keep semantics explicit
 

@@ -89,14 +89,14 @@ export const wrapClasses: Record<Wrap, string> = {
 
 export const textVariantClasses: Record<TextVariant, string> = {
   body: "text-sm",
-  helper: "text-[0.78rem]",
+  helper: "text-[0.76rem] leading-relaxed",
   label: "text-xs font-semibold uppercase tracking-wide",
   caption: "text-[11px]",
-  title: "text-[1.02rem] font-semibold leading-tight",
+  title: "text-[1.06rem] font-semibold leading-[1.15] tracking-[-0.01em]",
   metric: "text-2xl font-semibold tracking-tight sm:text-[1.8rem]",
   overline: "text-[10px] font-semibold uppercase tracking-[0.24em]",
-  eyebrow: "text-[0.68rem] font-semibold uppercase tracking-[0.3em]",
-  display: "text-[clamp(2.2rem,4vw,3.8rem)] font-semibold leading-[0.96]",
+  eyebrow: "text-[0.64rem] font-semibold uppercase tracking-[0.34em]",
+  display: "text-[clamp(2.2rem,4vw,3.8rem)] font-semibold leading-[0.94] tracking-[-0.03em]",
 };
 
 export const textToneClasses: Record<TextTone, string> = {

@@ -9,8 +9,8 @@
       Loading Scryfall data...
     </GlobalLoadingBanner>
 
-    <DashboardControlPanel
-      ref="controlPanelRef"
+    <DashboardBrowseRail
+      ref="browseRailRef"
       :selected-slug="currentCommanderSlug"
       :selection="commanderSelection"
       :bracket="chosenBracket"
@@ -18,18 +18,14 @@
       :page-type="chosenPageType"
       :companion="chosenCompanion"
       :open="controlPanelOpen"
+      :sections="cardlistSections"
+      :active-id="activeSectionId"
+      :loading="readerLoading"
       :has-csv-data="hasCsvData"
-      :csv-count="csvCount"
       :inventory-summary="inventorySummary"
-      :collection-source-name="collectionSourceName"
-      :collection-imported-at="collectionImportedAt"
-      :collection-mode-label="collectionModeLabel"
-      :collection-mode-hint="collectionModeHint"
       :filter-options="deckViewFilterOptions"
-      :decklist-text="decklistText"
-      :copied="decklistCopied"
-      :export-helper-text="exportHelperText"
       @close="emit('close-control-panel')"
+      @navigate="scrollToSection"
       @filter-change="emit('filter-change', $event)"
       @commander-selected="handleCommanderSelection"
       @selection-change="handleSelectionChange"
@@ -37,13 +33,9 @@
       @update:modifier="setModifier"
       @update:page-type="setPageType"
       @update:companion="setCompanion"
-      @open-upload="emit('open-upload')"
-      @clear-upload="emit('clear-upload')"
-      @copy="emit('copy-header-decklist')"
-      @download="emit('download-header-decklist')"
     />
 
-    <div class="min-w-0 space-y-4">
+    <div class="min-w-0 space-y-3">
       <DashboardCommanderMasthead
         :commander-selection="commanderSelection"
         :commander-profiles="commanderProfiles"
@@ -54,20 +46,28 @@
         :status-items="mastheadStatusItems"
         @change-commander="focusCommanderEditor"
         @open-controls="emit('open-control-panel')"
+        @open-utilities="emit('open-utilities')"
         @previous-printing="emit('previous-printing', $event)"
         @next-printing="emit('next-printing', $event)"
       />
 
       <CSurface variant="content" size="sm" radius="3xl" class="space-y-4">
-        <EdhrecResultsHeader
-          :list-count="cardlistSections.length"
-          :total-section-count="totalSectionCount"
-          :card-count="visibleCardCount"
-          :deck-view-label="deckFilterLabel"
-          :ownership-summary="ownershipSummary"
-          :all-expanded="allSectionsExpanded"
-          @toggle-expand-all="handleToggleExpandAll"
-        />
+        <div class="space-y-3 border-b border-[color:var(--border)] pb-4">
+          <EdhrecResultsHeader
+            :list-count="cardlistSections.length"
+            :total-section-count="totalSectionCount"
+            :card-count="visibleCardCount"
+            :deck-view-label="deckFilterLabel"
+            :ownership-summary="ownershipSummary"
+            :all-expanded="allSectionsExpanded"
+            @toggle-expand-all="handleToggleExpandAll"
+          />
+
+          <CText tag="p" variant="helper" tone="muted" class="max-w-3xl">
+            Keep filters and section jumps in the workbench, then finish exports and collection
+            actions from the utilities tray.
+          </CText>
+        </div>
 
         <FloatingCardlistNav
           v-if="cardlistSections.length"
@@ -94,35 +94,34 @@
           message="No cardlists match the current deck view. Try another filter or upload a collection."
           class="bg-[color:var(--surface-muted)]"
         />
+
+        <div
+          v-if="cardlistEntries.length"
+          class="space-y-4"
+        >
+          <template v-for="entry in cardlistEntries" :key="entry.key">
+            <CardlistSection
+              :cardlist="entry.cardlist"
+              :section-meta="entry.sectionMeta"
+              :rows="getTableRows(entry.cardlist)"
+              :columns="cardTableColumns"
+              :decklist-text="entry.decklistText"
+              :copied-section-id="decklistCopySectionId"
+              :loading="bulkCardsLoading"
+              @toggle="toggleSection(entry.sectionMeta.id)"
+              @copy="handleCopyDecklist(entry.cardlist, entry.index)"
+              @download="handleDownloadDecklist(entry.cardlist, entry.index)"
+            />
+          </template>
+        </div>
       </CSurface>
-
-      <div
-        v-if="cardlistEntries.length"
-        class="space-y-4"
-      >
-        <template v-for="entry in cardlistEntries" :key="entry.key">
-          <CardlistSection
-            :cardlist="entry.cardlist"
-            :section-meta="entry.sectionMeta"
-            :rows="getTableRows(entry.cardlist)"
-            :columns="cardTableColumns"
-            :decklist-text="entry.decklistText"
-            :copied-section-id="decklistCopySectionId"
-            :loading="bulkCardsLoading"
-            @toggle="toggleSection(entry.sectionMeta.id)"
-            @copy="handleCopyDecklist(entry.cardlist, entry.index)"
-            @download="handleDownloadDecklist(entry.cardlist, entry.index)"
-          />
-        </template>
-      </div>
-
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
-import DashboardControlPanel from "./DashboardControlPanel.vue";
+import DashboardBrowseRail from "./DashboardBrowseRail.vue";
 import DashboardCommanderMasthead from "./DashboardCommanderMasthead.vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
 import { CNotice, CSurface, CText } from "../core";
@@ -146,16 +145,8 @@ const props = defineProps<{
   canonicalEdhrecHref?: string | null;
   nextStepLabel: string;
   hasCsvData: boolean;
-  csvCount: number;
   inventorySummary: string;
-  collectionSourceName?: string | null;
-  collectionImportedAt?: Date | null;
-  collectionModeLabel: string;
-  collectionModeHint: string;
   filterOptions: OwnedFilterOption[];
-  decklistText?: string | null;
-  decklistCopied: boolean;
-  exportHelperText: string;
 }>();
 
 const emit = defineEmits<{
@@ -163,16 +154,13 @@ const emit = defineEmits<{
   "selection-change": [payload: CommanderSelection];
   "close-control-panel": [];
   "open-control-panel": [];
-  "open-upload": [];
-  "clear-upload": [];
+  "open-utilities": [];
   "filter-change": [value: OwnedFilterValue];
   "previous-printing": [index: number];
   "next-printing": [index: number];
-  "copy-header-decklist": [];
-  "download-header-decklist": [];
 }>();
 
-const controlPanelRef = ref<InstanceType<typeof DashboardControlPanel> | null>(null);
+const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
 
 const {
   chosenPageType,
@@ -360,15 +348,15 @@ const handleToggleExpandAll = () => {
 };
 
 const selectSuggestedCommander = (name: string) => {
-  controlPanelRef.value?.selectPrimaryCommander(name);
+  browseRailRef.value?.selectPrimaryCommander(name);
 };
 
 const startPartnerSelection = () => {
-  controlPanelRef.value?.startPartnerSelection?.();
+  browseRailRef.value?.startPartnerSelection?.();
 };
 
 const focusCommanderEditor = () => {
-  controlPanelRef.value?.focusPrimarySearch?.();
+  browseRailRef.value?.focusPrimarySearch?.();
 };
 
 const cardTableColumns: ColumnDefinition[] = [

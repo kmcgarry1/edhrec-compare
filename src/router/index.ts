@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const Dashboard = () => import("../components/Dashboard.vue");
+const CommanderRoutePage = () => import("../components/CommanderRoutePage.vue");
 const TopCommandersPage = () => import("../components/TopCommandersPage.vue");
 const ChangelogPage = () => import("../components/ChangelogPage.vue");
 
@@ -15,7 +16,7 @@ const router = createRouter({
     {
       path: "/commander/:slug",
       name: "commander",
-      component: Dashboard,
+      component: CommanderRoutePage,
       props: true,
     },
     {

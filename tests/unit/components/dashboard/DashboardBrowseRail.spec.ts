@@ -119,4 +119,20 @@ describe("DashboardBrowseRail", () => {
     expect(wrapper.emitted("navigate")?.[0]).toEqual(["new-cards"]);
     expect(wrapper.emitted("close")).toBeTruthy();
   });
+
+  it("keeps search and filters available when section navigation is intentionally hidden", async () => {
+    const wrapper = mountComponent({ showSectionNavigation: false });
+    await flushPromises();
+
+    expect(wrapper.find(".commander-search-stub").exists()).toBe(true);
+    expect(wrapper.find('[data-testid="browse-rail-sections-toggle"]').exists()).toBe(false);
+
+    setViewportWidth(390);
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+
+    expect(wrapper.get('[data-testid="browse-sheet-tab-search"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="browse-sheet-tab-filters"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="browse-sheet-tab-sections"]').exists()).toBe(false);
+  });
 });

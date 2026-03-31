@@ -1,15 +1,15 @@
 <template>
   <aside v-if="!isMobileViewport" class="xl:sticky xl:top-24">
-    <div class="space-y-3">
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+    <CSurface variant="rail" size="sm" radius="3xl" class="space-y-5">
+      <div class="space-y-2">
         <CText tag="p" variant="eyebrow" tone="muted"> Commander workbench </CText>
         <CText tag="p" variant="body" tone="muted">
           Keep search first, refine the route, and jump through sections without leaving the
           comparison flow.
         </CText>
-      </CSurface>
+      </div>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -37,9 +37,9 @@
             @selection-change="handleSelectionChange"
           />
         </div>
-      </CSurface>
+      </section>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -109,9 +109,12 @@
             @update:companion="emit('update:companion', $event)"
           />
         </div>
-      </CSurface>
+      </section>
 
-      <CSurface variant="rail" size="sm" radius="3xl" class="space-y-3">
+      <section
+        v-if="showSectionNavigation"
+        class="space-y-3 border-t border-[color:var(--border)] pt-4"
+      >
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -163,8 +166,8 @@
             </button>
           </div>
         </div>
-      </CSurface>
-    </div>
+      </section>
+    </CSurface>
   </aside>
 
   <Teleport to="body">
@@ -327,27 +330,35 @@ import type { CommanderSelection } from "../../types/edhrec";
 import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard";
 
 const MOBILE_BREAKPOINT_PX = 1280;
+type BrowseTab = "search" | "filters" | "sections";
+type BrowseTabOption = { value: BrowseTab; label: string };
 
-const props = defineProps<{
-  selectedSlug?: string | null;
-  selection?: CommanderSelection | null;
-  bracket: string;
-  modifier: string;
-  pageType: string;
-  companion: string;
-  sections: Array<{
-    id: string;
-    label: string;
-    iconPath?: string;
-    iconColor?: string;
-  }>;
-  activeId?: string | null;
-  open: boolean;
-  loading?: boolean;
-  hasCsvData: boolean;
-  inventorySummary: string;
-  filterOptions: OwnedFilterOption[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    selectedSlug?: string | null;
+    selection?: CommanderSelection | null;
+    bracket: string;
+    modifier: string;
+    pageType: string;
+    companion: string;
+    sections: Array<{
+      id: string;
+      label: string;
+      iconPath?: string;
+      iconColor?: string;
+    }>;
+    activeId?: string | null;
+    open: boolean;
+    loading?: boolean;
+    hasCsvData: boolean;
+    inventorySummary: string;
+    filterOptions: OwnedFilterOption[];
+    showSectionNavigation?: boolean;
+  }>(),
+  {
+    showSectionNavigation: true,
+  }
+);
 
 const emit = defineEmits<{
   close: [];
@@ -366,17 +377,24 @@ const mobileCommanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null
 const mobileSheetRef = ref<HTMLElement | null>(null);
 const fallbackIconPath = mdiCardsOutline;
 const openRailGroup = ref<"search" | "collection" | "sections">("search");
-const activeBrowseTab = ref<"search" | "filters" | "sections">("search");
+const activeBrowseTab = ref<BrowseTab>("search");
 const isMobileViewport = ref(typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false);
 const mobileSheetOpen = computed(() => props.open && isMobileViewport.value);
 const { activate, deactivate } = useFocusTrap(mobileSheetRef, mobileSheetOpen);
 const sheetTitleId = `browse-sheet-${Math.random().toString(36).slice(2, 9)}`;
 
-const browseTabs = [
-  { value: "search", label: "Search" },
-  { value: "filters", label: "Filters" },
-  { value: "sections", label: "Sections" },
-] as const;
+const browseTabs = computed<BrowseTabOption[]>(() =>
+  props.showSectionNavigation === false
+    ? [
+        { value: "search", label: "Search" },
+        { value: "filters", label: "Filters" },
+      ]
+    : [
+        { value: "search", label: "Search" },
+        { value: "filters", label: "Filters" },
+        { value: "sections", label: "Sections" },
+      ]
+);
 
 const activeFilterLabel = computed(
   () => props.filterOptions.find((option) => option.active)?.label ?? "All"
@@ -441,6 +459,13 @@ const startPartnerSelection = () => {
   mobileCommanderSearchRef.value?.startPartnerSelection?.();
 };
 
+const focusPrimarySearch = () => {
+  openRailGroup.value = "search";
+  activeBrowseTab.value = "search";
+  void commanderSearchRef.value?.focusPrimarySearch?.();
+  void mobileCommanderSearchRef.value?.focusPrimarySearch?.();
+};
+
 const sectionButtonClass = (active: boolean) =>
   [
     "flex items-center gap-2 rounded-2xl border px-3 py-2 text-left text-[0.76rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]",
@@ -461,6 +486,16 @@ watch(
   { immediate: true }
 );
 
+watch(
+  () => props.showSectionNavigation,
+  (showSectionNavigation) => {
+    if (showSectionNavigation === false && activeBrowseTab.value === "sections") {
+      activeBrowseTab.value = "search";
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   syncViewportMode();
   window.addEventListener("resize", syncViewportMode, { passive: true });
@@ -476,5 +511,6 @@ onBeforeUnmount(() => {
 defineExpose({
   selectPrimaryCommander,
   startPartnerSelection,
+  focusPrimarySearch,
 });
 </script>
