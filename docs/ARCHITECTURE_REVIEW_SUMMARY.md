@@ -1,366 +1,108 @@
 # Architecture Review Summary
 
-**Review Date:** November 22, 2025  
-**Reviewer:** GitHub Copilot Architecture Review Agent  
-**Version:** Commander Scout v0.0.0
+**Review Date:** 2026-03-31  
+**Review Scope:** Current production architecture and documentation state  
+**Status:** Active
 
 ## Executive Summary
 
-This document summarizes a comprehensive architecture review of the Commander Scout application. The review identified 9 improvement opportunities across performance, reliability, developer experience, and maintenance categories.
+Commander Scout's architecture is in a stronger state than the November 2025 review reflected. The major performance-oriented architecture items from that earlier backlog are now implemented: persistent card caching, in-flight request deduplication, virtualized card rendering, route-based lazy loading, component-level async boundaries, and bundle analysis in CI.
 
-## Review Scope
+The codebase is still fundamentally sound: a Vue 3 SPA with composable-driven state, a thin router, and a feature split that is easy to navigate. The current architecture risk is no longer "missing core performance primitives." It is keeping a growing route shell manageable while improving error recovery and preserving a clear offline strategy.
 
-The architecture review covered:
+## What Was Validated
 
-- ✅ **Codebase Analysis** - 36 source files (4,945 lines Vue + 1,551 lines TS)
-- ✅ **Build System** - Rolldown (Vite variant) configuration
-- ✅ **State Management** - Composable-based architecture
-- ✅ **API Integration** - Scryfall and EDHREC API patterns
-- ✅ **Testing Coverage** - 277 unit tests (83% coverage)
-- ✅ **Performance** - Bundle size analysis (201 KB JS + 74 KB CSS)
-- ✅ **Security** - Error handling and CSP configuration
-- ✅ **Documentation** - Architecture and contribution docs
+This summary was checked against the current implementation in:
 
-## Findings Overview
+- [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- [../src/api/indexedDbCache.ts](../src/api/indexedDbCache.ts)
+- [../src/api/requestCache.ts](../src/api/requestCache.ts)
+- [../src/components/CardTable.vue](../src/components/CardTable.vue)
+- [../src/router/index.ts](../src/router/index.ts)
+- [../src/App.vue](../src/App.vue)
+- [../src/components/Dashboard.vue](../src/components/Dashboard.vue)
+- [../vite.config.ts](../vite.config.ts)
+- [../.github/workflows/ci.yml](../.github/workflows/ci.yml)
 
-### Priority Breakdown
+## Current Strengths
 
-| Priority   | Count | Est. Days | Category               |
-| ---------- | ----- | --------- | ---------------------- |
-| **High**   | 3     | 7-10      | Performance            |
-| **Medium** | 3     | 5-7       | Reliability & Features |
-| **Low**    | 3     | 5-7       | Maintenance & DX       |
-| **Total**  | 9     | 17-24     | All Categories         |
+### 1. The 2025 high-priority architecture work is mostly landed
 
-### Issues by Category
+- `indexedDbCache.ts` persists Scryfall card data with TTL-based eviction.
+- `requestCache.ts` deduplicates concurrent EDHREC and Scryfall requests.
+- `CardTable.vue` supports virtualization and progressive rendering for large result sets.
+- The router lazy-loads route surfaces, and several optional UI surfaces load asynchronously with `defineAsyncComponent`.
+- CI runs `build`, `bundle:analyze`, `size`, unit tests, and Playwright E2E coverage.
 
-**Performance Optimizations (5 issues)**
+### 2. The state model remains pragmatic
 
-- IndexedDB caching for Scryfall API
-- Virtual scrolling for card tables
-- Code splitting and lazy loading
-- API request deduplication
-- PWA and offline support
+- Shared behavior lives in composables instead of a heavy global store.
+- Route state is intentionally thin and synchronized through `useEdhrecRouteState.ts`.
+- Local persistence is limited to preferences and recent commanders, while collection data stays in memory.
 
-**Developer Experience (2 issues)**
+### 3. The architecture documentation is better than average
 
-- Component documentation
-- Automated dependency updates
+- [../ARCHITECTURE.md](../ARCHITECTURE.md) is current and already reflects implemented caching, deduplication, and virtualization.
+- API and composable layers have local README files and inline documentation.
+- Test coverage exists around the newer infrastructure pieces, including CSP sync, request cache behavior, IndexedDB cache behavior, and code splitting expectations.
 
-**Reliability (1 issue)**
+## Current Risks
 
-- Error boundary implementation
+### High
 
-**Testing (1 issue)**
+#### 1. Route orchestration is getting dense in the commander workflow
 
-- E2E test coverage expansion
+The commander route now coordinates route state, EDHREC fetches, Scryfall enrichment, section expansion state, export state, floating navigation, and collection overlays across multiple composables and shells. This is still working, but the coordination surface is large enough that new feature work could begin to introduce coupling between route layout concerns and data orchestration.
 
-## Key Recommendations
+**Why it matters:** Future growth is most likely to create friction in the dashboard and commander-detail flow, not in low-level API utilities.
 
-### Immediate Actions (High Priority)
+**Recommendation:** Keep the route shell thin and continue pushing domain logic downward into focused composables or feature modules as new capabilities land.
 
-These should be addressed first for maximum impact:
+### Medium
 
-1. **Implement IndexedDB Caching** (#01-high)
-   - **Impact:** 80% reduction in API calls for repeat views
-   - **Benefit:** Faster loading, offline capability, reduced bandwidth
-   - **Effort:** 2-4 days
+#### 2. Error recovery is still weaker than the rest of the architecture
 
-2. **Add Virtual Scrolling** (#02-high)
-   - **Impact:** 60% reduction in render time for large lists
-   - **Benefit:** Smooth scrolling, lower memory usage
-   - **Effort:** 2-3 days
+The app has centralized error handling and telemetry, but it still lacks a clear route-level error boundary or recovery shell for component failures. A thrown rendering error in the wrong place can still degrade a large chunk of a route.
 
-3. **Enable Code Splitting** (#03-high)
-   - **Impact:** 40% reduction in initial bundle size
-   - **Benefit:** Faster time-to-interactive, better Core Web Vitals
-   - **Effort:** 2-3 days
+**Recommendation:** Add route-level failure isolation for the dashboard workspace and top-commanders route before adding more cross-cutting UI features.
 
-**Combined Impact:** 3-5 second improvement in load time on 3G connections
+#### 3. Offline support is still partial by design
 
-### Short-term Improvements (Medium Priority)
+The app now caches public Scryfall responses, but it is not a true offline-capable shell. EDHREC remains network-dependent, there is no service worker, and the user-facing experience is still online-first.
 
-Enhance reliability and add features:
+**Recommendation:** Treat offline support as a deliberate product decision. Either keep it explicitly out of scope, or define a narrow offline story instead of letting caching imply fuller support than the UI can actually provide.
 
-4. **Error Boundaries** (#01-medium)
-   - Prevent component crashes from breaking entire app
-   - Better error recovery and reporting
-   - Effort: 1-2 days
+### Low
 
-5. **PWA Support** (#02-medium)
-   - Enable offline functionality
-   - "Add to Home Screen" capability
-   - Effort: 2-3 days
+#### 4. Documentation and historical backlog drift can mislead contributors
 
-6. **Request Deduplication** (#03-medium)
-   - Eliminate duplicate API calls
-   - Reduce bandwidth and API load
-   - Effort: 1-2 days
+The biggest documentation problem is not missing architecture detail. It is stale review material that still describes completed work as open. That creates a planning tax for anyone trying to understand what is truly left.
 
-### Long-term Maintenance (Low Priority)
+**Recommendation:** Keep the active review set small and clearly separate from archived backlog material.
 
-Improve maintainability and quality:
+## Status Against The 2025 Architecture Backlog
 
-7. **Component Documentation** (#01-low)
-   - JSDoc comments for all components
-   - TypeDoc API documentation
-   - Effort: 2-3 days
+| 2025 Item | Current Status | Notes |
+| --- | --- | --- |
+| IndexedDB caching | Landed | Implemented in `src/api/indexedDbCache.ts` |
+| Virtual scrolling | Landed | Implemented in `src/components/CardTable.vue` |
+| Code splitting and lazy loading | Landed | Route and component async loading are both present |
+| Request deduplication | Landed | Implemented in `src/api/requestCache.ts` and used by API layers |
+| Automated dependency updates | Landed | `.github/dependabot.yml` exists |
+| Error boundaries | Open | Still worth doing |
+| PWA / offline shell | Open | Still optional, not implemented |
+| Expanded component documentation | Partial | Strong for core/API/composables, lighter for route shells |
+| E2E coverage expansion | Partial | Good baseline exists, but can still expand |
 
-8. **Automated Dependency Updates** (#02-low)
-   - Dependabot configuration
-   - Security patch automation
-   - Effort: 1 day
+## Recommended Next Tranche
 
-9. **E2E Test Expansion** (#03-low)
-   - Comprehensive workflow coverage
-   - Visual regression testing
-   - Effort: 2-3 days
-
-## Implementation Roadmap
-
-### Phase 1: Quick Wins (Week 1-2, 7-10 days)
-
-Focus on high-impact, medium-effort improvements:
-
-```
-Week 1:
-- [x] Architecture review completed
-- [ ] IndexedDB caching (3-4 days)
-- [ ] Virtual scrolling (2-3 days)
-
-Week 2:
-- [ ] Code splitting (2-3 days)
-- [ ] Request deduplication (1-2 days)
-```
-
-**Expected Outcomes:**
-
-- 40-50% faster loading
-- Smooth scrolling with 500+ cards
-- Better mobile performance
-
-### Phase 2: Reliability (Week 3, 3-5 days)
-
-Improve error handling and offline support:
-
-```
-Week 3:
-- [ ] Error boundaries (1-2 days)
-- [ ] PWA implementation (2-3 days)
-```
-
-**Expected Outcomes:**
-
-- No more full-app crashes
-- Offline functionality
-- Installable as standalone app
-
-### Phase 3: Maintenance (Week 4+, 5-7 days)
-
-Improve developer experience:
-
-```
-Week 4+:
-- [ ] Component documentation (2-3 days)
-- [ ] Automated dependencies (1 day)
-- [ ] E2E test expansion (2-3 days)
-```
-
-**Expected Outcomes:**
-
-- Easier onboarding
-- Better maintainability
-- Higher confidence in deployments
-
-## Performance Impact Analysis
-
-### Current State
-
-```
-Bundle Size: 275 KB (80 KB gzipped)
-├─ JavaScript: 201 KB (68 KB gzipped)
-└─ CSS: 74 KB (12 KB gzipped)
-
-Load Performance (3G):
-├─ Time to Interactive: 4.5s
-├─ First Contentful Paint: 2.8s
-└─ Largest Contentful Paint: 3.2s
-
-API Performance:
-├─ Scryfall calls: 2-5 per search
-├─ Repeat commander: Full refetch
-└─ Cache hit rate: 0%
-```
-
-### After High-Priority Implementations
-
-```
-Bundle Size: 184 KB (67 KB gzipped) [-33%]
-├─ Initial JavaScript: 110 KB (45 KB gzipped)
-├─ Vendor chunks: 80 KB (20 KB gzipped)
-└─ CSS: 74 KB (12 KB gzipped)
-
-Load Performance (3G):
-├─ Time to Interactive: 2.8s [-38%]
-├─ First Contentful Paint: 2.0s [-29%]
-└─ Largest Contentful Paint: 2.3s [-28%]
-
-API Performance:
-├─ Scryfall calls: 0-1 per search [-80%]
-├─ Repeat commander: < 500ms (cached)
-└─ Cache hit rate: 70%+
-```
-
-## Architecture Strengths
-
-Areas where the application excels:
-
-✅ **Clean Architecture**
-
-- Well-organized composable-based state management
-- Clear separation of concerns
-- TypeScript for type safety
-
-✅ **Modern Stack**
-
-- Vue 3 Composition API
-- Rolldown for fast builds
-- Tailwind CSS for consistent styling
-
-✅ **Testing**
-
-- 83% unit test coverage
-- Playwright E2E tests
-- Good test infrastructure
-
-✅ **Developer Experience**
-
-- Husky pre-commit hooks
-- ESLint + Prettier
-- Clear contribution guidelines
-
-✅ **Documentation**
-
-- Comprehensive ARCHITECTURE.md
-- Detailed CONTRIBUTING.md
-- Custom agent instructions
-
-## Architecture Weaknesses
-
-Areas identified for improvement:
-
-⚠️ **Performance**
-
-- No client-side caching (every load fetches)
-- All components bundled together
-- Large lists render all rows
-
-⚠️ **Error Handling**
-
-- Component errors can crash app
-- No error boundaries
-- Limited error recovery
-
-⚠️ **Offline Support**
-
-- Completely dependent on internet
-- No service worker
-- Not a PWA
-
-⚠️ **API Efficiency**
-
-- Duplicate requests possible
-- No request deduplication
-- All requests fetch fresh data
-
-⚠️ **Documentation**
-
-- Components lack JSDoc
-- No API documentation
-- Missing usage examples
-
-## Success Metrics
-
-Track these metrics to measure improvement:
-
-### Performance Metrics
-
-- **Time to Interactive:** < 3s (target) vs 4.5s (current)
-- **Bundle Size:** < 150 KB initial (target) vs 201 KB (current)
-- **Cache Hit Rate:** > 70% (target) vs 0% (current)
-- **Scroll FPS:** 60 FPS (target) vs 30-45 FPS (current)
-
-### Reliability Metrics
-
-- **Error Recovery Rate:** > 90%
-- **Offline Functionality:** Basic features work
-- **Uptime:** 99.9%
-
-### Developer Metrics
-
-- **Onboarding Time:** < 1 hour (with docs)
-- **Build Time:** < 2s (maintained)
-- **Test Coverage:** > 85%
-- **Documentation Coverage:** 100% of public APIs
-
-## Risk Assessment
-
-### Low Risk Issues
-
-- Component documentation
-- Automated dependency updates
-- E2E test expansion
-
-**Mitigation:** None required, pure additions.
-
-### Medium Risk Issues
-
-- Virtual scrolling
-- Error boundaries
-- Request deduplication
-
-**Mitigation:** Feature flags, gradual rollout, thorough testing.
-
-### Higher Risk Issues
-
-- IndexedDB caching
-- Code splitting
-- PWA implementation
-
-**Mitigation:**
-
-- Graceful degradation (Safari private mode, etc.)
-- Comprehensive testing on all browsers
-- Monitoring in production
-- Rollback plan
+1. Add route-level error boundaries or failure-recovery shells.
+2. Define whether offline support is intentionally narrow or a future feature area.
+3. Keep decomposing dense route orchestration as commander-detail behavior grows.
+4. Continue treating historical issue documents as archive material, not as live status.
 
 ## Conclusion
 
-The Commander Scout application has a solid foundation with clean architecture and good testing. The identified improvements focus on:
+Commander Scout no longer has the same architecture profile it had in late 2025. The highest-value architectural work from that period has already been implemented, and it shows in the current codebase. The next set of improvements is about resilience and maintainability, not missing fundamentals.
 
-1. **Performance** - Caching and lazy loading for faster experience
-2. **Reliability** - Error boundaries and offline support
-3. **Maintenance** - Better documentation and automated updates
-
-Implementing the high-priority issues first will deliver the most user-visible impact with manageable effort (7-10 days). The full roadmap can be completed in 3-4 weeks with significant improvements to performance, reliability, and maintainability.
-
-## Next Steps
-
-1. **Review findings** with team/maintainer
-2. **Prioritize issues** based on business needs
-3. **Create GitHub issues** from markdown files
-4. **Begin implementation** starting with high-priority items
-5. **Track progress** and measure impact
-
-## Related Documents
-
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - Detailed architecture documentation
-- [docs/issues/](./issues/) - Individual issue documentation
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
-- [CREATE_GITHUB_ISSUES.md](./CREATE_GITHUB_ISSUES.md) - Issue creation instructions
-
----
-
-**Review Completed:** November 22, 2025  
-**Issues Created:** 9 (3 high, 3 medium, 3 low priority)  
-**Estimated Total Effort:** 17-24 developer days
+For implementation detail, use [../ARCHITECTURE.md](../ARCHITECTURE.md). For active review navigation, start at [REVIEWS_COMPLETE.md](./REVIEWS_COMPLETE.md).

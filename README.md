@@ -1,215 +1,180 @@
-# Commander Scout (edhrec-compare)
+# Commander Scout (`edhrec-compare`)
 
-Commander Scout is a Vue 3 + TypeScript + Vite application that compares EDHREC commander data with your personal card inventory. Upload a CSV of your collection, explore EDHREC cardlists, and layer in Scryfall pricing/images to quickly spot what you own versus what you still need.
-
-## Table of Contents
-
-1. [Features](#features)
-2. [Project Structure](#project-structure)
-3. [Getting Started](#getting-started)
-4. [Environment Variables](#environment-variables)
-5. [Development Workflow](#development-workflow)
-6. [CSV Requirements](#csv-requirements)
-7. [EDHREC & Scryfall Integrations](#edhrec--scryfall-integrations)
-8. [Testing](#testing)
-9. [Issue Automation](#issue-automation)
-10. [Contributing](#contributing)
-11. [Architecture](#architecture)
+Commander Scout is a Vue 3 + TypeScript + Vite application for comparing EDHREC commander data against your personal collection. Upload a CSV, explore EDHREC cardlists, and enrich them with Scryfall pricing, imagery, and card metadata.
 
 ## Features
 
-- **Commander search** - fuzzy search EDHREC commanders, including partner combinations, and fetch JSON decklists directly from `json.edhrec.com`.
-- **Inventory overlay** - upload a CSV export of your collection to highlight owned cards in every EDHREC cardlist, or filter to owned/unowned only.
-- **Scryfall enrichment** - bulk Scryfall requests, 75 identifiers per batch, fetch mana costs, faces, oracle text, set, rarity, and live USD/EUR prices. Handles double-faced, adventure, split, and transform cards by normalizing both halves.
-- **Dynamic background** - nebula gradients react to commander color identity and can be toggled off via the palette button, with the preference stored in `localStorage`.
-- **Global feedback** - unobtrusive toast notifications and bottom-of-screen loaders keep users informed while bulk Scryfall calls or CSV processing run.
-- **Toolkit header** - route controls include bracket, budget, and page-type filters alongside commander export, CSV upload, theme, and background toggles.
-- **Density modes** - comfortable, cozy, and compact layout options let users trade whitespace for information density on demand.
+- Commander search with EDHREC route filters and partner support
+- Collection overlay with owned and missing card views
+- Scryfall enrichment for prices, mana costs, oracle text, printings, and images
+- Virtualized card tables for dense cardlist browsing
+- Top-commanders scan against your uploaded collection
+- Theme, density, accessibility, and background preferences persisted locally
+- Global notices and loading feedback for long-running fetches
 
 ## Project Structure
 
-```
+```text
 src/
-├── api/                   # EDHREC/Scryfall clients, request cache, IndexedDB cache
-├── components/
-│   ├── core/              # Primitive design system (button, text, surface, badge, etc.)
-│   ├── dashboard/         # Dashboard route-specific panels and controls
-│   ├── top-commanders/    # Top commanders route UI
-│   └── ...                # Shared feature components
-├── composables/           # Shared reactive state and data-loading logic
-├── router/                # Vue Router route definitions
-├── utils/                 # Utilities, design helpers, error handling
-├── assets/                # Static assets and CSV fixtures
-└── style.css              # Global theme variables and design tokens
-docs/                      # Architecture, reviews, QA checklists
+|-- api/                 # EDHREC and Scryfall clients, caching, request dedupe
+|-- components/          # Route shells, feature UI, and core primitives
+|   |-- core/            # Primitive design system
+|   |-- dashboard/       # Dashboard route surfaces
+|   `-- top-commanders/  # Top-commanders route surfaces
+|-- composables/         # Shared reactive state and feature logic
+|-- router/              # Vue Router definitions
+|-- types/               # Shared TypeScript types
+|-- utils/               # Pure helpers and infrastructure utilities
+`-- style.css            # Global tokens, themes, and layout rules
+
+docs/                    # Reviews, architecture notes, QA, and issue archive
 tests/
-├── unit/                  # Vitest unit/component/composable coverage
-└── e2e/                   # Playwright end-to-end flows
+|-- unit/                # Vitest unit and component coverage
+`-- e2e/                 # Playwright flows
 ```
 
 ## Getting Started
 
 ```bash
-# install dependencies
 npm install
-
-# run dev server
 npm run dev
-
-# build for production
-npm run build
-
-# preview production build locally
-npm run preview
 ```
 
-The Vite dev server defaults to `http://localhost:5173`.
+Additional commands:
+
+```bash
+npm run build
+npm run preview
+npm run lint
+npm run test:unit
+npm run test:e2e
+```
+
+The dev server defaults to `http://localhost:5173`.
 
 ## Environment Variables
 
-### Optional Configuration
+### Optional
 
-The following environment variables can be configured for production deployments:
+- `VITE_SENTRY_DSN`: enables production Sentry error tracking
 
-#### Sentry Error Tracking (Production Only)
+### Notes
 
-- **`VITE_SENTRY_DSN`** - Sentry Data Source Name for error tracking in production
-  - Only active when `import.meta.env.PROD` is true
-  - Automatically filters out sensitive data (CSV contents)
-  - Generates source maps for readable stack traces
-  - 10% sample rate for performance monitoring
-  - To enable:
-    1. Create a [Sentry account](https://sentry.io/) and project
-    2. Copy `.env.example` to `.env`
-    3. Set `VITE_SENTRY_DSN` to your project's DSN
-    4. Build and deploy to production
-
-### Local Development
-
-No custom environment variables are required for local development. Network requests hit the public EDHREC and Scryfall APIs directly from the browser.
+- Sentry only initializes in production builds.
+- CSV-related context is filtered before telemetry is sent.
+- No custom environment variables are required for local development.
 
 ## Security Hardening
 
-### Content Security Policy
+- A real Content Security Policy is shipped through both [index.html](./index.html) and [vercel.json](./vercel.json).
+- CSP violations are reported to [api/csp-report.ts](./api/csp-report.ts).
+- CSV collection data stays in browser memory and is not persisted.
+- User-controlled content is rendered as text; there is no `v-html` usage in `src/`.
 
-- A strict CSP is shipped through both `index.html` and the production headers declared in `vercel.json`. It locks execution to the same origin by default and only whitelists the remote services the client actually talks to (EDHREC JSON endpoints, Scryfall APIs, Sentry ingestion, and Vercel analytics scripts).
-- Violations are reported to the new serverless logger at `/api/csp-report`, which emits structured events to the deployment logs. Browsers that support `report-to` automatically leverage the `Report-To`/`NEL` headers to batch reports; legacy agents fall back to `report-uri`.
-- If you deploy Commander Scout under a different domain or need extra allowances (for example, a CDN for fonts), update both the CSP string and the `Report-To` URL in `vercel.json` so the `report-to csp-endpoint` directive keeps pointing to a reachable HTTPS endpoint.
+For the current security review, see [docs/SECURITY_REVIEW.md](./docs/SECURITY_REVIEW.md).
 
 ## Development Workflow
 
-1. Start the dev server with `npm run dev`.
-2. Run linting with `npm run lint`.
-3. Run unit and component tests with `npm run test:unit`.
-4. Run E2E coverage with `npm run test:e2e`.
-5. For core UI changes, update the primitive docs in `src/components/core/README.md` and use `docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md` before merging.
-6. Feature flags: background toggle, theme, and density preferences are persisted in `localStorage`. When debugging display issues, clear local storage or inspect those values in devtools.
-7. The CSV parser lives in `src/composables/useCsvUpload.ts`. It auto-detects the `Name` column (defaults to first column) and produces normalized name variants so MDFCs or split cards match both faces.
+1. Run `npm run dev`.
+2. Run `npm run lint`.
+3. Run `npm run build`.
+4. Run `npm run test:unit`.
+5. Run `npm run test:e2e`.
+
+Useful supporting commands:
+
+- `npm run bundle:analyze`
+- `npm run size`
+- `npm run docs`
 
 ## CSV Requirements
 
-Commander Scout accepts any comma-delimited CSV that follows these rules:
+Commander Scout accepts comma-delimited CSV files with these conventions:
 
-- **Required column**
-  - `Name` or `Card Name` – used to match EDHREC entries (case-insensitive).
-- **Optional columns**
-  - `Quantity` – number of copies (defaults to `1` if omitted).
-  - `Foil` – `Yes` or `No` flag.
-  - `Set` – three-letter set code.
-  - Any other columns are ignored by the matcher but kept in memory if you want to build on them later.
-- Entries can contain combined names with `//`. The app normalizes and stores all variants (`front`, `back`, and combined) to ensure matches.
-- The uploader validates your CSV and surfaces warnings for missing `Name` headers, empty rows, or malformed column counts before importing any data.
+- Required column: `Name` or `Card Name`
+- Optional columns: `Quantity`, `Foil`, `Set`
+- Combined names like `Front // Back` are normalized for matching
+- Validation catches missing headers, malformed rows, and blank imports before data is loaded
 
-Example CSV:
+Example:
 
-```
+```csv
 Name,Quantity,Foil,Set
 Sol Ring,1,No,C21
 Lightning Greaves,1,Yes,M19
 ```
 
-- Sample template: `src/assets/inventory-template.csv` (downloadable in the upload modal).
-- Full inventory sample: `src/assets/inventory.csv`.
+Sample assets:
 
-## EDHREC & Scryfall Integrations
+- [src/assets/inventory-template.csv](./src/assets/inventory-template.csv)
+- [src/assets/inventory.csv](./src/assets/inventory.csv)
 
-- **EDHREC** - Commander slugs are constructed via `slugifyCommander` and requests follow `https://json.edhrec.com/pages/{pageType}/{slug}/...`. Filters, such as bracket, modifier, and companion, append extra path segments.
-- **Scryfall**
-  - Single-card lookups use `/cards/named?fuzzy=` with sanitized names (front face only).
-  - Bulk lookups use `/cards/collection` with 75-card batches plus 300ms pause to respect rate limits.
-  - Image previews favor `image_uris.normal` and fall back to per-face URIs.
-  - Double-faced cards: we sanitize `//` names, register each face in the lookup map, and match whichever face EDHREC lists.
+## EDHREC And Scryfall Integrations
+
+- EDHREC deck data is fetched from `https://json.edhrec.com/pages/...`
+- Scryfall card data is fetched from `https://api.scryfall.com`
+- Scryfall card responses are cached in IndexedDB with TTL-based expiry
+- In-flight API requests are deduplicated to reduce duplicate network work
+
+Implementation references:
+
+- [src/api/edhrecApi.ts](./src/api/edhrecApi.ts)
+- [src/api/scryfallApi.ts](./src/api/scryfallApi.ts)
+- [src/api/indexedDbCache.ts](./src/api/indexedDbCache.ts)
+- [src/api/requestCache.ts](./src/api/requestCache.ts)
 
 ## Testing
 
-- **Vitest** - `npm run test:unit`
-  - Covers components, composables, utilities, API helpers, and security checks under `tests/unit`.
-  - Use `npm run test:unit:coverage` for HTML and JSON coverage reports.
-- **Playwright** - `npm run test:e2e`
-  - Uses fixtures under `tests/e2e`.
-  - Generated artifacts live in `playwright-report/` and `test-results/` (gitignored).
-- Core primitive changes should update or extend tests in `tests/unit/components/core`.
+- Vitest: `npm run test:unit`
+- Playwright: `npm run test:e2e`
+- Bundle analysis: `npm run bundle:analyze`
+- Size budgets: `npm run size`
+
+CI also runs build, bundle analysis, size checks, unit tests, and Playwright coverage via [`.github/workflows/ci.yml`](./.github/workflows/ci.yml).
 
 ## Issue Automation
 
-Architecture and design review issues live under `docs/issues/high-priority|medium-priority|low-priority`. To convert them into GitHub issues:
+Historical architecture and design review issues live under `docs/issues/`.
+
+If you need to export issue docs for Jira or Trello:
 
 ```bash
-chmod +x create-issues.sh
-./create-issues.sh
-```
-
-The script expects the GitHub CLI (`gh`) to be installed and authenticated. Alternatively, follow the manual instructions in `docs/CREATE_GITHUB_ISSUES.md`.
-
-**Available Issues:**
-
-- **UI/UX Issues:** 7 issues (already created as #69-#75)
-- **Architecture Issues:** 9 new issues covering performance, reliability, and maintenance
-
-Need to mirror GitHub issues into Jira or Trello? Run the exporter:
-
-```bash
-# Generates docs/issue-automation/{issue-export.json,jira-import.csv,trello-import.json}
 npm run issues:export -- --repo your-org/edhrec-compare
 ```
 
-See [docs/ISSUE_AUTOMATION.md](./docs/ISSUE_AUTOMATION.md) for supported flags, Jira import mapping instructions, and Trello automation ideas.
+See [docs/ISSUE_AUTOMATION.md](./docs/ISSUE_AUTOMATION.md) for details.
+
+Important: several archived issue files describe work that has already landed, especially around caching, request deduplication, virtualization, code splitting, and CSP. Check [docs/REVIEWS_COMPLETE.md](./docs/REVIEWS_COMPLETE.md) before recreating backlog items.
 
 ## Contributing
 
-1. Fork + clone the repo.
+1. Fork and clone the repo.
 2. Create a feature branch.
-3. Run the dev server, verify CSV + EDHREC flows.
-4. Add/update tests as needed.
-5. Open a pull request describing the change, and reference any architecture issues if applicable.
+3. Verify the CSV, commander search, and EDHREC flows locally.
+4. Add or update tests when behavior changes.
+5. Open a pull request with a focused summary of the change.
 
 ## Architecture
 
-For detailed information about the project's architecture, technology decisions, and design patterns, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+For the current technical architecture, see:
 
-For core design system work, see [src/components/core/README.md](./src/components/core/README.md) and [docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md](./docs/PRIMITIVE_REFACTOR_QA_CHECKLIST.md).
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
+- [docs/ARCHITECTURE_REVIEW_SUMMARY.md](./docs/ARCHITECTURE_REVIEW_SUMMARY.md)
+- [src/components/core/README.md](./src/components/core/README.md)
 
-## Comprehensive Reviews
+## Active Reviews
 
-Commander Scout has undergone comprehensive reviews across multiple dimensions (November 2025):
+Start with [docs/REVIEWS_COMPLETE.md](./docs/REVIEWS_COMPLETE.md).
 
-**Completed Reviews:**
+Current lead reviews:
 
-- ✅ **Code Review** - [Architecture Review Summary](./docs/ARCHITECTURE_REVIEW_SUMMARY.md) - 9 improvement opportunities identified
-- ✅ **Design/UI/UX Review** - [Visual Design Review Summary](./VISUAL_DESIGN_REVIEW_SUMMARY.md) - 7 issues documented (#69-#75)
-- ✅ **Accessibility Review** - [Accessibility Guide](./docs/ACCESSIBILITY.md) - WCAG 2.1 guidelines
-- ✅ **Performance Review** - [Performance Analysis](./docs/PERFORMANCE_REVIEW.md) - Caching, optimization opportunities
-- ✅ **Security Review** - [Security Assessment](./docs/SECURITY_REVIEW.md) - CSP, input sanitization recommendations
-- ✅ **Functionality Review** - [Feature Testing](./docs/FUNCTIONALITY_REVIEW.md) - 98% test pass rate
-- ✅ **Compatibility Review** - [Cross-Browser Testing](./docs/COMPATIBILITY_REVIEW.md) - Browser/device testing needs
-- ✅ **Compliance Review** - [Legal & Standards](./docs/COMPLIANCE_REVIEW.md) - GDPR, WCAG, privacy policy needs
-- ✅ **Monitoring Review** - [Analytics & Tracking](./docs/MONITORING_ANALYTICS_REVIEW.md) - Error tracking, analytics strategy
-- ✅ **Marketing Review** - [Content & Messaging](./docs/CONTENT_MARKETING_REVIEW.md) - Documentation, SEO, branding
+- Architecture: [docs/ARCHITECTURE_REVIEW_SUMMARY.md](./docs/ARCHITECTURE_REVIEW_SUMMARY.md)
+- Security: [docs/SECURITY_REVIEW.md](./docs/SECURITY_REVIEW.md)
+- UI/UX: [VISUAL_DESIGN_REVIEW_SUMMARY.md](./VISUAL_DESIGN_REVIEW_SUMMARY.md)
+- Route audit: [docs/VISUAL_AUDIT_2026-03-24.md](./docs/VISUAL_AUDIT_2026-03-24.md)
 
-**Summary:** [Comprehensive Review Summary](./docs/COMPREHENSIVE_REVIEW_SUMMARY.md) - 51 issues identified across all reviews
-
-**Implementation:** See [Creating Review Issues](./docs/CREATE_REVIEW_ISSUES.md) for GitHub issue creation instructions
+Historical November 2025 review documents remain in `docs/` for context, but they are not the current source of truth for implementation status.
 
 ---
 
-Maintained by the Commander Scout team. Reach out via GitHub issues if you have questions or suggestions.
+Maintained by the Commander Scout team.

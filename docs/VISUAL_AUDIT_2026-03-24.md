@@ -23,14 +23,14 @@ Date: 2026-03-24
 ### What Works
 
 - The hero message is clear and the route intent is understandable immediately.
-- The onboarding modal explains the first decision well.
+- [DashboardSelectionStage.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/dashboard/DashboardSelectionStage.vue) explains the first decision well and gives the route a stronger entry point.
 - The search, collection, and export split is conceptually sound.
 
 ### Problems
 
 - [DashboardHero.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/dashboard/DashboardHero.vue) and [TopCommandersHero.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/top-commanders/TopCommandersHero.vue) are too visually similar. The routes do different jobs but open with almost the same composition.
 - [DashboardToolbar.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/dashboard/DashboardToolbar.vue) feels like another generic card instead of a command bar. The next-step prompt, ownership filter, and tab navigation all have equal weight.
-- [OnboardingModal.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/OnboardingModal.vue) is readable but visually flat. It uses the same panel language as the rest of the app, so the modal does not feel special enough for first-run onboarding.
+- [DashboardSelectionStage.vue](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/components/dashboard/DashboardSelectionStage.vue) is a stronger entry point than the earlier modal approach, but the route still needs clearer differentiation between the search canvas and supporting utilities once the user moves deeper into the workflow.
 - The search flow is split across too many equal-looking blocks. The controls, commander context, and results feel adjacent instead of nested into one clear search-to-results story.
 - The left column on desktop carries too many responsibilities. Search, collection, commander context, top-50 scan, display settings, and notices all read as separate mini-pages.
 
@@ -39,7 +39,7 @@ Date: 2026-03-24
 - Turn the hero into a real route masthead with one primary action and one secondary escape hatch. Remove the third CTA from the same visual row.
 - Convert the sticky toolbar into a slimmer “workflow rail” that reads as operating state, not content.
 - Make the search area the dominant primary canvas and move supporting controls into a tighter secondary column or collapsible utility tray.
-- Give onboarding a brighter focal treatment with a stronger step cue, more breathing room, and less generic card styling.
+- Keep the selection stage as the focal onboarding surface and continue sharpening its role separation from the deeper commander workflow.
 
 ## Route Review: Commander Detail
 
@@ -93,7 +93,7 @@ Date: 2026-03-24
 
 ## Interaction Review
 
-- Desktop preview hover needed a viewport-aware placement strategy. This branch updates [useScryfallCardPreview.ts](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/composables/useScryfallCardPreview.ts) so the preview can clamp and flip when the cursor approaches the viewport edges.
+- Desktop preview hover needed a viewport-aware placement strategy. The current implementation in [useScryfallCardPreview.ts](/c:/Users/veenm/OneDrive/Documents/Projects/workspace/edhrec-compare/edhrec-compare/src/composables/useScryfallCardPreview.ts) now clamps and flips the preview when the cursor approaches the viewport edges.
 - Hover itself should not be the only “rich” desktop affordance. Key data views should remain readable without hover-dependent discovery.
 - Lift and shadow effects are generally subtle enough, but some components still rely on hover polish instead of stronger base hierarchy.
 

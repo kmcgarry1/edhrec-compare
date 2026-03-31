@@ -1,594 +1,119 @@
 # Security Review
 
-**Review Date:** November 22, 2025  
-**Reviewer:** GitHub Copilot Security Agent  
-**Application:** Commander Scout v0.0.0
+**Review Date:** 2026-03-31  
+**Review Scope:** Browser security, client-side data handling, telemetry, and operational safeguards  
+**Status:** Active
 
 ## Executive Summary
 
-This security review assesses the Commander Scout application for vulnerabilities, security best practices, and data protection measures. As a client-side-only application with no backend, the attack surface is limited, but several security considerations have been identified.
+Commander Scout has a relatively small attack surface because it is a client-side application with no user authentication, no server-side data model, and no embedded secrets. The current security posture is materially better than the November 2025 review suggested. The core browser-hardening work is already in place: a real Content Security Policy, synchronized CSP headers, CSP reporting, privacy-filtered Sentry, constrained local persistence, and a rendering model that avoids `v-html`.
 
-**Overall Security Posture:** ⚠️ Moderate - Good foundations but needs hardening
+The remaining security work is mostly defense-in-depth:
 
-## Review Scope
+- keep user collection data out of persistent storage
+- add automated dependency vulnerability checks to CI
+- monitor the public telemetry endpoints for abuse or noise
+- preserve the current text-only rendering model unless explicit sanitization is added
 
-- ✅ Cross-Site Scripting (XSS) vulnerabilities
-- ✅ Dependency vulnerabilities
-- ✅ Content Security Policy (CSP)
-- ✅ Data handling and privacy
-- ✅ Third-party API security
-- ✅ Client-side data storage
-- ✅ Error handling and information disclosure
-- ✅ Supply chain security
+## What Was Validated
 
-## Security Findings
+This review was checked against the current implementation in:
 
-### Critical Priority
+- [../index.html](../index.html)
+- [../vercel.json](../vercel.json)
+- [../tests/unit/security/csp.spec.ts](../tests/unit/security/csp.spec.ts)
+- [../src/components/CSVUpload.vue](../src/components/CSVUpload.vue)
+- [../src/api/scryfallApi.ts](../src/api/scryfallApi.ts)
+- [../src/utils/sentry.ts](../src/utils/sentry.ts)
+- [../api/csp-report.ts](../api/csp-report.ts)
+- [../api/log-error.ts](../api/log-error.ts)
+- [../.github/workflows/ci.yml](../.github/workflows/ci.yml)
+- [../.github/dependabot.yml](../.github/dependabot.yml)
 
-#### None Found ✅
+## Current Strengths
 
-No critical security vulnerabilities were identified that pose immediate risk to users or data.
+### 1. Content Security Policy is implemented and tested
 
-### High Priority
+- The CSP is declared in both [../index.html](../index.html) and [../vercel.json](../vercel.json).
+- A unit test keeps the HTML meta policy and Vercel header policy synchronized.
+- `report-uri` and `report-to` both point to a dedicated CSP reporting endpoint.
+- `frame-ancestors`, `object-src`, `form-action`, and `base-uri` are locked down.
 
-#### 1. Missing Content Security Policy (CSP)
+This closes the largest gap from the older security review.
 
-**Severity:** High  
-**Category:** XSS Prevention
+### 2. The data model is privacy-aware by default
 
-**Current State:**
+- User collection CSV data is processed client-side and kept in memory.
+- Preferences and recent commanders are stored in `localStorage`, but the collection itself is not.
+- Scryfall caching is limited to public card metadata in IndexedDB.
 
-- No CSP headers configured
-- Application relies on Vue's built-in XSS protection
-- No defense-in-depth for XSS attacks
+This is an appropriate storage split for the current product.
 
-**Risk:**
+### 3. The rendering model is still low-risk
 
-- XSS attacks through compromised dependencies
-- Injection through malicious CSV files
-- Inline script execution from third parties
+- There is no `v-html` usage under `src/`.
+- CSV upload flow validates structure before import and renders values as text.
+- Scryfall and EDHREC lookups sanitize and normalize card names before API usage.
 
-**Recommendation:**
-Implement a strict CSP in production:
+This means the app currently relies on Vue's escaping model rather than unsafe HTML rendering paths.
 
-```html
-<!-- index.html -->
-<meta
-  http-equiv="Content-Security-Policy"
-  content="
-  default-src 'self';
-  script-src 'self' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: https://cards.scryfall.io https://c2.scryfall.com;
-  connect-src 'self' https://api.scryfall.com https://json.edhrec.com https://o4507992945205248.ingest.us.sentry.io;
-  font-src 'self';
-  frame-src 'none';
-  object-src 'none';
-  base-uri 'self';
-  form-action 'self';
-"
-/>
-```
+### 4. Telemetry is privacy-filtered
 
-**Issue:** #81 - Implement Content Security Policy
+- Sentry only initializes in production when `VITE_SENTRY_DSN` is present.
+- Replays are masked and media is blocked.
+- CSV-related breadcrumbs and contexts are removed before events are sent.
+- CSP and client-error logging endpoints redact long fields before writing structured logs.
 
-#### 2. No Input Sanitization for CSV Data
+## Current Risks
 
-**Severity:** High  
-**Category:** Injection Prevention
+### Medium
 
-**Current State:**
+#### 1. The app relies on safe rendering conventions more than explicit sanitization
 
-- CSV data parsed without sanitization
-- Card names inserted directly into DOM
-- Potential for XSS through malicious CSV files
+Today that is acceptable because the app renders text, avoids `v-html`, and keeps uploads local. The risk is future drift: if rich text, raw HTML, or third-party embedded markup is introduced later, the current safeguards will not be enough by themselves.
 
-**Attack Vector:**
+**Recommendation:** Treat "no HTML rendering for user-controlled content" as a hard rule unless a dedicated sanitization boundary is introduced.
 
-```csv
-Name,Quantity
-<img src=x onerror=alert('XSS')>,1
-<script>alert('XSS')</script>,1
-```
+#### 2. Public log endpoints can be noisy or abused
 
-**Risk:**
+The CSP and client-error endpoints are intentionally simple public POST handlers. They are fine for current telemetry, but they do not include auth, origin checks, or explicit rate limiting.
 
-- Malicious CSV files could execute JavaScript
-- Stored XSS if data is cached
-- Data exfiltration through malicious scripts
+**Recommendation:** If traffic grows, add simple abuse controls or alerting around unusual report volume before the logs become operationally noisy.
 
-**Recommendation:**
+### Low
 
-1. Sanitize all CSV input before rendering:
+#### 3. Dependency vulnerability checks are not yet part of CI
 
-```typescript
-import DOMPurify from "dompurify";
+Dependabot is configured, and CI already runs lint, build, bundle size, unit tests, and Playwright. What is still missing is an automated dependency vulnerability gate such as `npm audit` or an equivalent security scanner in CI.
 
-function sanitizeCardName(name: string): string {
-  return DOMPurify.sanitize(name, { ALLOWED_TAGS: [] });
-}
-```
+**Recommendation:** Add a dependency audit step to CI so dependency drift is caught on the same path as functional regressions.
 
-2. Use `v-text` instead of `v-html` (already done - ✅)
-3. Validate card names against expected patterns
-4. Implement CSP to block inline scripts
+#### 4. Local persistence should stay intentionally narrow
 
-**Issue:** #82 - Sanitize CSV Input Data
+Preferences and recent commanders are fine in `localStorage`. Inventory data is not. The current implementation makes the right choice; the risk is accidentally expanding persistence later because caching infrastructure already exists.
 
-### Medium Priority
+**Recommendation:** Keep a written rule that only public API data may be persisted. User collection data should remain session-scoped unless there is an explicit product decision and review.
 
-#### 3. Weak Subresource Integrity (SRI)
+## Security Posture Summary
 
-**Severity:** Medium  
-**Category:** Supply Chain Security
+| Area | Current State | Notes |
+| --- | --- | --- |
+| CSP | Strong | Implemented, mirrored in headers, and tested |
+| XSS surface | Low | No `v-html`; text rendering model remains intact |
+| Client storage | Good | Preferences persisted, user collection kept in memory |
+| Telemetry privacy | Good | Sentry filters CSV context and masks replay content |
+| Supply chain | Moderate | Dependabot exists, but CI vulnerability scanning is still missing |
+| Public endpoints | Moderate | CSP/client-error logging is intentionally open and should be monitored |
 
-**Current State:**
+## Recommended Next Steps
 
-- No SRI hashes for external resources
-- No pinning of third-party library versions in CDN usage
-- Dependency on npm for package integrity
-
-**Risk:**
-
-- Compromised CDN could serve malicious code
-- Man-in-the-middle attacks on library downloads
-- Supply chain attacks through dependencies
-
-**Recommendation:**
-
-1. Add SRI hashes for any CDN resources
-2. Use `npm audit` regularly (already in CI - ✅)
-3. Pin dependency versions (already done - ✅)
-4. Consider using Dependabot (already configured - ✅)
-
-**Status:** Partially mitigated
-
-#### 4. Sensitive Data in Browser Storage
-
-**Severity:** Medium  
-**Category:** Data Protection
-
-**Current State:**
-
-- CSV data stored in memory only (✅)
-- Theme preferences in localStorage
-- No encryption for cached data (when implemented)
-- No sensitive data currently stored
-
-**Risk:**
-
-- Future caching implementation could expose data
-- CSV inventory data could be sensitive
-- Browser extensions can read localStorage
-
-**Recommendation:**
-
-1. Don't cache sensitive user data
-2. When implementing IndexedDB caching:
-   - Only cache public API responses
-   - Don't store user's CSV inventory
-   - Clear cache on logout (if auth added)
-3. Consider session-only storage for user data
-
-**Issue:** #83 - Secure Client-Side Storage Strategy
-
-#### 5. No Rate Limiting on API Requests
-
-**Severity:** Medium  
-**Category:** Abuse Prevention
-
-**Current State:**
-
-- Client-side delays (300ms) between Scryfall batches
-- No enforcement on EDHREC requests
-- Could be bypassed by modifying client code
-
-**Risk:**
-
-- API abuse by malicious users
-- Potential IP bans affecting legitimate users
-- Excessive bandwidth usage
-
-**Recommendation:**
-
-1. Implement exponential backoff on errors
-2. Add circuit breaker for repeated failures
-3. Monitor and log API error rates
-4. Consider request deduplication (planned)
-
-**Issue:** #79 (already planned) - API Request Deduplication
-
-### Low Priority
-
-#### 6. Error Messages Could Leak Information
-
-**Severity:** Low  
-**Category:** Information Disclosure
-
-**Current State:**
-
-- Error messages shown to users
-- Stack traces filtered by Sentry (✅)
-- Some technical details in error toasts
-
-**Risk:**
-
-- Attackers could learn about internal structure
-- API keys or tokens might appear in errors
-- Debug information in production
-
-**Recommendation:**
-
-1. Use generic error messages for users
-2. Log detailed errors to Sentry only
-3. Review error handler for sensitive data leaks:
-
-```typescript
-// Good - generic message
-notifyError("Failed to load commander data. Please try again.");
-
-// Bad - exposes implementation
-notifyError(`Failed to fetch from ${apiUrl}: ${error.message}`);
-```
-
-**Issue:** #84 - Improve Error Message Security
-
-#### 7. Dependency Vulnerabilities
-
-**Severity:** Low (Currently)  
-**Category:** Supply Chain Security
-
-**Current State:**
-
-- `npm audit` shows 0 vulnerabilities (✅)
-- Dependabot configured (✅)
-- Regular updates needed
-
-**Risk:**
-
-- Future vulnerabilities in dependencies
-- Outdated packages with known CVEs
-- Transitive dependency issues
-
-**Recommendation:**
-
-- Continue using Dependabot (✅)
-- Run `npm audit` in CI (should add)
-- Update dependencies regularly
-- Review security advisories
-
-**Issue:** #85 - Add npm audit to CI Pipeline
-
-## Security Best Practices Assessment
-
-### ✅ Currently Implemented
-
-1. **HTTPS Only** - Application deployed on HTTPS (GitHub Pages)
-2. **No Backend** - Reduced attack surface (no server to compromise)
-3. **Dependency Management** - Dependabot configured, lockfile used
-4. **Error Tracking** - Sentry configured with data filtering
-5. **Vue 3 Security** - Framework provides XSS protection
-6. **Type Safety** - TypeScript prevents many runtime errors
-7. **No Secrets** - No API keys or secrets in code
-8. **Public APIs** - Only uses public, free APIs
-9. **Memory-Only Data** - CSV data not persisted by default
-10. **Code Review** - GitHub Actions CI with linting
-
-### ⚠️ Needs Implementation
-
-1. **Content Security Policy** - Not configured
-2. **Input Sanitization** - CSV data not sanitized
-3. **SRI Hashes** - Not using external CDN resources (good)
-4. **Security Headers** - Missing security-related headers
-5. **Audit Logging** - No security event logging
-6. **CORS Configuration** - Relies on API CORS policies
-
-### ❌ Not Applicable
-
-1. **Authentication** - No user accounts
-2. **Authorization** - No protected resources
-3. **SQL Injection** - No database
-4. **CSRF Protection** - No state-changing operations
-5. **Session Management** - No sessions
-6. **Password Storage** - No passwords
-
-## Threat Modeling
-
-### Attack Vectors
-
-#### 1. Malicious CSV File Upload
-
-**Likelihood:** Medium  
-**Impact:** High  
-**Mitigation:** Input sanitization, CSP
-
-**Attack Scenario:**
-
-1. Attacker crafts CSV with XSS payload
-2. User uploads malicious CSV
-3. Payload executes when cards are rendered
-4. Attacker steals localStorage data or performs actions
-
-**Defense:**
-
-- Sanitize all CSV input
-- Use `v-text` instead of `v-html`
-- Implement CSP to block inline scripts
-- Validate card names against expected patterns
-
-#### 2. Compromised Dependency
-
-**Likelihood:** Low  
-**Impact:** Critical  
-**Mitigation:** Dependabot, npm audit, lockfile
-
-**Attack Scenario:**
-
-1. Attacker compromises npm package
-2. Malicious code injected during build
-3. All users receive compromised bundle
-4. Data exfiltration or malicious behavior
-
-**Defense:**
-
-- Use Dependabot for vulnerability alerts
-- Run npm audit in CI
-- Pin dependency versions in lockfile
-- Review dependency changes in PRs
-
-#### 3. Man-in-the-Middle Attack
-
-**Likelihood:** Low  
-**Impact:** High  
-**Mitigation:** HTTPS, SRI (if using CDN)
-
-**Attack Scenario:**
-
-1. Attacker intercepts HTTP traffic
-2. Injects malicious script
-3. User runs compromised application
-4. Credentials or data stolen
-
-**Defense:**
-
-- Enforce HTTPS (GitHub Pages does this)
-- Use HSTS header
-- No mixed content
-- SRI for external resources
-
-#### 4. API Abuse
-
-**Likelihood:** Medium  
-**Impact:** Low  
-**Mitigation:** Rate limiting, exponential backoff
-
-**Attack Scenario:**
-
-1. Attacker modifies client code
-2. Removes rate limiting delays
-3. Floods Scryfall/EDHREC APIs
-4. IP gets banned, affecting legitimate users
-
-**Defense:**
-
-- Client-side rate limiting (current)
-- Exponential backoff on errors
-- Request deduplication
-- Circuit breaker pattern
-
-## Data Flow Security
-
-### User Data Flow
-
-```
-1. User uploads CSV → Browser memory (✅ Not persisted)
-2. CSV parsed → Validated (⚠️ Needs sanitization)
-3. Card names extracted → Used in API calls (✅ Sanitized for API)
-4. Results displayed → Rendered in DOM (✅ Using v-text)
-5. User closes browser → Data cleared (✅ Memory only)
-```
-
-### API Data Flow
-
-```
-1. Search commander → EDHREC API (✅ Public, no auth)
-2. Fetch card data → Scryfall API (✅ Public, no auth)
-3. Cache response → Future: IndexedDB (⚠️ Needs security review)
-4. Display results → Rendered in DOM (✅ Safe)
-```
-
-### Sensitive Data Inventory
-
-**Data Stored:**
-
-- Theme preference (localStorage) - Not sensitive ✅
-- Background preference (localStorage) - Not sensitive ✅
-- CSV inventory (memory) - Potentially sensitive ⚠️
-
-**Data Not Stored:**
-
-- API responses (future: IndexedDB cache) - Public data ✅
-- User credentials - N/A ✅
-- Personal information - N/A ✅
-
-## Compliance Considerations
-
-### GDPR Compliance ✅
-
-**Status:** Compliant (Minimal data processing)
-
-**Data Processing:**
-
-- No personal data collected
-- No user accounts or authentication
-- No tracking or analytics (Sentry only for errors)
-- CSV data processed locally only
-
-**User Rights:**
-
-- Right to access: N/A (no data stored)
-- Right to deletion: Automatic (memory only)
-- Right to portability: N/A (no data collected)
-
-**Recommendation:** Add privacy policy stating:
-
-- No personal data collected
-- CSV data processed locally only
-- Error tracking via Sentry (anonymized)
-- No cookies or tracking
-
-**Issue:** #86 - Add Privacy Policy
-
-### CCPA Compliance ✅
-
-**Status:** Compliant (No personal information sold)
-
-- No data sales
-- No personal information collected
-- No tracking for advertising
-
-### COPPA Compliance ✅
-
-**Status:** Compliant (No children's data collected)
-
-- No age verification needed
-- No data collected from users
-- No targeted content for children
-
-## Security Testing Results
-
-### Static Analysis
-
-```bash
-npm audit
-# 0 vulnerabilities found ✅
-```
-
-### Manual Testing
-
-**XSS Testing:**
-
-- ✅ Tested malicious card names in CSV
-- ✅ Vue's template escaping works correctly
-- ⚠️ No additional sanitization layer
-
-**CSRF Testing:**
-
-- ✅ No state-changing operations
-- ✅ No authentication tokens to steal
-
-**Injection Testing:**
-
-- ✅ No SQL or command injection vectors
-- ✅ API calls properly encoded
-
-**Authentication Testing:**
-
-- N/A - No authentication system
-
-## Security Hardening Checklist
-
-### Immediate Actions (High Priority)
-
-- [ ] Implement Content Security Policy
-- [ ] Add input sanitization for CSV data
-- [ ] Review and harden error messages
-- [ ] Add security headers (via hosting configuration)
-
-### Short-term Actions (Medium Priority)
-
-- [ ] Define secure storage strategy for caching
-- [ ] Implement exponential backoff for API errors
-- [ ] Add privacy policy
-- [ ] Set up security monitoring alerts
-
-### Long-term Actions (Low Priority)
-
-- [ ] Regular dependency updates via Dependabot
-- [ ] Periodic security audits
-- [ ] Penetration testing (if application grows)
-- [ ] Security awareness documentation
-
-## Monitoring and Incident Response
-
-### Security Monitoring
-
-**Current:**
-
-- Sentry for error tracking ✅
-- No security-specific monitoring
-
-**Recommended:**
-
-1. Monitor Sentry for:
-   - Unusual error patterns
-   - Failed API requests
-   - JavaScript errors that could indicate XSS
-
-2. Set up alerts for:
-   - Dependency vulnerabilities (Dependabot)
-   - Unusual traffic patterns (if analytics added)
-   - API rate limit errors
-
-### Incident Response Plan
-
-**If Security Issue Discovered:**
-
-1. **Assess severity** (Critical/High/Medium/Low)
-2. **Document** the issue privately
-3. **Fix** the vulnerability
-4. **Test** the fix thoroughly
-5. **Deploy** to production immediately
-6. **Notify users** if data was compromised
-7. **Post-mortem** to prevent recurrence
-
-**Contact:**
-
-- Create security issue on GitHub (private if needed)
-- Use GitHub Security Advisories for disclosure
-
-## Security Resources
-
-### Tools
-
-- [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit)
-- [Dependabot](https://github.com/dependabot)
-- [Snyk](https://snyk.io/) - Vulnerability scanning
-- [OWASP ZAP](https://www.zaproxy.org/) - Security testing
-- [DOMPurify](https://github.com/cure53/DOMPurify) - XSS sanitization
-
-### References
-
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Vue.js Security](https://vuejs.org/guide/best-practices/security.html)
-- [CSP Guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
-- [Web Security Checklist](https://web.dev/security/)
-
-## Related Issues
-
-Security-related issues created from this review:
-
-- **#81** - Implement Content Security Policy (High Priority)
-- **#82** - Sanitize CSV Input Data (High Priority)
-- **#83** - Secure Client-Side Storage Strategy (Medium Priority)
-- **#84** - Improve Error Message Security (Low Priority)
-- **#85** - Add npm audit to CI Pipeline (Low Priority)
-- **#86** - Add Privacy Policy (Low Priority)
+1. Add dependency vulnerability scanning to CI.
+2. Keep user collection data out of IndexedDB and other persistent stores.
+3. Preserve the current no-HTML-rendering rule for user-controlled content.
+4. Monitor CSP and client-error endpoints for abuse if traffic increases.
 
 ## Conclusion
 
-Commander Scout has a relatively small attack surface due to its client-side-only architecture. The main security concerns are:
+The current security posture is appropriate for a browser-only data-comparison tool and is substantially better than the repository's older review documents implied. The important work now is not emergency remediation. It is keeping the current guardrails intact while the product grows.
 
-1. **XSS Prevention** - Need CSP and input sanitization
-2. **Data Protection** - Define secure caching strategy
-3. **Supply Chain** - Continue monitoring dependencies
-
-The application follows many security best practices already (HTTPS, no secrets, type safety, error filtering). Implementing the high-priority recommendations will significantly improve the security posture.
-
-**Overall Risk Level:** Low to Moderate
-
----
-
-**Review Completed:** November 22, 2025  
-**Next Steps:** Create GitHub issues and implement high-priority fixes  
-**Recommended Review Frequency:** Quarterly or after major feature additions
+For the active review index, see [REVIEWS_COMPLETE.md](./REVIEWS_COMPLETE.md).

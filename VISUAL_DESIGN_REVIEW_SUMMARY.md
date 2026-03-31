@@ -1,263 +1,87 @@
-# Visual Design Review Summary
+# UI/UX Review Summary
 
-**Date:** November 21, 2025  
-**Status:** ✅ Complete - Ready for Issue Creation  
-**PR:** `copilot/conduct-visual-design-review`
+**Review Date:** 2026-03-31  
+**Primary Source Audit:** [docs/VISUAL_AUDIT_2026-03-24.md](./docs/VISUAL_AUDIT_2026-03-24.md)  
+**Status:** Active
 
 ## Executive Summary
 
-A comprehensive UI/UX design review was conducted on Commander Scout, analyzing the interface across multiple screen sizes and interaction states. **7 actionable issues** were identified and fully documented, with implementation plans, screenshots, and acceptance criteria.
+Commander Scout's UI is in a better place than the older 2025 review summary described. The first-run dashboard is now a clear, high-intent selection stage instead of a flat onboarding step, the desktop card preview logic is viewport-aware, and the app's visual identity is more deliberate.
 
-### Quick Stats
+The remaining UI/UX problems are no longer about baseline polish. They are about hierarchy inside the densest workflows:
 
-- **Total Issues Identified:** 7 (3 high, 3 medium, 1 low priority)
-- **Documentation Created:** 9 files, 25,000+ words
-- **Screenshots Captured:** 6 different UI states
-- **Estimated Implementation:** 10-15 days total
-- **Quick Wins Available:** 4 issues, < 1 day each
+- the commander-detail route still carries too much repeated chrome
+- the top-commanders route still scans more like a stack of cards than a ranked analysis tool
+- route differentiation is improved, but the commander-detail experience still lacks the same immediate identity as the dashboard entry state
 
-## What Was Delivered
+## What Was Validated
 
-### 1. Comprehensive Analysis Document
+This summary was checked against the current implementation in:
 
-**File:** `docs/UI_UX_DESIGN_REVIEW.md` (15,000+ words)
+- [docs/VISUAL_AUDIT_2026-03-24.md](./docs/VISUAL_AUDIT_2026-03-24.md)
+- [src/components/Dashboard.vue](./src/components/Dashboard.vue)
+- [src/components/dashboard/DashboardSelectionStage.vue](./src/components/dashboard/DashboardSelectionStage.vue)
+- [src/components/EdhrecReader.vue](./src/components/EdhrecReader.vue)
+- [src/components/top-commanders/TopCommandersHero.vue](./src/components/top-commanders/TopCommandersHero.vue)
+- [src/components/top-commanders/TopCommandersControls.vue](./src/components/top-commanders/TopCommandersControls.vue)
+- [src/components/top-commanders/TopCommanderCard.vue](./src/components/top-commanders/TopCommanderCard.vue)
+- [src/composables/useScryfallCardPreview.ts](./src/composables/useScryfallCardPreview.ts)
 
-- Executive summary of strengths and weaknesses
-- Detailed findings with screenshots and impact analysis
-- Component-specific recommendations
-- Responsive design analysis across breakpoints
-- Accessibility audit (WCAG 2.1 compliance)
-- Competitive analysis vs. similar tools
-- Implementation recommendations by effort level
+## What Improved Since The 2025 Review
 
-### 2. Detailed Issue Documentation
+### 1. The dashboard entry state has a stronger point of view
 
-**Location:** `docs/issues/{priority}/`
+[DashboardSelectionStage.vue](./src/components/dashboard/DashboardSelectionStage.vue) is now a real route-opening surface with:
 
-Each issue includes:
+- a clear workflow narrative
+- a dominant search area
+- better staging for the CSV upload decision
+- route-specific visual language instead of a generic modal feel
 
-- Problem statement with user impact
-- Current vs. proposed solutions
-- Implementation plan with code examples
-- Acceptance criteria checklist
-- Related issues and references
-- Estimated effort and priority
+### 2. The product has a clearer visual identity
 
-**High Priority Issues:**
+The app now leans into an atmospheric command-deck style more intentionally. The background treatment, display typography, and staged intro composition give the dashboard more character than the older review documented.
 
-- `10-mobile-toolbar-responsiveness.md` - Touch targets too small
-- `11-visual-hierarchy-toolkit.md` - Buttons lack clear hierarchy
-- `12-information-density-whitespace.md` - Excessive scrolling required
+### 3. Desktop preview behavior is materially better
 
-**Medium Priority Issues:**
+The hover preview in [useScryfallCardPreview.ts](./src/composables/useScryfallCardPreview.ts) clamps and flips against the viewport. That closes a real interaction bug noted in the March audit.
 
-- `10-empty-state-design.md` - Missing visual guidance
-- `11-form-input-accessibility.md` - Labels not persistent
-- `12-loading-state-visibility.md` - Loading indicators too subtle
+## Current Findings
 
-**Low Priority Issues:**
+### High Priority
 
-- `09-micro-interactions-polish.md` - Success animations, hover effects
+#### 1. Commander-detail hierarchy is still too flat for the amount of information shown
 
-### 3. Issue Creation Tools
+On the commander route, [EdhrecReader.vue](./src/components/EdhrecReader.vue) still presents a command surface, a results header, floating section navigation, and repeated section containers in a way that feels functional but visually repetitive.
 
-**Files:** `create-issues.sh`, `docs/CREATE_GITHUB_ISSUES.md`
+**Why it matters:** Once a commander is loaded, the route becomes the app's densest workflow. It needs stronger anchors than "another good-looking surface."
 
-- Automated shell script for bulk issue creation
-- Comprehensive manual instructions
-- Troubleshooting guide
-- Verification checklist
+**Next move:** Introduce a more distinctive commander masthead and reduce repeated section chrome so the page reads as a destination instead of a long stack.
 
-### 4. Screenshots & Evidence
+#### 2. Top commanders still reads more like a gallery than an analytical ranking tool
 
-Six UI states captured and hosted on GitHub:
+[TopCommandersPage.vue](./src/components/TopCommandersPage.vue) is better organized than before, but the route still spends a lot of vertical space on utility surfaces before the ranking itself. [TopCommanderCard.vue](./src/components/top-commanders/TopCommanderCard.vue) remains tall relative to the amount of information users need to scan quickly.
 
-1. Onboarding modal (first-time experience)
-2. Main interface (light mode)
-3. Dark mode (theme toggle)
-4. CSV upload modal
-5. Collapsed toolkit (minimal state)
-6. Mobile view (375px responsive)
+**Next move:** Push the ranking rhythm harder. Make ownership percentage and rank more dominant, reduce card height, and consider a denser desktop mode.
 
-## Next Actions Required
+### Medium Priority
 
-### Step 1: Create GitHub Issues
+#### 3. Route differentiation is still uneven
 
-**Option A: Automated (Recommended)**
+The dashboard entry state now has a clear identity, and the top-commanders hero has one as well. The commander-detail route is the odd one out: it works, but it still inherits too much generic shell language instead of establishing its own visual center of gravity.
 
-```bash
-# Authenticate first (one-time)
-gh auth login
+#### 4. Section navigation is useful but still visually secondary
 
-# Create all 7 issues automatically
-./create-issues.sh
-```
+[FloatingCardlistNav.vue](./src/components/FloatingCardlistNav.vue) is more integrated than a fully detached floating widget, but it still reads like a utility object next to the real content rather than part of the results system itself.
 
-**Option B: Manual**
-Follow instructions in `docs/CREATE_GITHUB_ISSUES.md` to create issues one by one.
+## Recommended Next Pass
 
-### Step 2: Prioritize & Schedule
-
-After issues are created:
-
-1. **Week 1-2: Quick Wins** (4 issues, 4 days)
-   - Visual hierarchy improvements
-   - Form accessibility fixes
-   - Empty state design
-   - Loading state visibility
-
-2. **Week 3-4: Mobile Experience** (2 issues, 6 days)
-   - Mobile toolbar redesign
-   - Information density optimization
-
-3. **Future: Polish** (1 issue, 3 days)
-   - Micro-interactions and animations
-
-### Step 3: Implementation
-
-Once issues are created and prioritized:
-
-1. Assign issues to milestones/sprints
-2. Break down complex issues into sub-tasks
-3. Start with high-impact, low-effort improvements
-4. Test each change thoroughly before merging
-
-## Key Findings
-
-### ✅ Strengths
-
-- **Excellent dark mode** - Proper contrast, smooth transitions
-- **Strong accessibility foundation** - ARIA labels, semantic HTML
-- **Modern design language** - Polished components, Tailwind v4
-- **Unique visual identity** - Nebula background sets it apart
-- **Good onboarding** - Clear first-time user guidance
-
-### ⚠️ Critical Issues
-
-1. **Mobile toolbar unusable** - Touch targets < 44px, overcrowded
-2. **Visual hierarchy lacking** - All buttons look equally important
-3. **Excessive scrolling** - Content hidden below fold
-4. **Labels disappear** - Not WCAG 2.1 Level AA compliant
-
-### 💡 Opportunities
-
-- Mobile-first redesign would improve 60%+ of users' experience
-- Simple visual hierarchy changes have immediate impact
-- Empty states can showcase value proposition better
-- Loading feedback prevents user confusion
-
-## Impact Assessment
-
-### If Only High-Priority Issues Are Fixed
-
-**Effort:** 5-7 days  
-**Impact:**
-
-- ✅ Mobile becomes usable (critical)
-- ✅ Features become discoverable
-- ✅ User efficiency improves 30-40%
-- ✅ Reduced support inquiries
-
-### If All Issues Are Implemented
-
-**Effort:** 10-15 days  
-**Impact:**
-
-- ✅ Professional-grade mobile experience
-- ✅ WCAG 2.1 Level AA compliance
-- ✅ 50%+ improvement in perceived performance
-- ✅ Premium feel with polished interactions
-- ✅ Competitive with commercial tools
-
-## Testing Recommendations
-
-Before closing any issue, verify:
-
-### Manual Testing Checklist
-
-- [ ] Test on iOS Safari (physical device)
-- [ ] Test on Chrome Android (physical device)
-- [ ] Test keyboard navigation only
-- [ ] Test with screen reader (NVDA/VoiceOver)
-- [ ] Verify at breakpoints: 320px, 768px, 1280px, 1920px
-- [ ] Check both light and dark modes
-
-### Automated Testing
-
-- [ ] Run Lighthouse accessibility audit (target: >95)
-- [ ] Verify color contrast ratios (WCAG AA minimum)
-- [ ] Measure touch target compliance (44×44px minimum)
-- [ ] Run visual regression tests
-- [ ] Performance budget checks
-
-## Success Metrics
-
-Track these to measure improvement:
-
-**Usability:**
-
-- Time to first commander search: < 30 seconds
-- Task completion rate (mobile): > 90%
-- User error rate: < 5%
-
-**Technical:**
-
-- Lighthouse a11y score: > 95
-- Touch target compliance: 100%
-- WCAG AA compliance: 100%
-
-**User Satisfaction:**
-
-- Overall rating: > 4/5
-- Mobile usability: > 4/5
-- Feature discoverability: > 80%
-
-## Files Reference
-
-### Documentation
-
-- `docs/CREATE_GITHUB_ISSUES.md` - Issue creation guide
-- `docs/issues/README.md` - Issues summary
-- `VISUAL_DESIGN_REVIEW_SUMMARY.md` - This file
-
-### Issue Files
-
-```
-docs/issues/
-├── high-priority/
-│   ├── 10-mobile-toolbar-responsiveness.md
-│   ├── 11-visual-hierarchy-toolkit.md
-│   └── 12-information-density-whitespace.md
-├── medium-priority/
-│   ├── 10-empty-state-design.md
-│   ├── 11-form-input-accessibility.md
-│   └── 12-loading-state-visibility.md
-└── low-priority/
-    └── 09-micro-interactions-polish.md
-```
-
-### Tools
-
-- `create-issues.sh` - Automated issue creation script
-
-## Questions?
-
-- **Where are the screenshots?** Linked in each issue file and main review doc
-- **How long will this take?** 10-15 days for all issues, 4-7 days for high-priority only
-- **Who should implement?** Team members with React/Vue experience, UI/UX designers for mock-ups
-- **When to start?** High-priority issues should be addressed ASAP (mobile experience)
-- **Need help?** Reference the detailed implementation plans in each issue file
+1. Redesign the commander-detail route first. That is where hierarchy debt is highest.
+2. Tighten the top-commanders route into a more compact, ranking-first scan.
+3. Revisit route-to-route visual differentiation after the commander-detail masthead is solved.
 
 ## Conclusion
 
-This review provides a clear roadmap for elevating Commander Scout's UI/UX to a professional, accessible, and delightful user experience. The issues are well-documented, prioritized by impact, and ready to be tackled incrementally.
+The app has moved past the "basic polish" stage. The major UI question now is how to make the heavy analytical routes feel as intentional as the entry experience. The March 2026 audit still holds, but the context has shifted: the dashboard opening is stronger, so the remaining hierarchy weaknesses are more visible deeper in the product.
 
-**Next step:** Run `./create-issues.sh` to create the GitHub issues and begin implementation planning.
-
-**Note:** Issues #69-#75 have already been created on GitHub. The documentation structure and automation tools have been added for future reference and maintenance.
-
----
-
-**Review conducted by:** GitHub Copilot Agent  
-**Review methodology:** Visual analysis, accessibility audit, competitive comparison, UX best practices  
-**Tools used:** Playwright for screenshots, manual testing, WCAG guidelines
+Use [docs/VISUAL_AUDIT_2026-03-24.md](./docs/VISUAL_AUDIT_2026-03-24.md) for route-by-route detail and [docs/REVIEWS_COMPLETE.md](./docs/REVIEWS_COMPLETE.md) for the active review index.
