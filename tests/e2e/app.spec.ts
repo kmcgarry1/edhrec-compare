@@ -63,6 +63,17 @@ const interceptNetwork = async (page: Page) => {
       body: JSON.stringify(SCRYFALL_RANDOM_CARD_RESPONSE),
     })
   );
+
+  await page.route("**/api.scryfall.com/cards/search?q=atraxa-printings", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: [SCRYFALL_COMMANDER_RESPONSE],
+        has_more: false,
+      }),
+    })
+  );
 };
 
 const stubClipboard = async (page: Page) => {
@@ -137,6 +148,7 @@ test.describe("Commander workflow", () => {
     await expectLandingReady(page);
 
     await selectCommander(page);
+    await expect(page).toHaveURL(/\/commander\/atraxa-grand-unifier$/);
 
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
     const copyButton = await ensureDecklistActionsVisible(page);
@@ -151,6 +163,17 @@ test.describe("Commander workflow", () => {
     await page.getByTestId("header-download-decklist").click();
     const download = await downloadPromise;
     await assertDownloadContains(download, "Lightning Greaves");
+  });
+
+  test("loads the dedicated commander route directly", async ({ page }) => {
+    await stubClipboard(page);
+    await interceptNetwork(page);
+    await page.goto("/commander/atraxa-grand-unifier");
+
+    await expect(page.getByTestId("commander-results-command-bar")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Atraxa, Grand Unifier/i })).toBeVisible();
+    await expect(page.getByText("Commander destination", { exact: false })).toBeVisible();
+    await expect(page.locator("#new-cards")).toContainText("Sol Ring");
   });
 });
 

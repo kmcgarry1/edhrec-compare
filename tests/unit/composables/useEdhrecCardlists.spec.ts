@@ -222,4 +222,44 @@ describe("useEdhrecCardlists", () => {
 
     expect((wrapper.vm as { activeSectionId: string }).activeSectionId).toBe("spells");
   });
+
+  it("defaults only the first two populated sections to expanded and exposes richer section metadata", async () => {
+    const cardlists = ref([
+      createCardlist("New Cards"),
+      createCardlist("High Synergy Cards"),
+      createCardlist("Top Cards"),
+    ]);
+
+    const wrapper = mountComposable(cardlists);
+    await nextTick();
+
+    const vm = wrapper.vm as {
+      cardlistSections: Array<{
+        id: string;
+        expanded: boolean;
+        defaultExpanded: boolean;
+        tone?: string;
+        summary?: string;
+      }>;
+    };
+
+    expect(vm.cardlistSections).toHaveLength(3);
+    expect(vm.cardlistSections[0]).toMatchObject({
+      id: "new-cards",
+      expanded: true,
+      defaultExpanded: true,
+      tone: "accent",
+    });
+    expect(vm.cardlistSections[1]).toMatchObject({
+      id: "high-synergy-cards",
+      expanded: true,
+      defaultExpanded: true,
+    });
+    expect(vm.cardlistSections[2]).toMatchObject({
+      id: "top-cards",
+      expanded: false,
+      defaultExpanded: false,
+      summary: "Most-played staples anchoring the core shell.",
+    });
+  });
 });

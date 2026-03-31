@@ -7,14 +7,9 @@
     <main
       id="main-content"
       ref="mainContentRef"
-      :class="
-        hasCommander
-          ? 'mt-5 flex-1 space-y-4'
-          : 'mt-2 flex min-h-[calc(100vh-5.5rem)] flex-1 items-center'
-      "
+      class="mt-2 flex min-h-[calc(100vh-5.5rem)] flex-1 items-center"
     >
       <DashboardSelectionStage
-        v-if="!hasCommander"
         class="w-full"
         :has-csv-data="hasCsvData"
         :csv-count="csvCount"
@@ -22,45 +17,16 @@
         @open-utilities="openUtilityTray"
         @selection-change="handleSelectionChange"
       />
-
-      <template v-else-if="hasCommander">
-        <DashboardWorkspace
-          :control-panel-open="controlPanelOpen"
-          :commander-selection="commanderSelection"
-          :commander-profiles="commanderProfiles"
-          :commander-spotlight-loading="commanderSpotlightLoading"
-          :commander-spotlight-backdrop-url="commanderSpotlightBackdropUrl"
-          :canonical-edhrec-href="canonicalEdhrecHref"
-          :next-step-label="nextStepLabel"
-          :has-csv-data="hasCsvData"
-          :inventory-summary="inventorySummary"
-          :filter-options="filterOptions"
-          @decklistUpdate="handleDecklistUpdate"
-          @selection-change="handleSelectionChange"
-          @filter-change="setOwnedFilter"
-          @open-control-panel="openControlPanel"
-          @open-utilities="openUtilityTray"
-          @previous-printing="showPreviousCommanderPrinting"
-          @next-printing="showNextCommanderPrinting"
-          @close-control-panel="closeControlPanel"
-        />
-      </template>
     </main>
 
     <DashboardUtilityTray
       :open="utilityTrayOpen"
-      :title="
-        hasCommander ? 'Collection, export, and display settings' : 'Collection, scan, and display settings'
-      "
-      :description="
-        hasCommander
-          ? 'Secondary dashboard actions stay here so the compare canvas can stay focused.'
-          : 'Keep search dominant on the landing state while collection tools and scan utilities stay tucked away.'
-      "
+      title="Collection, scan, and display settings"
+      description="Keep search dominant on the landing state while collection tools and scan utilities stay tucked away."
       @close="closeUtilityTray"
     >
       <DashboardUtilityContent
-        :has-commander="hasCommander"
+        :has-commander="false"
         :has-csv-data="hasCsvData"
         :inventory-summary="inventorySummary"
         :collection-mode-label="collectionModeLabel"
@@ -87,27 +53,17 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import DashboardSelectionStage from "./dashboard/DashboardSelectionStage.vue";
 import DashboardUtilityContent from "./dashboard/DashboardUtilityContent.vue";
 import DashboardUtilityTray from "./dashboard/DashboardUtilityTray.vue";
 import { useDashboardState } from "../composables/useDashboardState";
 
-const DashboardWorkspace = defineAsyncComponent(() => import("./dashboard/DashboardWorkspace.vue"));
-
 const {
   decklistExport,
   decklistCopied,
   mainContentRef,
-  controlPanelOpen,
   utilityTrayOpen,
-  commanderSelection,
-  commanderProfiles,
-  commanderSpotlightLoading,
-  commanderSpotlightBackdropUrl,
-  canonicalEdhrecHref,
-  hasCommander,
   hasCsvData,
   csvCount,
   inventorySummary,
@@ -122,21 +78,13 @@ const {
   collectionModeHint,
   collectionSourceName,
   collectionImportedAt,
-  nextStepLabel,
   exportHelperText,
-  filterOptions,
   openUploadModal,
   clearUploadedCollection,
-  openControlPanel,
-  closeControlPanel,
   openUtilityTray,
   closeUtilityTray,
-  handleDecklistUpdate,
   handleSelectionChange,
   copyDecklistFromHeader,
   downloadDecklistFromHeader,
-  showNextCommanderPrinting,
-  showPreviousCommanderPrinting,
-  setOwnedFilter,
 } = useDashboardState();
 </script>

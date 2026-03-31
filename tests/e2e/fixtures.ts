@@ -1,6 +1,9 @@
 export const EDHREC_FIXTURE = {
   container: {
     json_dict: {
+      card: {
+        name: "Atraxa, Grand Unifier",
+      },
       cardlists: [
         {
           header: "New Cards",
@@ -90,11 +93,17 @@ export const SCRYFALL_SYMBOLS_RESPONSE = {
 export const SCRYFALL_COMMANDER_RESPONSE = {
   id: "atraxa-grand-unifier",
   name: "Atraxa, Grand Unifier",
+  mana_cost: "{G}{W}{U}{B}",
+  cmc: 7,
+  type_line: "Legendary Creature",
+  colors: ["G", "W", "U", "B"],
+  color_identity: ["W", "U", "B", "G"],
   set: "one",
   set_name: "Phyrexia: All Will Be One",
   collector_number: "196",
   released_at: "2023-02-03",
   prices: { usd: "12.00", eur: "11.00" },
+  prints_search_uri: "https://api.scryfall.com/cards/search?q=atraxa-printings",
   image_uris: {
     normal: "https://example.com/atraxa.jpg",
     art_crop: "https://example.com/atraxa-art.jpg",

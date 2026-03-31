@@ -86,6 +86,7 @@ export const useDashboardState = () => {
   });
   const {
     commanderProfiles,
+    mergedColorIdentity: commanderColorIdentity,
     spotlightLoading: commanderSpotlightLoading,
     backdropUrl: commanderSpotlightBackdropUrl,
     showNextPrinting,
@@ -375,6 +376,7 @@ export const useDashboardState = () => {
     utilityTrayOpen,
     commanderSelection,
     commanderProfiles,
+    commanderColorIdentity,
     commanderSpotlightLoading,
     commanderSpotlightBackdropUrl,
     canonicalEdhrecHref,

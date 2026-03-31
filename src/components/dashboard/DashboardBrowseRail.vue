@@ -111,7 +111,10 @@
         </div>
       </section>
 
-      <section class="space-y-3 border-t border-[color:var(--border)] pt-4">
+      <section
+        v-if="showSectionNavigation"
+        class="space-y-3 border-t border-[color:var(--border)] pt-4"
+      >
         <button
           type="button"
           class="flex w-full items-start justify-between gap-3 text-left"
@@ -328,26 +331,32 @@ import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard"
 
 const MOBILE_BREAKPOINT_PX = 1280;
 
-const props = defineProps<{
-  selectedSlug?: string | null;
-  selection?: CommanderSelection | null;
-  bracket: string;
-  modifier: string;
-  pageType: string;
-  companion: string;
-  sections: Array<{
-    id: string;
-    label: string;
-    iconPath?: string;
-    iconColor?: string;
-  }>;
-  activeId?: string | null;
-  open: boolean;
-  loading?: boolean;
-  hasCsvData: boolean;
-  inventorySummary: string;
-  filterOptions: OwnedFilterOption[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    selectedSlug?: string | null;
+    selection?: CommanderSelection | null;
+    bracket: string;
+    modifier: string;
+    pageType: string;
+    companion: string;
+    sections: Array<{
+      id: string;
+      label: string;
+      iconPath?: string;
+      iconColor?: string;
+    }>;
+    activeId?: string | null;
+    open: boolean;
+    loading?: boolean;
+    hasCsvData: boolean;
+    inventorySummary: string;
+    filterOptions: OwnedFilterOption[];
+    showSectionNavigation?: boolean;
+  }>(),
+  {
+    showSectionNavigation: true,
+  }
+);
 
 const emit = defineEmits<{
   close: [];
@@ -372,11 +381,18 @@ const mobileSheetOpen = computed(() => props.open && isMobileViewport.value);
 const { activate, deactivate } = useFocusTrap(mobileSheetRef, mobileSheetOpen);
 const sheetTitleId = `browse-sheet-${Math.random().toString(36).slice(2, 9)}`;
 
-const browseTabs = [
-  { value: "search", label: "Search" },
-  { value: "filters", label: "Filters" },
-  { value: "sections", label: "Sections" },
-] as const;
+const browseTabs = computed(() =>
+  props.showSectionNavigation === false
+    ? [
+        { value: "search", label: "Search" },
+        { value: "filters", label: "Filters" },
+      ]
+    : [
+        { value: "search", label: "Search" },
+        { value: "filters", label: "Filters" },
+        { value: "sections", label: "Sections" },
+      ]
+);
 
 const activeFilterLabel = computed(
   () => props.filterOptions.find((option) => option.active)?.label ?? "All"
@@ -464,6 +480,16 @@ watch(
       return;
     }
     deactivate();
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.showSectionNavigation,
+  (showSectionNavigation) => {
+    if (showSectionNavigation === false && activeBrowseTab.value === "sections") {
+      activeBrowseTab.value = "search";
+    }
   },
   { immediate: true }
 );

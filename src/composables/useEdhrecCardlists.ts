@@ -136,8 +136,10 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
           label: cardlist.header || `Cardlist ${index + 1}`,
           iconPath: iconConfig?.path,
           iconColor: iconConfig?.color,
+          tone: iconConfig?.tone,
+          summary: iconConfig?.summary,
           isPopulated: totalCards > 0,
-          defaultExpanded: populatedSectionIds.slice(0, 3).includes(id),
+          defaultExpanded: populatedSectionIds.slice(0, 2).includes(id),
           expanded: false,
           summaryCounts: {
             totalCards,
@@ -151,7 +153,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       };
     });
 
-    const defaultExpandedIds = new Set(populatedSectionIds.slice(0, 3));
+    const defaultExpandedIds = new Set(populatedSectionIds.slice(0, 2));
 
     return entries.map((entry) => ({
       ...entry,
