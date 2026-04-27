@@ -26,14 +26,14 @@
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
-    "@sentry/vue": "^10.49.0",
+    "@sentry/vue": "^10.50.0",
     "@tanstack/vue-virtual": "^3.13.24",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vueuse/core": "^14.2.0",
-    "jsdom": "^29.0.2",
+    "jsdom": "^29.1.0",
     "vue": "^3.5.33",
-    "vue-router": "^4.6.4"
+    "vue-router": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
