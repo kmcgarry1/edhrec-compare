@@ -11,6 +11,8 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "vue-router"
     groups:
       development-dependencies:
         dependency-type: development
