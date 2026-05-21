@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
-    "@sentry/vue": "^10.52.0",
-    "@tanstack/vue-virtual": "^3.13.24",
+    "@sentry/vue": "^10.53.1",
+    "@tanstack/vue-virtual": "^3.13.25",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "@vueuse/core": "^14.3.0",
