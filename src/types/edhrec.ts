@@ -54,8 +54,9 @@ export type CardlistSectionMeta = {
   expanded: boolean;
   summaryCounts: {
     totalCards: number;
-    ownedCount: number;
-    unownedCount: number;
-    ownedPercent: number;
+    visibleCards: number;
+    ownedCount: number | null;
+    unownedCount: number | null;
+    ownedPercent: number | null;
   };
 };

@@ -54,6 +54,7 @@
             :variant="sortMode === option.value ? 'soft' : 'ghost'"
             :class="sortMode === option.value ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]' : ''"
             :aria-pressed="sortMode === option.value"
+            :disabled="option.value === 'owned' && !canSortOwned"
             @click="emit('sort-change', option.value)"
           >
             {{ option.label }}
@@ -88,6 +89,7 @@ defineProps<{
   limitOptions: ReadonlyArray<TopCommandersLimitOption>;
   sortOptions: ReadonlyArray<TopCommandersSortOption>;
   topLoading: boolean;
+  canSortOwned: boolean;
 }>();
 
 const emit = defineEmits<{

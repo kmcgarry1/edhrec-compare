@@ -37,6 +37,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   const { rows: uploadedRows, headers: uploadedHeaders } = useCsvUpload();
 
   const uploadedNameIndex = computed(() => getNameColumnIndex(uploadedHeaders.value));
+  const hasUploadedCollection = computed(() => uploadedRows.value.length > 0);
 
   const uploadedCardNameSet = computed(() => {
     if (!uploadedRows.value.length) {
@@ -54,7 +55,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   };
 
   const filterCardviews = (cardviews: EdhrecCardview[]) => {
-    if (showOwned.value === null) {
+    if (showOwned.value === null || !hasUploadedCollection.value) {
       return cardviews;
     }
     return cardviews.filter((card) => isCardInUpload(card.name) === showOwned.value);
@@ -83,7 +84,7 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
   const totalSectionCount = computed(() => allCardlistEntries.value.length);
   const visibleCardCount = computed(() =>
     cardlistEntries.value.reduce(
-      (sum, entry) => sum + entry.sectionMeta.summaryCounts.totalCards,
+      (sum, entry) => sum + entry.sectionMeta.summaryCounts.visibleCards,
       0
     )
   );
@@ -91,6 +92,13 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
     cardlists.value.reduce(
       (totals, cardlist) => {
         const allCards = cardlist.cardviews.length;
+        if (!hasUploadedCollection.value) {
+          return {
+            owned: totals.owned,
+            missing: totals.missing,
+            all: totals.all + allCards,
+          };
+        }
         const ownedCards = cardlist.cardviews.filter((card) => isCardInUpload(card.name)).length;
         const missingCards = Math.max(allCards - ownedCards, 0);
         return {
@@ -119,12 +127,17 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
       const id = slugifyHeader(cardlist.header, index);
       const iconConfig = getCardlistIcon(id);
       const filteredCards = filterCardviews(cardlist.cardviews);
-      const totalCards = filteredCards.length;
-      const ownedCount = filteredCards.filter((card) => isCardInUpload(card.name)).length;
-      const unownedCount = Math.max(totalCards - ownedCount, 0);
-      const ownedPercent = totalCards ? Math.round((ownedCount / totalCards) * 100) : 0;
+      const totalCards = cardlist.cardviews.length;
+      const visibleCards = filteredCards.length;
+      const ownedCount = hasUploadedCollection.value
+        ? cardlist.cardviews.filter((card) => isCardInUpload(card.name)).length
+        : null;
+      const unownedCount =
+        ownedCount === null ? null : Math.max(totalCards - ownedCount, 0);
+      const ownedPercent =
+        ownedCount === null || !totalCards ? null : Math.round((ownedCount / totalCards) * 100);
 
-      if (totalCards > 0) {
+      if (visibleCards > 0) {
         populatedSectionIds.push(id);
       }
 
@@ -138,11 +151,12 @@ export const useEdhrecCardlists = (cardlists: Ref<EdhrecCardlist[]>) => {
           iconColor: iconConfig?.color,
           tone: iconConfig?.tone,
           summary: iconConfig?.summary,
-          isPopulated: totalCards > 0,
+          isPopulated: visibleCards > 0,
           defaultExpanded: populatedSectionIds.slice(0, 2).includes(id),
           expanded: false,
           summaryCounts: {
             totalCards,
+            visibleCards,
             ownedCount,
             unownedCount,
             ownedPercent,

@@ -21,6 +21,7 @@
     :have="have"
     :usd-price="usdPrice"
     :eur-price="eurPrice"
+    :price-mode="priceMode"
     @hover="handleCardHover(cardName, $event)"
     @leave="hideCardImage"
     @pointermove="handlePointerMove"
@@ -49,6 +50,7 @@
     :have="have"
     :usd-price="usdPrice"
     :eur-price="eurPrice"
+    :price-mode="priceMode"
     @hover="handleCardHover(cardName, $event)"
     @leave="hideCardImage"
     @pointermove="handlePointerMove"
@@ -86,10 +88,12 @@ const props = withDefaults(
     card: DisplayCard;
     have?: boolean;
     variant?: "table" | "card";
+    priceMode?: "both" | "usd" | "eur";
   }>(),
   {
     variant: "table",
     have: false,
+    priceMode: "both",
   }
 );
 

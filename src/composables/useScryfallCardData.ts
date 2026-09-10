@@ -36,6 +36,32 @@ const resolveArtUrl = (card: ScryfallCard) => {
   );
 };
 
+const resolveImageUrl = (card: ScryfallCard | null) => {
+  if (!card) {
+    return null;
+  }
+  if (card.image_uris?.normal || card.image_uris?.large) {
+    return card.image_uris.normal ?? card.image_uris.large ?? null;
+  }
+  const faceWithImage = card.card_faces?.find(
+    (face) => face.image_uris?.normal || face.image_uris?.large
+  );
+  return faceWithImage?.image_uris?.normal ?? faceWithImage?.image_uris?.large ?? null;
+};
+
+const resolveFullImageUrl = (card: ScryfallCard | null) => {
+  if (!card) {
+    return null;
+  }
+  if (card.image_uris?.large || card.image_uris?.normal) {
+    return card.image_uris.large ?? card.image_uris.normal ?? null;
+  }
+  const faceWithImage = card.card_faces?.find(
+    (face) => face.image_uris?.large || face.image_uris?.normal
+  );
+  return faceWithImage?.image_uris?.large ?? faceWithImage?.image_uris?.normal ?? null;
+};
+
 const buildDisplayCardMeta = (
   name: string,
   manaCost: string,
@@ -211,6 +237,8 @@ export const useScryfallCardData = (
               eur: info?.prices?.eur ?? null,
             },
             scryfall_uri: info?.scryfall_uri,
+            image_url: resolveImageUrl(info),
+            full_image_url: resolveFullImageUrl(info),
             display: buildDisplayCardMeta(
               displayName,
               manaCost,

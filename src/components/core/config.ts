@@ -88,15 +88,15 @@ export const wrapClasses: Record<Wrap, string> = {
 };
 
 export const textVariantClasses: Record<TextVariant, string> = {
-  body: "text-sm",
+  body: "text-base leading-normal",
   helper: "text-[0.76rem] leading-relaxed",
-  label: "text-xs font-semibold uppercase tracking-wide",
-  caption: "text-[11px]",
+  label: "text-xs font-semibold leading-normal",
+  caption: "text-xs leading-normal",
   title: "text-[1.06rem] font-semibold leading-[1.15] tracking-[-0.01em]",
   metric: "text-2xl font-semibold tracking-tight sm:text-[1.8rem]",
   overline: "text-[10px] font-semibold uppercase tracking-[0.24em]",
   eyebrow: "text-[0.64rem] font-semibold uppercase tracking-[0.34em]",
-  display: "text-[clamp(2.2rem,4vw,3.8rem)] font-semibold leading-[0.94] tracking-[-0.03em]",
+  display: "font-display text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-[0.96]",
 };
 
 export const textToneClasses: Record<TextTone, string> = {
@@ -140,7 +140,7 @@ export const textLeadingClasses = {
 } as const;
 
 export const buttonBase =
-  "inline-flex items-center justify-center rounded-full font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center rounded-lg font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonSizeClasses = {
   sm: "gap-1 px-3 py-1 text-xs",

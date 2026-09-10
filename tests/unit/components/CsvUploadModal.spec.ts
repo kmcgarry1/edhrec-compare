@@ -33,7 +33,7 @@ describe("CsvUploadModal", () => {
 
   it("renders dialog content when open", () => {
     mountComponent(true);
-    expect(document.body.textContent).toContain("Import your CSV");
+    expect(document.body.textContent).toContain("Import collection");
     expect(document.body.querySelector("[role='dialog']")).toBeTruthy();
   });
 
