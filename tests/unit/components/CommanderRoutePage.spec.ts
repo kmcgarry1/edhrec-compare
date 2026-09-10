@@ -195,7 +195,7 @@ vi.mock("../../../src/composables/useScryfallCardData", () => ({
 
 const DashboardBrowseRailStub = defineComponent({
   name: "DashboardBrowseRail",
-  props: ["showSectionNavigation"],
+  props: ["showSectionNavigation", "showDesktopRail"],
   emits: [
     "close",
     "navigate",
@@ -213,7 +213,11 @@ const DashboardBrowseRailStub = defineComponent({
     });
 
     return () =>
-      h("aside", { class: "browse-rail-stub", "data-show-sections": String(props.showSectionNavigation) }, [
+      h("aside", {
+        class: "browse-rail-stub",
+        "data-show-sections": String(props.showSectionNavigation),
+        "data-show-desktop-rail": String(props.showDesktopRail),
+      }, [
         h(
           "button",
           {
@@ -326,7 +330,7 @@ describe("CommanderRoutePage", () => {
     allSectionsExpanded.value = false;
   });
 
-  it("renders the dedicated commander page shell and hides section navigation in the browse rail", async () => {
+  it("renders the dedicated commander page shell and uses overlay-only browse controls", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
@@ -334,6 +338,7 @@ describe("CommanderRoutePage", () => {
     expect(wrapper.find(".results-command-bar-stub").exists()).toBe(true);
     expect(wrapper.find(".dashboard-utility-tray-stub").exists()).toBe(true);
     expect(wrapper.get(".browse-rail-stub").attributes("data-show-sections")).toBe("false");
+    expect(wrapper.get(".browse-rail-stub").attributes("data-show-desktop-rail")).toBe("false");
     expect(handleDecklistUpdate).toHaveBeenCalledWith(decklistPayload.value);
   });
 

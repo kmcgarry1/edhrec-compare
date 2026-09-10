@@ -6,35 +6,25 @@ const passthroughStub = {
   template: "<div><slot /></div>",
 };
 
-const buttonStub = {
-  props: ["to", "href"],
-  template: "<a class='button-stub' :data-to='to' :href='href'><slot /></a>",
-};
-
 describe("ChangelogPage", () => {
-  it("renders the tracked release history and navigation links", () => {
+  it("renders a compact release history with the latest release expanded", () => {
     const wrapper = mount(ChangelogPage, {
       global: {
         stubs: {
-          CBadge: passthroughStub,
-          CButton: buttonStub,
-          CInline: passthroughStub,
           CNotice: passthroughStub,
-          CSurface: passthroughStub,
           CText: passthroughStub,
-          RouterLink: {
-            template: "<a><slot /></a>",
-          },
         },
       },
     });
 
-    expect(wrapper.text()).toContain("What changed in Commander Scout");
+    expect(wrapper.text()).toContain("Release Notes");
     expect(wrapper.text()).toContain("Version 2.0.0");
     expect(wrapper.text()).toContain("Version 1.0.0");
 
-    const internalLinks = wrapper.findAll(".button-stub").map((link) => link.attributes("data-to"));
-    expect(internalLinks).toEqual(expect.arrayContaining(["/", "/top-commanders"]));
+    const releases = wrapper.findAll("details");
+    expect(releases.length).toBeGreaterThan(1);
+    expect(releases[0]?.attributes("open")).toBe("");
+    expect(releases[1]?.attributes("open")).toBeUndefined();
 
     const githubLink = wrapper.find("a[href='https://github.com/kmcgarry1/edhrec-compare/pull/156']");
     expect(githubLink.exists()).toBe(true);

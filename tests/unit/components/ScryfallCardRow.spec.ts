@@ -82,7 +82,7 @@ describe("ScryfallCardRow", () => {
     expect(wrapper.text()).toContain("rare");
   });
 
-  it("opens Scryfall page when row is clicked on desktop", async () => {
+  it("opens Scryfall page when the desktop card name button is clicked", async () => {
     const wrapper = mount(ScryfallCardRow, {
       props: {
         card: baseCard,
@@ -91,7 +91,7 @@ describe("ScryfallCardRow", () => {
     });
 
     await flushPromises();
-    await wrapper.find("tr").trigger("click");
+    await wrapper.get("button").trigger("click");
     expect(windowOpenSpy).toHaveBeenCalledWith(
       "https://scryfall.com/card",
       "_blank",

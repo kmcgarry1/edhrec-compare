@@ -77,7 +77,7 @@ describe("DashboardBrowseRail", () => {
     const wrapper = mountComponent();
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Commander workbench");
+    expect(wrapper.text()).toContain("Find a commander");
     expect(wrapper.find(".commander-search-stub").exists()).toBe(true);
     expect(wrapper.find(".commander-filters-stub").exists()).toBe(false);
 
@@ -134,5 +134,21 @@ describe("DashboardBrowseRail", () => {
     expect(wrapper.get('[data-testid="browse-sheet-tab-search"]').exists()).toBe(true);
     expect(wrapper.get('[data-testid="browse-sheet-tab-filters"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="browse-sheet-tab-sections"]').exists()).toBe(false);
+  });
+
+  it("can disable the persistent desktop rail and use the control sheet on desktop", async () => {
+    const wrapper = mountComponent({ showDesktopRail: false });
+    await flushPromises();
+
+    expect(wrapper.find("aside").exists()).toBe(false);
+    expect(wrapper.find('[data-testid="dashboard-browse-sheet"]').exists()).toBe(false);
+
+    await wrapper.setProps({ open: true });
+    await flushPromises();
+
+    const dialog = wrapper.get('[data-testid="dashboard-browse-sheet"]');
+    expect(dialog.attributes("role")).toBe("dialog");
+    expect(wrapper.get('[data-testid="browse-sheet-tab-search"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="browse-sheet-tab-filters"]').exists()).toBe(true);
   });
 });

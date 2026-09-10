@@ -177,12 +177,14 @@ describe("CSVUpload", () => {
     completePendingFileRead();
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Valid CSV");
-    expect(wrapper.text()).toContain("Found 1 card");
+    expect(wrapper.text()).toContain("Collection ready");
+    expect(wrapper.text()).toContain("1 parsed row");
+    expect(wrapper.text()).toContain("1 unique matched name");
+    expect(wrapper.text()).toContain("Name column: Name");
     expect(notifySuccess).toHaveBeenCalledWith("Found 1 card");
   });
 
-  it("shows warnings when CSV headers are missing name", async () => {
+  it("requires confirmation when CSV headers are missing name", async () => {
     const file = createMockFile("Title,Quantity\nSol Ring,1", "warn.csv", "text/csv");
     const fileInput = wrapper.find('input[type="file"]');
     Object.defineProperty(fileInput.element, "files", {
@@ -195,6 +197,15 @@ describe("CSVUpload", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain('No "Name" column found.');
+    expect(wrapper.text()).toContain("Confirm name column");
+    expect(wrapper.emitted("file-uploaded")).toBeFalsy();
+
+    await wrapper
+      .findAll("button")
+      .find((button) => button.text().includes("Use first column"))
+      ?.trigger("click");
+
+    expect(wrapper.emitted("file-uploaded")).toBeTruthy();
   });
 
   it("shows errors when CSV structure is invalid", async () => {
