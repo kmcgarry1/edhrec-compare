@@ -94,8 +94,8 @@ export const textVariantClasses: Record<TextVariant, string> = {
   caption: "text-xs leading-normal",
   title: "text-[1.06rem] font-semibold leading-[1.15] tracking-[-0.01em]",
   metric: "text-2xl font-semibold tracking-tight sm:text-[1.8rem]",
-  overline: "text-[10px] font-semibold uppercase tracking-[0.24em]",
-  eyebrow: "text-[0.64rem] font-semibold uppercase tracking-[0.34em]",
+  overline: "text-[10px] font-semibold uppercase tracking-[0.16em]",
+  eyebrow: "text-[0.68rem] font-semibold uppercase tracking-[0.16em]",
   display: "font-display text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-[0.96]",
 };
 
@@ -150,12 +150,12 @@ export const buttonSizeClasses = {
 
 export const buttonVariantClasses = {
   primary:
-    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
+    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
   secondary:
-    "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+    "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
   ghost:
     "border border-transparent bg-transparent text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]",
-  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
 } as const;
 
 export const buttonToneClasses = {
@@ -194,8 +194,8 @@ export const surfaceToneClasses: Record<SurfaceTone, string> = {
 export const surfaceRadiusClasses: Record<SurfaceRadius, string> = {
   lg: "rounded-xl",
   xl: "rounded-2xl",
-  "2xl": "rounded-[28px]",
-  "3xl": "rounded-[32px]",
+  "2xl": "rounded-3xl",
+  "3xl": "rounded-[28px]",
   pill: "rounded-full",
 };
 

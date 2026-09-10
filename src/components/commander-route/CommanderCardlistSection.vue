@@ -4,14 +4,15 @@
     as="article"
     variant="content"
     size="sm"
-    radius="3xl"
+    radius="xl"
+    shadow="none"
     :class="['commander-cardlist-section', spacing.stackSpace]"
   >
     <div class="space-y-4">
       <div class="min-w-0 space-y-4">
         <div class="flex items-start gap-3">
           <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] border"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border"
             :class="toneIconShellClass"
             aria-hidden="true"
           >
@@ -41,7 +42,11 @@
             </div>
 
             <div class="space-y-1">
-              <CText tag="h2" variant="title" class="text-xl leading-tight text-balance sm:text-[1.35rem]">
+              <CText
+                tag="h2"
+                variant="title"
+                class="text-xl leading-tight text-balance sm:text-[1.35rem]"
+              >
                 {{ cardlist.header }}
               </CText>
               <CText v-if="sectionMeta?.summary" tag="p" variant="body" tone="muted">
@@ -52,7 +57,10 @@
               </CText>
             </div>
 
-            <div v-if="hasCoverage" class="flex flex-wrap items-center gap-2 text-[0.72rem] font-semibold">
+            <div
+              v-if="hasCoverage && totalCards > 4"
+              class="flex flex-wrap items-center gap-2 text-[0.72rem] font-semibold"
+            >
               <CBadge
                 :tone="toneBadgeTone"
                 variant="outline"
@@ -94,7 +102,7 @@
           </CButton>
           <CButton
             type="button"
-            variant="primary"
+            variant="secondary"
             size="sm"
             :disabled="!decklistText.length"
             @click="emitDownload"
@@ -107,17 +115,20 @@
     </div>
 
     <template v-if="isExpanded">
-      <div :class="['rounded-[24px] border p-4', toneContentShellClass]">
+      <div :class="['border-t pt-4', toneContentShellClass]">
         <CStack v-if="loading" gap="md">
           <SkeletonCard v-for="i in 5" :key="i" />
         </CStack>
 
-        <div v-else-if="displayMode === 'gallery'" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div
+          v-else-if="displayMode === 'gallery'"
+          class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+        >
           <article
             v-for="row in rows"
             :key="`${row.id}-gallery`"
             data-testid="commander-gallery-card"
-            class="overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)]"
+            class="overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)]"
           >
             <div class="aspect-[63/88] bg-[color:var(--surface-muted)]">
               <img
@@ -143,7 +154,9 @@
                 {{ row.card.name }}
               </button>
               <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                <span class="rounded-md bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]">
+                <span
+                  class="rounded-md bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]"
+                >
                   {{ ownershipLabel(row.have) }}
                 </span>
                 <span v-if="row.card.mana_cost" class="text-[color:var(--muted)]">
@@ -352,17 +365,17 @@ const toneIconShellClass = computed(() => {
 const toneContentShellClass = computed(() => {
   switch (tone.value) {
     case "success":
-      return "border-[color:color-mix(in_srgb,var(--success-soft)_90%,var(--border)_10%)] bg-[color:color-mix(in_srgb,var(--success-soft)_26%,var(--surface)_74%)]";
+      return "border-[color:color-mix(in_srgb,var(--success-soft)_70%,var(--border)_30%)]";
     case "warn":
-      return "border-[color:color-mix(in_srgb,var(--warn-soft)_90%,var(--border)_10%)] bg-[color:color-mix(in_srgb,var(--warn-soft)_24%,var(--surface)_76%)]";
+      return "border-[color:color-mix(in_srgb,var(--warn-soft)_70%,var(--border)_30%)]";
     case "danger":
-      return "border-[color:color-mix(in_srgb,var(--danger-soft)_90%,var(--border)_10%)] bg-[color:color-mix(in_srgb,var(--danger-soft)_20%,var(--surface)_80%)]";
+      return "border-[color:color-mix(in_srgb,var(--danger-soft)_70%,var(--border)_30%)]";
     case "muted":
-      return "border-[color:var(--border)] bg-[color:var(--surface)]";
+      return "border-[color:var(--border)]";
     case "accent":
-      return "border-[color:color-mix(in_srgb,var(--accent-soft)_90%,var(--border)_10%)] bg-[color:color-mix(in_srgb,var(--accent-soft)_22%,var(--surface)_78%)]";
+      return "border-[color:color-mix(in_srgb,var(--accent-soft)_70%,var(--border)_30%)]";
     default:
-      return "border-[color:var(--border)] bg-[color:var(--surface)]";
+      return "border-[color:var(--border)]";
   }
 });
 const toneProgressClass = computed(() => {
