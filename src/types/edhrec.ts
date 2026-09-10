@@ -32,8 +32,15 @@ export type EdhrecCardlist = {
   cardviews: EdhrecCardview[];
 };
 
+export type EdhrecDeckTag = {
+  count: number;
+  slug: string;
+  value: string;
+};
+
 export type EdhrecData = {
   header?: string;
+  tag_counts?: EdhrecDeckTag[];
   container?: {
     json_dict?: {
       card?: EdhrecCommanderCard;

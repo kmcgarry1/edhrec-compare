@@ -19,6 +19,11 @@ const baseProps = {
   modifier: EDHRECPageModifier.ANY.value,
   pageType: EDHRECPageType.COMMANDER.value,
   companion: EDHRECCompanion.NONE.value,
+  deckTag: "",
+  deckTagOptions: [
+    { value: "infect", label: "Infect (4,164)", description: "4,164 decks" },
+    { value: "artifacts", label: "Artifacts (109)", description: "109 decks" },
+  ],
 };
 
 const createDropdownStub = (collector?: Option[][]) =>
@@ -44,9 +49,7 @@ const createDropdownStub = (collector?: Option[][]) =>
               emit("update:modelValue", target.value);
             },
           },
-          props.options.map((option) =>
-            h("option", { value: option.value }, option.label)
-          )
+          props.options.map((option) => h("option", { value: option.value }, option.label))
         );
     },
   });
@@ -65,7 +68,7 @@ describe("CommanderFilters", () => {
       },
     });
 
-    expect(optionSets).toHaveLength(4);
+    expect(optionSets).toHaveLength(5);
     expect(optionSets[0].map((option) => option.value)).toEqual(
       Object.values(EDHRECBracket).map((option) => option.value)
     );
@@ -78,6 +81,7 @@ describe("CommanderFilters", () => {
     expect(optionSets[3].map((option) => option.value)).toEqual(
       Object.values(EDHRECCompanion).map((option) => option.value)
     );
+    expect(optionSets[4].map((option) => option.value)).toEqual(["", "infect", "artifacts"]);
   });
 
   it("emits updates when each dropdown changes", async () => {
@@ -96,13 +100,32 @@ describe("CommanderFilters", () => {
     await selects[1].setValue("budget");
     await selects[2].setValue("average-decks");
     await selects[3].setValue("jegantha-companion");
+    await selects[4].setValue("infect");
 
     expect(wrapper.emitted("update:bracket")?.[0]).toEqual(["optimized"]);
     expect(wrapper.emitted("update:modifier")?.[0]).toEqual(["budget"]);
     expect(wrapper.emitted("update:pageType")?.[0]).toEqual(["average-decks"]);
-    expect(wrapper.emitted("update:companion")?.[0]).toEqual([
-      "jegantha-companion",
-    ]);
+    expect(wrapper.emitted("update:companion")?.[0]).toEqual(["jegantha-companion"]);
+    expect(wrapper.emitted("update:deckTag")?.[0]).toEqual(["infect"]);
+  });
+
+  it("falls back to the disabled any-tag option when deck tags are unavailable", () => {
+    const optionSets: Option[][] = [];
+    const DropdownSelectStub = createDropdownStub(optionSets);
+
+    mount(CommanderFilters, {
+      props: {
+        ...baseProps,
+        deckTagOptions: [],
+      },
+      global: {
+        stubs: {
+          DropdownSelect: DropdownSelectStub,
+        },
+      },
+    });
+
+    expect(optionSets[4].map((option) => option.value)).toEqual([""]);
   });
 
   it("casts numeric dropdown payloads to strings", async () => {

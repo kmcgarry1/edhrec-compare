@@ -8,6 +8,7 @@ const setBracket = vi.fn();
 const setModifier = vi.fn();
 const setPageType = vi.fn();
 const setCompanion = vi.fn();
+const setDeckTag = vi.fn();
 const scrollToSection = vi.fn();
 const handleCopyDecklist = vi.fn();
 const handleDownloadDecklist = vi.fn();
@@ -22,6 +23,7 @@ const chosenPageType = ref("commander");
 const chosenBracket = ref("");
 const chosenModifier = ref("");
 const chosenCompanion = ref("");
+const chosenDeckTag = ref("artifacts");
 const currentCommanderSlug = ref("atraxa-grand-unifier");
 const commanderUrl = ref("https://json.edhrec.com/pages/commanders/atraxa-grand-unifier.json");
 
@@ -30,6 +32,10 @@ const cardlists = ref([
     header: "New Cards",
     cardviews: [{ id: "sol-ring", name: "Sol Ring" }],
   },
+]);
+const deckTags = ref([
+  { slug: "infect", value: "Infect", count: 4164 },
+  { slug: "artifacts", value: "Artifacts", count: 109 },
 ]);
 const error = ref("");
 const readerLoading = ref(false);
@@ -72,6 +78,7 @@ vi.mock("../../../../src/composables/useEdhrecRouteState", () => ({
     chosenBracket,
     chosenModifier,
     chosenCompanion,
+    chosenDeckTag,
     currentCommanderSlug,
     commanderUrl,
     setCommanderSlug,
@@ -79,12 +86,14 @@ vi.mock("../../../../src/composables/useEdhrecRouteState", () => ({
     setModifier,
     setPageType,
     setCompanion,
+    setDeckTag,
   }),
 }));
 
 vi.mock("../../../../src/composables/useEdhrecData", () => ({
   useEdhrecData: () => ({
     cardlists,
+    deckTags,
     error,
     readerLoading,
   }),
@@ -132,6 +141,7 @@ const DashboardBrowseRailStub = defineComponent({
     "update:modifier",
     "update:page-type",
     "update:companion",
+    "update:deck-tag",
   ],
   setup(_, { emit, expose }) {
     expose({
@@ -237,6 +247,7 @@ describe("DashboardWorkspace", () => {
     setModifier.mockClear();
     setPageType.mockClear();
     setCompanion.mockClear();
+    setDeckTag.mockClear();
     scrollToSection.mockClear();
     handleCopyDecklist.mockClear();
     handleDownloadDecklist.mockClear();

@@ -12,10 +12,13 @@
         :modifier="modifier"
         :page-type="pageType"
         :companion="companion"
+        :deck-tag="deckTag"
+        :deck-tag-options="deckTagOptions"
         @update:bracket="emit('update:bracket', $event)"
         @update:modifier="emit('update:modifier', $event)"
         @update:page-type="emit('update:page-type', $event)"
         @update:companion="emit('update:companion', $event)"
+        @update:deck-tag="emit('update:deck-tag', $event)"
       />
       <p class="text-xs text-[color:var(--muted)]">
         Filters update the EDHREC source URL and sync to the current route.
@@ -37,6 +40,8 @@ defineProps<{
   modifier: string;
   pageType: string;
   companion: string;
+  deckTag: string;
+  deckTagOptions: Array<{ value: string; label: string; description?: string }>;
 }>();
 
 const emit = defineEmits<{
@@ -46,6 +51,7 @@ const emit = defineEmits<{
   "update:modifier": [value: string | number];
   "update:page-type": [value: string | number];
   "update:companion": [value: string | number];
+  "update:deck-tag": [value: string | number];
 }>();
 
 const commanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null>(null);

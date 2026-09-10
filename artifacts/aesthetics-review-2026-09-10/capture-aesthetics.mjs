@@ -15,6 +15,10 @@ const viewports = [
 const themes = ["light", "dark"];
 
 const edhrecFixture = {
+  tag_counts: [
+    { count: 4164, slug: "infect", value: "Infect" },
+    { count: 109, slug: "artifacts", value: "Artifacts" },
+  ],
   container: {
     json_dict: {
       card: { name: "Atraxa, Grand Unifier" },
