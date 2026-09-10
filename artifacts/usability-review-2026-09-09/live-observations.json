@@ -1,0 +1,1194 @@
+[
+  {
+    "name": "home",
+    "width": 1440,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nCollection + settings\n\nDASHBOARD-FIRST WORKFLOW\n\nSearch commanders, match your collection, and export faster\n\nStart with a commander. Add your collection when you want owned and missing views. Export the resulting decklist once the compare view looks right.\n\n1\n\nChoose a commander\n\nSearch a commander and optional partner without leaving the dashboard.\n\n2\n\nUpload collection\n\nLoad your CSV when you want owned and missing views.\n\n3\n\nCompare and export\n\nScan the live decklists, switch deck views, and export the list you need.\n\nSEARCH COMMANDERS\n\nType at least 2 characters to search commanders.\n\nUpload collection CSV\n\nSearch is the fastest entry. Open utilities when you need collection status, the top-50 scan, or display settings.\n\nBrowse top commanders\nQUICK PICK\nHama Pashar, Ruin Seeker\nQUICK PICK\nGhave, Guru of Spores\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "headings": [
+        {
+          "text": " Search commanders, match your collection, and export faster ",
+          "y": 248.34375
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 346.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 410.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 490.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 570.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 634.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": "Search commanders",
+          "placeholder": "Search commanders",
+          "y": 1040.546875
+        }
+      ]
+    }
+  },
+  {
+    "name": "commander",
+    "width": 1440,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\n\nCOMMANDER WORKBENCH\n\nKeep search first, refine the route, and jump through sections without leaving the comparison flow.\n\nCOMMANDER SEARCH\n\nFind and pair commanders\n\nAtraxa, Grand Unifier\n\nOpen\n\nCOMMANDER\n\nAtraxa, Grand Unifier\n\n3 G W U B\n\nPARTNER SLOT\n\nOptional\n\nLeave this empty for single-commander decks.\n\nReset\nPRIMARY COMMANDER\nClear\n\nSearch for the commander that anchors this deck.\n\nPARTNER COMMANDER\n\nAdd a partner when the deck uses a second commander.\n\nCOLLECTION LENS\n\nOwnership and route filters\n\nAdd a CSV in Settings when you want owned and unowned overlays.\n\nAll cards\n\nCOMMANDER DESTINATION\n\nW\nU\nB\nG\nAtraxa, Grand Unifier\n\nUpload your collection to unlock owned and missing views.\n\nCollection pending\nAll cards\nCommander\nChange commander\nUtilities\nView on EDHREC\nPrintings (7)\n\nACTIVE SECTIONS\n\n14 of 14\n\nVISIBLE CARDS\n\n281\n\nDECK VIEW\n\nAll cards\n\nCOLLECTION STATE\n\nUpload a CSV to unlock owned and missing deck views.\n\nPAGE LENS\n\nCommander\n\nCURRENT PRINTING\n\nFinal Fantasy: Through the Ages (FCA)\n\nReleased 13 Jun 2025\n\n$31.41\nEUR 26.03\nAtraxa, Grand Unifier\n\nRESULTS COMMAND BAR\n\n14 active of 14\n281 cards\nAll cards\nSection scan and deck context\n\nShowing all cards across 14 active sections.\n\nExpand all\nNew Cards\nHigh Synergy Cards\nTop Cards\nGame Changers\nCreatures\nInstants\nSorceries\nUtility Artifacts\nEnchantments\nBattles\nPlaneswalkers\nUtility Lands\nMana Artifacts\nLands\nNew Cards\n5 cards\n0% owned\nNew Cards\n\nFresh additions showing up in newer average lists.\n\n0 owned | 5 missing\n\n0% owned\nCollapse\nCopy decklist\nDownload .txt\nOWNED\tCARD\tMANA\tTYPE\tRARITY\t\tUSD\tEUR\n\t\nGleaming Splendor\n\t\n\t\nEnchantment\n\tMYTHIC\t\t$37.97\tEUR31.95\n\t\nThe Queen of Dale\n\t\n\t\nCreature\n\tMYTHIC\t\t$20.60\tEUR21.52\n\t\nRoll-Roll-Roll-Roll\n\t\n\t\nEnchantment\n\tRARE\t\t$0.32\tEUR0.21\n\t\nRadagast of Rhosgobel\n\t\n\t\nCreature\n\tRARE\t\t$4.51\tEUR3.11\n\t\nBilbo's Gambit\n\t\n\t\nInstant\n\tRARE\t\t$1.58\tEUR1.85\nHigh Synergy Cards\n10 cards\n0% owned\nHigh Synergy Cards\n\nCards with the strongest overlap across current builds.\n\n0 owned | 10 missing\n\n0% owned\nCollapse\nCopy decklist\nDownload .txt\nOWNED\tCARD\tMANA\tTYPE\tRARITY\t\tUSD\tEUR\n\t\nEphemerate\n\t\n\t\nInstant\n\tCOMMON\t\t$5.43\tEUR5.33\n\t\nDisplacer Kitten\n\t\n\t\nCreature\n\tRARE\t\t$32.38\tEUR25.00\n\t\nElesh Norn, Mother of Machines\n\t\n\t\nCreature\n\tMYTHIC\t\t$24.17\tEUR20.31\n\t\nSoulherder\n\t\n\t\nCreature\n\tUNCOMMON\t\t$1.81\tEUR1.62\n\t\nPanharmonicon\n\t\n\t\nArtifact\n\tRARE\t\t$6.44\tEUR5.77\n\t\nEternal Witness\n\t\n\t\nCreature\n\tUNCOMMON\t\t$2.32\tEUR0.89\n\t\nTeleportation Circle\n\t\n\t\nEnchantment\n\tRARE\t\t$11.35\tEUR8.99\n\t\nCloudshift\n\t\n\t\nInstant\n\tCOMMON\t\t$1.12\tEUR2.01\n\t\nGhostly Flicker\n\t\n\t\nInstant\n\tCOMMON\t\t$2.20\tEUR1.73\n\t\nBaleful Strix\n\t\n\t\nArtifact Creature\n\tRARE\t\t$4.97\tEUR2.91\nLoading Scryfall data...\n4 / 4",
+    "metrics": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "headings": [
+        {
+          "text": "Atraxa, Grand Unifier",
+          "y": 185.3125
+        },
+        {
+          "text": "Section scan and deck context",
+          "y": 810.0625
+        },
+        {
+          "text": "New Cards",
+          "y": 993.46875
+        },
+        {
+          "text": "High Synergy Cards",
+          "y": 1514.0625
+        },
+        {
+          "text": "Top Cards",
+          "y": 2294.65625
+        },
+        {
+          "text": "Game Changers",
+          "y": 3536.65625
+        },
+        {
+          "text": "Creatures",
+          "y": 4778.65625
+        },
+        {
+          "text": "Instants",
+          "y": 6020.65625
+        },
+        {
+          "text": "Sorceries",
+          "y": 7262.65625
+        },
+        {
+          "text": "Utility Artifacts",
+          "y": 8504.65625
+        },
+        {
+          "text": "Enchantments",
+          "y": 9746.65625
+        },
+        {
+          "text": "Battles",
+          "y": 10988.65625
+        },
+        {
+          "text": "Planeswalkers",
+          "y": 12230.65625
+        },
+        {
+          "text": "Utility Lands",
+          "y": 13472.65625
+        },
+        {
+          "text": "Mana Artifacts",
+          "y": 14714.65625
+        },
+        {
+          "text": "Lands",
+          "y": 15956.65625
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 346.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 410.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 490.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 570.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 634.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": "Primary commander",
+          "placeholder": "Atraxa, Grand Unifier...",
+          "y": 584.453125
+        },
+        {
+          "label": "Partner commander",
+          "placeholder": "Add a partner commander...",
+          "y": 686.453125
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1178.0625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1230.0625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1282.0625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1334.0625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1386.0625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1698.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1750.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1802.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1854.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1906.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 1958.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 2010.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 2062.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 2114.65625
+        },
+        {
+          "label": "Card present in uploaded list",
+          "placeholder": "",
+          "y": 2166.65625
+        }
+      ]
+    }
+  },
+  {
+    "name": "top",
+    "width": 1440,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRanking route\nCSV pending\n\nRANKING WORKFLOW\n\nTop commanders scan\n\nBrowse EDHREC's top commanders and see what percentage of each average deck you already own, then jump straight into a commander route when a rank looks promising.\n\nBack to dashboard\nRelease notes\nUpload CSV\n\nEDITORIAL BRIEF\n\nScan the field first\n\nKeep the masthead focused on route identity, then use the command deck below to adjust range, sort mode, and color scope.\n\nRange + sorting\n\nBrowse the active top range, then pivot to highest owned when collection overlap matters more than rank order.\n\nCSV overlay\n\nOwnership percentages stay intentionally quiet until a collection upload gives the ranking real context.\n\nCSV STATUS\n\nUpload a CSV to calculate owned percentages.\n\nUpload once to promote ownership overlap across every ranked commander card below.\n\nTOP COMMANDERS\n\nTop 50 commanders\n\nPercentages use EDHREC average decks without extra filters.\n\nTop 50\nTop 100\nTop 250\nTop 500\nRanked\nHighest owned\nRefresh list\nCOLOR FILTER\nWhite\nBlue\nBlack\nRed\nGreen\nColorless\n\nSCAN SUPPORT\n\nTune the ranking lens\n\nUse rank to browse the field, then switch to highest owned once a CSV upload reveals real overlap.\n\nOWNED RANGE\n0%\n50%\n100%\n\nRANK #1\n\nY'shtola, Night's Blessed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n53,346 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #2\n\nThe Ur-Dragon\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #3\n\nEdgar Markov\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,472 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #4\n\nAtraxa, Praetors' Voice\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n44,317 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #5\n\nKrenko, Mob Boss\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n43,842 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #6\n\nVivi Ornitier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,914 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #7\n\nKaalia of the Vast\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,440 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #8\n\nSauron, the Dark Lord\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,277 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #9\n\nTeval, the Balanced Scale\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n38,255 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #10\n\nFire Lord Azula\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n37,069 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #11\n\nMs. Bumbleflower\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,702 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #12\n\nPantlaza, Sun-Favored\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,366 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #13\n\nLathril, Blade of the Elves\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n35,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #14\n\nGiada, Font of Hope\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n34,462 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #15\n\nThe Wise Mothman\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n33,389 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #16\n\nJodah, the Unifier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,831 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #17\n\nToph, the First Metalbender\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,162 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #18\n\nNekusar, the Mindrazer\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,045 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #19\n\nYuriko, the Tiger's Shadow\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,877 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #20\n\nKenrith, the Returned King\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,514 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #21\n\nCloud, Ex-SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #22\n\nValgavoth, Harrower of Souls\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,741 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #23\n\nHearthhull, the Worldseed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,700 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #24\n\nKefka, Court Mage\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,620 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #25\n\nIsshin, Two Heavens as One\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,379 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #26\n\nSephiroth, Fabled SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,893 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #27\n\nBaylen, the Haymaker\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,776 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #28\n\nMiirym, Sentinel Wyrm\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n28,372 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #29\n\nChatterfang, Squirrel General\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #30\n\nUlalek, Fused Atrocity\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #31\n\nFrodo, Adventurous Hobbit // Sam, Loyal Attendant\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,594 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #32\n\nHashaton, Scarab's Fist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,498 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #33\n\nBello, Bard of the Brambles\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,157 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #34\n\nEsika, God of the Tree\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,747 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #35\n\nAshling, the Limitless\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,728 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #36\n\nHakbal of the Surging Soul\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,115 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #37\n\nMuldrotha, the Gravetide\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,057 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #38\n\nRin and Seri, Inseparable\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,518 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #39\n\nGlarb, Calamity's Augur\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,113 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #40\n\nAnimar, Soul of Elements\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n23,343 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #41\n\nYgra, Eater of All\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,955 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #42\n\nArcades, the Strategist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,950 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #43\n\nAragorn, the Uniter\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,934 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #44\n\nThe Necrobloom\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #45\n\nFlubs, the Fool\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,812 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #46\n\nArabella, Abandoned Doll\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,733 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #47\n\nMr. House, President and CEO\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,668 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #48\n\nCaesar, Legion's Emperor\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,603 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #49\n\nWilhelt, the Rotcleaver\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,341 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #50\n\nBreya, Etherium Shaper\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,324 decks\n\nOpen this commander route.\n\nCompare deck\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "headings": [
+        {
+          "text": " Top commanders scan ",
+          "y": 207.34375
+        },
+        {
+          "text": " Top 50 commanders ",
+          "y": 858.875
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 346.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 410.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 490.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 570.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 634.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        }
+      ]
+    }
+  },
+  {
+    "name": "changelog",
+    "width": 1440,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRELEASE NOTES\nCURRENT 2.0.0\nMAR 24, 2026\nWhat changed in Commander Scout\n\nThis page is rendered from the repository changelog so the in-app release notes stay aligned with the tracked release history.\n\nBack to dashboard\nTop commanders\n2.0.0\nMAR 24, 2026\nVersion 2.0.0\n\n2 update sections\n\nCHANGED\nIntroduced the primitive UI layer and migrated shared loading, notices, dashboard surfaces, and Top Commanders route UI onto it (#156).\nCompleted a broad UI architecture pass that consolidated presentation primitives ahead of future releases (#156).\nFolded in the latest development dependency refresh as part of the final pre-release stabilization window (#154).\nFIXED\nFixed package and lockfile version inconsistencies and surfaced Top Commanders error notices as alerts (#155, #156).\n1.8.0\nMAR 4, 2026\nVersion 1.8.0\n\n1 update section\n\nCHANGED\nCarried forward late-cycle development dependency maintenance and tooling stabilization ahead of the primitive UI release line (#143, #149).\n1.7.0\nFEB 9, 2026\nVersion 1.7.0\n\n2 update sections\n\nADDED\nImproved large-list handling with row virtualization tuning and scrolling fixes for `CardTable` (#141).\nCHANGED\nRefined list height calculations and progressive scrolling behavior to make large result sets more reliable (#141).\nFolded in dependency maintenance and build stability work from the surrounding February updates (#137, #140).\n1.6.0\nJAN 31, 2026\nVersion 1.6.0\n\n2 update sections\n\nADDED\nAdded the Top Commanders experience with scan workflows, filters, hero treatment, owned-card context, and supporting data helpers (#132, #133).\nExpanded unit and end-to-end coverage across refactored composables and Top Commanders flows (#133, #135).\nCHANGED\nRefactored dashboard, EDHREC reader, commander search, Scryfall row handling, and Top Commanders into smaller composables and components (#135).\nCleaned up onboarding and test flows to match the restructured UI (#133, #135).\n1.5.0\nJAN 22, 2026\nVersion 1.5.0\n\n2 update sections\n\nADDED\nAdded global accessibility preferences and UI controls for the application experience (#131).\nCHANGED\nImproved keyboard navigation, selectors, and accessible behavior across major screens (#131).\nFolded in January dependency refreshes that supported the updated accessibility layer (#129, #130).\n1.4.0\nJAN 12, 2026\nVersion 1.4.0\n\n1 update section\n\nCHANGED\nReworked visual hierarchy in the toolkit header and broader page presentation with layout, color, and background updates (#128).\nRefreshed production and development dependencies during the same release window, including Vue Virtual updates (#124, #125, #126, #127).\n1.3.0\nDEC 16, 2025\nVersion 1.3.0\n\n2 update sections\n\nADDED\nAdded URL and filter state persistence so shared views and repeated workflows survive navigation and reloads (#115).\nAdded TypeDoc configuration plus API, composable, and utility documentation to make the codebase easier to extend (#114).\nCHANGED\nIncreased information density and layout customization options for power users (#119).\nFolded in mid-December dependency updates alongside the documentation and state persistence work (#117, #118).\n1.2.0\nDEC 9, 2025\nVersion 1.2.0\n\n2 update sections\n\nADDED\nAdded virtual scrolling for large card lists, code splitting, API request deduplication, and improved empty states (#109, #110, #111, #112).\nCHANGED\nReduced initial bundle cost and improved repeat data loads through lazy loading and request-layer efficiency work (#110, #111).\nIncluded early December dependency refreshes as part of the performance-focused release (#107, #108).\n1.1.0\nNOV 27, 2025\nVersion 1.1.0\n\n2 update sections\n\nADDED\nAdded IndexedDB-backed Scryfall caching and supporting automation for issue export workflows (#105, #106).\nCHANGED\nFolded in late November dependency updates around the caching release window (#103, #104).\n1.0.0\nNOV 22, 2025\nVersion 1.0.0\n\n3 update sections\n\nADDED\nEstablished the first production-ready foundation with unit testing, CI, bundle size monitoring, CSP headers, standardized error handling, and Sentry monitoring (#52, #55, #56, #57, #58, #67).\nAdded keyboard and ARIA accessibility improvements, CSV validation, clearer loading states, and interface motion and polish (#59, #76, #77, #78).\nAdded core project documentation including architecture notes, contribution guidance, review documents, and release-process supporting material (#26, #60, #62, #63, #68, #79, #80, #81).\nCHANGED\nRefactored large components into more maintainable structures and stabilized the build and lint pipeline as the app matured (#50, #51, #53, #54).\nStarted regular dependency maintenance through Dependabot in the same release period (#61, #64).\nSECURITY\nClosed an early dependency vulnerability and formalized application security headers and monitoring (#48, #55, #67).\n0.3.0\nNOV 14, 2025\nVersion 0.3.0\n\n1 update section\n\nCHANGED\nReworked dropdowns, analytics integration, and text and layout presentation after the first round of real usage feedback (#22, #23, #24).\n0.2.0\nNOV 12, 2025\nVersion 0.2.0\n\n2 update sections\n\nADDED\nAdded commander display support, navigation, floating header behavior, onboarding polish, CSV-driven owned-card workflows, and deck export support (#14, #15, #16, #18).\nCHANGED\nImproved mobile layout handling and early dashboard structure as the app expanded beyond the initial search prototype (#7, #8, #9, #17, #19, #21).\n0.1.0\nNOV 10, 2025\nVersion 0.1.0\n\n1 update section\n\nADDED\nInitial public milestone with the proof of concept, commander search flow, EDHREC integration, and Scryfall hover previews (#1, #2, #3).",
+    "metrics": {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "headings": [
+        {
+          "text": " What changed in Commander Scout ",
+          "y": 188
+        },
+        {
+          "text": " Version 2.0.0",
+          "y": 515.390625
+        },
+        {
+          "text": " Version 1.8.0",
+          "y": 904.3125
+        },
+        {
+          "text": " Version 1.7.0",
+          "y": 1178.234375
+        },
+        {
+          "text": " Version 1.6.0",
+          "y": 1509.65625
+        },
+        {
+          "text": " Version 1.5.0",
+          "y": 1863.828125
+        },
+        {
+          "text": " Version 1.4.0",
+          "y": 2195.25
+        },
+        {
+          "text": " Version 1.3.0",
+          "y": 2526.671875
+        },
+        {
+          "text": " Version 1.2.0",
+          "y": 2858.09375
+        },
+        {
+          "text": " Version 1.1.0",
+          "y": 3189.515625
+        },
+        {
+          "text": " Version 1.0.0",
+          "y": 3463.4375
+        },
+        {
+          "text": " Version 0.3.0",
+          "y": 4023.359375
+        },
+        {
+          "text": " Version 0.2.0",
+          "y": 4297.28125
+        },
+        {
+          "text": " Version 0.1.0",
+          "y": 4593.953125
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 346.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 410.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 490.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 570.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 634.734375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 731.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 777.265625
+        }
+      ]
+    }
+  },
+  {
+    "name": "home",
+    "width": 390,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nCollection + settings\n\nDASHBOARD-FIRST WORKFLOW\n\nSearch commanders, match your collection, and export faster\n\nStart with a commander. Add your collection when you want owned and missing views. Export the resulting decklist once the compare view looks right.\n\n1\n\nChoose a commander\n\nSearch a commander and optional partner without leaving the dashboard.\n\n2\n\nUpload collection\n\nLoad your CSV when you want owned and missing views.\n\n3\n\nCompare and export\n\nScan the live decklists, switch deck views, and export the list you need.\n\nSEARCH COMMANDERS\n\nType at least 2 characters to search commanders.\n\nUpload collection CSV\n\nSearch is the fastest entry. Open utilities when you need collection status, the top-50 scan, or display settings.\n\nBrowse top commanders\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 390,
+      "scrollWidth": 390,
+      "headings": [
+        {
+          "text": " Search commanders, match your collection, and export faster ",
+          "y": 374.984375
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 562.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 626.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 706.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 786.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 850.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        },
+        {
+          "label": "Search commanders",
+          "placeholder": "Search commanders",
+          "y": 1309.28125
+        }
+      ]
+    }
+  },
+  {
+    "name": "commander",
+    "width": 390,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\n\nCOMMANDER DESTINATION\n\nW\nU\nB\nG\nAtraxa, Grand Unifier\n\nUpload your collection to unlock owned and missing views.\n\nCollection pending\nAll cards\nCommander\nChange commander\nBrowse rail\nUtilities\nView on EDHREC\nPrintings (7)\n\nACTIVE SECTIONS\n\n14 of 14\n\nVISIBLE CARDS\n\n281\n\nDECK VIEW\n\nAll cards\n\nCOLLECTION STATE\n\nUpload a CSV to unlock owned and missing deck views.\n\nPAGE LENS\n\nCommander\n\nCURRENT PRINTING\n\nFinal Fantasy: Through the Ages (FCA)\n\nReleased 13 Jun 2025\n\n$31.41\nEUR 26.03\n\nRESULTS COMMAND BAR\n\n14 active of 14\n281 cards\nAll cards\nSection scan and deck context\n\nShowing all cards across 14 active sections.\n\nExpand all\nNew Cards\nHigh Synergy Cards\nTop Cards\nGame Changers\nCreatures\nInstants\nSorceries\nUtility Artifacts\nEnchantments\nBattles\nPlaneswalkers\nUtility Lands\nMana Artifacts\nLands\nNew Cards\n5 cards\n0% owned\nNew Cards\n\nFresh additions showing up in newer average lists.\n\n0 owned | 5 missing\n\n0% owned\nCollapse\nCopy\nSave\nLoading Scryfall data...\n3 / 4",
+    "metrics": {
+      "width": 390,
+      "scrollWidth": 390,
+      "headings": [
+        {
+          "text": "Atraxa, Grand Unifier",
+          "y": 347.296875
+        },
+        {
+          "text": "Section scan and deck context",
+          "y": 1330.984375
+        },
+        {
+          "text": "New Cards",
+          "y": 1556.390625
+        },
+        {
+          "text": "High Synergy Cards",
+          "y": 2533.328125
+        },
+        {
+          "text": "Top Cards",
+          "y": 3775.328125
+        },
+        {
+          "text": "Game Changers",
+          "y": 5017.328125
+        },
+        {
+          "text": "Creatures",
+          "y": 6259.328125
+        },
+        {
+          "text": "Instants",
+          "y": 7501.328125
+        },
+        {
+          "text": "Sorceries",
+          "y": 8743.328125
+        },
+        {
+          "text": "Utility Artifacts",
+          "y": 9985.328125
+        },
+        {
+          "text": "Enchantments",
+          "y": 11227.328125
+        },
+        {
+          "text": "Battles",
+          "y": 12469.328125
+        },
+        {
+          "text": "Planeswalkers",
+          "y": 13711.328125
+        },
+        {
+          "text": "Utility Lands",
+          "y": 14953.328125
+        },
+        {
+          "text": "Mana Artifacts",
+          "y": 16195.328125
+        },
+        {
+          "text": "Lands",
+          "y": 17437.328125
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 562.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 626.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 706.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 786.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 850.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        }
+      ]
+    }
+  },
+  {
+    "name": "top",
+    "width": 390,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRanking route\nCSV pending\n\nRANKING WORKFLOW\n\nTop commanders scan\n\nBrowse EDHREC's top commanders and see what percentage of each average deck you already own, then jump straight into a commander route when a rank looks promising.\n\nBack to dashboard\nRelease notes\nUpload CSV\n\nEDITORIAL BRIEF\n\nScan the field first\n\nKeep the masthead focused on route identity, then use the command deck below to adjust range, sort mode, and color scope.\n\nRange + sorting\n\nBrowse the active top range, then pivot to highest owned when collection overlap matters more than rank order.\n\nCSV overlay\n\nOwnership percentages stay intentionally quiet until a collection upload gives the ranking real context.\n\nCSV STATUS\n\nUpload a CSV to calculate owned percentages.\n\nUpload once to promote ownership overlap across every ranked commander card below.\n\nTOP COMMANDERS\n\nTop 50 commanders\n\nPercentages use EDHREC average decks without extra filters.\n\nTop 50\nTop 100\nTop 250\nTop 500\nRanked\nHighest owned\nRefresh list\nCOLOR FILTER\nWhite\nBlue\nBlack\nRed\nGreen\nColorless\n\nSCAN SUPPORT\n\nTune the ranking lens\n\nUse rank to browse the field, then switch to highest owned once a CSV upload reveals real overlap.\n\nOWNED RANGE\n0%\n50%\n100%\n\nRANK #1\n\nY'shtola, Night's Blessed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n53,346 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #2\n\nThe Ur-Dragon\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #3\n\nEdgar Markov\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,472 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #4\n\nAtraxa, Praetors' Voice\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n44,317 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #5\n\nKrenko, Mob Boss\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n43,842 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #6\n\nVivi Ornitier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,914 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #7\n\nKaalia of the Vast\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,440 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #8\n\nSauron, the Dark Lord\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,277 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #9\n\nTeval, the Balanced Scale\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n38,255 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #10\n\nFire Lord Azula\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n37,069 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #11\n\nMs. Bumbleflower\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,702 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #12\n\nPantlaza, Sun-Favored\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,366 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #13\n\nLathril, Blade of the Elves\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n35,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #14\n\nGiada, Font of Hope\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n34,462 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #15\n\nThe Wise Mothman\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n33,389 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #16\n\nJodah, the Unifier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,831 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #17\n\nToph, the First Metalbender\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,162 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #18\n\nNekusar, the Mindrazer\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,045 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #19\n\nYuriko, the Tiger's Shadow\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,877 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #20\n\nKenrith, the Returned King\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,514 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #21\n\nCloud, Ex-SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #22\n\nValgavoth, Harrower of Souls\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,741 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #23\n\nHearthhull, the Worldseed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,700 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #24\n\nKefka, Court Mage\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,620 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #25\n\nIsshin, Two Heavens as One\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,379 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #26\n\nSephiroth, Fabled SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,893 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #27\n\nBaylen, the Haymaker\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,776 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #28\n\nMiirym, Sentinel Wyrm\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n28,372 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #29\n\nChatterfang, Squirrel General\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #30\n\nUlalek, Fused Atrocity\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #31\n\nFrodo, Adventurous Hobbit // Sam, Loyal Attendant\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,594 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #32\n\nHashaton, Scarab's Fist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,498 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #33\n\nBello, Bard of the Brambles\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,157 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #34\n\nEsika, God of the Tree\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,747 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #35\n\nAshling, the Limitless\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,728 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #36\n\nHakbal of the Surging Soul\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,115 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #37\n\nMuldrotha, the Gravetide\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,057 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #38\n\nRin and Seri, Inseparable\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,518 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #39\n\nGlarb, Calamity's Augur\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,113 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #40\n\nAnimar, Soul of Elements\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n23,343 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #41\n\nYgra, Eater of All\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,955 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #42\n\nArcades, the Strategist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,950 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #43\n\nAragorn, the Uniter\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,934 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #44\n\nThe Necrobloom\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #45\n\nFlubs, the Fool\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,812 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #46\n\nArabella, Abandoned Doll\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,733 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #47\n\nMr. House, President and CEO\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,668 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #48\n\nCaesar, Legion's Emperor\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,603 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #49\n\nWilhelt, the Rotcleaver\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,341 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #50\n\nBreya, Etherium Shaper\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,324 decks\n\nOpen this commander route.\n\nCompare deck\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 390,
+      "scrollWidth": 390,
+      "headings": [
+        {
+          "text": " Top commanders scan ",
+          "y": 341.984375
+        },
+        {
+          "text": " Top 50 commanders ",
+          "y": 1416.625
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 562.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 626.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 706.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 786.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 850.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        }
+      ]
+    }
+  },
+  {
+    "name": "changelog",
+    "width": 390,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRELEASE NOTES\nCURRENT 2.0.0\nMAR 24, 2026\nWhat changed in Commander Scout\n\nThis page is rendered from the repository changelog so the in-app release notes stay aligned with the tracked release history.\n\nBack to dashboard\nTop commanders\n2.0.0\nMAR 24, 2026\nVersion 2.0.0\n\n2 update sections\n\nCHANGED\nIntroduced the primitive UI layer and migrated shared loading, notices, dashboard surfaces, and Top Commanders route UI onto it (#156).\nCompleted a broad UI architecture pass that consolidated presentation primitives ahead of future releases (#156).\nFolded in the latest development dependency refresh as part of the final pre-release stabilization window (#154).\nFIXED\nFixed package and lockfile version inconsistencies and surfaced Top Commanders error notices as alerts (#155, #156).\n1.8.0\nMAR 4, 2026\nVersion 1.8.0\n\n1 update section\n\nCHANGED\nCarried forward late-cycle development dependency maintenance and tooling stabilization ahead of the primitive UI release line (#143, #149).\n1.7.0\nFEB 9, 2026\nVersion 1.7.0\n\n2 update sections\n\nADDED\nImproved large-list handling with row virtualization tuning and scrolling fixes for `CardTable` (#141).\nCHANGED\nRefined list height calculations and progressive scrolling behavior to make large result sets more reliable (#141).\nFolded in dependency maintenance and build stability work from the surrounding February updates (#137, #140).\n1.6.0\nJAN 31, 2026\nVersion 1.6.0\n\n2 update sections\n\nADDED\nAdded the Top Commanders experience with scan workflows, filters, hero treatment, owned-card context, and supporting data helpers (#132, #133).\nExpanded unit and end-to-end coverage across refactored composables and Top Commanders flows (#133, #135).\nCHANGED\nRefactored dashboard, EDHREC reader, commander search, Scryfall row handling, and Top Commanders into smaller composables and components (#135).\nCleaned up onboarding and test flows to match the restructured UI (#133, #135).\n1.5.0\nJAN 22, 2026\nVersion 1.5.0\n\n2 update sections\n\nADDED\nAdded global accessibility preferences and UI controls for the application experience (#131).\nCHANGED\nImproved keyboard navigation, selectors, and accessible behavior across major screens (#131).\nFolded in January dependency refreshes that supported the updated accessibility layer (#129, #130).\n1.4.0\nJAN 12, 2026\nVersion 1.4.0\n\n1 update section\n\nCHANGED\nReworked visual hierarchy in the toolkit header and broader page presentation with layout, color, and background updates (#128).\nRefreshed production and development dependencies during the same release window, including Vue Virtual updates (#124, #125, #126, #127).\n1.3.0\nDEC 16, 2025\nVersion 1.3.0\n\n2 update sections\n\nADDED\nAdded URL and filter state persistence so shared views and repeated workflows survive navigation and reloads (#115).\nAdded TypeDoc configuration plus API, composable, and utility documentation to make the codebase easier to extend (#114).\nCHANGED\nIncreased information density and layout customization options for power users (#119).\nFolded in mid-December dependency updates alongside the documentation and state persistence work (#117, #118).\n1.2.0\nDEC 9, 2025\nVersion 1.2.0\n\n2 update sections\n\nADDED\nAdded virtual scrolling for large card lists, code splitting, API request deduplication, and improved empty states (#109, #110, #111, #112).\nCHANGED\nReduced initial bundle cost and improved repeat data loads through lazy loading and request-layer efficiency work (#110, #111).\nIncluded early December dependency refreshes as part of the performance-focused release (#107, #108).\n1.1.0\nNOV 27, 2025\nVersion 1.1.0\n\n2 update sections\n\nADDED\nAdded IndexedDB-backed Scryfall caching and supporting automation for issue export workflows (#105, #106).\nCHANGED\nFolded in late November dependency updates around the caching release window (#103, #104).\n1.0.0\nNOV 22, 2025\nVersion 1.0.0\n\n3 update sections\n\nADDED\nEstablished the first production-ready foundation with unit testing, CI, bundle size monitoring, CSP headers, standardized error handling, and Sentry monitoring (#52, #55, #56, #57, #58, #67).\nAdded keyboard and ARIA accessibility improvements, CSV validation, clearer loading states, and interface motion and polish (#59, #76, #77, #78).\nAdded core project documentation including architecture notes, contribution guidance, review documents, and release-process supporting material (#26, #60, #62, #63, #68, #79, #80, #81).\nCHANGED\nRefactored large components into more maintainable structures and stabilized the build and lint pipeline as the app matured (#50, #51, #53, #54).\nStarted regular dependency maintenance through Dependabot in the same release period (#61, #64).\nSECURITY\nClosed an early dependency vulnerability and formalized application security headers and monitoring (#48, #55, #67).\n0.3.0\nNOV 14, 2025\nVersion 0.3.0\n\n1 update section\n\nCHANGED\nReworked dropdowns, analytics integration, and text and layout presentation after the first round of real usage feedback (#22, #23, #24).\n0.2.0\nNOV 12, 2025\nVersion 0.2.0\n\n2 update sections\n\nADDED\nAdded commander display support, navigation, floating header behavior, onboarding polish, CSV-driven owned-card workflows, and deck export support (#14, #15, #16, #18).\nCHANGED\nImproved mobile layout handling and early dashboard structure as the app expanded beyond the initial search prototype (#7, #8, #9, #17, #19, #21).\n0.1.0\nNOV 10, 2025\nVersion 0.1.0\n\n1 update section\n\nADDED\nInitial public milestone with the proof of concept, commander search flow, EDHREC integration, and Scryfall hover previews (#1, #2, #3).",
+    "metrics": {
+      "width": 390,
+      "scrollWidth": 390,
+      "headings": [
+        {
+          "text": " What changed in Commander Scout ",
+          "y": 355.640625
+        },
+        {
+          "text": " Version 2.0.0",
+          "y": 751.234375
+        },
+        {
+          "text": " Version 1.8.0",
+          "y": 1440.65625
+        },
+        {
+          "text": " Version 1.7.0",
+          "y": 1775.828125
+        },
+        {
+          "text": " Version 1.6.0",
+          "y": 2316.75
+        },
+        {
+          "text": " Version 1.5.0",
+          "y": 2983.421875
+        },
+        {
+          "text": " Version 1.4.0",
+          "y": 3524.34375
+        },
+        {
+          "text": " Version 1.3.0",
+          "y": 3962.515625
+        },
+        {
+          "text": " Version 1.2.0",
+          "y": 4629.1875
+        },
+        {
+          "text": " Version 1.1.0",
+          "y": 5215.609375
+        },
+        {
+          "text": " Version 1.0.0",
+          "y": 5676.28125
+        },
+        {
+          "text": " Version 0.3.0",
+          "y": 6730.703125
+        },
+        {
+          "text": " Version 0.2.0",
+          "y": 7065.875
+        },
+        {
+          "text": " Version 0.1.0",
+          "y": 7594.796875
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 562.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 626.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 706.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 786.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 850.359375
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 946.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 992.890625
+        }
+      ]
+    }
+  },
+  {
+    "name": "home",
+    "width": 768,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nCollection + settings\n\nDASHBOARD-FIRST WORKFLOW\n\nSearch commanders, match your collection, and export faster\n\nStart with a commander. Add your collection when you want owned and missing views. Export the resulting decklist once the compare view looks right.\n\n1\n\nChoose a commander\n\nSearch a commander and optional partner without leaving the dashboard.\n\n2\n\nUpload collection\n\nLoad your CSV when you want owned and missing views.\n\n3\n\nCompare and export\n\nScan the live decklists, switch deck views, and export the list you need.\n\nSEARCH COMMANDERS\n\nType at least 2 characters to search commanders.\n\nUpload collection CSV\n\nSearch is the fastest entry. Open utilities when you need collection status, the top-50 scan, or display settings.\n\nBrowse top commanders\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 768,
+      "scrollWidth": 768,
+      "headings": [
+        {
+          "text": " Search commanders, match your collection, and export faster ",
+          "y": 326.875
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 441.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 505.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 585.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 665.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 729.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        },
+        {
+          "label": "Search commanders",
+          "placeholder": "Search commanders",
+          "y": 951.109375
+        }
+      ]
+    }
+  },
+  {
+    "name": "commander",
+    "width": 768,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\n\nCOMMANDER DESTINATION\n\nW\nU\nB\nG\nAtraxa, Grand Unifier\n\nUpload your collection to unlock owned and missing views.\n\nCollection pending\nAll cards\nCommander\nChange commander\nBrowse rail\nUtilities\nView on EDHREC\nPrintings (7)\n\nACTIVE SECTIONS\n\n14 of 14\n\nVISIBLE CARDS\n\n281\n\nDECK VIEW\n\nAll cards\n\nCOLLECTION STATE\n\nUpload a CSV to unlock owned and missing deck views.\n\nPAGE LENS\n\nCommander\n\nCURRENT PRINTING\n\nFinal Fantasy: Through the Ages (FCA)\n\nReleased 13 Jun 2025\n\n$31.41\nEUR 26.03\n\nRESULTS COMMAND BAR\n\n14 active of 14\n281 cards\nAll cards\nSection scan and deck context\n\nShowing all cards across 14 active sections.\n\nExpand all\nNew Cards\nHigh Synergy Cards\nTop Cards\nGame Changers\nCreatures\nInstants\nSorceries\nUtility Artifacts\nEnchantments\nBattles\nPlaneswalkers\nUtility Lands\nMana Artifacts\nLands\nNew Cards\n5 cards\n0% owned\nNew Cards\n\nFresh additions showing up in newer average lists.\n\n0 owned | 5 missing\n\n0% owned\nCollapse\nCopy decklist\nDownload .txt\nHigh Synergy Cards\n10 cards\n0% owned\nHigh Synergy Cards\n\nCards with the strongest overlap across current builds.\n\n0 owned | 10 missing\n\n0% owned\nCollapse\nCopy decklist\nDownload .txt\nLoading Scryfall data...\n3 / 4",
+    "metrics": {
+      "width": 768,
+      "scrollWidth": 768,
+      "headings": [
+        {
+          "text": "Atraxa, Grand Unifier",
+          "y": 271.84375
+        },
+        {
+          "text": "Section scan and deck context",
+          "y": 936.828125
+        },
+        {
+          "text": "New Cards",
+          "y": 1162.234375
+        },
+        {
+          "text": "High Synergy Cards",
+          "y": 2123.96875
+        },
+        {
+          "text": "Top Cards",
+          "y": 3085.703125
+        },
+        {
+          "text": "Game Changers",
+          "y": 4327.703125
+        },
+        {
+          "text": "Creatures",
+          "y": 5569.703125
+        },
+        {
+          "text": "Instants",
+          "y": 6811.703125
+        },
+        {
+          "text": "Sorceries",
+          "y": 8053.703125
+        },
+        {
+          "text": "Utility Artifacts",
+          "y": 9295.703125
+        },
+        {
+          "text": "Enchantments",
+          "y": 10537.703125
+        },
+        {
+          "text": "Battles",
+          "y": 11779.703125
+        },
+        {
+          "text": "Planeswalkers",
+          "y": 13021.703125
+        },
+        {
+          "text": "Utility Lands",
+          "y": 14263.703125
+        },
+        {
+          "text": "Mana Artifacts",
+          "y": 15505.703125
+        },
+        {
+          "text": "Lands",
+          "y": 16747.703125
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 441.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 505.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 585.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 665.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 729.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        }
+      ]
+    }
+  },
+  {
+    "name": "top",
+    "width": 768,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRanking route\nCSV pending\n\nRANKING WORKFLOW\n\nTop commanders scan\n\nBrowse EDHREC's top commanders and see what percentage of each average deck you already own, then jump straight into a commander route when a rank looks promising.\n\nBack to dashboard\nRelease notes\nUpload CSV\n\nEDITORIAL BRIEF\n\nScan the field first\n\nKeep the masthead focused on route identity, then use the command deck below to adjust range, sort mode, and color scope.\n\nRange + sorting\n\nBrowse the active top range, then pivot to highest owned when collection overlap matters more than rank order.\n\nCSV overlay\n\nOwnership percentages stay intentionally quiet until a collection upload gives the ranking real context.\n\nCSV STATUS\n\nUpload a CSV to calculate owned percentages.\n\nUpload once to promote ownership overlap across every ranked commander card below.\n\nTOP COMMANDERS\n\nTop 50 commanders\n\nPercentages use EDHREC average decks without extra filters.\n\nTop 50\nTop 100\nTop 250\nTop 500\nRanked\nHighest owned\nRefresh list\nCOLOR FILTER\nWhite\nBlue\nBlack\nRed\nGreen\nColorless\n\nSCAN SUPPORT\n\nTune the ranking lens\n\nUse rank to browse the field, then switch to highest owned once a CSV upload reveals real overlap.\n\nOWNED RANGE\n0%\n50%\n100%\n\nRANK #1\n\nY'shtola, Night's Blessed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n53,346 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #2\n\nThe Ur-Dragon\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #3\n\nEdgar Markov\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n50,472 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #4\n\nAtraxa, Praetors' Voice\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n44,317 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #5\n\nKrenko, Mob Boss\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n43,842 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #6\n\nVivi Ornitier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,914 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #7\n\nKaalia of the Vast\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,440 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #8\n\nSauron, the Dark Lord\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n39,277 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #9\n\nTeval, the Balanced Scale\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n38,255 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #10\n\nFire Lord Azula\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n37,069 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #11\n\nMs. Bumbleflower\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,702 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #12\n\nPantlaza, Sun-Favored\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n36,366 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #13\n\nLathril, Blade of the Elves\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n35,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #14\n\nGiada, Font of Hope\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n34,462 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #15\n\nThe Wise Mothman\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n33,389 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #16\n\nJodah, the Unifier\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,831 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #17\n\nToph, the First Metalbender\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,162 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #18\n\nNekusar, the Mindrazer\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n32,045 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #19\n\nYuriko, the Tiger's Shadow\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,877 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #20\n\nKenrith, the Returned King\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n31,514 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #21\n\nCloud, Ex-SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #22\n\nValgavoth, Harrower of Souls\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,741 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #23\n\nHearthhull, the Worldseed\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,700 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #24\n\nKefka, Court Mage\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,620 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #25\n\nIsshin, Two Heavens as One\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n30,379 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #26\n\nSephiroth, Fabled SOLDIER\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,893 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #27\n\nBaylen, the Haymaker\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n29,776 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #28\n\nMiirym, Sentinel Wyrm\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n28,372 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #29\n\nChatterfang, Squirrel General\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,619 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #30\n\nUlalek, Fused Atrocity\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n27,488 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #31\n\nFrodo, Adventurous Hobbit // Sam, Loyal Attendant\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,594 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #32\n\nHashaton, Scarab's Fist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,498 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #33\n\nBello, Bard of the Brambles\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n26,157 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #34\n\nEsika, God of the Tree\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,747 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #35\n\nAshling, the Limitless\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,728 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #36\n\nHakbal of the Surging Soul\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,115 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #37\n\nMuldrotha, the Gravetide\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n25,057 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #38\n\nRin and Seri, Inseparable\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,518 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #39\n\nGlarb, Calamity's Augur\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n24,113 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #40\n\nAnimar, Soul of Elements\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n23,343 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #41\n\nYgra, Eater of All\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,955 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #42\n\nArcades, the Strategist\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,950 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #43\n\nAragorn, the Uniter\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,934 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #44\n\nThe Necrobloom\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,895 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #45\n\nFlubs, the Fool\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,812 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #46\n\nArabella, Abandoned Doll\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,733 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #47\n\nMr. House, President and CEO\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,668 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #48\n\nCaesar, Legion's Emperor\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,603 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #49\n\nWilhelt, the Rotcleaver\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,341 decks\n\nOpen this commander route.\n\nCompare deck\n\nRANK #50\n\nBreya, Etherium Shaper\n\nOWNED\n\n--\n\nUpload CSV\n\nUpload a CSV to calculate ownership overlap.\n\n22,324 decks\n\nOpen this commander route.\n\nCompare deck\n\nINDEPENDENT HOBBY PROJECT\n\nEDHREC CSV Compare is a personal experiment, not affiliated with EDHREC, Space Cow Media, or Scryfall.\n\nLearn more\n▼",
+    "metrics": {
+      "width": 768,
+      "scrollWidth": 768,
+      "headings": [
+        {
+          "text": " Top commanders scan ",
+          "y": 293.875
+        },
+        {
+          "text": " Top 50 commanders ",
+          "y": 1133.546875
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 441.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 505.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 585.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 665.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 729.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        }
+      ]
+    }
+  },
+  {
+    "name": "changelog",
+    "width": 768,
+    "text": "Skip to main content\nCS\n\nCOMMANDER SCOUT\n\nCompare collections against live commander data\n\nDashboard\nTop Commanders\nRelease Notes\nCollection pending\nUpload Collection\nView\nRELEASE NOTES\nCURRENT 2.0.0\nMAR 24, 2026\nWhat changed in Commander Scout\n\nThis page is rendered from the repository changelog so the in-app release notes stay aligned with the tracked release history.\n\nBack to dashboard\nTop commanders\n2.0.0\nMAR 24, 2026\nVersion 2.0.0\n\n2 update sections\n\nCHANGED\nIntroduced the primitive UI layer and migrated shared loading, notices, dashboard surfaces, and Top Commanders route UI onto it (#156).\nCompleted a broad UI architecture pass that consolidated presentation primitives ahead of future releases (#156).\nFolded in the latest development dependency refresh as part of the final pre-release stabilization window (#154).\nFIXED\nFixed package and lockfile version inconsistencies and surfaced Top Commanders error notices as alerts (#155, #156).\n1.8.0\nMAR 4, 2026\nVersion 1.8.0\n\n1 update section\n\nCHANGED\nCarried forward late-cycle development dependency maintenance and tooling stabilization ahead of the primitive UI release line (#143, #149).\n1.7.0\nFEB 9, 2026\nVersion 1.7.0\n\n2 update sections\n\nADDED\nImproved large-list handling with row virtualization tuning and scrolling fixes for `CardTable` (#141).\nCHANGED\nRefined list height calculations and progressive scrolling behavior to make large result sets more reliable (#141).\nFolded in dependency maintenance and build stability work from the surrounding February updates (#137, #140).\n1.6.0\nJAN 31, 2026\nVersion 1.6.0\n\n2 update sections\n\nADDED\nAdded the Top Commanders experience with scan workflows, filters, hero treatment, owned-card context, and supporting data helpers (#132, #133).\nExpanded unit and end-to-end coverage across refactored composables and Top Commanders flows (#133, #135).\nCHANGED\nRefactored dashboard, EDHREC reader, commander search, Scryfall row handling, and Top Commanders into smaller composables and components (#135).\nCleaned up onboarding and test flows to match the restructured UI (#133, #135).\n1.5.0\nJAN 22, 2026\nVersion 1.5.0\n\n2 update sections\n\nADDED\nAdded global accessibility preferences and UI controls for the application experience (#131).\nCHANGED\nImproved keyboard navigation, selectors, and accessible behavior across major screens (#131).\nFolded in January dependency refreshes that supported the updated accessibility layer (#129, #130).\n1.4.0\nJAN 12, 2026\nVersion 1.4.0\n\n1 update section\n\nCHANGED\nReworked visual hierarchy in the toolkit header and broader page presentation with layout, color, and background updates (#128).\nRefreshed production and development dependencies during the same release window, including Vue Virtual updates (#124, #125, #126, #127).\n1.3.0\nDEC 16, 2025\nVersion 1.3.0\n\n2 update sections\n\nADDED\nAdded URL and filter state persistence so shared views and repeated workflows survive navigation and reloads (#115).\nAdded TypeDoc configuration plus API, composable, and utility documentation to make the codebase easier to extend (#114).\nCHANGED\nIncreased information density and layout customization options for power users (#119).\nFolded in mid-December dependency updates alongside the documentation and state persistence work (#117, #118).\n1.2.0\nDEC 9, 2025\nVersion 1.2.0\n\n2 update sections\n\nADDED\nAdded virtual scrolling for large card lists, code splitting, API request deduplication, and improved empty states (#109, #110, #111, #112).\nCHANGED\nReduced initial bundle cost and improved repeat data loads through lazy loading and request-layer efficiency work (#110, #111).\nIncluded early December dependency refreshes as part of the performance-focused release (#107, #108).\n1.1.0\nNOV 27, 2025\nVersion 1.1.0\n\n2 update sections\n\nADDED\nAdded IndexedDB-backed Scryfall caching and supporting automation for issue export workflows (#105, #106).\nCHANGED\nFolded in late November dependency updates around the caching release window (#103, #104).\n1.0.0\nNOV 22, 2025\nVersion 1.0.0\n\n3 update sections\n\nADDED\nEstablished the first production-ready foundation with unit testing, CI, bundle size monitoring, CSP headers, standardized error handling, and Sentry monitoring (#52, #55, #56, #57, #58, #67).\nAdded keyboard and ARIA accessibility improvements, CSV validation, clearer loading states, and interface motion and polish (#59, #76, #77, #78).\nAdded core project documentation including architecture notes, contribution guidance, review documents, and release-process supporting material (#26, #60, #62, #63, #68, #79, #80, #81).\nCHANGED\nRefactored large components into more maintainable structures and stabilized the build and lint pipeline as the app matured (#50, #51, #53, #54).\nStarted regular dependency maintenance through Dependabot in the same release period (#61, #64).\nSECURITY\nClosed an early dependency vulnerability and formalized application security headers and monitoring (#48, #55, #67).\n0.3.0\nNOV 14, 2025\nVersion 0.3.0\n\n1 update section\n\nCHANGED\nReworked dropdowns, analytics integration, and text and layout presentation after the first round of real usage feedback (#22, #23, #24).\n0.2.0\nNOV 12, 2025\nVersion 0.2.0\n\n2 update sections\n\nADDED\nAdded commander display support, navigation, floating header behavior, onboarding polish, CSV-driven owned-card workflows, and deck export support (#14, #15, #16, #18).\nCHANGED\nImproved mobile layout handling and early dashboard structure as the app expanded beyond the initial search prototype (#7, #8, #9, #17, #19, #21).\n0.1.0\nNOV 10, 2025\nVersion 0.1.0\n\n1 update section\n\nADDED\nInitial public milestone with the proof of concept, commander search flow, EDHREC integration, and Scryfall hover previews (#1, #2, #3).",
+    "metrics": {
+      "width": 768,
+      "scrollWidth": 768,
+      "headings": [
+        {
+          "text": " What changed in Commander Scout ",
+          "y": 274.53125
+        },
+        {
+          "text": " Version 2.0.0",
+          "y": 568.328125
+        },
+        {
+          "text": " Version 1.8.0",
+          "y": 1114.5
+        },
+        {
+          "text": " Version 1.7.0",
+          "y": 1420.171875
+        },
+        {
+          "text": " Version 1.6.0",
+          "y": 1908.84375
+        },
+        {
+          "text": " Version 1.5.0",
+          "y": 2432.265625
+        },
+        {
+          "text": " Version 1.4.0",
+          "y": 2898.1875
+        },
+        {
+          "text": " Version 1.3.0",
+          "y": 3261.359375
+        },
+        {
+          "text": " Version 1.2.0",
+          "y": 3784.78125
+        },
+        {
+          "text": " Version 1.1.0",
+          "y": 4273.453125
+        },
+        {
+          "text": " Version 1.0.0",
+          "y": 4704.625
+        },
+        {
+          "text": " Version 0.3.0",
+          "y": 5479.296875
+        },
+        {
+          "text": " Version 0.2.0",
+          "y": 5784.96875
+        },
+        {
+          "text": " Version 0.1.0",
+          "y": 6216.140625
+        }
+      ],
+      "inputs": [
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 441.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 505.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 585.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 665.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 729.640625
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 826.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        },
+        {
+          "label": null,
+          "placeholder": "",
+          "y": 872.171875
+        }
+      ]
+    }
+  }
+]
