@@ -5,7 +5,7 @@
     as="article"
     :class="['cardlist-section', spacing.stackSpace]"
   >
-    <div class="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+    <div class="space-y-3">
       <div class="min-w-0">
         <div class="flex items-start gap-3">
           <div
@@ -31,7 +31,7 @@
                 {{ sectionMeta.label }}
               </CBadge>
               <span class="text-[color:var(--muted)]"> {{ totalCards }} cards </span>
-              <span class="text-[color:var(--muted)]"> {{ ownedPercent }}% owned </span>
+              <span class="text-[color:var(--muted)]"> {{ coverageLabel }} </span>
             </CInline>
 
             <CText
@@ -43,10 +43,11 @@
             </CText>
 
             <CText tag="p" variant="helper" tone="muted">
-              {{ ownedCount }} owned | {{ unownedCount }} missing
+              {{ sectionSummaryLabel }}
             </CText>
 
             <CInline
+              v-if="hasCoverage"
               gap="sm"
               class="flex-wrap text-[0.72rem] font-semibold text-[color:var(--muted)]"
             >
@@ -76,7 +77,7 @@
         </div>
       </div>
 
-      <CInline gap="sm" class="flex-wrap text-xs font-semibold xl:justify-end">
+      <CInline gap="sm" class="flex-wrap text-xs font-semibold">
         <CButton type="button" variant="soft" size="sm" @click="emit('toggle')">
           {{ isExpanded ? "Collapse" : "Expand" }}
         </CButton>
@@ -217,19 +218,35 @@ const summaryCounts = computed(() => {
 
   return {
     totalCards: rowCount.value,
+    visibleCards: rowCount.value,
     ownedCount,
     unownedCount,
     ownedPercent,
   };
 });
 const totalCards = computed(() => summaryCounts.value.totalCards);
+const visibleCards = computed(() => summaryCounts.value.visibleCards);
 const ownedCount = computed(() => summaryCounts.value.ownedCount);
 const unownedCount = computed(() => summaryCounts.value.unownedCount);
 const ownedPercent = computed(() => summaryCounts.value.ownedPercent);
+const hasCoverage = computed(() => ownedPercent.value !== null);
+const coverageLabel = computed(() =>
+  hasCoverage.value ? `${ownedPercent.value}% owned` : "Upload a collection to compare"
+);
+const sectionSummaryLabel = computed(() => {
+  if (!hasCoverage.value) {
+    return `Showing ${visibleCards.value} recommendation${visibleCards.value === 1 ? "" : "s"}. Ownership unknown.`;
+  }
+  const ownership = `${ownedCount.value} owned | ${unownedCount.value} missing`;
+  if (visibleCards.value !== totalCards.value) {
+    return `${ownership}. Showing ${visibleCards.value} of ${totalCards.value}.`;
+  }
+  return ownership;
+});
 const isExpanded = computed(() => props.sectionMeta?.expanded ?? true);
 const ownedSegments = computed(() => {
   const segments = 12;
-  if (!totalCards.value) {
+  if (!totalCards.value || ownedCount.value === null) {
     return Array.from({ length: segments }, () => false);
   }
   const filled = Math.round((ownedCount.value / totalCards.value) * segments);

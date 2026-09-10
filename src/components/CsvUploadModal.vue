@@ -3,7 +3,7 @@
     <div
       v-if="open"
       ref="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-8 text-center"
+      class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/75 px-4 py-6 text-center"
       role="dialog"
       aria-modal="true"
       aria-labelledby="csv-upload-title"
@@ -14,30 +14,29 @@
     >
       <div class="max-w-2xl w-full">
         <Card
-          padding="p-4 sm:p-6"
+          padding="p-0"
           background="bg-[color:var(--surface)]"
           shadow="shadow-[var(--shadow)]"
-          class="surface-sheen max-h-[90vh] overflow-y-auto text-center text-[color:var(--text)]"
+          class="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden text-center text-[color:var(--text)]"
         >
-          <div class="flex flex-col items-center gap-3">
-            <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">Upload Collection</p>
-            <h2 id="csv-upload-title" class="text-2xl font-semibold text-[color:var(--text)]">Import your CSV</h2>
-            <p id="csv-upload-description" class="text-sm text-[color:var(--muted)]">
-              Drag and drop or browse files. We keep data in-memory only.
-            </p>
-          </div>
-          <div class="mt-6 flex justify-center">
-            <CSVUpload />
-          </div>
-          <div class="mt-6 flex justify-center">
+          <header class="flex items-start justify-between gap-4 border-b border-[color:var(--border)] px-4 py-4 text-left sm:px-6">
+            <div>
+              <h2 id="csv-upload-title" class="text-xl font-semibold text-[color:var(--text)]">Import collection</h2>
+              <p id="csv-upload-description" class="mt-1 text-sm text-[color:var(--muted)]">
+                Collection data stays in this browser session and clears on refresh.
+              </p>
+            </div>
             <button
               type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               aria-label="Close upload dialog"
               @click="handleClose"
             >
               Close
             </button>
+          </header>
+          <div class="overflow-y-auto px-4 py-5 sm:px-6">
+            <CSVUpload @done="handleClose" />
           </div>
         </Card>
       </div>

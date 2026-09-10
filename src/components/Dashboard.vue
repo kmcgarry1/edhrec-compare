@@ -1,13 +1,13 @@
 <template>
   <section
-    class="mx-auto flex min-h-screen w-full max-w-[104rem] flex-col px-4 pb-12 pt-4 sm:px-6 lg:px-8 2xl:px-10"
+    class="mx-auto flex min-h-screen w-full max-w-[90rem] flex-col px-4 pb-12 pt-4 sm:px-6 lg:px-8"
   >
     <GlobalLoadingBanner />
 
     <main
       id="main-content"
       :ref="setMainContentRef"
-      class="mt-2 flex min-h-[calc(100vh-5.5rem)] flex-1 items-center"
+      class="mt-2 flex flex-1 items-start pt-3 sm:pt-6"
     >
       <DashboardSelectionStage
         class="w-full"

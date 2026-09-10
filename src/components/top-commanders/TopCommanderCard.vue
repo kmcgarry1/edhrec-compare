@@ -1,113 +1,72 @@
 <template>
-  <RouterLink :to="commanderLink" class="group block h-full">
+  <RouterLink :to="commanderLink" class="group block">
     <CSurface
-      variant="content"
-      size="sm"
+      variant="panel"
+      size="none"
+      radius="lg"
+      shadow="none"
       :background="highlightBackground"
       :border="highlightBorder"
-      :class="highlightClass"
-      class="flex h-full flex-col gap-4 overflow-hidden transition hover:-translate-y-0.5 hover:shadow-[var(--shadow)]"
+      class="grid gap-3 p-3 transition hover:border-[color:var(--accent)] sm:grid-cols-[3.25rem,4rem,minmax(0,1fr),8rem,9rem] sm:items-center"
     >
-      <div class="flex items-start justify-between gap-3">
-        <CStack gap="xs">
-          <CText tag="p" variant="overline" tone="muted" class="text-[0.65rem]">
-            Rank #{{ commander.rank }}
-          </CText>
-          <CText tag="p" variant="body" weight="semibold" class="text-left text-base">
-            {{ commander.name }}
-          </CText>
-          <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
-            <span
-              v-for="color in colors"
-              :key="`${commander.slug}-${color}`"
-              class="inline-flex h-2.5 w-2.5 rounded-full ring-1 ring-white/20"
-              :class="colorDotClass(color)"
-              :title="colorLabel(color)"
-              :aria-label="colorLabel(color)"
-            />
-          </div>
-        </CStack>
-
-        <CSurface
-          variant="utility"
-          size="none"
-          radius="pill"
-          class="shrink-0 px-3 py-1.5 text-right"
-        >
-          <CText tag="p" variant="helper" tone="muted" class="uppercase tracking-[0.22em]">
-            Owned
-          </CText>
-          <CText tag="p" variant="title" :class="percentToneClass">
-            {{ percentValue !== null ? `${Math.round(percentValue)}%` : "--" }}
-          </CText>
-        </CSurface>
+      <div class="flex items-center justify-between gap-3 sm:block">
+        <CText tag="p" variant="caption" tone="muted">Rank</CText>
+        <CText tag="p" variant="title">#{{ commander.rank }}</CText>
       </div>
 
-      <div class="grid gap-3 sm:grid-cols-[5rem,minmax(0,1fr)]">
-        <CSurface
-          variant="muted"
-          size="none"
-          radius="xl"
-          class="flex h-28 w-20 items-center justify-center overflow-hidden"
-        >
-          <div v-if="imageStack.length" class="relative h-full w-full">
-            <img
-              :src="imageStack[0]"
-              :alt="commander.name"
-              class="absolute inset-0 h-full w-full object-cover"
-            />
-            <img
-              v-if="imageStack.length > 1"
-              :src="imageStack[1]"
-              :alt="commander.name"
-              class="absolute bottom-2 right-2 h-16 w-12 rounded-md object-cover shadow-[var(--shadow)]"
-            />
-          </div>
-          <CText
-            v-else
-            tag="span"
-            variant="helper"
-            tone="muted"
-          >
-            {{ imageLoading ? "Loading..." : "No image" }}
-          </CText>
-        </CSurface>
-
-        <CStack gap="sm" class="min-w-0">
-          <CText tag="p" variant="title" :class="percentToneClass">
-            {{ percentLabel }}
-          </CText>
-          <CText tag="p" variant="helper" tone="muted">
-            {{ ownedSummary }}
-          </CText>
-          <CText tag="p" variant="helper" tone="muted">
-            {{ detailLabel }}
-          </CText>
-
-          <div class="relative pt-1">
-            <div
-              class="h-2 w-full rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500 opacity-80"
-              aria-hidden="true"
-            />
-            <span
-              v-if="percentValue !== null"
-              class="absolute -top-0.5 h-5 w-1.5 -translate-x-1/2 rounded-full bg-[color:var(--surface)] shadow-[var(--shadow-soft)] ring-1 ring-[color:var(--border)]"
-              :style="{ left: `${percentValue}%` }"
-              aria-hidden="true"
-            />
-          </div>
-        </CStack>
-      </div>
-
-      <div class="mt-auto flex items-center justify-between gap-3">
-        <CText tag="p" variant="helper" tone="muted">
-          {{ ctaSupportText }}
-        </CText>
+      <div class="h-20 w-14 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-muted)] sm:h-20 sm:w-14">
+        <div v-if="imageStack.length" class="relative h-full w-full">
+          <img
+            :src="imageStack[0]"
+            :alt="commander.name"
+            class="absolute inset-0 h-full w-full object-cover"
+          />
+          <img
+            v-if="imageStack.length > 1"
+            :src="imageStack[1]"
+            :alt="`${commander.name} partner`"
+            class="absolute bottom-1 right-1 h-8 w-6 rounded-sm object-cover shadow-[var(--shadow-soft)]"
+          />
+        </div>
         <span
-          class="inline-flex items-center rounded-full border border-[color:var(--border)] px-3 py-1 text-[0.72rem] font-semibold text-[color:var(--text)] transition group-hover:border-[color:var(--accent)] group-hover:text-[color:var(--accent)]"
+          v-else
+          class="flex h-full items-center justify-center px-1 text-center text-xs text-[color:var(--muted)]"
         >
-          Compare deck
+          {{ imageLoading ? "Loading" : "No image" }}
         </span>
+      </div>
+
+      <div class="min-w-0 space-y-1">
+        <CText tag="p" variant="title" class="truncate group-hover:text-[color:var(--accent)]">
+          {{ commander.name }}
+        </CText>
+        <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
+          <span
+            v-for="color in colors"
+            :key="`${commander.slug}-${color}`"
+            class="inline-flex h-2.5 w-2.5 rounded-full ring-1 ring-white/20"
+            :class="colorDotClass(color)"
+            :title="colorLabel(color)"
+            :aria-label="colorLabel(color)"
+          />
+        </div>
+      </div>
+
+      <div class="text-sm sm:text-right">
+        <CText tag="p" variant="caption" tone="muted">Decks</CText>
+        <CText tag="p" variant="body" weight="semibold">
+          {{ detailLabel }}
+        </CText>
+      </div>
+
+      <div class="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm">
+        <CText tag="p" variant="caption" tone="muted">Ownership</CText>
+        <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
+          {{ percentLabel }}
+        </CText>
+        <CText tag="p" variant="caption" tone="muted">
+          {{ ownedSummary }}
+        </CText>
       </div>
     </CSurface>
   </RouterLink>
@@ -116,7 +75,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
-import { CStack, CSurface, CText } from "../core";
+import { CSurface, CText } from "../core";
 import type { TopCommander } from "../../api/edhrecApi";
 import type { CommanderScanResult } from "../../composables/useTopCommanderScan";
 import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
@@ -149,10 +108,10 @@ const percentValue = computed(() => {
 
 const percentLabel = computed(() => {
   if (!props.hasCsvData) {
-    return "Upload CSV";
+    return "Unknown";
   }
   if (!props.scanResult) {
-    return "--";
+    return "Scanning";
   }
   return `${formatPercent(props.scanResult.ownedPercent)} owned`;
 });
@@ -167,82 +126,35 @@ const percentToneClass = computed(() => {
   if (percentValue.value < 67) {
     return "text-amber-500";
   }
-  return "text-emerald-500";
+  return "text-emerald-600";
 });
 
-const detailLabel = computed(() => {
-  return `${numberFormatter.format(props.commander.deckCount)} decks`;
-});
-
-const ctaSupportText = computed(() => {
-  if (!props.hasCsvData) {
-    return "Open this commander route.";
-  }
-  if (!props.scanResult) {
-    return "Open route while scan data loads.";
-  }
-  return `${Math.round(props.scanResult.ownedPercent)}% overlap ready to inspect.`;
-});
+const detailLabel = computed(() => `${numberFormatter.format(props.commander.deckCount)} decks`);
 
 const ownedSummary = computed(() => {
   if (!props.hasCsvData) {
-    return "Upload a CSV to calculate ownership overlap.";
+    return "Upload collection";
   }
   if (!props.scanResult) {
-    return "Waiting for scan results.";
+    return "Waiting for results";
   }
-  return `${props.scanResult.ownedCards} / ${props.scanResult.totalCards} cards owned`;
+  return `${props.scanResult.ownedCards} of ${props.scanResult.totalCards}`;
 });
 
 const highlightBackground = computed(() => {
   const value = percentValue.value;
-  if (value === null) {
-    return "bg-[color:var(--surface)]";
+  if (value === null || value < 70) {
+    return "bg-[color:var(--surface-strong)]";
   }
-  if (value >= 90) {
-    return "bg-[color:var(--accent)]";
-  }
-  if (value >= 70) {
-    return "bg-[color:var(--accent-soft)]";
-  }
-  if (value >= 50) {
-    return "bg-[color:var(--warn-soft)]";
-  }
-  if (value >= 30) {
-    return "bg-[color:var(--surface-muted)]";
-  }
-  if (value >= 10) {
-    return "bg-[color:var(--danger-soft)]";
-  }
-  return "bg-[color:var(--surface-muted)]";
+  return "bg-[color:var(--accent-soft)]";
 });
 
 const highlightBorder = computed(() => {
   const value = percentValue.value;
-  if (value === null) {
-    return "border border-[color:var(--border)]";
-  }
-  if (value >= 90) {
-    return "border border-[color:var(--accent-strong)]";
-  }
-  if (value >= 70) {
+  if (value !== null && value >= 70) {
     return "border border-[color:var(--accent)]";
   }
-  if (value >= 50) {
-    return "border border-[color:var(--warn)]";
-  }
-  if (value >= 10) {
-    return "border border-[color:var(--danger)]";
-  }
   return "border border-[color:var(--border)]";
-});
-
-const highlightClass = computed(() => {
-  const value = percentValue.value;
-  if (value !== null && value >= 70) {
-    return "shadow-[0_0_0_1px_var(--accent),0_10px_25px_rgba(0,0,0,0.18)]";
-  }
-  return "";
 });
 
 const commanderLink = computed(() => ({

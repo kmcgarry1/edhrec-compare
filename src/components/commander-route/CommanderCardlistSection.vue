@@ -7,7 +7,7 @@
     radius="3xl"
     :class="['commander-cardlist-section', spacing.stackSpace]"
   >
-    <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+    <div class="space-y-4">
       <div class="min-w-0 space-y-4">
         <div class="flex items-start gap-3">
           <div
@@ -36,8 +36,8 @@
               >
                 {{ sectionMeta.label }}
               </CBadge>
-              <span class="text-[color:var(--muted)]">{{ totalCards }} cards</span>
-              <span class="text-[color:var(--muted)]">{{ ownedPercent }}% owned</span>
+              <span class="text-[color:var(--muted)]">{{ totalCards }} recommendations</span>
+              <span class="text-[color:var(--muted)]">{{ coverageLabel }}</span>
             </div>
 
             <div class="space-y-1">
@@ -48,11 +48,11 @@
                 {{ sectionMeta.summary }}
               </CText>
               <CText tag="p" variant="helper" tone="muted">
-                {{ ownedCount }} owned | {{ unownedCount }} missing
+                {{ sectionSummaryLabel }}
               </CText>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2 text-[0.72rem] font-semibold">
+            <div v-if="hasCoverage" class="flex flex-wrap items-center gap-2 text-[0.72rem] font-semibold">
               <CBadge
                 :tone="toneBadgeTone"
                 variant="outline"
@@ -60,7 +60,7 @@
                 text-case="normal"
                 class="gap-2"
                 role="img"
-                :aria-label="`Owned ${ownedPercent}% of cards`"
+                :aria-label="`Owned ${ownedPercent}% of recommendations`"
               >
                 <span>{{ ownedPercent }}% owned</span>
                 <span class="grid grid-cols-12 gap-1" aria-hidden="true">
@@ -77,7 +77,7 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2 xl:justify-end">
+      <div class="flex flex-wrap items-center gap-2">
         <CButton type="button" variant="soft" size="sm" @click="emit('toggle')">
           {{ isExpanded ? "Collapse" : "Expand" }}
         </CButton>
@@ -112,6 +112,62 @@
           <SkeletonCard v-for="i in 5" :key="i" />
         </CStack>
 
+        <div v-else-if="displayMode === 'gallery'" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <article
+            v-for="row in rows"
+            :key="`${row.id}-gallery`"
+            data-testid="commander-gallery-card"
+            class="overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)]"
+          >
+            <div class="aspect-[63/88] bg-[color:var(--surface-muted)]">
+              <img
+                v-if="row.card.image_url"
+                :src="row.card.image_url"
+                :alt="row.card.name"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <div
+                v-else
+                class="flex h-full items-center justify-center px-3 text-center text-xs text-[color:var(--muted)]"
+              >
+                Image unavailable
+              </div>
+            </div>
+            <div class="space-y-2 p-3">
+              <button
+                type="button"
+                class="w-full rounded-md text-left text-sm font-semibold leading-tight text-[color:var(--text)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                @click="openCardDetails(row.card)"
+              >
+                {{ row.card.name }}
+              </button>
+              <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="rounded-md bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]">
+                  {{ ownershipLabel(row.have) }}
+                </span>
+                <span v-if="row.card.mana_cost" class="text-[color:var(--muted)]">
+                  {{ row.card.mana_cost }}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-1.5">
+                <PriceColour
+                  v-if="priceMode !== 'eur'"
+                  :price="row.card.prices?.usd ?? null"
+                  currency="$"
+                  class="text-[11px]"
+                />
+                <PriceColour
+                  v-if="priceMode !== 'usd'"
+                  :price="row.card.prices?.eur ?? null"
+                  currency="EUR"
+                  class="text-[11px]"
+                />
+              </div>
+            </div>
+          </article>
+        </div>
+
         <div v-else-if="isDesktopViewport">
           <CardTable
             :columns="columns"
@@ -127,6 +183,7 @@
               <ScryfallCardRow
                 :card="(row as CardTableRow).card"
                 :have="Boolean((row as CardTableRow).have)"
+                :price-mode="priceMode"
               />
             </template>
           </CardTable>
@@ -139,6 +196,7 @@
             :card="row.card"
             :have="Boolean(row.have)"
             variant="card"
+            :price-mode="priceMode"
           />
         </CStack>
       </div>
@@ -150,6 +208,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { mdiCardsOutline } from "@mdi/js";
 import CardTable from "../CardTable.vue";
+import PriceColour from "../PriceColour.vue";
 import ScryfallCardRow from "../ScryfallCardRow.vue";
 import SkeletonCard from "../SkeletonCard.vue";
 import { CBadge, CButton, CStack, CSurface, CText } from "../core";
@@ -168,9 +227,13 @@ const props = withDefaults(
     columns: ColumnDefinition[];
     decklistText: string;
     copiedSectionId: string | null;
+    displayMode?: "rows" | "gallery";
+    priceMode?: "both" | "usd" | "eur";
     loading?: boolean;
   }>(),
   {
+    displayMode: "rows",
+    priceMode: "both",
     loading: false,
   }
 );
@@ -217,6 +280,7 @@ const summaryCounts = computed(() => {
 
   return {
     totalCards: rowCount.value,
+    visibleCards: rowCount.value,
     ownedCount,
     unownedCount,
     ownedPercent,
@@ -224,13 +288,28 @@ const summaryCounts = computed(() => {
 });
 
 const totalCards = computed(() => summaryCounts.value.totalCards);
+const visibleCards = computed(() => summaryCounts.value.visibleCards);
 const ownedCount = computed(() => summaryCounts.value.ownedCount);
 const unownedCount = computed(() => summaryCounts.value.unownedCount);
 const ownedPercent = computed(() => summaryCounts.value.ownedPercent);
+const hasCoverage = computed(() => ownedPercent.value !== null);
+const coverageLabel = computed(() =>
+  hasCoverage.value ? `${ownedPercent.value}% owned` : "Upload a collection to compare"
+);
+const sectionSummaryLabel = computed(() => {
+  if (!hasCoverage.value) {
+    return `Showing ${visibleCards.value} recommendation${visibleCards.value === 1 ? "" : "s"}. Ownership unknown.`;
+  }
+  const ownership = `${ownedCount.value} owned | ${unownedCount.value} missing`;
+  if (visibleCards.value !== totalCards.value) {
+    return `${ownership}. Showing ${visibleCards.value} of ${totalCards.value}.`;
+  }
+  return ownership;
+});
 const isExpanded = computed(() => props.sectionMeta?.expanded ?? true);
 const ownedSegments = computed(() => {
   const segments = 12;
-  if (!totalCards.value) {
+  if (!totalCards.value || ownedCount.value === null) {
     return Array.from({ length: segments }, () => false);
   }
   const filled = Math.round((ownedCount.value / totalCards.value) * segments);
@@ -328,6 +407,21 @@ const emitDownload = () => {
   if (props.decklistText.length) {
     emit("download");
   }
+};
+
+const ownershipLabel = (have: boolean) => {
+  if (!hasCoverage.value) {
+    return "Unknown";
+  }
+  return have ? "Owned" : "Missing";
+};
+
+const openCardDetails = (card: CardTableRow["card"]) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const url = card.scryfall_uri || `https://scryfall.com/search?q=${encodeURIComponent(card.name)}`;
+  window.open(url, "_blank", "noopener");
 };
 </script>
 
