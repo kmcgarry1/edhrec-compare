@@ -58,7 +58,7 @@ describe("useFocusTrap", () => {
     document.body.innerHTML = "";
   });
 
-  it("focuses the container and sets tabindex when activated", async () => {
+  it("focuses the first focusable element and sets tabindex when activated", async () => {
     const wrapper = mountHarness();
     const outsideButton = wrapper.get("#outside").element as HTMLButtonElement;
     outsideButton.focus();
@@ -71,8 +71,9 @@ describe("useFocusTrap", () => {
     await nextTick();
 
     const container = wrapper.get("#trap-container").element as HTMLElement;
+    const firstButton = wrapper.get("#first").element as HTMLButtonElement;
     expect(container.getAttribute("tabindex")).toBe("-1");
-    expect(document.activeElement).toBe(container);
+    expect(document.activeElement).toBe(firstButton);
 
     wrapper.unmount();
   });
@@ -93,6 +94,21 @@ describe("useFocusTrap", () => {
     wrapper.unmount();
   });
 
+  it("moves focus back inside the trap when tabbing from outside", async () => {
+    const wrapper = mountHarness();
+    const outsideButton = wrapper.get("#outside").element as HTMLButtonElement;
+    const firstButton = wrapper.get("#first").element as HTMLButtonElement;
+
+    wrapper.vm.setActiveState(true);
+    await nextTick();
+
+    outsideButton.focus();
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab" }));
+    expect(document.activeElement).toBe(firstButton);
+
+    wrapper.unmount();
+  });
+
   it("loops focus between the first and last focusable elements when tabbing", async () => {
     const wrapper = mountHarness();
     const firstButton = wrapper.get("#first").element as HTMLButtonElement;
@@ -106,9 +122,7 @@ describe("useFocusTrap", () => {
     expect(document.activeElement).toBe(firstButton);
 
     firstButton.focus();
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Tab", shiftKey: true })
-    );
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true }));
     expect(document.activeElement).toBe(lastButton);
 
     wrapper.unmount();

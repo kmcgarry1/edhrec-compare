@@ -261,7 +261,7 @@ test.describe("Top Commanders Page - Navigation", () => {
 
     // Verify page loaded
     await expect(page).toHaveURL(/\/top-commanders/);
-    await expect(page.getByRole("heading", { name: /Top commanders scan/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Top Commanders/i })).toBeVisible();
   });
 
   test("displays proper heading and description", async ({ page }) => {
@@ -269,20 +269,23 @@ test.describe("Top Commanders Page - Navigation", () => {
     await page.goto("/top-commanders");
 
     // Check heading structure
-    const heading = page.getByRole("heading", { name: /Top commanders scan/i });
+    const heading = page.getByRole("heading", { name: /Top Commanders/i });
     await expect(heading).toBeVisible();
 
     // Check description text
-    await expect(
-      page.getByText(/Browse EDHREC's top commanders and see what percentage/)
-    ).toBeVisible();
+    await expect(page.getByText(/Browse ranked commanders and scan ownership/)).toBeVisible();
   });
 
   test("has back to dashboard link", async ({ page }) => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    const backLink = page.getByRole("link", { name: /Back to dashboard/i });
+    const menuButton = page.getByText("Menu", { exact: true });
+    if (await menuButton.isVisible().catch(() => false)) {
+      await menuButton.click();
+    }
+
+    const backLink = page.getByRole("link", { name: /Find a Commander|Commander Scout/i }).first();
     await expect(backLink).toBeVisible();
     await backLink.click();
 
@@ -310,9 +313,9 @@ test.describe("Top Commanders Page - Loading and Display", () => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    await expect(page.getByText("Rank #1")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("Rank #2")).toBeVisible();
-    await expect(page.getByText("Rank #3")).toBeVisible();
+    await expect(page.getByText("#1")).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("#2")).toBeVisible();
+    await expect(page.getByText("#3")).toBeVisible();
   });
 
   test("displays deck counts", async ({ page }) => {
@@ -379,7 +382,7 @@ test.describe("Top Commanders Page - CSV Upload Integration", () => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
+    const uploadButton = page.getByRole("button", { name: /Upload collection/i });
     await expect(uploadButton).toBeVisible();
   });
 
@@ -387,9 +390,9 @@ test.describe("Top Commanders Page - CSV Upload Integration", () => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    await page.getByRole("button", { name: /Upload CSV/i }).click();
+    await page.getByRole("button", { name: /Upload collection/i }).click();
 
-    const modal = page.getByRole("dialog", { name: /Import your CSV/i });
+    const modal = page.getByRole("dialog", { name: /Import collection/i });
     await expect(modal).toBeVisible();
   });
 
@@ -400,11 +403,11 @@ test.describe("Top Commanders Page - CSV Upload Integration", () => {
     await expect(page.getByText(/Upload a CSV to calculate owned percentages/i)).toBeVisible();
   });
 
-  test("shows 'Upload CSV' label on commanders when no CSV loaded", async ({ page }) => {
+  test("shows upload collection label on commanders when no CSV loaded", async ({ page }) => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    await expect(page.getByText("Upload CSV").first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText("Upload collection").first()).toBeVisible({ timeout: 10_000 });
   });
 
   test("uploads CSV and shows loaded status", async ({ page }) => {
@@ -412,7 +415,7 @@ test.describe("Top Commanders Page - CSV Upload Integration", () => {
     await page.goto("/top-commanders");
 
     // Upload CSV file
-    const uploadButton = page.getByRole("button", { name: /Upload CSV/i });
+    const uploadButton = page.getByRole("button", { name: /Upload collection/i });
     await uploadButton.click();
 
     const fileInput = page.locator('input[type="file"]');
@@ -437,7 +440,7 @@ test.describe("Top Commanders Page - Scan Functionality", () => {
     await page.goto("/top-commanders");
 
     // Upload CSV
-    await page.getByRole("button", { name: /Upload CSV/i }).click();
+    await page.getByRole("button", { name: /Upload collection/i }).click();
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
 
@@ -456,7 +459,7 @@ test.describe("Top Commanders Page - Scan Functionality", () => {
     await page.goto("/top-commanders");
 
     // Upload CSV
-    await page.getByRole("button", { name: /Upload CSV/i }).click();
+    await page.getByRole("button", { name: /Upload collection/i }).click();
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
 
@@ -493,6 +496,23 @@ test.describe("Top Commanders Page - Sorting Options", () => {
     await page.goto("/top-commanders");
 
     const highestOwnedButton = page.getByRole("button", { name: /Highest owned/i });
+    await expect(highestOwnedButton).toBeDisabled();
+  });
+
+  test("switches to highest owned sorting after CSV upload", async ({ page }) => {
+    await setupPage(page);
+    await page.goto("/top-commanders");
+
+    await page.getByRole("button", { name: /Upload collection/i }).click();
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
+    await expect(page.getByText("rows detected", { exact: false })).toBeVisible({
+      timeout: 10_000,
+    });
+    await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+    await expect(page.getByText(/Last updated/i)).toBeVisible({ timeout: 30_000 });
+
+    const highestOwnedButton = page.getByRole("button", { name: /Highest owned/i });
     await highestOwnedButton.click();
 
     await expect(highestOwnedButton).toHaveAttribute("aria-pressed", "true");
@@ -502,7 +522,15 @@ test.describe("Top Commanders Page - Sorting Options", () => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    // Switch to highest owned
+    await page.getByRole("button", { name: /Upload collection/i }).click();
+    const fileInput = page.locator('input[type="file"]');
+    await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
+    await expect(page.getByText("rows detected", { exact: false })).toBeVisible({
+      timeout: 10_000,
+    });
+    await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
+    await expect(page.getByText(/Last updated/i)).toBeVisible({ timeout: 30_000 });
+
     await page.getByRole("button", { name: /Highest owned/i }).click();
 
     // Switch back to ranked
@@ -727,7 +755,7 @@ test.describe("Top Commanders Page - Accessibility", () => {
     await page.goto("/top-commanders");
 
     // H1 heading
-    const h1 = page.getByRole("heading", { level: 1, name: /Top commanders scan/i });
+    const h1 = page.getByRole("heading", { level: 1, name: /Top Commanders/i });
     await expect(h1).toBeVisible();
 
     // H2 heading
@@ -740,7 +768,7 @@ test.describe("Top Commanders Page - Accessibility", () => {
     await page.goto("/top-commanders");
 
     // Check various buttons have names
-    await expect(page.getByRole("button", { name: /Upload CSV/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Upload collection/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Refresh list/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Ranked/i })).toBeVisible();
   });
@@ -795,13 +823,8 @@ test.describe("Top Commanders Page - Visual Feedback", () => {
     await setupPage(page);
     await page.goto("/top-commanders");
 
-    // Check for the ownership range visual
-    await expect(page.getByText("Owned range", { exact: false })).toBeVisible();
-
-    // The gradient has three labels - verify they exist but don't check for visibility
-    // due to strict mode violations with percentage text appearing multiple places
-    const labels = await page.getByText(/^\d+%$/).all();
-    expect(labels.length).toBeGreaterThan(0);
+    await expect(page.getByText("Ownership").first()).toBeVisible();
+    await expect(page.getByText("Unknown").first()).toBeVisible();
   });
 
   test("shows CSV status section", async ({ page }) => {
@@ -818,7 +841,7 @@ test.describe("Top Commanders Page - Visual Feedback", () => {
     await expect(page.getByText("Atraxa, Grand Unifier")).toBeVisible({ timeout: 10_000 });
 
     // Check that multiple commanders are visible (grid should show multiple items)
-    const commanders = page.getByText(/Rank #\d+/);
+    const commanders = page.getByText(/^#\d+$/);
     const count = await commanders.count();
     expect(count).toBeGreaterThan(1);
   });

@@ -40,7 +40,7 @@ const setupApp = async (page: Page) => {
 };
 
 const getLandingUploadButton = (page: Page) =>
-  page.getByRole("button", { name: /Upload collection CSV/i }).first();
+  page.getByRole("button", { name: /^Upload collection$/i }).first();
 
 const getLandingCommanderSearch = (page: Page) =>
   page.getByRole("combobox", { name: /Search commanders/i });
@@ -52,7 +52,9 @@ const expectLandingReady = async (page: Page) => {
 
 const tabUntilFocused = async (page: Page, locator: Locator, maxTabs = 12) => {
   for (let index = 0; index < maxTabs; index += 1) {
-    if (await locator.evaluate((element) => element === document.activeElement).catch(() => false)) {
+    if (
+      await locator.evaluate((element) => element === document.activeElement).catch(() => false)
+    ) {
       return;
     }
     await page.keyboard.press("Tab");
@@ -63,7 +65,7 @@ const tabUntilFocused = async (page: Page, locator: Locator, maxTabs = 12) => {
 
 const openUploadModal = async (page: Page) => {
   await getLandingUploadButton(page).click();
-  const dialog = page.getByRole("dialog", { name: /Import your CSV/i });
+  const dialog = page.getByRole("dialog", { name: /Import collection/i });
   await expect(dialog).toBeVisible();
   return dialog;
 };
@@ -86,7 +88,7 @@ test.describe("Keyboard Navigation", () => {
     await openUploadModal(page);
 
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog", { name: /Import your CSV/i })).toBeHidden();
+    await expect(page.getByRole("dialog", { name: /Import collection/i })).toBeHidden();
   });
 
   test("can navigate commander search with keyboard", async ({ page }) => {
@@ -143,7 +145,7 @@ test.describe("ARIA Attributes", () => {
     const fileInput = dialog.locator('input[type="file"]');
     await fileInput.setInputFiles(path.resolve("src/assets/inventory.csv"));
 
-    await expect(dialog.getByText("Valid CSV")).toBeVisible();
+    await expect(dialog.getByText("Collection ready")).toBeVisible();
     await expect(dialog.locator('[aria-live="polite"]').first()).toBeVisible();
   });
 
