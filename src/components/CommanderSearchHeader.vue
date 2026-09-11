@@ -52,8 +52,8 @@
           <button
             type="button"
             class="rounded-full p-1.5 text-[color:var(--muted)] transition hover:text-[color:var(--accent)]"
-            :aria-label="`${backgroundEnabled ? 'Hide' : 'Show'} nebula background`"
-            :title="`${backgroundEnabled ? 'Hide' : 'Show'} nebula background`"
+            :aria-label="`${backgroundEnabled ? 'Hide' : 'Show'} background texture`"
+            :title="`${backgroundEnabled ? 'Hide' : 'Show'} background texture`"
             @click="$emit('toggle-background')"
           >
             <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">

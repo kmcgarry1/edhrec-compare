@@ -5,9 +5,9 @@
       variant="content"
       tone="default"
       size="none"
-      radius="2xl"
+      radius="xl"
       shadow="none"
-      class="selection-stage-shell p-4 sm:p-6 lg:p-8"
+      class="selection-stage-shell border p-4 sm:p-6 lg:p-7"
       :class="{ 'selection-stage-shell-intro': playIntro }"
     >
       <div class="selection-stage-copy flex flex-col gap-5">
@@ -16,14 +16,15 @@
             Find cards for your commander
           </CText>
           <CText tag="p" variant="body" tone="muted" class="selection-stage-description">
-            Search a commander, compare recommendations with your collection, then export the cards you need.
+            Search a commander, compare recommendations with your collection, then export the cards
+            you need.
           </CText>
         </div>
 
         <CSurface
           variant="command"
           size="none"
-          radius="xl"
+          radius="lg"
           class="selection-stage-search-shell w-full"
         >
           <CommanderSearch
@@ -57,7 +58,11 @@
           </CButton>
         </div>
 
-        <div v-if="floatingCards.length" class="selection-stage-card-stack" aria-label="Quick picks">
+        <div
+          v-if="floatingCards.length"
+          class="selection-stage-card-stack"
+          aria-label="Quick picks"
+        >
           <button
             v-for="(card, index) in floatingCards"
             :key="`${card.name}-${index}`"
@@ -127,7 +132,11 @@ const buildRandomCommanderArtSet = async () => {
   const seen = new Set<string>();
   const cards: RandomCardArt[] = [];
 
-  for (let attempt = 0; attempt < RANDOM_ART_MAX_ATTEMPTS && cards.length < RANDOM_ART_TARGET; attempt += 1) {
+  for (
+    let attempt = 0;
+    attempt < RANDOM_ART_MAX_ATTEMPTS && cards.length < RANDOM_ART_TARGET;
+    attempt += 1
+  ) {
     const card = await getRandomCardArt();
     if (!card || seen.has(card.name)) {
       continue;
@@ -226,7 +235,7 @@ defineExpose({
 
 <style scoped>
 .selection-stage-shell {
-  background: color-mix(in srgb, var(--surface-strong) 94%, var(--surface) 6%);
+  background: var(--surface-strong);
 }
 
 .selection-stage-copy {
@@ -287,7 +296,7 @@ defineExpose({
   border-radius: 0.75rem;
   border-color: color-mix(in srgb, var(--border) 68%, transparent);
   background: var(--surface-strong) !important;
-  box-shadow: var(--shadow-soft);
+  box-shadow: none;
 }
 
 .selection-stage-card-stack {
@@ -407,13 +416,11 @@ defineExpose({
   from {
     opacity: 0;
     transform: translateY(18px) scale(0.985);
-    filter: blur(12px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 </style>

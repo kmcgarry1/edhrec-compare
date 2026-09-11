@@ -31,13 +31,7 @@
         </div>
       </template>
 
-      <CSurface
-        v-else
-        variant="utility"
-        size="sm"
-        radius="2xl"
-        class="space-y-3"
-      >
+      <CSurface v-else variant="utility" size="sm" radius="2xl" class="space-y-3">
         <div class="flex items-start justify-between gap-3">
           <div class="space-y-1">
             <CText tag="p" variant="body" weight="semibold">
@@ -94,7 +88,10 @@
 
         <div class="space-y-1">
           <CText tag="p" variant="body" weight="semibold">
-            {{ collectionSourceName || (hasCsvData ? "In-memory collection" : "Upload once to compare ownership") }}
+            {{
+              collectionSourceName ||
+              (hasCsvData ? "In-memory collection" : "Upload once to compare ownership")
+            }}
           </CText>
           <CText tag="p" variant="helper" tone="muted">
             {{ hasCsvData ? collectionModeHint : inventorySummary }}
@@ -185,10 +182,13 @@
         :modifier="modifier"
         :page-type="pageType"
         :companion="companion"
+        :deck-tag="deckTag"
+        :deck-tag-options="deckTagOptions"
         @update:bracket="emit('update:bracket', $event)"
         @update:modifier="emit('update:modifier', $event)"
         @update:page-type="emit('update:page-type', $event)"
         @update:companion="emit('update:companion', $event)"
+        @update:deck-tag="emit('update:deck-tag', $event)"
       />
     </section>
   </div>
@@ -198,27 +198,40 @@
 import { computed, nextTick, ref, watch } from "vue";
 import CommanderSearch from "../CommanderSearch.vue";
 import CommanderFilters from "../CommanderFilters.vue";
-import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "../helpers/enums";
+import {
+  EDHRECBracket,
+  EDHRECCompanion,
+  EDHRECPageModifier,
+  EDHRECPageType,
+} from "../helpers/enums";
 import { CBadge, CButton, CSurface, CText } from "../core";
 import type { CommanderSelection } from "../../types/edhrec";
 import type { OwnedFilterOption, OwnedFilterValue } from "../../types/dashboard";
 
-const props = defineProps<{
-  selectedSlug?: string | null;
-  selection?: CommanderSelection | null;
-  bracket: string;
-  modifier: string;
-  pageType: string;
-  companion: string;
-  hasCsvData: boolean;
-  csvCount: number;
-  inventorySummary: string;
-  collectionSourceName?: string | null;
-  collectionImportedAt?: Date | null;
-  collectionModeLabel: string;
-  collectionModeHint: string;
-  filterOptions: OwnedFilterOption[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    selectedSlug?: string | null;
+    selection?: CommanderSelection | null;
+    bracket: string;
+    modifier: string;
+    pageType: string;
+    companion: string;
+    deckTag?: string;
+    deckTagOptions?: Array<{ value: string; label: string; description?: string }>;
+    hasCsvData: boolean;
+    csvCount: number;
+    inventorySummary: string;
+    collectionSourceName?: string | null;
+    collectionImportedAt?: Date | null;
+    collectionModeLabel: string;
+    collectionModeHint: string;
+    filterOptions: OwnedFilterOption[];
+  }>(),
+  {
+    deckTag: "",
+    deckTagOptions: () => [],
+  }
+);
 
 const emit = defineEmits<{
   "commander-selected": [slug: string];
@@ -228,6 +241,7 @@ const emit = defineEmits<{
   "update:modifier": [value: string | number];
   "update:page-type": [value: string | number];
   "update:companion": [value: string | number];
+  "update:deck-tag": [value: string | number];
   "open-upload": [];
   "clear-upload": [];
 }>();
@@ -284,11 +298,19 @@ const companionLabel = computed(() =>
     ? `${findLabel(Object.values(EDHRECCompanion), props.companion, "Companion")} companion`
     : "No companion"
 );
-const advancedSummary = computed(
+const deckTagLabel = computed(
   () =>
-    [pageTypeLabel.value, bracketLabel.value, modifierLabel.value, companionLabel.value].join(
-      " • "
-    )
+    props.deckTagOptions.find((option) => option.value === props.deckTag)?.label ??
+    (props.deckTag ? props.deckTag : "Any tag")
+);
+const advancedSummary = computed(() =>
+  [
+    pageTypeLabel.value,
+    bracketLabel.value,
+    modifierLabel.value,
+    companionLabel.value,
+    deckTagLabel.value,
+  ].join(" | ")
 );
 
 const collectionImportedLabel = computed(() => {

@@ -1,11 +1,15 @@
 <template>
-  <header class="sticky top-0 z-50 border-b border-[color:var(--border)] bg-[color:var(--surface-strong)]/95 backdrop-blur">
+  <header
+    class="sticky top-0 z-50 border-b border-[color:var(--border)] bg-[color:var(--surface-strong)]/95"
+  >
     <div class="mx-auto flex min-h-14 w-full max-w-[90rem] items-center gap-3 px-4 sm:px-6 lg:px-8">
       <RouterLink
         to="/"
         class="flex min-w-0 items-center gap-2 rounded-lg py-1 pr-1 text-[color:var(--text)] transition hover:text-[color:var(--accent)]"
       >
-        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--accent-soft)] text-sm font-semibold">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--accent-soft)] text-sm font-semibold"
+        >
           CS
         </span>
         <span class="min-w-0">
@@ -34,12 +38,17 @@
           variant="soft"
           size="sm"
           text-case="normal"
-          class="hidden sm:inline-flex"
+          class="hidden lg:inline-flex"
         >
           {{ collectionStatus }}
         </CBadge>
 
-        <CButton type="button" size="sm" :variant="hasCsvData ? 'secondary' : 'primary'" @click="openUploadModal">
+        <CButton
+          type="button"
+          size="sm"
+          :variant="hasCsvData ? 'secondary' : 'primary'"
+          @click="openUploadModal"
+        >
           {{ hasCsvData ? "Collection" : "Upload" }}
         </CButton>
 
@@ -53,7 +62,9 @@
           >
             Menu
           </summary>
-          <div class="absolute right-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-1rem))] rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-2 shadow-[var(--shadow)]">
+          <div
+            class="absolute right-0 top-full z-50 mt-2 w-[min(18rem,calc(100vw-1rem))] rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-2 shadow-[var(--shadow-soft)]"
+          >
             <RouterLink
               v-for="link in mobileMenuLinks"
               :key="link.to"
@@ -95,7 +106,8 @@ const mobileMenuLinks = [
 ] as const;
 
 const activeNavClass = "bg-[color:var(--accent)] text-[color:var(--accent-contrast)]";
-const inactiveNavClass = "text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]";
+const inactiveNavClass =
+  "text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]";
 
 const hasCsvData = computed(() => rows.value.length > 0);
 const collectionStatus = computed(() => {

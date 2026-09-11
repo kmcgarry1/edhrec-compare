@@ -1,20 +1,26 @@
 <template>
-  <section
-    class="mx-auto w-full max-w-[90rem] px-4 pb-16 pt-6 sm:px-6 lg:px-8"
-  >
+  <section class="mx-auto w-full max-w-[90rem] px-4 pb-16 pt-4 sm:px-6 lg:px-8">
     <GlobalLoadingBanner />
-    <CsvUploadModal v-if="showUploadModal" :open="showUploadModal" @close="showUploadModal = false" />
+    <CsvUploadModal
+      v-if="showUploadModal"
+      :open="showUploadModal"
+      @close="showUploadModal = false"
+    />
 
     <main id="main-content" class="space-y-4">
-      <CSurface variant="content" size="md" radius="2xl" shadow="none" class="space-y-4">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <CSurface variant="content" size="sm" radius="xl" shadow="none" class="space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div class="max-w-3xl space-y-1">
-            <CText tag="h1" variant="display">Top Commanders</CText>
+            <CText tag="h1" variant="title" class="text-2xl sm:text-3xl">Top Commanders</CText>
             <CText tag="p" variant="body" tone="muted">
               Browse ranked commanders and scan ownership when a collection is loaded.
             </CText>
           </div>
-          <CButton type="button" :variant="hasCsvData ? 'secondary' : 'primary'" @click="showUploadModal = true">
+          <CButton
+            type="button"
+            :variant="hasCsvData ? 'secondary' : 'primary'"
+            @click="showUploadModal = true"
+          >
             {{ hasCsvData ? "Replace collection" : "Upload collection" }}
           </CButton>
         </div>
@@ -42,7 +48,6 @@
         <TopCommandersColorFilter
           :color-options="colorOptions"
           :selected-colors="selectedColors"
-          :mana-symbol="manaSymbol"
           :color-dot-class="colorDotClass"
           :color-pill-class="colorPillClass"
           :color-label="colorLabel"
@@ -51,7 +56,7 @@
         />
       </CSurface>
 
-      <CSurface variant="content" size="sm" radius="2xl" shadow="none" class="space-y-2">
+      <CSurface variant="content" size="sm" radius="xl" shadow="none" class="space-y-2">
         <CNotice
           v-if="topLoading"
           tone="info"
@@ -66,11 +71,7 @@
           aria-live="assertive"
         />
 
-        <CGrid
-          v-else
-          variant="single"
-          gap="sm"
-        >
+        <CGrid v-else variant="single" gap="sm">
           <TopCommanderCard
             v-for="commander in sortedCommanders"
             :key="commander.slug"
@@ -94,11 +95,9 @@ import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import { CButton, CGrid, CNotice, CSurface, CText } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
-import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useTopCommandersData } from "../composables/useTopCommandersData";
 import { useTopCommanderImages } from "../composables/useTopCommanderImages";
 import { useTopCommanderFilters } from "../composables/useTopCommanderFilters";
-import { type CommanderColor } from "../utils/colorIdentity";
 import TopCommandersStatusCard from "./top-commanders/TopCommandersStatusCard.vue";
 import TopCommandersControls from "./top-commanders/TopCommandersControls.vue";
 import TopCommandersColorFilter from "./top-commanders/TopCommandersColorFilter.vue";
@@ -148,8 +147,6 @@ const {
   colorLabel,
   matchesColorFilter,
 } = useTopCommanderFilters({ getCommanderColors: combinedColorIdentity });
-
-const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
 
 const hasCsvData = computed(() => rows.value.length > 0);
 const csvCount = computed(() => rows.value.length);
@@ -204,7 +201,7 @@ const handleSortChange = (value: typeof sortMode.value) => {
   setSortMode(value);
 };
 
-const handleTopLimitChange = (value: typeof limitOptions[number]) => {
+const handleTopLimitChange = (value: (typeof limitOptions)[number]) => {
   if (!setTopLimit(value)) {
     return;
   }
@@ -251,20 +248,7 @@ watch(selectedColorPath, () => {
   handleSelectedColorPathChange();
 });
 
-const manaTokenMap: Record<CommanderColor, string> = {
-  W: "{W}",
-  U: "{U}",
-  B: "{B}",
-  R: "{R}",
-  G: "{G}",
-  C: "{C}",
-};
-
-const manaSymbol = (color: CommanderColor) =>
-  getSvgForSymbol(manaTokenMap[color]) ?? undefined;
-
 onMounted(() => {
-  void ensureSymbolsLoaded();
   void loadTopCommanders();
 });
 </script>

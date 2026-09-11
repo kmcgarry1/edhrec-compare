@@ -22,7 +22,6 @@ const clearResults = vi.fn();
 const fetchTopCommanders = vi.fn().mockResolvedValue([]);
 const setSortMode = vi.fn();
 const setTopLimit = vi.fn().mockReturnValue(true);
-const ensureSymbolsLoaded = vi.fn().mockResolvedValue(undefined);
 const loadCommanderImages = vi.fn().mockResolvedValue(undefined);
 const getImageStack = vi.fn().mockReturnValue([]);
 const toggleColor = vi.fn();
@@ -45,13 +44,6 @@ vi.mock("../../../src/composables/useTopCommanderScan", () => ({
     scope: "top-commanders-scan",
     runScan,
     clearResults,
-  }),
-}));
-
-vi.mock("../../../src/composables/useScryfallSymbols", () => ({
-  useScryfallSymbols: () => ({
-    ensureSymbolsLoaded,
-    getSvgForSymbol: vi.fn(),
   }),
 }));
 
@@ -136,7 +128,6 @@ describe("TopCommandersPage", () => {
     fetchTopCommanders.mockClear();
     setSortMode.mockClear();
     setTopLimit.mockClear();
-    ensureSymbolsLoaded.mockClear();
     loadCommanderImages.mockClear();
     getImageStack.mockClear();
     toggleColor.mockClear();

@@ -1,18 +1,19 @@
 <template>
-  <CInline gap="md" class="text-xs flex-wrap">
-    <CBadge tone="default" variant="outline">
+  <CInline v-if="colorOptions.length" align="center" gap="sm" class="text-xs flex-wrap">
+    <CBadge tone="default" variant="outline" class="shrink-0">
       Color filter
     </CBadge>
 
     <CSurface
+      :full-width="false"
       size="none"
-      radius="pill"
+      radius="lg"
       variant="content"
-      class="inline-flex px-3 py-2"
+      class="inline-flex p-1"
       role="group"
       aria-label="Filter by color identity"
     >
-      <CInline gap="sm">
+      <CInline gap="2xs" class="flex-wrap">
         <CButton
           v-for="color in colorOptions"
           :key="color"
@@ -23,18 +24,12 @@
           :aria-pressed="selectedColors.includes(color)"
           @click="emit('toggle-color', color)"
         >
-          <img
-            v-if="manaSymbol(color)"
-            :src="manaSymbol(color)"
-            :alt="colorLabel(color)"
-            class="h-4 w-4"
-          />
           <span
-            v-else
-            class="h-2.5 w-2.5 rounded-full"
+            class="h-2.5 w-2.5 shrink-0 rounded-full"
             :class="colorDotClass(color)"
             aria-hidden="true"
           />
+          <span aria-hidden="true">{{ color }}</span>
           <span class="sr-only">{{ colorLabel(color) }}</span>
         </CButton>
 
@@ -59,7 +54,6 @@ import type { CommanderColor } from "../../utils/colorIdentity";
 defineProps<{
   colorOptions: CommanderColor[];
   selectedColors: CommanderColor[];
-  manaSymbol: (color: CommanderColor) => string | undefined;
   colorDotClass: (color: CommanderColor) => string;
   colorPillClass: (color: CommanderColor) => string;
   colorLabel: (color: CommanderColor) => string;

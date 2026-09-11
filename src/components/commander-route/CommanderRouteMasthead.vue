@@ -1,23 +1,6 @@
 <template>
   <CSurface variant="content" size="sm" radius="2xl" shadow="none" class="commander-route-masthead">
     <div class="flex flex-col gap-4">
-      <div
-        class="h-24 w-16 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
-      >
-        <img
-          v-if="primaryProfile?.imageUrl"
-          :src="primaryProfile.imageUrl"
-          :alt="displayPrimaryName"
-          class="h-full w-full object-cover"
-        />
-        <div
-          v-else
-          class="flex h-full items-center justify-center px-2 text-center text-xs text-[color:var(--muted)]"
-        >
-          {{ spotlightLoading ? "Loading" : "No image" }}
-        </div>
-      </div>
-
       <div class="min-w-0 space-y-2">
         <div class="flex flex-wrap items-center gap-2">
           <span
@@ -64,12 +47,7 @@
         >
           EDHREC
         </CButton>
-        <CButton
-          type="button"
-          variant="ghost"
-          size="sm"
-          @click="detailsOpen = !detailsOpen"
-        >
+        <CButton type="button" variant="ghost" size="sm" @click="detailsOpen = !detailsOpen">
           {{ detailsOpen ? "Hide details" : "Details" }}
         </CButton>
       </div>
@@ -106,13 +84,23 @@
               v-if="index === 0 && profile.canCyclePrintings"
               class="flex flex-wrap items-center gap-2"
             >
-              <CButton type="button" variant="secondary" size="sm" @click="emit('previous-printing', 0)">
+              <CButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="emit('previous-printing', 0)"
+              >
                 Prev
               </CButton>
               <span class="text-xs font-semibold text-[color:var(--muted)]">
                 Printing {{ profile.printingPosition }} of {{ profile.totalPrintings }}
               </span>
-              <CButton type="button" variant="secondary" size="sm" @click="emit('next-printing', 0)">
+              <CButton
+                type="button"
+                variant="secondary"
+                size="sm"
+                @click="emit('next-printing', 0)"
+              >
                 Next
               </CButton>
               <CText v-if="profile.printingsLoading" tag="p" variant="helper" tone="muted">
@@ -141,21 +129,8 @@ import { computed, ref, watch } from "vue";
 import PriceColour from "../PriceColour.vue";
 import { CButton, CSurface, CText } from "../core";
 import type { CommanderProfile } from "../../composables/useCommanderSpotlight";
-import type { CommanderSelection } from "../../types/edhrec";
 import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
-
-type StatusTone = "default" | "accent" | "success" | "warn" | "danger" | "muted";
-
-type StatusItem = {
-  label: string;
-  tone?: StatusTone;
-};
-
-type StatItem = {
-  label: string;
-  value: string;
-  tone?: StatusTone;
-};
+import type { CommanderSelection } from "../../types/edhrec";
 
 const props = withDefaults(
   defineProps<{
@@ -163,17 +138,11 @@ const props = withDefaults(
     commanderProfiles: CommanderProfile[];
     commanderColorIdentity: CommanderColor[];
     spotlightLoading: boolean;
-    backdropUrl?: string;
     nextStepLabel: string;
     canonicalEdhrecHref?: string | null;
-    statusItems?: StatusItem[];
-    statItems?: StatItem[];
   }>(),
   {
-    backdropUrl: "",
     canonicalEdhrecHref: null,
-    statusItems: () => [],
-    statItems: () => [],
   }
 );
 

@@ -61,7 +61,9 @@
           v-if="openRailGroup === 'collection'"
           class="space-y-4 border-t border-[color:var(--border)] pt-3"
         >
-          <div class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
+          <div
+            class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface)] p-4"
+          >
             <CText tag="p" variant="label" tone="muted"> Collection status </CText>
             <CText tag="p" variant="body" weight="semibold" class="mt-1">
               {{ hasCsvData ? "Collection loaded" : "No collection uploaded" }}
@@ -102,10 +104,13 @@
             :modifier="modifier"
             :page-type="pageType"
             :companion="companion"
+            :deck-tag="deckTag"
+            :deck-tag-options="deckTagOptions"
             @update:bracket="emit('update:bracket', $event)"
             @update:modifier="emit('update:modifier', $event)"
             @update:page-type="emit('update:page-type', $event)"
             @update:companion="emit('update:companion', $event)"
+            @update:deck-tag="emit('update:deck-tag', $event)"
           />
         </div>
       </section>
@@ -185,7 +190,10 @@
       <div
         class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow)]"
       >
-        <div class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]" aria-hidden="true" />
+        <div
+          class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]"
+          aria-hidden="true"
+        />
         <div class="flex items-start justify-between gap-3">
           <div class="space-y-1">
             <CText :id="sheetTitleId" tag="p" variant="eyebrow" tone="muted">
@@ -274,10 +282,13 @@
                 :modifier="modifier"
                 :page-type="pageType"
                 :companion="companion"
+                :deck-tag="deckTag"
+                :deck-tag-options="deckTagOptions"
                 @update:bracket="emit('update:bracket', $event)"
                 @update:modifier="emit('update:modifier', $event)"
                 @update:page-type="emit('update:page-type', $event)"
                 @update:companion="emit('update:companion', $event)"
+                @update:deck-tag="emit('update:deck-tag', $event)"
               />
             </CSurface>
           </div>
@@ -340,6 +351,8 @@ const props = withDefaults(
     modifier: string;
     pageType: string;
     companion: string;
+    deckTag: string;
+    deckTagOptions: Array<{ value: string; label: string; description?: string }>;
     sections: Array<{
       id: string;
       label: string;
@@ -371,6 +384,7 @@ const emit = defineEmits<{
   "update:modifier": [value: string | number];
   "update:page-type": [value: string | number];
   "update:companion": [value: string | number];
+  "update:deck-tag": [value: string | number];
 }>();
 
 const commanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null>(null);
@@ -379,8 +393,12 @@ const mobileSheetRef = ref<HTMLElement | null>(null);
 const fallbackIconPath = mdiCardsOutline;
 const openRailGroup = ref<"search" | "collection" | "sections">("search");
 const activeBrowseTab = ref<BrowseTab>("search");
-const isMobileViewport = ref(typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false);
-const mobileSheetOpen = computed(() => props.open && (isMobileViewport.value || !props.showDesktopRail));
+const isMobileViewport = ref(
+  typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false
+);
+const mobileSheetOpen = computed(
+  () => props.open && (isMobileViewport.value || !props.showDesktopRail)
+);
 const { activate, deactivate } = useFocusTrap(mobileSheetRef, mobileSheetOpen);
 const sheetTitleId = `browse-sheet-${Math.random().toString(36).slice(2, 9)}`;
 

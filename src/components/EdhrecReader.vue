@@ -15,12 +15,15 @@
         :modifier="chosenModifier"
         :page-type="chosenPageType"
         :companion="chosenCompanion"
+        :deck-tag="chosenDeckTag"
+        :deck-tag-options="deckTagOptions"
         @commander-selected="handleCommanderSelection"
         @selection-change="handleSelectionChange"
         @update:bracket="setBracket"
         @update:modifier="setModifier"
         @update:page-type="setPageType"
         @update:companion="setCompanion"
+        @update:deck-tag="setDeckTag"
       />
     </CSurface>
 
@@ -104,6 +107,7 @@ const {
   chosenBracket,
   chosenModifier,
   chosenCompanion,
+  chosenDeckTag,
   currentCommanderSlug,
   commanderUrl,
   setCommanderSlug,
@@ -111,9 +115,17 @@ const {
   setModifier,
   setPageType,
   setCompanion,
+  setDeckTag,
 } = useEdhrecRouteState();
 
-const { cardlists, error, readerLoading } = useEdhrecData(commanderUrl);
+const { cardlists, deckTags, error, readerLoading } = useEdhrecData(commanderUrl);
+const deckTagOptions = computed(() =>
+  deckTags.value.map((tag) => ({
+    value: tag.slug,
+    label: `${tag.value} (${tag.count.toLocaleString()})`,
+    description: `${tag.count.toLocaleString()} deck${tag.count === 1 ? "" : "s"}`,
+  }))
+);
 
 const {
   cardlistSections,

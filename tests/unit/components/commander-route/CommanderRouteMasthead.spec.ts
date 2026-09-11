@@ -118,6 +118,6 @@ describe("CommanderRouteMasthead", () => {
     expect(wrapper.text()).toContain("Primary");
     expect(wrapper.text()).toContain("Partner");
     expect(wrapper.text()).not.toContain("Printing 1 of");
-    expect(wrapper.findAll("img")).toHaveLength(3);
+    expect(wrapper.findAll("img")).toHaveLength(2);
   });
 });

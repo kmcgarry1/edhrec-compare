@@ -108,36 +108,32 @@ onBeforeUnmount(() => {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(16px) saturate(1.02);
-  transform: scale(1.03);
+  filter: blur(20px) saturate(0.72) contrast(0.82);
+  transform: scale(1.04);
   transition: opacity 1800ms ease;
 }
 
 .nebula__art.is-visible {
-  opacity: 0.18;
+  opacity: 0.07;
 }
 
 .nebula__base {
-  opacity: 0.48;
+  opacity: 0.42;
   background-image:
-    linear-gradient(180deg, color-mix(in srgb, var(--bg-strong) 76%, transparent), transparent),
-    radial-gradient(circle at 18% 22%, var(--accent-glow-strong), transparent 45%),
-    radial-gradient(circle at 78% 10%, var(--accent-glow), transparent 40%);
-  background-size: 100% 100%, 100% 100%, 100% 100%;
+    linear-gradient(180deg, color-mix(in srgb, var(--bg) 88%, transparent), color-mix(in srgb, var(--bg-strong) 86%, transparent)),
+    radial-gradient(circle, var(--pattern-line) 0.45px, transparent 0.45px);
+  background-size: 100% 100%, 6px 6px;
   background-position: center;
 }
 
 .nebula__glow {
-  opacity: 0.32;
-  filter: blur(28px);
-  background-image:
-    radial-gradient(circle at 18% 78%, var(--warn-soft), transparent 50%),
-    radial-gradient(circle at 82% 70%, var(--danger-soft), transparent 45%),
-    radial-gradient(circle at 55% 20%, var(--accent-glow-strong), transparent 55%);
+  opacity: 0.16;
+  filter: blur(12px);
+  background-image: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
 }
 
 .nebula__noise {
-  opacity: 0.08;
+  opacity: 0.1;
   background-image: radial-gradient(circle, var(--pattern-line) 0.5px, transparent 0.5px);
   background-size: 4px 4px;
 }

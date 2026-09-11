@@ -11,7 +11,7 @@ import { buildFilterQuery, parseFilterQuery, type FilterRouteState } from "../ut
 const EDHREC_URL_PREFIX = "https://json.edhrec.com/pages/";
 const EDHREC_URL_SUFFIX = ".json";
 
-const setRefValue = <T,>(target: { value: T }, value: T) => {
+const setRefValue = <T>(target: { value: T }, value: T) => {
   if (target.value !== value) {
     target.value = value;
   }
@@ -35,6 +35,7 @@ export const useEdhrecRouteState = () => {
   const chosenBracket = ref<string>(EDHRECBracket.ALL.value);
   const chosenModifier = ref<string>(EDHRECPageModifier.ANY.value);
   const chosenCompanion = ref<string>(EDHRECCompanion.NONE.value);
+  const chosenDeckTag = ref<string>("");
   const currentCommanderSlug = ref<string | null>(null);
 
   const setBracket = (value: string | number) => {
@@ -49,12 +50,16 @@ export const useEdhrecRouteState = () => {
   const setCompanion = (value: string | number) => {
     chosenCompanion.value = String(value);
   };
+  const setDeckTag = (value: string | number) => {
+    chosenDeckTag.value = String(value);
+  };
 
   const filterState = computed<FilterRouteState>(() => ({
     pageType: chosenPageType.value,
     bracket: chosenBracket.value,
     modifier: chosenModifier.value,
     companion: chosenCompanion.value,
+    deckTag: chosenDeckTag.value,
   }));
 
   const buildCommanderUrl = (slug: string | null | undefined) => {
@@ -71,6 +76,9 @@ export const useEdhrecRouteState = () => {
     if (chosenModifier.value) {
       segments.push(chosenModifier.value);
     }
+    if (chosenDeckTag.value) {
+      segments.push(chosenDeckTag.value);
+    }
 
     return `${EDHREC_URL_PREFIX}${segments.join("/")}${EDHREC_URL_SUFFIX}`;
   };
@@ -83,6 +91,7 @@ export const useEdhrecRouteState = () => {
     setRefValue(chosenBracket, filters.bracket);
     setRefValue(chosenModifier, filters.modifier);
     setRefValue(chosenCompanion, filters.companion);
+    setRefValue(chosenDeckTag, filters.deckTag);
 
     const slugParam =
       typeof route.params.slug === "string" && route.params.slug.length > 0
@@ -130,7 +139,14 @@ export const useEdhrecRouteState = () => {
   };
 
   watch(
-    [currentCommanderSlug, chosenPageType, chosenBracket, chosenModifier, chosenCompanion],
+    [
+      currentCommanderSlug,
+      chosenPageType,
+      chosenBracket,
+      chosenModifier,
+      chosenCompanion,
+      chosenDeckTag,
+    ],
     () => {
       updateRouteFromState();
     }
@@ -150,6 +166,7 @@ export const useEdhrecRouteState = () => {
     chosenBracket,
     chosenModifier,
     chosenCompanion,
+    chosenDeckTag,
     currentCommanderSlug,
     commanderUrl,
     setCommanderSlug,
@@ -157,5 +174,6 @@ export const useEdhrecRouteState = () => {
     setModifier,
     setPageType,
     setCompanion,
+    setDeckTag,
   };
 };

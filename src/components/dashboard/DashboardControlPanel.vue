@@ -10,6 +10,8 @@
           :modifier="modifier"
           :page-type="pageType"
           :companion="companion"
+          :deck-tag="deckTag"
+          :deck-tag-options="deckTagOptions"
           :has-csv-data="hasCsvData"
           :csv-count="csvCount"
           :inventory-summary="inventorySummary"
@@ -25,6 +27,7 @@
           @update:modifier="emit('update:modifier', $event)"
           @update:page-type="emit('update:page-type', $event)"
           @update:companion="emit('update:companion', $event)"
+          @update:deck-tag="emit('update:deck-tag', $event)"
           @open-upload="emit('open-upload')"
           @clear-upload="emit('clear-upload')"
         />
@@ -57,7 +60,10 @@
         class="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
       >
         <div class="px-4 pt-4">
-          <div class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]" aria-hidden="true" />
+          <div
+            class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]"
+            aria-hidden="true"
+          />
           <div class="flex items-start justify-between gap-3">
             <div class="space-y-1">
               <CText :id="sheetTitleId" tag="p" variant="eyebrow" tone="muted">
@@ -78,6 +84,8 @@
             :modifier="modifier"
             :page-type="pageType"
             :companion="companion"
+            :deck-tag="deckTag"
+            :deck-tag-options="deckTagOptions"
             :has-csv-data="hasCsvData"
             :csv-count="csvCount"
             :inventory-summary="inventorySummary"
@@ -93,6 +101,7 @@
             @update:modifier="emit('update:modifier', $event)"
             @update:page-type="emit('update:page-type', $event)"
             @update:companion="emit('update:companion', $event)"
+            @update:deck-tag="emit('update:deck-tag', $event)"
             @open-upload="emit('open-upload')"
             @clear-upload="emit('clear-upload')"
           />
@@ -128,6 +137,8 @@ const props = defineProps<{
   modifier: string;
   pageType: string;
   companion: string;
+  deckTag: string;
+  deckTagOptions: Array<{ value: string; label: string; description?: string }>;
   open: boolean;
   hasCsvData: boolean;
   csvCount: number;
@@ -151,6 +162,7 @@ const emit = defineEmits<{
   "update:modifier": [value: string | number];
   "update:page-type": [value: string | number];
   "update:companion": [value: string | number];
+  "update:deck-tag": [value: string | number];
   "open-upload": [];
   "clear-upload": [];
   copy: [];

@@ -7,14 +7,16 @@
       shadow="none"
       :background="highlightBackground"
       :border="highlightBorder"
-      class="grid gap-3 p-3 transition hover:border-[color:var(--accent)] sm:grid-cols-[3.25rem,4rem,minmax(0,1fr),8rem,9rem] sm:items-center"
+      class="flex flex-col gap-3 p-3 transition hover:border-[color:var(--accent)] sm:flex-row sm:items-center sm:gap-4"
     >
-      <div class="flex items-center justify-between gap-3 sm:block">
+      <div class="flex items-center justify-between gap-3 sm:w-12 sm:shrink-0 sm:block">
         <CText tag="p" variant="caption" tone="muted">Rank</CText>
-        <CText tag="p" variant="title">#{{ commander.rank }}</CText>
+        <CText tag="p" variant="title" class="text-lg">#{{ commander.rank }}</CText>
       </div>
 
-      <div class="h-20 w-14 overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-muted)] sm:h-20 sm:w-14">
+      <div
+        class="h-16 w-12 shrink-0 overflow-hidden rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
+      >
         <div v-if="imageStack.length" class="relative h-full w-full">
           <img
             :src="imageStack[0]"
@@ -25,7 +27,7 @@
             v-if="imageStack.length > 1"
             :src="imageStack[1]"
             :alt="`${commander.name} partner`"
-            class="absolute bottom-1 right-1 h-8 w-6 rounded-sm object-cover shadow-[var(--shadow-soft)]"
+            class="absolute bottom-1 right-1 h-7 w-5 rounded-sm object-cover ring-1 ring-[color:var(--surface-strong)]"
           />
         </div>
         <span
@@ -36,8 +38,12 @@
         </span>
       </div>
 
-      <div class="min-w-0 space-y-1">
-        <CText tag="p" variant="title" class="truncate group-hover:text-[color:var(--accent)]">
+      <div class="min-w-0 flex-1 space-y-1">
+        <CText
+          tag="p"
+          variant="title"
+          class="truncate text-lg group-hover:text-[color:var(--accent)]"
+        >
           {{ commander.name }}
         </CText>
         <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
@@ -52,14 +58,14 @@
         </div>
       </div>
 
-      <div class="text-sm sm:text-right">
+      <div class="text-sm sm:w-28 sm:shrink-0 sm:text-right">
         <CText tag="p" variant="caption" tone="muted">Decks</CText>
         <CText tag="p" variant="body" weight="semibold">
           {{ detailLabel }}
         </CText>
       </div>
 
-      <div class="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm">
+      <div class="text-sm sm:w-32 sm:shrink-0 sm:text-right">
         <CText tag="p" variant="caption" tone="muted">Ownership</CText>
         <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
           {{ percentLabel }}
@@ -146,7 +152,7 @@ const highlightBackground = computed(() => {
   if (value === null || value < 70) {
     return "bg-[color:var(--surface-strong)]";
   }
-  return "bg-[color:var(--accent-soft)]";
+  return "bg-[color:color-mix(in_srgb,var(--accent-soft)_58%,var(--surface-strong)_42%)]";
 });
 
 const highlightBorder = computed(() => {
