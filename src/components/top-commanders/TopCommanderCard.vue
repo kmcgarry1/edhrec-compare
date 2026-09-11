@@ -7,72 +7,74 @@
       shadow="none"
       :background="highlightBackground"
       :border="highlightBorder"
-      class="flex flex-col gap-3 p-3 transition hover:border-[color:var(--accent)] sm:flex-row sm:items-center sm:gap-4"
+      class="h-full overflow-hidden transition hover:border-[color:var(--accent)]"
     >
-      <div class="flex items-center justify-between gap-3 sm:w-12 sm:shrink-0 sm:block">
-        <CText tag="p" variant="caption" tone="muted">Rank</CText>
-        <CText tag="p" variant="title" class="text-lg">#{{ commander.rank }}</CText>
-      </div>
-
-      <div
-        class="h-16 w-12 shrink-0 overflow-hidden rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
-      >
+      <div class="relative aspect-[16/10] bg-[color:var(--surface-muted)]">
         <div v-if="imageStack.length" class="relative h-full w-full">
-          <img
-            :src="imageStack[0]"
-            :alt="commander.name"
-            class="absolute inset-0 h-full w-full object-cover"
-          />
+          <img :src="imageStack[0]" :alt="commander.name" class="h-full w-full object-cover" />
           <img
             v-if="imageStack.length > 1"
             :src="imageStack[1]"
             :alt="`${commander.name} partner`"
-            class="absolute bottom-1 right-1 h-7 w-5 rounded-sm object-cover ring-1 ring-[color:var(--surface-strong)]"
+            class="absolute bottom-3 right-3 h-24 w-16 rounded border border-[color:var(--surface)] object-cover"
           />
         </div>
         <span
           v-else
-          class="flex h-full items-center justify-center px-1 text-center text-xs text-[color:var(--muted)]"
+          class="flex h-full items-center justify-center px-4 text-center text-sm text-[color:var(--muted)]"
         >
           {{ imageLoading ? "Loading" : "No image" }}
         </span>
-      </div>
 
-      <div class="min-w-0 flex-1 space-y-1">
-        <CText
-          tag="p"
-          variant="title"
-          class="truncate text-lg group-hover:text-[color:var(--accent)]"
+        <div
+          class="absolute left-3 top-3 rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-2 py-1"
         >
-          {{ commander.name }}
-        </CText>
-        <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
-          <span
-            v-for="color in colors"
-            :key="`${commander.slug}-${color}`"
-            class="inline-flex h-2.5 w-2.5 rounded-full ring-1 ring-white/20"
-            :class="colorDotClass(color)"
-            :title="colorLabel(color)"
-            :aria-label="colorLabel(color)"
-          />
+          <CText tag="p" variant="caption" tone="muted">Rank</CText>
+          <CText tag="p" variant="title" class="text-lg leading-none">#{{ commander.rank }}</CText>
         </div>
       </div>
 
-      <div class="text-sm sm:w-28 sm:shrink-0 sm:text-right">
-        <CText tag="p" variant="caption" tone="muted">Decks</CText>
-        <CText tag="p" variant="body" weight="semibold">
-          {{ detailLabel }}
-        </CText>
-      </div>
+      <div class="space-y-4 p-4">
+        <div class="min-w-0 space-y-2">
+          <CText
+            tag="p"
+            variant="title"
+            class="text-xl leading-tight group-hover:text-[color:var(--accent)]"
+          >
+            {{ commander.name }}
+          </CText>
+          <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
+            <span
+              v-for="color in colors"
+              :key="`${commander.slug}-${color}`"
+              class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-black/20 text-[0.65rem] font-bold leading-none text-black/75"
+              :class="colorDotClass(color)"
+              :title="colorLabel(color)"
+              :aria-label="colorLabel(color)"
+            >
+              {{ color }}
+            </span>
+          </div>
+        </div>
 
-      <div class="text-sm sm:w-32 sm:shrink-0 sm:text-right">
-        <CText tag="p" variant="caption" tone="muted">Ownership</CText>
-        <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
-          {{ percentLabel }}
-        </CText>
-        <CText tag="p" variant="caption" tone="muted">
-          {{ ownedSummary }}
-        </CText>
+        <div class="grid grid-cols-2 gap-3 border-t border-[color:var(--border)] pt-3">
+          <div>
+            <CText tag="p" variant="caption" tone="muted">Decks</CText>
+            <CText tag="p" variant="body" weight="semibold">
+              {{ detailLabel }}
+            </CText>
+          </div>
+
+          <div>
+            <CText tag="p" variant="caption" tone="muted">Ownership</CText>
+            <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
+              {{ percentLabel }}
+            </CText>
+            <CText tag="p" variant="caption" tone="muted">
+              {{ ownedSummary }}
+            </CText>
+          </div>
+        </div>
       </div>
     </CSurface>
   </RouterLink>

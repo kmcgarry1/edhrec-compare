@@ -128,9 +128,9 @@
             v-for="row in rows"
             :key="`${row.id}-gallery`"
             data-testid="commander-gallery-card"
-            class="overflow-hidden rounded border border-[color:var(--border)] bg-[color:var(--surface)]"
+            :class="galleryCardClass(row.have)"
           >
-            <div class="aspect-[63/88] bg-[color:var(--surface-muted)]">
+            <div class="relative aspect-[63/88] bg-[color:var(--surface-muted)]">
               <img
                 v-if="row.card.image_url"
                 :src="row.card.image_url"
@@ -144,6 +144,9 @@
               >
                 Image unavailable
               </div>
+              <span :class="galleryOwnershipBadgeClass(row.have)">
+                {{ ownershipLabel(row.have) }}
+              </span>
             </div>
             <div class="space-y-2 p-3">
               <button
@@ -154,9 +157,7 @@
                 {{ row.card.name }}
               </button>
               <div class="flex flex-wrap items-center gap-1.5 text-xs">
-                <span
-                  class="rounded-[2px] bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]"
-                >
+                <span :class="galleryOwnershipInlineClass(row.have)">
                   {{ ownershipLabel(row.have) }}
                 </span>
                 <span v-if="row.card.mana_cost" class="text-[color:var(--muted)]">
@@ -427,6 +428,37 @@ const ownershipLabel = (have: boolean) => {
     return "Unknown";
   }
   return have ? "Owned" : "Missing";
+};
+
+const galleryCardClass = (have: boolean) => {
+  const base = "overflow-hidden rounded border";
+  if (!hasCoverage.value) {
+    return `${base} border-[color:var(--border)] bg-[color:var(--surface)]`;
+  }
+  return have
+    ? `${base} border-[color:var(--accent)] bg-[color:color-mix(in_srgb,var(--accent-soft)_54%,var(--surface)_46%)]`
+    : `${base} border-[color:var(--danger)] bg-[color:color-mix(in_srgb,var(--danger-soft)_62%,var(--surface)_38%)]`;
+};
+
+const galleryOwnershipBadgeClass = (have: boolean) => {
+  const base =
+    "absolute left-2 top-2 rounded-[3px] border px-2 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em]";
+  if (!hasCoverage.value) {
+    return `${base} border-[color:var(--border-strong)] bg-[color:var(--surface)] text-[color:var(--muted)]`;
+  }
+  return have
+    ? `${base} border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)]`
+    : `${base} border-[color:var(--danger)] bg-[color:var(--danger)] text-white`;
+};
+
+const galleryOwnershipInlineClass = (have: boolean) => {
+  const base = "rounded-[2px] border px-2 py-1 font-semibold";
+  if (!hasCoverage.value) {
+    return `${base} border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--muted)]`;
+  }
+  return have
+    ? `${base} border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--accent)]`
+    : `${base} border-[color:var(--danger)] bg-[color:var(--danger-soft)] text-[color:var(--danger)]`;
 };
 
 const openCardDetails = (card: CardTableRow["card"]) => {
