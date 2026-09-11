@@ -1,20 +1,20 @@
 <template>
-  <CSurface variant="utility" size="sm">
-    <CStack gap="md">
-      <CInline align="start" justify="between" gap="md" class="flex-col lg:flex-row">
+  <CSurface variant="utility" size="sm" radius="lg" shadow="none">
+    <CStack gap="sm">
+      <CInline align="center" justify="between" gap="md" class="flex-col sm:flex-row">
         <CStack gap="xs">
-          <CText tag="p" variant="eyebrow" tone="muted">
+          <CText tag="p" variant="label" tone="muted">
             CSV Status
           </CText>
-          <CText tag="p" variant="title">
+          <CText tag="p" variant="body" weight="semibold">
             {{ statusLabel }}
           </CText>
           <CText tag="p" variant="helper" tone="muted">
-            Upload once to promote ownership overlap across every ranked commander card below.
+            Ownership percentages appear on ranked rows after a collection scan.
           </CText>
         </CStack>
 
-        <CInline gap="md" class="text-xs flex-wrap">
+        <CInline v-if="formattedLastUpdated || failedCount" gap="md" class="text-xs flex-wrap">
           <CText
             v-if="formattedLastUpdated"
             tag="span"
@@ -34,7 +34,12 @@
         </CInline>
       </CInline>
 
-      <GlobalLoadingBanner :scope="scanScope" inline placement-class="w-full">
+      <GlobalLoadingBanner
+        v-if="isScanVisible"
+        :scope="scanScope"
+        inline
+        placement-class="w-full"
+      >
         Scanning commander averages...
       </GlobalLoadingBanner>
 
@@ -51,6 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useGlobalLoading } from "../../composables/useGlobalLoading";
 import GlobalLoadingBanner from "../GlobalLoadingBanner.vue";
 import { CInline, CNotice, CStack, CSurface, CText } from "../core";
 
@@ -64,6 +70,9 @@ const props = defineProps<{
   scanScope: string;
   scanError: string | null;
 }>();
+
+const { getScopeLoading } = useGlobalLoading();
+const isScanVisible = getScopeLoading(props.scanScope);
 
 const statusLabel = computed(() => {
   if (!props.hasCsvData) {

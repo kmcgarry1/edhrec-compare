@@ -1,21 +1,22 @@
 <template>
-  <CInline align="start" justify="between" gap="md" class="flex-col xl:flex-row">
+  <CInline align="center" justify="between" gap="md" class="flex-col xl:flex-row">
     <CStack gap="xs" class="min-w-0">
-      <CText tag="p" variant="eyebrow" tone="muted">
+      <CText tag="p" variant="label" tone="muted">
         {{ topHeader }}
       </CText>
-      <CText tag="h2" variant="title" class="text-xl">
+      <CText tag="h2" variant="body" weight="semibold">
         Top {{ topLimit }} commanders
       </CText>
-      <CText tag="p" variant="body" tone="muted">
+      <CText tag="p" variant="helper" tone="muted">
         Percentages use EDHREC average decks without extra filters.
       </CText>
     </CStack>
 
-    <CInline gap="md" class="flex-wrap">
+    <CInline gap="sm" class="flex-wrap">
       <CSurface
+        :full-width="false"
         size="none"
-        radius="pill"
+        radius="lg"
         variant="content"
         class="inline-flex p-1"
         role="group"
@@ -38,8 +39,9 @@
       </CSurface>
 
       <CSurface
+        :full-width="false"
         size="none"
-        radius="pill"
+        radius="lg"
         variant="content"
         class="inline-flex p-1"
         role="group"

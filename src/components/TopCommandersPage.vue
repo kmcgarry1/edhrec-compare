@@ -8,10 +8,10 @@
     />
 
     <main id="main-content" class="space-y-4">
-      <CSurface variant="content" size="md" radius="xl" shadow="none" class="space-y-4">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <CSurface variant="content" size="sm" radius="xl" shadow="none" class="space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div class="max-w-3xl space-y-1">
-            <CText tag="h1" variant="display">Top Commanders</CText>
+            <CText tag="h1" variant="title" class="text-2xl sm:text-3xl">Top Commanders</CText>
             <CText tag="p" variant="body" tone="muted">
               Browse ranked commanders and scan ownership when a collection is loaded.
             </CText>
@@ -48,7 +48,6 @@
         <TopCommandersColorFilter
           :color-options="colorOptions"
           :selected-colors="selectedColors"
-          :mana-symbol="manaSymbol"
           :color-dot-class="colorDotClass"
           :color-pill-class="colorPillClass"
           :color-label="colorLabel"
@@ -96,11 +95,9 @@ import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import { CButton, CGrid, CNotice, CSurface, CText } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
-import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useTopCommandersData } from "../composables/useTopCommandersData";
 import { useTopCommanderImages } from "../composables/useTopCommanderImages";
 import { useTopCommanderFilters } from "../composables/useTopCommanderFilters";
-import { type CommanderColor } from "../utils/colorIdentity";
 import TopCommandersStatusCard from "./top-commanders/TopCommandersStatusCard.vue";
 import TopCommandersControls from "./top-commanders/TopCommandersControls.vue";
 import TopCommandersColorFilter from "./top-commanders/TopCommandersColorFilter.vue";
@@ -150,8 +147,6 @@ const {
   colorLabel,
   matchesColorFilter,
 } = useTopCommanderFilters({ getCommanderColors: combinedColorIdentity });
-
-const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
 
 const hasCsvData = computed(() => rows.value.length > 0);
 const csvCount = computed(() => rows.value.length);
@@ -253,19 +248,7 @@ watch(selectedColorPath, () => {
   handleSelectedColorPathChange();
 });
 
-const manaTokenMap: Record<CommanderColor, string> = {
-  W: "{W}",
-  U: "{U}",
-  B: "{B}",
-  R: "{R}",
-  G: "{G}",
-  C: "{C}",
-};
-
-const manaSymbol = (color: CommanderColor) => getSvgForSymbol(manaTokenMap[color]) ?? undefined;
-
 onMounted(() => {
-  void ensureSymbolsLoaded();
   void loadTopCommanders();
 });
 </script>
