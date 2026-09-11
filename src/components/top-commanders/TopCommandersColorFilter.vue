@@ -27,13 +27,7 @@
           :title="colorLabel(color)"
           @click="emit('toggle-color', color)"
         >
-          <span
-            class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-black/20 text-[0.72rem] font-bold text-black/75"
-            :class="colorDotClass(color)"
-            aria-hidden="true"
-          >
-            {{ color }}
-          </span>
+          <ManaSymbolIcon :color="color" icon-class="h-7 w-7" aria-hidden="true" />
         </button>
 
         <CButton
@@ -51,15 +45,15 @@
 </template>
 
 <script setup lang="ts">
+import ManaSymbolIcon from "../ManaSymbolIcon.vue";
 import { CBadge, CButton, CInline, CSurface } from "../core";
 import type { CommanderColor } from "../../utils/colorIdentity";
 
 defineProps<{
   colorOptions: CommanderColor[];
   selectedColors: CommanderColor[];
-  colorDotClass: (color: CommanderColor) => string;
-  colorPillClass: (color: CommanderColor) => string;
   colorLabel: (color: CommanderColor) => string;
+  colorPillClass: (color: CommanderColor) => string;
 }>();
 
 const emit = defineEmits<{

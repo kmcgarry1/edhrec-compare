@@ -45,16 +45,12 @@
             {{ commander.name }}
           </CText>
           <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
-            <span
+            <ManaSymbolIcon
               v-for="color in colors"
               :key="`${commander.slug}-${color}`"
-              class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-black/20 text-[0.65rem] font-bold leading-none text-black/75"
-              :class="colorDotClass(color)"
-              :title="colorLabel(color)"
-              :aria-label="colorLabel(color)"
-            >
-              {{ color }}
-            </span>
+              :color="color"
+              icon-class="h-5 w-5"
+            />
           </div>
         </div>
 
@@ -84,10 +80,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import ManaSymbolIcon from "../ManaSymbolIcon.vue";
 import { CSurface, CText } from "../core";
 import type { TopCommander } from "../../api/edhrecApi";
 import type { CommanderScanResult } from "../../composables/useTopCommanderScan";
-import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
+import type { CommanderColor } from "../../utils/colorIdentity";
 
 type ScanResult = CommanderScanResult | null;
 
@@ -185,7 +182,4 @@ const commanderLink = computed(() => ({
   params: { slug: props.commander.slug },
   query: { pageType: "average-decks" },
 }));
-
-const colorDotClass = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.dot ?? "";
-const colorLabel = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.label ?? color;
 </script>

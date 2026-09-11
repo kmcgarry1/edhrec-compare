@@ -48,7 +48,6 @@
         <TopCommandersColorFilter
           :color-options="colorOptions"
           :selected-colors="selectedColors"
-          :color-dot-class="colorDotClass"
           :color-pill-class="colorPillClass"
           :color-label="colorLabel"
           @toggle-color="toggleColor"
@@ -142,7 +141,6 @@ const {
   toggleColor,
   clearColors,
   selectedColorPath,
-  colorDotClass,
   colorPillClass,
   colorLabel,
   matchesColorFilter,
