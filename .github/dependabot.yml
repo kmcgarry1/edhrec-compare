@@ -15,6 +15,11 @@ updates:
       - dependency-name: "vue-router"
       # Keep TypeScript within the range supported by vue-tsc and typescript-eslint.
       - dependency-name: "typescript"
+      # CI runs on Node 20; Size Limit 13 requires newer Node fs APIs.
+      - dependency-name: "size-limit"
+        versions: [">=13"]
+      - dependency-name: "@size-limit/file"
+        versions: [">=13"]
     groups:
       development-dependencies:
         dependency-type: development
