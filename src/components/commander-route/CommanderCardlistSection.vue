@@ -12,7 +12,7 @@
       <div class="min-w-0 space-y-4">
         <div class="flex items-start gap-3">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded border"
             :class="toneIconShellClass"
             aria-hidden="true"
           >
@@ -128,7 +128,7 @@
             v-for="row in rows"
             :key="`${row.id}-gallery`"
             data-testid="commander-gallery-card"
-            class="overflow-hidden rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)]"
+            class="overflow-hidden rounded border border-[color:var(--border)] bg-[color:var(--surface)]"
           >
             <div class="aspect-[63/88] bg-[color:var(--surface-muted)]">
               <img
@@ -148,14 +148,14 @@
             <div class="space-y-2 p-3">
               <button
                 type="button"
-                class="w-full rounded-md text-left text-sm font-semibold leading-tight text-[color:var(--text)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                class="w-full rounded-[3px] text-left text-sm font-semibold leading-tight text-[color:var(--text)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
                 @click="openCardDetails(row.card)"
               >
                 {{ row.card.name }}
               </button>
               <div class="flex flex-wrap items-center gap-1.5 text-xs">
                 <span
-                  class="rounded-md bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]"
+                  class="rounded-[2px] bg-[color:var(--surface-muted)] px-2 py-1 font-semibold text-[color:var(--muted)]"
                 >
                   {{ ownershipLabel(row.have) }}
                 </span>

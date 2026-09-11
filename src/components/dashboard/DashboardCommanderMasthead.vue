@@ -336,7 +336,6 @@ const profileRoleLabel = (index: number) => (index === 0 ? "Primary" : "Partner"
 .commander-inspector-backdrop {
   background-position: center right;
   background-size: cover;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.2) 30%, #000 100%);
   opacity: 0.18;
 }
 </style>

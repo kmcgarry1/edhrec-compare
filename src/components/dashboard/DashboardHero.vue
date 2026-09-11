@@ -5,8 +5,7 @@
     tone="default"
     size="md"
     radius="3xl"
-    shadow="base"
-    sheen
+    shadow="soft"
     class="overflow-hidden"
   >
     <div class="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-end">
@@ -40,9 +39,7 @@
           <CButton :as="RouterLink" to="/top-commanders" variant="secondary">
             Top commanders
           </CButton>
-          <CButton :as="RouterLink" to="/changelog" variant="soft">
-            Release notes
-          </CButton>
+          <CButton :as="RouterLink" to="/changelog" variant="soft"> Release notes </CButton>
         </CInline>
       </CStack>
 
@@ -50,7 +47,7 @@
         <CText tag="p" variant="eyebrow" tone="muted"> Workspace focus </CText>
         <div class="grid gap-2">
           <div
-            class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
+            class="rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
           >
             <CText tag="p" variant="title">Browse commanders</CText>
             <CText tag="p" variant="helper" tone="muted">
@@ -58,7 +55,7 @@
             </CText>
           </div>
           <div
-            class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
+            class="rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
           >
             <CText tag="p" variant="title">Match ownership</CText>
             <CText tag="p" variant="helper" tone="muted">
@@ -66,7 +63,7 @@
             </CText>
           </div>
           <div
-            class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
+            class="rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
           >
             <CText tag="p" variant="title">Export when ready</CText>
             <CText tag="p" variant="helper" tone="muted">
