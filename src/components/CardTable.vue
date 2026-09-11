@@ -2,15 +2,12 @@
   <div class="relative">
     <div
       ref="scrollParent"
-      :class="[
-        'overflow-x-auto',
-        containerVirtualEnabled ? 'overflow-y-auto' : '',
-      ]"
+      :class="['overflow-x-auto', containerVirtualEnabled ? 'overflow-y-auto' : '']"
       :style="virtualContainerStyle"
     >
       <table
         :class="[
-          'min-w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] text-sm text-[color:var(--text)]',
+          'min-w-full rounded border border-[color:var(--border)] bg-[color:var(--surface)] text-sm text-[color:var(--text)]',
           tableClass,
         ]"
       >
@@ -143,12 +140,12 @@
     </div>
     <div
       v-if="showTopShadow"
-      class="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[color:var(--bg-strong)] via-[color:var(--bg)] to-transparent"
+      class="pointer-events-none absolute inset-x-0 top-0 h-px bg-[color:var(--border)]"
       aria-hidden="true"
     />
     <div
       v-if="showBottomShadow"
-      class="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[color:var(--bg-strong)] via-[color:var(--bg)] to-transparent"
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-[color:var(--border)]"
       aria-hidden="true"
     />
   </div>
@@ -223,10 +220,7 @@ const bodyCellClass = computed(() => {
   }
 });
 
-const resolveRowKey = (
-  row: Record<string, unknown> | undefined,
-  index: number
-) => {
+const resolveRowKey = (row: Record<string, unknown> | undefined, index: number) => {
   if (typeof props.rowKey === "function") {
     return props.rowKey(row ?? {}, index);
   }
@@ -248,14 +242,10 @@ const virtualEnabled = computed(() => {
 });
 
 const useWindowScroll = computed(() => props.scrollMode === "page");
-const containerVirtualEnabled = computed(
-  () => virtualEnabled.value && !useWindowScroll.value
-);
+const containerVirtualEnabled = computed(() => virtualEnabled.value && !useWindowScroll.value);
 const progressiveEnabled = computed(
   () =>
-    useWindowScroll.value &&
-    virtualEnabled.value &&
-    props.rows.length >= props.virtualTriggerCount
+    useWindowScroll.value && virtualEnabled.value && props.rows.length >= props.virtualTriggerCount
 );
 
 const elementVirtualizer = useVirtualizer(
@@ -406,11 +396,7 @@ const cleanupLoadMoreObserver = () => {
 };
 
 const setupLoadMoreObserver = () => {
-  if (
-    !showLoadMoreRow.value ||
-    typeof window === "undefined" ||
-    !loadMoreRef.value
-  ) {
+  if (!showLoadMoreRow.value || typeof window === "undefined" || !loadMoreRef.value) {
     cleanupLoadMoreObserver();
     return;
   }
@@ -441,12 +427,9 @@ onUnmounted(() => {
   cleanupLoadMoreObserver();
 });
 
-watch(
-  [virtualItems, () => props.rows.length, containerVirtualEnabled],
-  () => {
-    nextTick(updateShadows);
-  }
-);
+watch([virtualItems, () => props.rows.length, containerVirtualEnabled], () => {
+  nextTick(updateShadows);
+});
 
 watch([progressiveEnabled, () => props.rows.length], () => {
   resetProgressiveLimit();

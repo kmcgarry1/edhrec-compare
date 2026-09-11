@@ -28,12 +28,12 @@ describe("NebulaBackground", () => {
     expect(
       wrapper.find(".nebula.fixed.inset-0.-z-10.overflow-hidden.pointer-events-none").exists()
     ).toBe(true);
-    expect(wrapper.findAll(".nebula > div")).toHaveLength(5);
+    expect(wrapper.findAll(".nebula > div")).toHaveLength(3);
     expect(wrapper.find(".nebula__art--primary").exists()).toBe(true);
     expect(wrapper.find(".nebula__art--secondary").exists()).toBe(true);
     expect(wrapper.find(".nebula__base").exists()).toBe(true);
-    expect(wrapper.find(".nebula__glow").exists()).toBe(true);
-    expect(wrapper.find(".nebula__noise").exists()).toBe(true);
+    expect(wrapper.find(".nebula__glow").exists()).toBe(false);
+    expect(wrapper.find(".nebula__noise").exists()).toBe(false);
   });
 
   it("marks the layers as decorative", async () => {

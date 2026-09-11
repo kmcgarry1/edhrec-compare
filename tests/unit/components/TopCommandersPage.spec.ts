@@ -10,7 +10,9 @@ const lastUpdated = ref<Date | null>(null);
 const scanError = ref<string | null>(null);
 const failedCount = ref(0);
 const scanLoading = ref(false);
-const topCommanders = ref<Array<{ slug: string; name: string; deckCount: number; rank: number }>>([]);
+const topCommanders = ref<Array<{ slug: string; name: string; deckCount: number; rank: number }>>(
+  []
+);
 const topHeader = ref("EDHREC leaders");
 const topLoading = ref(false);
 const topError = ref<string | null>(null);
@@ -97,11 +99,9 @@ const mountComponent = () =>
           template: "<div v-if='open' class='csv-modal-stub'></div>",
           props: ["open"],
         },
-        TopCommandersHero: { template: "<header class='hero-stub'></header>" },
         TopCommandersStatusCard: { template: "<section class='status-stub'></section>" },
         TopCommandersControls: { template: "<section class='controls-stub'></section>" },
         TopCommandersColorFilter: { template: "<section class='filter-stub'></section>" },
-        TopCommandersOwnedLegend: { template: "<section class='legend-stub'></section>" },
         TopCommanderCard: { template: "<article class='commander-card-stub'></article>" },
         SiteNotice: { template: "<footer class='site-notice-stub'></footer>" },
       },
@@ -139,8 +139,6 @@ describe("TopCommandersPage", () => {
     const wrapper = mountComponent();
     await flushPromises();
 
-    expect(wrapper.find(".hero-stub").exists()).toBe(false);
-    expect(wrapper.find(".legend-stub").exists()).toBe(false);
     expect(wrapper.find(".surface-role-content").exists()).toBe(true);
     expect(wrapper.text()).toContain("Top Commanders");
     expect(wrapper.text()).toContain("Loading top commanders...");

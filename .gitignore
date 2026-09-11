@@ -32,6 +32,9 @@ dist-ssr/
 playwright-report/
 test-results/
 playwright/.cache/
+tmp/
+artifacts/
+docs/issue-automation/
 
 # Misc
 *.tgz

@@ -82,7 +82,11 @@
             size="sm"
             @click="showPrintingBrowser = !showPrintingBrowser"
           >
-            {{ showPrintingBrowser ? "Hide printings" : `Printings (${primaryProfile?.totalPrintings ?? 0})` }}
+            {{
+              showPrintingBrowser
+                ? "Hide printings"
+                : `Printings (${primaryProfile?.totalPrintings ?? 0})`
+            }}
           </CButton>
         </div>
 
@@ -90,8 +94,12 @@
           <div class="space-y-2">
             <CText tag="p" variant="helper" tone="muted">Loading commander details...</CText>
             <div class="grid gap-2 sm:grid-cols-2">
-              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
-              <div class="h-18 animate-pulse rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface-muted)]" />
+              <div
+                class="h-18 animate-pulse rounded border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
+              />
+              <div
+                class="h-18 animate-pulse rounded border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
+              />
             </div>
           </div>
         </template>
@@ -101,7 +109,7 @@
             <div
               v-for="(profile, index) in profilesToRender"
               :key="`${profile.id}-snapshot`"
-              class="flex flex-wrap items-start justify-between gap-3 rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
+              class="flex flex-wrap items-start justify-between gap-3 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
             >
               <div class="space-y-1">
                 <CText tag="p" variant="overline" tone="muted">
@@ -142,7 +150,7 @@
 
             <div
               v-if="showPrintingBrowser"
-              class="flex flex-wrap items-center gap-2 rounded-[20px] border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
+              class="flex flex-wrap items-center gap-2 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-3"
             >
               <CButton
                 v-if="primaryProfile.canCyclePrintings"
@@ -178,7 +186,7 @@
 
         <div
           v-else
-          class="rounded-[24px] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-4"
+          class="rounded border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-4"
         >
           <CText tag="p" variant="title">Commander details unavailable</CText>
           <CText tag="p" variant="helper" tone="muted" class="mt-2">
@@ -196,16 +204,14 @@
           <figure
             v-for="(profile, index) in artProfiles"
             :key="`${profile.id}-art`"
-            class="relative overflow-hidden rounded-[22px] border border-[color:rgba(255,255,255,0.08)] bg-[color:var(--surface-strong)] shadow-[var(--shadow-soft)]"
+            class="relative overflow-hidden rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow-soft)]"
           >
             <img
               :src="profile.imageUrl"
               :alt="profile.name"
               class="aspect-[63/88] h-full w-full object-cover object-top"
             />
-            <div
-              class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(3,9,13,0.96)] via-[rgba(3,9,13,0.72)] to-transparent px-2 pb-2 pt-6"
-            >
+            <div class="absolute inset-x-0 bottom-0 bg-[rgba(3,9,13,0.82)] px-2 py-2">
               <CText
                 tag="figcaption"
                 variant="helper"
@@ -330,7 +336,6 @@ const profileRoleLabel = (index: number) => (index === 0 ? "Primary" : "Partner"
 .commander-inspector-backdrop {
   background-position: center right;
   background-size: cover;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.2) 30%, #000 100%);
   opacity: 0.18;
 }
 </style>

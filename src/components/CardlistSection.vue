@@ -10,7 +10,7 @@
         <div class="flex items-start gap-3">
           <div
             v-if="sectionMeta?.iconPath"
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[color:var(--surface-muted)] text-[color:var(--accent)]"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--accent)]"
             :style="{ color: sectionMeta?.iconColor || undefined }"
             aria-hidden="true"
           >

@@ -11,7 +11,7 @@
       <div class="flex justify-end">
         <button
           type="button"
-          class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white/90 transition hover:bg-white/20"
+          class="inline-flex min-h-11 items-center gap-2 rounded-[3px] border border-white/30 bg-white/10 px-4 py-1.5 text-sm font-semibold text-white/90 transition hover:bg-white/20"
           @click="emit('close-preview')"
         >
           Close
@@ -21,7 +21,7 @@
         <img
           :src="hoveredCardImage"
           alt="Card preview"
-          class="max-h-[80vh] w-auto rounded-2xl shadow-2xl shadow-black/60"
+          class="max-h-[80vh] w-auto rounded border border-white/15 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]"
         />
       </div>
     </div>
@@ -30,7 +30,7 @@
       v-else-if="hoveredCardImage"
       as="div"
       padding="p-1.5"
-      rounded="rounded-xl"
+      rounded="rounded"
       border="border border-[color:var(--border)]"
       background="bg-[color:var(--surface)]"
       shadow="shadow-[var(--shadow)]"
@@ -45,7 +45,7 @@
       <img
         :src="hoveredCardImage"
         alt="Card preview"
-        class="w-56 rounded-lg shadow-[var(--shadow-soft)]"
+        class="w-56 rounded border border-[color:var(--border)]"
       />
     </Card>
   </Teleport>
@@ -67,7 +67,7 @@
         <Card
           as="div"
           padding="p-4 sm:p-6"
-          rounded="rounded-2xl"
+          rounded="rounded"
           border="border border-[color:var(--border)]"
           background="bg-[color:var(--surface)]"
           shadow="shadow-[var(--shadow)]"
@@ -90,13 +90,13 @@
                 target="_blank"
                 rel="noreferrer"
                 role="button"
-                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+                class="inline-flex min-h-11 items-center justify-center gap-2 rounded-[3px] border border-[color:var(--border-strong)] bg-transparent px-3 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               >
                 Scryfall
               </a>
               <button
                 type="button"
-                class="min-h-11 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
+                class="min-h-11 rounded-[3px] border border-[color:var(--border-strong)] bg-transparent px-3 py-1 text-xs font-semibold text-[color:var(--text)] hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
                 @click="emit('close-modal')"
               >
                 Close
@@ -107,17 +107,17 @@
           <div class="pointer-events-none flex justify-center">
             <div
               v-if="modalLoading"
-              class="h-64 w-44 rounded-2xl bg-[color:var(--surface-muted)]"
+              class="h-64 w-44 rounded bg-[color:var(--surface-muted)]"
             ></div>
             <img
               v-else-if="modalImageUrl"
               :src="modalImageUrl"
               :alt="modalCard?.name ?? 'Card'"
-              class="w-44 rounded-2xl shadow-[var(--shadow-soft)]"
+              class="w-44 rounded shadow-[var(--shadow-soft)]"
             />
             <div
               v-else
-              class="h-64 w-44 rounded-2xl border border-dashed border-[color:var(--border)] p-4 text-center text-xs text-[color:var(--muted)]"
+              class="h-64 w-44 rounded border border-dashed border-[color:var(--border)] p-4 text-center text-xs text-[color:var(--muted)]"
             >
               Image unavailable
             </div>

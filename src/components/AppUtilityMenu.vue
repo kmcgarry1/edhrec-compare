@@ -24,13 +24,17 @@
           role="dialog"
           aria-modal="true"
           aria-labelledby="settings-title"
-          class="ml-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-[28rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow)] sm:max-h-[calc(100dvh-3rem)]"
+          class="ml-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-[28rem] flex-col overflow-hidden rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow)] sm:max-h-[calc(100dvh-3rem)]"
           @escape-pressed="closePanel"
         >
-          <header class="flex min-h-14 items-center justify-between gap-3 border-b border-[color:var(--border)] px-4 py-3">
+          <header
+            class="flex min-h-14 items-center justify-between gap-3 border-b border-[color:var(--border)] px-4 py-3"
+          >
             <div>
               <h2 id="settings-title" class="text-base font-semibold">Settings</h2>
-              <p class="text-xs text-[color:var(--muted)]">Display and accessibility preferences.</p>
+              <p class="text-xs text-[color:var(--muted)]">
+                Display and accessibility preferences.
+              </p>
             </div>
             <CButton type="button" variant="ghost" size="sm" @click="closePanel">Close</CButton>
           </header>
@@ -39,7 +43,7 @@
             <section class="space-y-2" aria-labelledby="density-title">
               <h3 id="density-title" class="text-sm font-semibold">Density</h3>
               <div
-                class="grid grid-cols-3 gap-1 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-1 text-xs font-semibold text-[color:var(--muted)]"
+                class="grid grid-cols-3 gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface)] p-1 text-xs font-semibold text-[color:var(--muted)]"
                 role="group"
                 aria-label="Adjust layout density"
               >
@@ -47,7 +51,7 @@
                   v-for="option in densityOptions"
                   :key="option.value"
                   type="button"
-                  class="min-h-11 rounded-md px-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                  class="min-h-11 rounded-[2px] px-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
                   :class="
                     density === option.value
                       ? 'bg-[color:var(--accent)] text-[color:var(--accent-contrast)]'
@@ -64,7 +68,7 @@
             <section class="grid gap-2 sm:grid-cols-2" aria-label="Appearance">
               <button
                 type="button"
-                class="min-h-16 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
+                class="min-h-16 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
                 :aria-pressed="theme === 'dark'"
                 @click="toggleTheme"
               >
@@ -76,11 +80,13 @@
 
               <button
                 type="button"
-                class="min-h-16 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
+                class="min-h-16 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
                 :aria-pressed="backgroundEnabled"
                 @click="toggleBackground"
               >
-                <span class="block text-xs font-semibold text-[color:var(--muted)]">Background texture</span>
+                <span class="block text-xs font-semibold text-[color:var(--muted)]"
+                  >Background texture</span
+                >
                 <span class="mt-1 block text-sm font-semibold">
                   {{ backgroundEnabled ? "On" : "Off" }}
                 </span>
@@ -93,7 +99,7 @@
               <label
                 v-for="toggle in accessibilityToggles"
                 :key="toggle.id"
-                class="flex min-h-14 items-start gap-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
+                class="flex min-h-14 items-start gap-3 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
               >
                 <input
                   type="checkbox"
@@ -114,7 +120,7 @@
                 <label
                   v-for="option in textScaleOptions"
                   :key="option.value"
-                  class="flex min-h-11 items-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm font-semibold"
+                  class="flex min-h-11 items-center gap-2 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm font-semibold"
                 >
                   <input
                     type="radio"
@@ -130,8 +136,12 @@
             </section>
           </div>
 
-          <footer class="flex min-h-14 justify-between gap-3 border-t border-[color:var(--border)] px-4 py-3">
-            <CButton type="button" variant="ghost" size="sm" @click="resetPreferences">Reset</CButton>
+          <footer
+            class="flex min-h-14 justify-between gap-3 border-t border-[color:var(--border)] px-4 py-3"
+          >
+            <CButton type="button" variant="ghost" size="sm" @click="resetPreferences"
+              >Reset</CButton
+            >
             <CButton type="button" variant="secondary" size="sm" @click="closePanel">Close</CButton>
           </footer>
         </section>
@@ -142,7 +152,10 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from "vue";
-import { textScaleOptions, useAccessibilityPreferences } from "../composables/useAccessibilityPreferences";
+import {
+  textScaleOptions,
+  useAccessibilityPreferences,
+} from "../composables/useAccessibilityPreferences";
 import { useBackgroundPreference } from "../composables/useBackgroundPreference";
 import { useFocusTrap } from "../composables/useFocusTrap";
 import { useLayoutDensity } from "../composables/useLayoutDensity";

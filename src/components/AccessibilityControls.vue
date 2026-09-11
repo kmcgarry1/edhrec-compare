@@ -1,37 +1,32 @@
 <template>
-  <details
-    ref="detailsRef"
-    class="relative"
-    @toggle="handleToggle"
-    @keydown="handleKeydown"
-  >
+  <details ref="detailsRef" class="relative" @toggle="handleToggle" @keydown="handleKeydown">
     <summary
       :aria-controls="panelId"
       :aria-expanded="panelOpen ? 'true' : 'false'"
-      class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      class="inline-flex cursor-pointer items-center gap-2 rounded-[3px] border border-[color:var(--border-strong)] bg-transparent px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
     >
       Accessibility
     </summary>
     <div :id="panelId" class="absolute right-0 z-40 mt-2 w-[18rem] sm:w-80">
       <Card
         padding="p-4"
-        rounded="rounded-2xl"
+        rounded="rounded"
         border="border border-[color:var(--border)]"
         background="bg-[color:var(--surface)]"
         shadow="shadow-[var(--shadow-soft)]"
         class="space-y-4 text-sm text-[color:var(--text)]"
       >
         <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">
-            Accessibility
-          </p>
+          <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">Accessibility</p>
           <p class="text-xs text-[color:var(--muted)]">
             Preferences are saved locally on this device.
           </p>
         </div>
 
         <fieldset class="space-y-2">
-          <legend class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+          <legend
+            class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+          >
             Visibility
           </legend>
           <div class="flex items-start gap-2">
@@ -94,7 +89,9 @@
         </fieldset>
 
         <fieldset class="space-y-2">
-          <legend class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+          <legend
+            class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+          >
             Text
           </legend>
           <div class="space-y-2">
@@ -103,7 +100,7 @@
               <label
                 v-for="option in textScaleOptions"
                 :key="option.value"
-                class="flex items-center gap-2 rounded-xl border border-[color:var(--border)] px-2 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)]"
+                class="flex items-center gap-2 rounded border border-[color:var(--border)] px-2 py-1.5 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)]"
               >
                 <input
                   :id="idFor(`text-scale-${option.value}`)"
@@ -141,7 +138,9 @@
         </fieldset>
 
         <fieldset class="space-y-2">
-          <legend class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+          <legend
+            class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+          >
             Motion
           </legend>
           <div class="flex items-start gap-2">
@@ -155,9 +154,7 @@
               @change="handleToggleChange($event, setReduceMotion)"
             />
             <div>
-              <label :for="idFor('reduce-motion')" class="font-semibold">
-                Reduce motion
-              </label>
+              <label :for="idFor('reduce-motion')" class="font-semibold"> Reduce motion </label>
               <p :id="idFor('reduce-motion-help')" class="text-xs text-[color:var(--muted)]">
                 Minimizes animations and transitions.
               </p>
@@ -168,7 +165,7 @@
         <div class="flex items-center justify-between">
           <button
             type="button"
-            class="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+            class="rounded-[3px] border border-[color:var(--border-strong)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
             data-testid="a11y-reset"
             @click="resetPreferences"
           >
@@ -229,10 +226,7 @@ const handleKeydown = (event: KeyboardEvent) => {
   detailsRef.value?.querySelector("summary")?.focus();
 };
 
-const handleToggleChange = (
-  event: Event,
-  setter: (value: boolean) => void
-) => {
+const handleToggleChange = (event: Event, setter: (value: boolean) => void) => {
   const target = event.target as HTMLInputElement;
   setter(target.checked);
 };

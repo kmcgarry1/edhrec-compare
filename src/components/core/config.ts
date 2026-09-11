@@ -4,25 +4,10 @@ export type Justify = "start" | "center" | "end" | "between";
 export type Wrap = "wrap" | "nowrap";
 
 export type TextVariant =
-  | "body"
-  | "label"
-  | "helper"
-  | "caption"
-  | "title"
-  | "metric"
-  | "overline"
-  | "eyebrow"
-  | "display";
+  "body" | "label" | "helper" | "caption" | "title" | "metric" | "overline" | "eyebrow" | "display";
 
 export type TextTone =
-  | "default"
-  | "muted"
-  | "subtle"
-  | "inverse"
-  | "danger"
-  | "success"
-  | "warn"
-  | "inherit";
+  "default" | "muted" | "subtle" | "inverse" | "danger" | "success" | "warn" | "inherit";
 
 export type SurfaceVariant =
   | "panel"
@@ -140,7 +125,7 @@ export const textLeadingClasses = {
 } as const;
 
 export const buttonBase =
-  "inline-flex min-h-11 items-center justify-center rounded-lg font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-10 items-center justify-center rounded-[3px] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonSizeClasses = {
   sm: "gap-1 px-3 py-1 text-xs",
@@ -150,12 +135,12 @@ export const buttonSizeClasses = {
 
 export const buttonVariantClasses = {
   primary:
-    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
+    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:bg-[color:var(--accent-strong)]",
   secondary:
-    "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+    "border border-[color:var(--border-strong)] bg-transparent text-[color:var(--text)] hover:border-[color:var(--accent)] hover:bg-[color:var(--surface-strong)] hover:text-[color:var(--accent)]",
   ghost:
     "border border-transparent bg-transparent text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]",
-  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+  soft: "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
 } as const;
 
 export const buttonToneClasses = {
@@ -192,11 +177,11 @@ export const surfaceToneClasses: Record<SurfaceTone, string> = {
 };
 
 export const surfaceRadiusClasses: Record<SurfaceRadius, string> = {
-  lg: "rounded-xl",
-  xl: "rounded-2xl",
-  "2xl": "rounded-3xl",
-  "3xl": "rounded-[28px]",
-  pill: "rounded-full",
+  lg: "rounded",
+  xl: "rounded",
+  "2xl": "rounded",
+  "3xl": "rounded",
+  pill: "rounded-[3px]",
 };
 
 export const surfaceShadowClasses: Record<SurfaceShadow, string> = {
@@ -212,7 +197,7 @@ export const surfacePaddingClasses: Record<Exclude<SurfaceSize, "adaptive">, str
   lg: "p-5 sm:p-7",
 };
 
-export const badgeBase = "inline-flex items-center rounded-full font-semibold leading-none";
+export const badgeBase = "inline-flex items-center rounded-[2px] font-semibold leading-none";
 
 export const badgeSizeClasses: Record<BadgeSize, string> = {
   sm: "px-2.5 py-1 text-[10px]",

@@ -270,13 +270,13 @@ defineExpose({
 .selection-stage-search :deep(.commander-search-minimal-field > .flex > div) {
   min-height: 4rem;
   border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
-  border-radius: 0.75rem;
+  border-radius: 3px;
   background: var(--surface-strong);
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field > .flex > div:focus-within) {
   border-color: color-mix(in srgb, var(--accent) 84%, white 16%);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-soft) 68%, transparent);
+  box-shadow: none;
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field input) {
@@ -293,7 +293,7 @@ defineExpose({
 }
 
 .selection-stage-search :deep([aria-live="polite"]) {
-  border-radius: 0.75rem;
+  border-radius: 3px;
   border-color: color-mix(in srgb, var(--border) 68%, transparent);
   background: var(--surface-strong) !important;
   box-shadow: none;
@@ -313,7 +313,7 @@ defineExpose({
   overflow: hidden;
   padding: 0;
   border: 1px solid color-mix(in srgb, var(--border) 68%, transparent);
-  border-radius: 0.9rem;
+  border-radius: 4px;
   background: transparent;
   box-shadow: none;
   cursor: pointer;
@@ -323,9 +323,7 @@ defineExpose({
 .selection-stage-random-card-art {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(180deg, rgba(7, 16, 22, 0.04), rgba(7, 16, 22, 0.74)),
-    var(--selection-stage-card-art);
+  background-image: var(--selection-stage-card-art);
   background-position: center top;
   background-size: cover;
 }
@@ -339,8 +337,8 @@ defineExpose({
   flex-direction: column;
   gap: 0.2rem;
   padding: 0.65rem 0.7rem;
-  border-radius: 0.65rem;
-  background: rgba(11, 17, 18, 0.74);
+  border-radius: 3px;
+  background: rgba(11, 17, 18, 0.82);
 }
 
 .selection-stage-random-card-label {
@@ -366,18 +364,8 @@ defineExpose({
 
 .selection-stage-random-card-placeholder {
   border-color: color-mix(in srgb, var(--border) 44%, transparent);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 42%, transparent),
-      color-mix(in srgb, var(--surface) 16%, transparent)
-    ),
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--surface-strong) 82%, var(--bg-strong) 18%),
-      color-mix(in srgb, var(--surface) 72%, var(--bg-strong) 28%)
-    );
-  box-shadow: var(--shadow-soft);
+  background: var(--surface-strong);
+  box-shadow: none;
 }
 
 @media (max-width: 639px) {
