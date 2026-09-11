@@ -64,7 +64,7 @@ const { theme, toggleTheme, setTheme } = useTheme();
 
 #### `useBackgroundPreference.ts`
 
-Animated nebula background visibility preference.
+Background texture visibility preference.
 
 ```typescript
 import { useBackgroundPreference } from "@/composables/useBackgroundPreference";

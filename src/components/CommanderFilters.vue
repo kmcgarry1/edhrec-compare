@@ -75,6 +75,24 @@
           @update:model-value="setCompanion"
         />
       </label>
+      <label class="space-y-1 text-[0.8rem] text-[color:var(--text)]">
+        <span
+          :class="[
+            'text-[0.7rem] uppercase tracking-[0.24em] text-[color:var(--muted)]',
+            spacing.labelText,
+          ]"
+        >
+          Deck tag
+        </span>
+        <DropdownSelect
+          aria-label="Select deck tag"
+          :options="normalizedDeckTagOptions"
+          :model-value="deckTag"
+          placeholder="Any tag"
+          :disabled="deckTagDisabled"
+          @update:model-value="setDeckTag"
+        />
+      </label>
     </div>
   </div>
 </template>
@@ -86,7 +104,7 @@ import {
   EDHRECPageType,
 } from "./helpers/enums";
 import DropdownSelect from "./DropdownSelect.vue";
-import { toRefs } from "vue";
+import { computed, toRefs } from "vue";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 
 const props = defineProps<{
@@ -94,6 +112,8 @@ const props = defineProps<{
   modifier: string;
   pageType: string;
   companion: string;
+  deckTag: string;
+  deckTagOptions?: Array<{ value: string; label: string; description?: string }>;
   layout?: "grid" | "stacked";
 }>();
 
@@ -102,12 +122,19 @@ const emit = defineEmits<{
   "update:modifier": [string];
   "update:pageType": [string];
   "update:companion": [string];
+  "update:deckTag": [string];
 }>();
 
 const bracketOptions = Object.values(EDHRECBracket);
 const modifierOptions = Object.values(EDHRECPageModifier);
 const pageTypeOptions = Object.values(EDHRECPageType);
 const companionOptions = Object.values(EDHRECCompanion);
+const anyDeckTagOption = { value: "", label: "Any tag" };
+const normalizedDeckTagOptions = computed(() => [
+  anyDeckTagOption,
+  ...(props.deckTagOptions ?? []).filter((option) => option.value),
+]);
+const deckTagDisabled = computed(() => normalizedDeckTagOptions.value.length <= 1);
 
 const setBracket = (value: string | number) => {
   emit("update:bracket", String(value));
@@ -121,11 +148,14 @@ const setPageType = (value: string | number) => {
 const setCompanion = (value: string | number) => {
   emit("update:companion", String(value));
 };
+const setDeckTag = (value: string | number) => {
+  emit("update:deckTag", String(value));
+};
 
-const { bracket, modifier, pageType, companion } = toRefs(props);
+const { bracket, modifier, pageType, companion, deckTag } = toRefs(props);
 const { spacing } = useLayoutDensity();
 const gridClass =
-  props.layout === "stacked" ? "grid gap-3" : "grid gap-3 sm:grid-cols-2 xl:grid-cols-4";
+  props.layout === "stacked" ? "grid gap-3" : "grid gap-3 sm:grid-cols-2 xl:grid-cols-5";
 
 const __templateBindings = {
   DropdownSelect,
@@ -137,10 +167,14 @@ const __templateBindings = {
   setModifier,
   setPageType,
   setCompanion,
+  setDeckTag,
   bracket,
   modifier,
   pageType,
   companion,
+  deckTag,
+  normalizedDeckTagOptions,
+  deckTagDisabled,
   gridClass,
 };
 void __templateBindings;

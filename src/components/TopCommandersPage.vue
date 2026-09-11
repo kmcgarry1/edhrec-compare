@@ -1,66 +1,62 @@
 <template>
-  <section
-    class="mx-auto w-full max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8 2xl:max-w-[90rem] 2xl:px-10"
-  >
+  <section class="mx-auto w-full max-w-[90rem] px-4 pb-16 pt-4 sm:px-6 lg:px-8">
     <GlobalLoadingBanner />
-    <CsvUploadModal v-if="showUploadModal" :open="showUploadModal" @close="showUploadModal = false" />
-
-    <TopCommandersHero
-      :has-csv-data="hasCsvData"
-      :csv-count="csvCount"
-      @upload="showUploadModal = true"
+    <CsvUploadModal
+      v-if="showUploadModal"
+      :open="showUploadModal"
+      @close="showUploadModal = false"
     />
 
-    <main id="main-content" class="mt-8 space-y-6">
-      <CSurface variant="command" size="md" radius="3xl" class="space-y-5">
-        <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] xl:items-start">
-          <div class="space-y-4">
-            <TopCommandersStatusCard
-              :has-csv-data="hasCsvData"
-              :csv-count="csvCount"
-              :last-updated="lastUpdated"
-              :failed-count="failedCount"
-              :scan-scope="scanScope"
-              :scan-error="scanError"
-            />
-            <TopCommandersControls
-              :top-header="topHeader"
-              :top-limit="topLimit"
-              :limit-options="limitOptions"
-              :sort-options="sortOptions"
-              :sort-mode="sortMode"
-              :top-loading="topLoading"
-              @limit-change="handleTopLimitChange"
-              @sort-change="setSortMode"
-              @refresh="refreshTopCommanders"
-            />
-            <TopCommandersColorFilter
-              :color-options="colorOptions"
-              :selected-colors="selectedColors"
-              :mana-symbol="manaSymbol"
-              :color-dot-class="colorDotClass"
-              :color-pill-class="colorPillClass"
-              :color-label="colorLabel"
-              @toggle-color="toggleColor"
-              @clear="clearColors"
-            />
+    <main id="main-content" class="space-y-4">
+      <CSurface variant="content" size="sm" radius="xl" shadow="none" class="space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div class="max-w-3xl space-y-1">
+            <CText tag="h1" variant="title" class="text-2xl sm:text-3xl">Top Commanders</CText>
+            <CText tag="p" variant="body" tone="muted">
+              Browse ranked commanders and scan ownership when a collection is loaded.
+            </CText>
           </div>
-
-          <CSurface variant="utility" size="sm" radius="2xl" class="space-y-3">
-            <div class="space-y-1">
-              <CText tag="p" variant="eyebrow" tone="muted"> Scan support </CText>
-              <CText tag="p" variant="title">Tune the ranking lens</CText>
-              <CText tag="p" variant="helper" tone="muted">
-                Use rank to browse the field, then switch to highest owned once a CSV upload reveals
-                real overlap.
-              </CText>
-            </div>
-            <TopCommandersOwnedLegend />
-          </CSurface>
+          <CButton
+            type="button"
+            :variant="hasCsvData ? 'secondary' : 'primary'"
+            @click="showUploadModal = true"
+          >
+            {{ hasCsvData ? "Replace collection" : "Upload collection" }}
+          </CButton>
         </div>
+
+        <TopCommandersStatusCard
+          :has-csv-data="hasCsvData"
+          :csv-count="csvCount"
+          :last-updated="lastUpdated"
+          :failed-count="failedCount"
+          :scan-scope="scanScope"
+          :scan-error="scanError"
+        />
+        <TopCommandersControls
+          :top-header="topHeader"
+          :top-limit="topLimit"
+          :limit-options="limitOptions"
+          :sort-options="sortOptions"
+          :sort-mode="sortMode"
+          :top-loading="topLoading"
+          :can-sort-owned="canSortOwned"
+          @limit-change="handleTopLimitChange"
+          @sort-change="handleSortChange"
+          @refresh="refreshTopCommanders"
+        />
+        <TopCommandersColorFilter
+          :color-options="colorOptions"
+          :selected-colors="selectedColors"
+          :color-dot-class="colorDotClass"
+          :color-pill-class="colorPillClass"
+          :color-label="colorLabel"
+          @toggle-color="toggleColor"
+          @clear="clearColors"
+        />
       </CSurface>
 
-      <CSurface variant="content" size="md" radius="3xl" class="space-y-4">
+      <CSurface variant="content" size="sm" radius="xl" shadow="none" class="space-y-2">
         <CNotice
           v-if="topLoading"
           tone="info"
@@ -75,12 +71,7 @@
           aria-live="assertive"
         />
 
-        <CGrid
-          v-else
-          variant="cards"
-          gap="md"
-          class="xl:grid-cols-2 2xl:grid-cols-3"
-        >
+        <CGrid v-else variant="single" gap="sm">
           <TopCommanderCard
             v-for="commander in sortedCommanders"
             :key="commander.slug"
@@ -93,8 +84,6 @@
           />
         </CGrid>
       </CSurface>
-
-      <SiteNotice />
     </main>
   </section>
 </template>
@@ -103,20 +92,15 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
-import SiteNotice from "./SiteNotice.vue";
-import { CGrid, CNotice, CSurface, CText } from "./core";
+import { CButton, CGrid, CNotice, CSurface, CText } from "./core";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useTopCommanderScan } from "../composables/useTopCommanderScan";
-import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { useTopCommandersData } from "../composables/useTopCommandersData";
 import { useTopCommanderImages } from "../composables/useTopCommanderImages";
 import { useTopCommanderFilters } from "../composables/useTopCommanderFilters";
-import { type CommanderColor } from "../utils/colorIdentity";
-import TopCommandersHero from "./top-commanders/TopCommandersHero.vue";
 import TopCommandersStatusCard from "./top-commanders/TopCommandersStatusCard.vue";
 import TopCommandersControls from "./top-commanders/TopCommandersControls.vue";
 import TopCommandersColorFilter from "./top-commanders/TopCommandersColorFilter.vue";
-import TopCommandersOwnedLegend from "./top-commanders/TopCommandersOwnedLegend.vue";
 import TopCommanderCard from "./top-commanders/TopCommanderCard.vue";
 
 const CsvUploadModal = defineAsyncComponent(() => import("./CsvUploadModal.vue"));
@@ -129,6 +113,7 @@ const {
   lastUpdated,
   error: scanError,
   failedCount,
+  isLoading: scanLoading,
   scope: scanScope,
   runScan,
   clearResults,
@@ -163,10 +148,11 @@ const {
   matchesColorFilter,
 } = useTopCommanderFilters({ getCommanderColors: combinedColorIdentity });
 
-const { ensureSymbolsLoaded, getSvgForSymbol } = useScryfallSymbols();
-
 const hasCsvData = computed(() => rows.value.length > 0);
 const csvCount = computed(() => rows.value.length);
+const canSortOwned = computed(
+  () => hasCsvData.value && !scanLoading.value && results.value.length > 0
+);
 
 const scanLookup = computed(() => {
   const map = new Map<string, (typeof results.value)[number]>();
@@ -208,7 +194,14 @@ const refreshTopCommanders = () => {
   void loadTopCommanders();
 };
 
-const handleTopLimitChange = (value: typeof limitOptions[number]) => {
+const handleSortChange = (value: typeof sortMode.value) => {
+  if (value === "owned" && !canSortOwned.value) {
+    return;
+  }
+  setSortMode(value);
+};
+
+const handleTopLimitChange = (value: (typeof limitOptions)[number]) => {
   if (!setTopLimit(value)) {
     return;
   }
@@ -255,20 +248,7 @@ watch(selectedColorPath, () => {
   handleSelectedColorPathChange();
 });
 
-const manaTokenMap: Record<CommanderColor, string> = {
-  W: "{W}",
-  U: "{U}",
-  B: "{B}",
-  R: "{R}",
-  G: "{G}",
-  C: "{C}",
-};
-
-const manaSymbol = (color: CommanderColor) =>
-  getSvgForSymbol(manaTokenMap[color]) ?? undefined;
-
 onMounted(() => {
-  void ensureSymbolsLoaded();
   void loadTopCommanders();
 });
 </script>

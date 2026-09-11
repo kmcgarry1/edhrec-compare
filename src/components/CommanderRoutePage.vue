@@ -12,17 +12,18 @@
         Loading Scryfall data...
       </GlobalLoadingBanner>
 
-      <section
-        class="grid gap-4 xl:grid-cols-[19rem_minmax(0,1fr)] 2xl:grid-cols-[19.75rem_minmax(0,1fr)]"
-      >
+      <section class="space-y-4">
         <DashboardBrowseRail
           ref="browseRailRef"
+          :show-desktop-rail="false"
           :selected-slug="currentCommanderSlug"
           :selection="commanderSelection"
           :bracket="chosenBracket"
           :modifier="chosenModifier"
           :page-type="chosenPageType"
           :companion="chosenCompanion"
+          :deck-tag="chosenDeckTag"
+          :deck-tag-options="deckTagOptions"
           :open="controlPanelOpen"
           :sections="cardlistSections"
           :active-id="activeSectionId"
@@ -40,6 +41,7 @@
           @update:modifier="setModifier"
           @update:page-type="setPageType"
           @update:companion="setCompanion"
+          @update:deck-tag="setDeckTag"
         />
 
         <div class="min-w-0 space-y-4">
@@ -48,11 +50,8 @@
             :commander-profiles="commanderProfiles"
             :commander-color-identity="commanderColorIdentity"
             :spotlight-loading="commanderSpotlightLoading"
-            :backdrop-url="commanderSpotlightBackdropUrl"
             :next-step-label="nextStepLabel"
             :canonical-edhrec-href="canonicalEdhrecHref"
-            :status-items="mastheadStatusItems"
-            :stat-items="mastheadStatItems"
             @open-controls="openControlPanel"
             @open-utilities="openUtilityTray"
             @change-commander="focusCommanderEditor"
@@ -70,8 +69,20 @@
               :deck-view-label="deckFilterLabel"
               :ownership-summary="ownershipSummary"
               :all-expanded="allSectionsExpanded"
+              :has-csv-data="hasCsvData"
+              :filter-options="deckViewFilterOptions"
+              :decklist-available="Boolean(decklistExport?.text)"
+              :decklist-copied="decklistCopied"
+              :display-mode="displayMode"
+              :price-mode="priceMode"
               @navigate="scrollToSection"
+              @filter-change="setOwnedFilter"
+              @open-filters="openControlPanel"
+              @display-mode-change="setDisplayMode"
+              @price-mode-change="setPriceMode"
               @toggle-expand-all="handleToggleExpandAll"
+              @copy-decklist="copyDecklistFromHeader"
+              @download-decklist="downloadDecklistFromHeader"
             />
 
             <CNotice v-if="error" tone="danger" :message="`Error: ${error}`">
@@ -96,6 +107,8 @@
                   :columns="cardTableColumns"
                   :decklist-text="entry.decklistText"
                   :copied-section-id="decklistCopySectionId"
+                  :display-mode="displayMode"
+                  :price-mode="priceMode"
                   :loading="bulkCardsLoading"
                   @toggle="toggleSection(entry.sectionMeta.id)"
                   @copy="handleCopyDecklist(entry.cardlist, entry.index)"
@@ -151,35 +164,29 @@ import CommanderResultsCommandBar from "./commander-route/CommanderResultsComman
 import CommanderRouteMasthead from "./commander-route/CommanderRouteMasthead.vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import { CNotice, CSurface, CText } from "./core";
-import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "./helpers/enums";
+import {
+  EDHRECBracket,
+  EDHRECCompanion,
+  EDHRECPageModifier,
+  EDHRECPageType,
+} from "./helpers/enums";
 import { useDashboardState } from "../composables/useDashboardState";
+import { useCardDisplayPreferences } from "../composables/useCardDisplayPreferences";
 import { useEdhrecCardlists } from "../composables/useEdhrecCardlists";
 import { useEdhrecData } from "../composables/useEdhrecData";
 import { useEdhrecRouteState } from "../composables/useEdhrecRouteState";
 import { useScryfallCardData } from "../composables/useScryfallCardData";
 import type { ColumnDefinition } from "./CardTable.vue";
 
-type CommanderRouteStatusTone =
-  | "default"
-  | "accent"
-  | "success"
-  | "warn"
-  | "danger"
-  | "muted";
-
-type CommanderRouteStatItem = {
-  label: string;
-  value: string;
-  tone?: CommanderRouteStatusTone;
-};
-
 const browseRailRef = ref<InstanceType<typeof DashboardBrowseRail> | null>(null);
+const { displayMode, priceMode, setDisplayMode, setPriceMode } = useCardDisplayPreferences();
 
 const {
   chosenPageType,
   chosenBracket,
   chosenModifier,
   chosenCompanion,
+  chosenDeckTag,
   currentCommanderSlug,
   commanderUrl,
   setCommanderSlug,
@@ -187,6 +194,7 @@ const {
   setModifier,
   setPageType,
   setCompanion,
+  setDeckTag,
 } = useEdhrecRouteState();
 
 const {
@@ -199,7 +207,6 @@ const {
   commanderProfiles,
   commanderColorIdentity,
   commanderSpotlightLoading,
-  commanderSpotlightBackdropUrl,
   canonicalEdhrecHref,
   hasCsvData,
   inventorySummary,
@@ -232,7 +239,7 @@ const {
   setOwnedFilter,
 } = useDashboardState();
 
-const { cardlists, error, readerLoading } = useEdhrecData(commanderUrl);
+const { cardlists, deckTags, error, readerLoading } = useEdhrecData(commanderUrl);
 
 const {
   cardlistSections,
@@ -287,37 +294,47 @@ const companionLabel = computed(() =>
     ? `${findLabel(Object.values(EDHRECCompanion), chosenCompanion.value, "Companion")} companion`
     : ""
 );
-
-const deckViewTone = computed(() => {
-  if (deckFilterLabel.value === "Owned cards") {
-    return "success" as const;
+const deckTagOptions = computed(() =>
+  deckTags.value.map((tag) => ({
+    value: tag.slug,
+    label: `${tag.value} (${tag.count.toLocaleString()})`,
+    description: `${tag.count.toLocaleString()} deck${tag.count === 1 ? "" : "s"}`,
+  }))
+);
+const deckTagLabel = computed(() => {
+  if (!chosenDeckTag.value) {
+    return "";
   }
-  if (deckFilterLabel.value === "Missing cards") {
-    return "warn" as const;
-  }
-  return "accent" as const;
+  return (
+    deckTags.value.find((tag) => tag.slug === chosenDeckTag.value)?.value ?? chosenDeckTag.value
+  );
 });
-
-const collectionStateLabel = computed(() =>
-  hasCsvData.value ? "Collection loaded" : "Collection pending"
-);
-
-const collectionStateValue = computed(() =>
-  hasCsvData.value ? inventorySummary.value : "Upload a CSV to unlock owned and missing deck views."
-);
-
-const pageLensLabel = computed(() => {
-  const parts = [pageTypeLabel.value, bracketLabel.value, modifierLabel.value, companionLabel.value]
-    .filter(Boolean)
-    .join(" | ");
-  return parts || "Commander";
+const sourceLensLabel = computed(() => {
+  const parts = [
+    pageTypeLabel.value,
+    bracketLabel.value,
+    modifierLabel.value,
+    companionLabel.value,
+    deckTagLabel.value,
+  ].filter(Boolean);
+  return parts.length ? parts.join(" | ") : "Commander";
 });
 
 const ownershipSummary = computed(() => {
-  if (!cardlistEntries.value.length) {
-    return `Showing ${deckFilterLabel.value.toLowerCase()} while results finish loading.`;
+  const sourcePrefix = `${sourceLensLabel.value}. `;
+  if (error.value) {
+    return `${sourcePrefix}Results could not be loaded. Retry or open EDHREC directly.`;
   }
-  return `Showing ${deckFilterLabel.value.toLowerCase()} across ${cardlistEntries.value.length} active section${cardlistEntries.value.length === 1 ? "" : "s"}.`;
+  if (readerLoading.value && !cardlistEntries.value.length) {
+    return `${sourcePrefix}Loading card recommendations.`;
+  }
+  if (!hasCsvData.value) {
+    return `${sourcePrefix}Showing all recommendations across ${cardlistEntries.value.length} section${cardlistEntries.value.length === 1 ? "" : "s"}. Upload a collection for owned and missing views.`;
+  }
+  if (!cardlistEntries.value.length) {
+    return `${sourcePrefix}No recommendations match ${deckFilterLabel.value.toLowerCase()}.`;
+  }
+  return `${sourcePrefix}Showing ${deckFilterLabel.value.toLowerCase()} across ${cardlistEntries.value.length} active section${cardlistEntries.value.length === 1 ? "" : "s"}.`;
 });
 
 const deckViewFilterOptions = computed(() =>
@@ -332,65 +349,6 @@ const deckViewFilterOptions = computed(() =>
   }))
 );
 
-const mastheadStatusItems = computed(() => {
-  const items: Array<{
-    label: string;
-    tone?: CommanderRouteStatusTone;
-  }> = [
-    {
-      label: collectionStateLabel.value,
-      tone: hasCsvData.value ? "accent" : "muted",
-    },
-    {
-      label: deckFilterLabel.value,
-      tone: deckViewTone.value,
-    },
-    {
-      label: pageTypeLabel.value,
-      tone:
-        chosenPageType.value === EDHRECPageType.AVERAGE_DECK.value ? "accent" : "default",
-    },
-  ];
-
-  if (bracketLabel.value) {
-    items.push({ label: bracketLabel.value });
-  }
-  if (modifierLabel.value) {
-    items.push({ label: modifierLabel.value });
-  }
-  if (companionLabel.value) {
-    items.push({ label: companionLabel.value });
-  }
-
-  return items;
-});
-
-const mastheadStatItems = computed<CommanderRouteStatItem[]>(() => [
-  {
-    label: "Active sections",
-    value: `${cardlistEntries.value.length} of ${totalSectionCount.value}`,
-  },
-  {
-    label: "Visible cards",
-    value: String(visibleCardCount.value),
-    tone: deckViewTone.value,
-  },
-  {
-    label: "Deck view",
-    value: deckFilterLabel.value,
-    tone: deckViewTone.value,
-  },
-  {
-    label: "Collection state",
-    value: collectionStateValue.value,
-    tone: hasCsvData.value ? "success" : "muted",
-  },
-  {
-    label: "Page lens",
-    value: pageLensLabel.value,
-  },
-]);
-
 const showNoMatchingSections = computed(
   () =>
     !cardlistEntries.value.length &&
@@ -402,6 +360,15 @@ const showNoMatchingSections = computed(
 watchEffect(() => {
   if (decklistPayload.value) {
     handleDecklistUpdate(decklistPayload.value);
+  }
+});
+
+watchEffect(() => {
+  if (!chosenDeckTag.value || !deckTags.value.length) {
+    return;
+  }
+  if (!deckTags.value.some((tag) => tag.slug === chosenDeckTag.value)) {
+    setDeckTag("");
   }
 });
 
@@ -425,14 +392,18 @@ const setMainContentRef = (element: Element | ComponentPublicInstance | null) =>
   mainContentRef.value = element instanceof HTMLElement ? element : null;
 };
 
-const cardTableColumns: ColumnDefinition[] = [
+const cardTableColumns = computed<ColumnDefinition[]>(() => [
   { key: "owned", label: "Owned", align: "center", class: "w-14" },
   { key: "name", label: "Card" },
   { key: "mana", label: "Mana", class: "w-28" },
   { key: "type", label: "Type" },
   { key: "rarity", label: "Rarity", class: "w-20" },
   { key: "status", label: "", align: "center", class: "w-24" },
-  { key: "usd", label: "USD", align: "right", class: "w-20" },
-  { key: "eur", label: "EUR", align: "right", class: "w-20" },
-];
+  ...(priceMode.value !== "eur"
+    ? [{ key: "usd", label: "USD", align: "right" as const, class: "w-20" }]
+    : []),
+  ...(priceMode.value !== "usd"
+    ? [{ key: "eur", label: "EUR", align: "right" as const, class: "w-20" }]
+    : []),
+]);
 </script>

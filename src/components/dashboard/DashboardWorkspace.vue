@@ -17,6 +17,8 @@
       :modifier="chosenModifier"
       :page-type="chosenPageType"
       :companion="chosenCompanion"
+      :deck-tag="chosenDeckTag"
+      :deck-tag-options="deckTagOptions"
       :open="controlPanelOpen"
       :sections="cardlistSections"
       :active-id="activeSectionId"
@@ -33,6 +35,7 @@
       @update:modifier="setModifier"
       @update:page-type="setPageType"
       @update:companion="setCompanion"
+      @update:deck-tag="setDeckTag"
     />
 
     <div class="min-w-0 space-y-3">
@@ -95,10 +98,7 @@
           class="bg-[color:var(--surface-muted)]"
         />
 
-        <div
-          v-if="cardlistEntries.length"
-          class="space-y-4"
-        >
+        <div v-if="cardlistEntries.length" class="space-y-4">
           <template v-for="entry in cardlistEntries" :key="entry.key">
             <CardlistSection
               :cardlist="entry.cardlist"
@@ -125,7 +125,12 @@ import DashboardBrowseRail from "./DashboardBrowseRail.vue";
 import DashboardCommanderMasthead from "./DashboardCommanderMasthead.vue";
 import { CardlistSection, FloatingCardlistNav, GlobalLoadingBanner, EdhrecEmptyState } from "..";
 import { CNotice, CSurface, CText } from "../core";
-import { EDHRECBracket, EDHRECCompanion, EDHRECPageModifier, EDHRECPageType } from "../helpers/enums";
+import {
+  EDHRECBracket,
+  EDHRECCompanion,
+  EDHRECPageModifier,
+  EDHRECPageType,
+} from "../helpers/enums";
 import { useEdhrecRouteState } from "../../composables/useEdhrecRouteState";
 import { useEdhrecData } from "../../composables/useEdhrecData";
 import { useEdhrecCardlists } from "../../composables/useEdhrecCardlists";
@@ -167,6 +172,7 @@ const {
   chosenBracket,
   chosenModifier,
   chosenCompanion,
+  chosenDeckTag,
   currentCommanderSlug,
   commanderUrl,
   setCommanderSlug,
@@ -174,9 +180,17 @@ const {
   setModifier,
   setPageType,
   setCompanion,
+  setDeckTag,
 } = useEdhrecRouteState();
 
-const { cardlists, error, readerLoading } = useEdhrecData(commanderUrl);
+const { cardlists, deckTags, error, readerLoading } = useEdhrecData(commanderUrl);
+const deckTagOptions = computed(() =>
+  deckTags.value.map((tag) => ({
+    value: tag.slug,
+    label: `${tag.value} (${tag.count.toLocaleString()})`,
+    description: `${tag.count.toLocaleString()} deck${tag.count === 1 ? "" : "s"}`,
+  }))
+);
 
 const {
   cardlistSections,
@@ -258,6 +272,14 @@ const companionLabel = computed(() =>
     ? `${findLabel(Object.values(EDHRECCompanion), chosenCompanion.value, "Companion")} companion`
     : ""
 );
+const deckTagLabel = computed(() => {
+  if (!chosenDeckTag.value) {
+    return "";
+  }
+  return (
+    deckTags.value.find((tag) => tag.slug === chosenDeckTag.value)?.value ?? chosenDeckTag.value
+  );
+});
 const deckViewChipLabel = computed(() => {
   if (deckFilterLabel.value === "Owned cards") {
     return "Owned";
@@ -291,8 +313,7 @@ const mastheadStatusItems = computed(() => {
     },
     {
       label: pageTypeLabel.value,
-      tone:
-        chosenPageType.value === EDHRECPageType.AVERAGE_DECK.value ? "accent" : "default",
+      tone: chosenPageType.value === EDHRECPageType.AVERAGE_DECK.value ? "accent" : "default",
     },
   ];
 
@@ -304,6 +325,9 @@ const mastheadStatusItems = computed(() => {
   }
   if (companionLabel.value) {
     items.push({ label: companionLabel.value });
+  }
+  if (deckTagLabel.value) {
+    items.push({ label: deckTagLabel.value });
   }
 
   return items;
@@ -328,6 +352,15 @@ const showNoMatchingSections = computed(
 watchEffect(() => {
   if (decklistPayload.value) {
     emit("decklistUpdate", decklistPayload.value);
+  }
+});
+
+watchEffect(() => {
+  if (!chosenDeckTag.value || !deckTags.value.length) {
+    return;
+  }
+  if (!deckTags.value.some((tag) => tag.slug === chosenDeckTag.value)) {
+    setDeckTag("");
   }
 });
 

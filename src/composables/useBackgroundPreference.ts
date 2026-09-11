@@ -1,7 +1,7 @@
 /**
- * Animated background preference management
+ * Background texture preference management
  *
- * Controls whether the animated nebula background is displayed.
+ * Controls whether the optional background texture is displayed.
  * Preference is persisted to localStorage.
  *
  * @module composables/useBackgroundPreference

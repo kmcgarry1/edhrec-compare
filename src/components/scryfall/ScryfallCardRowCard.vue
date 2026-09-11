@@ -59,11 +59,13 @@
       </div>
       <div class="flex items-center gap-1">
         <PriceColour
+          v-if="priceMode !== 'eur'"
           :price="usdPrice"
           currency="$"
           class="text-[11px]"
         />
         <PriceColour
+          v-if="priceMode !== 'usd'"
           :price="eurPrice"
           currency="EUR"
           class="text-[11px]"
@@ -98,6 +100,7 @@ defineProps<{
   have: boolean;
   usdPrice: string | null;
   eurPrice: string | null;
+  priceMode: "both" | "usd" | "eur";
 }>();
 
 const emit = defineEmits<{

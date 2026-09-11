@@ -1,164 +1,153 @@
 <template>
-  <details ref="detailsRef" class="relative" @toggle="handleToggle" @keydown="handleKeydown">
-    <summary
-      :aria-controls="panelId"
+  <div>
+    <CButton
+      type="button"
+      variant="secondary"
+      size="sm"
       :aria-expanded="panelOpen ? 'true' : 'false'"
-      class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-1.5 text-[0.72rem] font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+      :aria-controls="panelId"
+      @click="openPanel"
     >
-      View
-    </summary>
+      Settings
+    </CButton>
 
-    <div :id="panelId" class="absolute right-0 z-40 mt-2 w-[21rem] max-w-[calc(100vw-2rem)]">
-      <Card
-        padding="p-4"
-        rounded="rounded-[26px]"
-        border="border border-[color:var(--border)]"
-        background="bg-[color:var(--surface)]"
-        shadow="shadow-[var(--shadow)]"
-        class="space-y-4 text-sm text-[color:var(--text)]"
+    <Teleport to="body">
+      <div
+        v-if="panelOpen"
+        class="fixed inset-0 z-[80] bg-black/35 p-3 sm:p-6"
+        role="presentation"
+        @click.self="closePanel"
       >
-        <div class="space-y-1">
-          <p class="text-xs uppercase tracking-[0.3em] text-[color:var(--muted)]">View tools</p>
-          <p class="text-xs text-[color:var(--muted)]">
-            Density, theme, background, and accessibility preferences apply across the app.
-          </p>
-        </div>
+        <section
+          :id="panelId"
+          ref="panelRef"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="settings-title"
+          class="ml-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-[28rem] flex-col overflow-hidden rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow)] sm:max-h-[calc(100dvh-3rem)]"
+          @escape-pressed="closePanel"
+        >
+          <header class="flex min-h-14 items-center justify-between gap-3 border-b border-[color:var(--border)] px-4 py-3">
+            <div>
+              <h2 id="settings-title" class="text-base font-semibold">Settings</h2>
+              <p class="text-xs text-[color:var(--muted)]">Display and accessibility preferences.</p>
+            </div>
+            <CButton type="button" variant="ghost" size="sm" @click="closePanel">Close</CButton>
+          </header>
 
-        <div class="space-y-2">
-          <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
-            Density
-          </p>
-          <div
-            class="inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
-            role="group"
-            aria-label="Adjust layout density"
-          >
-            <button
-              v-for="option in densityOptions"
-              :key="option.value"
-              type="button"
-              class="flex-1 rounded-full px-2.5 py-1.5 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-              :class="
-                density === option.value
-                  ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
-                  : 'hover:text-[color:var(--text)]'
-              "
-              :aria-pressed="density === option.value"
-              @click="setDensity(option.value)"
-            >
-              {{ option.label }}
-            </button>
+          <div class="flex-1 space-y-5 overflow-y-auto px-4 py-4 text-sm">
+            <section class="space-y-2" aria-labelledby="density-title">
+              <h3 id="density-title" class="text-sm font-semibold">Density</h3>
+              <div
+                class="grid grid-cols-3 gap-1 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-1 text-xs font-semibold text-[color:var(--muted)]"
+                role="group"
+                aria-label="Adjust layout density"
+              >
+                <button
+                  v-for="option in densityOptions"
+                  :key="option.value"
+                  type="button"
+                  class="min-h-11 rounded-md px-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                  :class="
+                    density === option.value
+                      ? 'bg-[color:var(--accent)] text-[color:var(--accent-contrast)]'
+                      : 'hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]'
+                  "
+                  :aria-pressed="density === option.value"
+                  @click="setDensity(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </section>
+
+            <section class="grid gap-2 sm:grid-cols-2" aria-label="Appearance">
+              <button
+                type="button"
+                class="min-h-16 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
+                :aria-pressed="theme === 'dark'"
+                @click="toggleTheme"
+              >
+                <span class="block text-xs font-semibold text-[color:var(--muted)]">Theme</span>
+                <span class="mt-1 block text-sm font-semibold">
+                  {{ theme === "dark" ? "Dark" : "Light" }}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="min-h-16 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
+                :aria-pressed="backgroundEnabled"
+                @click="toggleBackground"
+              >
+                <span class="block text-xs font-semibold text-[color:var(--muted)]">Background texture</span>
+                <span class="mt-1 block text-sm font-semibold">
+                  {{ backgroundEnabled ? "On" : "Off" }}
+                </span>
+              </button>
+            </section>
+
+            <fieldset class="space-y-2">
+              <legend class="text-sm font-semibold">Accessibility</legend>
+
+              <label
+                v-for="toggle in accessibilityToggles"
+                :key="toggle.id"
+                class="flex min-h-14 items-start gap-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2"
+              >
+                <input
+                  type="checkbox"
+                  class="mt-1 h-4 w-4 rounded border-[color:var(--border)] text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
+                  :checked="toggle.checked"
+                  @change="toggle.onChange(($event.target as HTMLInputElement).checked)"
+                />
+                <span>
+                  <span class="block text-sm font-semibold">{{ toggle.label }}</span>
+                  <span class="block text-xs text-[color:var(--muted)]">{{ toggle.help }}</span>
+                </span>
+              </label>
+            </fieldset>
+
+            <section class="space-y-2" aria-labelledby="text-size-title">
+              <h3 id="text-size-title" class="text-sm font-semibold">Text size</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <label
+                  v-for="option in textScaleOptions"
+                  :key="option.value"
+                  class="flex min-h-11 items-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2 text-sm font-semibold"
+                >
+                  <input
+                    type="radio"
+                    :name="textScaleName"
+                    :value="option.value"
+                    class="h-4 w-4 border-[color:var(--border)] text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
+                    :checked="preferences.textScale === option.value"
+                    @change="setTextScale(option.value)"
+                  />
+                  <span>{{ option.label }}</span>
+                </label>
+              </div>
+            </section>
           </div>
-        </div>
 
-        <div class="grid gap-2 sm:grid-cols-2">
-          <button
-            type="button"
-            class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
-            :aria-pressed="theme === 'dark'"
-            @click="toggleTheme"
-          >
-            <p class="text-[0.64rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--muted)]">
-              Theme
-            </p>
-            <p class="mt-1 text-sm font-semibold text-[color:var(--text)]">
-              {{ theme === "dark" ? "Dark" : "Light" }}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-left transition hover:border-[color:var(--accent)]"
-            :aria-pressed="backgroundEnabled"
-            @click="toggleBackground"
-          >
-            <p class="text-[0.64rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--muted)]">
-              Backdrop
-            </p>
-            <p class="mt-1 text-sm font-semibold text-[color:var(--text)]">
-              {{ backgroundEnabled ? "Enabled" : "Disabled" }}
-            </p>
-          </button>
-        </div>
-
-        <fieldset class="space-y-2">
-          <legend class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
-            Accessibility
-          </legend>
-
-          <label
-            v-for="toggle in accessibilityToggles"
-            :key="toggle.id"
-            class="flex items-start gap-3 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2"
-          >
-            <input
-              type="checkbox"
-              class="mt-0.5 h-4 w-4 rounded border-[color:var(--border)] text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
-              :checked="toggle.checked"
-              @change="toggle.onChange(($event.target as HTMLInputElement).checked)"
-            />
-            <span class="space-y-0.5">
-              <span class="block text-sm font-semibold text-[color:var(--text)]">
-                {{ toggle.label }}
-              </span>
-              <span class="block text-xs text-[color:var(--muted)]">
-                {{ toggle.help }}
-              </span>
-            </span>
-          </label>
-        </fieldset>
-
-        <div class="space-y-2">
-          <p class="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
-            Text size
-          </p>
-          <div class="grid grid-cols-2 gap-2">
-            <label
-              v-for="option in textScaleOptions"
-              :key="option.value"
-              class="flex items-center gap-2 rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-sm font-semibold text-[color:var(--text)]"
-            >
-              <input
-                type="radio"
-                :name="textScaleName"
-                :value="option.value"
-                class="h-3.5 w-3.5 border-[color:var(--border)] text-[color:var(--accent)] focus:ring-[color:var(--accent)]"
-                :checked="preferences.textScale === option.value"
-                @change="setTextScale(option.value)"
-              />
-              <span>{{ option.label }}</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="flex justify-between gap-3">
-          <button
-            type="button"
-            class="rounded-full border border-[color:var(--border)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-            @click="resetPreferences"
-          >
-            Reset
-          </button>
-          <button
-            type="button"
-            class="rounded-full border border-[color:var(--accent)] bg-[color:var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent-strong)]"
-            @click="closePanel"
-          >
-            Close
-          </button>
-        </div>
-      </Card>
-    </div>
-  </details>
+          <footer class="flex min-h-14 justify-between gap-3 border-t border-[color:var(--border)] px-4 py-3">
+            <CButton type="button" variant="ghost" size="sm" @click="resetPreferences">Reset</CButton>
+            <CButton type="button" variant="secondary" size="sm" @click="closePanel">Close</CButton>
+          </footer>
+        </section>
+      </div>
+    </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import Card from "./Card.vue";
+import { computed, nextTick, ref } from "vue";
 import { textScaleOptions, useAccessibilityPreferences } from "../composables/useAccessibilityPreferences";
 import { useBackgroundPreference } from "../composables/useBackgroundPreference";
+import { useFocusTrap } from "../composables/useFocusTrap";
 import { useLayoutDensity } from "../composables/useLayoutDensity";
 import { useTheme } from "../composables/useTheme";
+import { CButton } from "./core";
 
 const { theme, toggleTheme } = useTheme();
 const { backgroundEnabled, toggleBackground } = useBackgroundPreference();
@@ -174,11 +163,12 @@ const {
   resetPreferences,
 } = useAccessibilityPreferences();
 
-const detailsRef = ref<HTMLDetailsElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
 const panelOpen = ref(false);
-const idBase = `view-menu-${Math.random().toString(36).slice(2, 9)}`;
+const idBase = `settings-${Math.random().toString(36).slice(2, 9)}`;
 const panelId = `${idBase}-panel`;
 const textScaleName = `${idBase}-text-scale`;
+const { activate, deactivate } = useFocusTrap(panelRef, panelOpen);
 
 const accessibilityToggles = computed(() => [
   {
@@ -218,35 +208,14 @@ const accessibilityToggles = computed(() => [
   },
 ]);
 
+const openPanel = async () => {
+  panelOpen.value = true;
+  await nextTick();
+  activate();
+};
+
 const closePanel = () => {
-  if (!detailsRef.value) {
-    return;
-  }
-  detailsRef.value.open = false;
   panelOpen.value = false;
-};
-
-const handleToggle = (event: Event) => {
-  const target = event.target as HTMLDetailsElement;
-  panelOpen.value = target.open;
-};
-
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key !== "Escape" || !panelOpen.value) {
-    return;
-  }
-  event.preventDefault();
-  closePanel();
-  detailsRef.value?.querySelector("summary")?.focus();
+  deactivate();
 };
 </script>
-
-<style scoped>
-summary {
-  list-style: none;
-}
-
-summary::-webkit-details-marker {
-  display: none;
-}
-</style>

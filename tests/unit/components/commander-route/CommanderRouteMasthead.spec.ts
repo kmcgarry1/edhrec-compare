@@ -54,41 +54,31 @@ const mountComponent = (overrideProps = {}) =>
   });
 
 describe("CommanderRouteMasthead", () => {
-  it("renders the destination masthead with color identity, stats, and primary actions", async () => {
+  it("renders the compact commander identity and details disclosure", async () => {
     const wrapper = mountComponent();
 
-    expect(wrapper.text()).toContain("Commander destination");
     expect(wrapper.text()).toContain("Atraxa, Grand Unifier");
     expect(wrapper.text()).toContain("Decklist ready to export.");
-    expect(wrapper.text()).toContain("Collection loaded");
-    expect(wrapper.text()).toContain("Visible cards");
-    expect(wrapper.text()).toContain("18");
     expect(wrapper.text()).toContain("W");
     expect(wrapper.text()).toContain("U");
-    expect(wrapper.text()).toContain("$45.00");
-    expect(wrapper.text()).toContain("Printings (2)");
+    expect(wrapper.text()).not.toContain("Printing 1 of 2");
 
     const edhrecLink = wrapper.find('a[href="https://edhrec.com/commanders/atraxa-grand-unifier"]');
     expect(edhrecLink.exists()).toBe(true);
 
-    await wrapper
-      .findAll("button")
-      .find((button) => button.text().includes("Change commander"))
-      ?.trigger("click");
     await wrapper.get('[data-testid="dashboard-control-trigger"]').trigger("click");
-    await wrapper.get('[data-testid="dashboard-utility-trigger"]').trigger("click");
     await wrapper
       .findAll("button")
-      .find((button) => button.text().includes("Printings (2)"))
+      .find((button) => button.text().includes("Details"))
       ?.trigger("click");
 
-    expect(wrapper.emitted("change-commander")?.[0]).toEqual([]);
     expect(wrapper.emitted("open-controls")?.[0]).toEqual([]);
-    expect(wrapper.emitted("open-utilities")?.[0]).toEqual([]);
+    expect(wrapper.text()).toContain("Phyrexia: All Will Be One");
+    expect(wrapper.text()).toContain("$45.00");
     expect(wrapper.text()).toContain("Printing 1 of 2");
   });
 
-  it("renders partner profiles without a printings toggle", () => {
+  it("renders partner profiles in details without a printings toggle", async () => {
     const wrapper = mountComponent({
       commanderSelection: {
         primary: "Tymna the Weaver",
@@ -120,9 +110,14 @@ describe("CommanderRouteMasthead", () => {
 
     expect(wrapper.text()).toContain("Tymna the Weaver + Thrasios, Triton Hero");
     expect(wrapper.text()).toContain("Partner commanders selected");
+    expect(wrapper.text()).not.toContain("Primary");
+    await wrapper
+      .findAll("button")
+      .find((button) => button.text().includes("Details"))
+      ?.trigger("click");
     expect(wrapper.text()).toContain("Primary");
     expect(wrapper.text()).toContain("Partner");
-    expect(wrapper.text()).not.toContain("Printings (");
+    expect(wrapper.text()).not.toContain("Printing 1 of");
     expect(wrapper.findAll("img")).toHaveLength(2);
   });
 });

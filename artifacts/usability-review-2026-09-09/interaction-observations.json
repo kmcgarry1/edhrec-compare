@@ -1,0 +1,17 @@
+{
+  "viewMenu": {
+    "x": 19.84375,
+    "y": 227.640625,
+    "width": 336,
+    "height": 850.25
+  },
+  "uploadBefore": "UPLOAD COLLECTION\n\nImport your CSV\n\nDrag and drop or browse files. We keep data in-memory only.\n\nCOLLECTION CSV\n\nYour deck data stays in this browser session only and clears automatically on refresh.\n\nUSE THIS CSV FOR\n\nCompare commander decks\n\nUse owned/unowned filters against any EDHREC commander.\n\nTop 50 scan\n\nMatch your collection against average decks for top commanders.\n\nUpload your collection\n\nDrag and drop or click to browse files. CSV only.\n\nCSV FORMAT\nClose",
+  "invalid": "UPLOAD COLLECTION\n\nImport your CSV\n\nDrag and drop or browse files. We keep data in-memory only.\n\nCOLLECTION CSV\n\nYour deck data stays in this browser session only and clears automatically on refresh.\n\nUSE THIS CSV FOR\n\nCompare commander decks\n\nUse owned/unowned filters against any EDHREC commander.\n\nTop 50 scan\n\nMatch your collection against average decks for top commanders.\n\nClick to replace the uploaded CSV file.\n\ninvalid.csv\n\n1 rows detected\n\nRemove\n\nValid CSV\n\nFound 1 card\n\n!\n\nWarnings\n\nNo \"Name\" column found. Using first column.\nCSV FORMAT\nClose",
+  "valid": "UPLOAD COLLECTION\n\nImport your CSV\n\nDrag and drop or browse files. We keep data in-memory only.\n\nCOLLECTION CSV\n\nYour deck data stays in this browser session only and clears automatically on refresh.\n\nUSE THIS CSV FOR\n\nCompare commander decks\n\nUse owned/unowned filters against any EDHREC commander.\n\nTop 50 scan\n\nMatch your collection against average decks for top commanders.\n\nClick to replace the uploaded CSV file.\n\nreview.csv\n\n3 rows detected\n\nRemove\n\nValid CSV\n\nFound 3 cards\n\nCSV FORMAT\nClose",
+  "escapeClosed": true,
+  "browse": "COMMANDER WORKBENCH\n\nBrowse and refine\n\nClose\nSearch\nFilters\n\nCOMMANDER\n\nAtraxa, Grand Unifier\n\n3 G W U B\n\nPARTNER SLOT\n\nOptional\n\nLeave this empty for single-commander decks.\n\nReset\nPRIMARY COMMANDER\nClear\n\nSearch for the commander that anchors this deck.\n\nPARTNER COMMANDER\n\nAdd a partner when the deck uses a second commander.",
+  "change1100": {
+    "focused": "<button data-v-98ce3b1a=\"\" class=\"hidden lg:inline-flex c-button inline-flex items-center justify-center rounded-full font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60 gap-1 px-3 py-1 text-xs border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent-strong)] hover:brightness-105 relative overflow-hidden hidden lg:inline-flex\" type=\"button\"><span class=\"relative z-10\"> Change commander </span><span class=\"ripple\" style=\"left: 70px; top: 12.875px;\"></span></button>",
+    "sheets": []
+  }
+}

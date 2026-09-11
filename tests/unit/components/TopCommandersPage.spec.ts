@@ -9,6 +9,7 @@ const results = ref<Array<{ slug: string; ownedPercent?: number }>>([]);
 const lastUpdated = ref<Date | null>(null);
 const scanError = ref<string | null>(null);
 const failedCount = ref(0);
+const scanLoading = ref(false);
 const topCommanders = ref<Array<{ slug: string; name: string; deckCount: number; rank: number }>>([]);
 const topHeader = ref("EDHREC leaders");
 const topLoading = ref(false);
@@ -21,7 +22,6 @@ const clearResults = vi.fn();
 const fetchTopCommanders = vi.fn().mockResolvedValue([]);
 const setSortMode = vi.fn();
 const setTopLimit = vi.fn().mockReturnValue(true);
-const ensureSymbolsLoaded = vi.fn().mockResolvedValue(undefined);
 const loadCommanderImages = vi.fn().mockResolvedValue(undefined);
 const getImageStack = vi.fn().mockReturnValue([]);
 const toggleColor = vi.fn();
@@ -40,16 +40,10 @@ vi.mock("../../../src/composables/useTopCommanderScan", () => ({
     lastUpdated,
     error: scanError,
     failedCount,
+    isLoading: scanLoading,
     scope: "top-commanders-scan",
     runScan,
     clearResults,
-  }),
-}));
-
-vi.mock("../../../src/composables/useScryfallSymbols", () => ({
-  useScryfallSymbols: () => ({
-    ensureSymbolsLoaded,
-    getSvgForSymbol: vi.fn(),
   }),
 }));
 
@@ -122,6 +116,7 @@ describe("TopCommandersPage", () => {
     lastUpdated.value = null;
     scanError.value = null;
     failedCount.value = 0;
+    scanLoading.value = false;
     topCommanders.value = [];
     topHeader.value = "EDHREC leaders";
     topLoading.value = false;
@@ -133,7 +128,6 @@ describe("TopCommandersPage", () => {
     fetchTopCommanders.mockClear();
     setSortMode.mockClear();
     setTopLimit.mockClear();
-    ensureSymbolsLoaded.mockClear();
     loadCommanderImages.mockClear();
     getImageStack.mockClear();
     toggleColor.mockClear();
@@ -145,9 +139,10 @@ describe("TopCommandersPage", () => {
     const wrapper = mountComponent();
     await flushPromises();
 
-    expect(wrapper.find(".surface-role-command").exists()).toBe(true);
-    expect(wrapper.find(".surface-role-utility").exists()).toBe(true);
+    expect(wrapper.find(".hero-stub").exists()).toBe(false);
+    expect(wrapper.find(".legend-stub").exists()).toBe(false);
     expect(wrapper.find(".surface-role-content").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Top Commanders");
     expect(wrapper.text()).toContain("Loading top commanders...");
   });
 

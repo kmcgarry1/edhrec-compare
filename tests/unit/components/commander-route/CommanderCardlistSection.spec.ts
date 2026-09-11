@@ -35,6 +35,7 @@ const baseProps = {
     expanded: true,
     summaryCounts: {
       totalCards: 2,
+      visibleCards: 2,
       ownedCount: 1,
       unownedCount: 1,
       ownedPercent: 50,
@@ -138,5 +139,24 @@ describe("CommanderCardlistSection", () => {
     expect(wrapper.text()).toContain("Expand");
     expect(wrapper.find(".table-stub").exists()).toBe(false);
     expect(wrapper.findAll("button")).toHaveLength(1);
+  });
+
+  it("shows unknown ownership before a collection is uploaded", () => {
+    const wrapper = mountComponent({
+      sectionMeta: {
+        ...baseProps.sectionMeta,
+        summaryCounts: {
+          totalCards: 2,
+          visibleCards: 2,
+          ownedCount: null,
+          unownedCount: null,
+          ownedPercent: null,
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain("Upload a collection to compare");
+    expect(wrapper.text()).toContain("Ownership unknown");
+    expect(wrapper.text()).not.toContain("0% owned");
   });
 });

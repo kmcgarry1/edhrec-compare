@@ -1,11 +1,10 @@
 <template>
-  <aside v-if="!isMobileViewport" class="xl:sticky xl:top-24">
+  <aside v-if="showDesktopRail && !isMobileViewport" class="xl:sticky xl:top-24">
     <CSurface variant="rail" size="sm" radius="3xl" class="space-y-5">
       <div class="space-y-2">
-        <CText tag="p" variant="eyebrow" tone="muted"> Commander workbench </CText>
+        <CText tag="p" variant="label" tone="muted"> Find a commander </CText>
         <CText tag="p" variant="body" tone="muted">
-          Keep search first, refine the route, and jump through sections without leaving the
-          comparison flow.
+          Search, change filters, and jump to result sections.
         </CText>
       </div>
 
@@ -17,8 +16,8 @@
           @click="openRailGroup = 'search'"
         >
           <div class="space-y-1">
-            <CText tag="p" variant="eyebrow" tone="muted"> Commander search </CText>
-            <CText tag="p" variant="title"> Find and pair commanders </CText>
+            <CText tag="p" variant="label" tone="muted"> Commander search </CText>
+            <CText tag="p" variant="title"> Find commanders </CText>
             <CText tag="p" variant="helper" tone="muted">
               {{ searchGroupSummary }}
             </CText>
@@ -47,8 +46,8 @@
           @click="openRailGroup = 'collection'"
         >
           <div class="space-y-1">
-            <CText tag="p" variant="eyebrow" tone="muted"> Collection lens </CText>
-            <CText tag="p" variant="title"> Ownership and route filters </CText>
+            <CText tag="p" variant="label" tone="muted"> Collection </CText>
+            <CText tag="p" variant="title"> Ownership and filters </CText>
             <CText tag="p" variant="helper" tone="muted">
               {{ collectionGroupSummary }}
             </CText>
@@ -62,10 +61,12 @@
           v-if="openRailGroup === 'collection'"
           class="space-y-4 border-t border-[color:var(--border)] pt-3"
         >
-          <div class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
-            <CText tag="p" variant="eyebrow" tone="muted"> CSV match state </CText>
+          <div
+            class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface)] p-4"
+          >
+            <CText tag="p" variant="label" tone="muted"> Collection status </CText>
             <CText tag="p" variant="body" weight="semibold" class="mt-1">
-              {{ hasCsvData ? "Collection overlays active" : "CSV pending" }}
+              {{ hasCsvData ? "Collection loaded" : "No collection uploaded" }}
             </CText>
             <CText tag="p" variant="helper" tone="muted" class="mt-1">
               {{ inventorySummary }}
@@ -73,7 +74,7 @@
           </div>
 
           <div class="space-y-2">
-            <CText tag="p" variant="eyebrow" tone="muted"> Ownership view </CText>
+            <CText tag="p" variant="label" tone="muted"> Ownership view </CText>
             <div
               class="inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
               role="group"
@@ -103,10 +104,13 @@
             :modifier="modifier"
             :page-type="pageType"
             :companion="companion"
+            :deck-tag="deckTag"
+            :deck-tag-options="deckTagOptions"
             @update:bracket="emit('update:bracket', $event)"
             @update:modifier="emit('update:modifier', $event)"
             @update:page-type="emit('update:page-type', $event)"
             @update:companion="emit('update:companion', $event)"
+            @update:deck-tag="emit('update:deck-tag', $event)"
           />
         </div>
       </section>
@@ -122,8 +126,8 @@
           @click="openRailGroup = 'sections'"
         >
           <div class="space-y-1">
-            <CText tag="p" variant="eyebrow" tone="muted"> Jump to sections </CText>
-            <CText tag="p" variant="title"> Scan results faster </CText>
+            <CText tag="p" variant="label" tone="muted"> Sections </CText>
+            <CText tag="p" variant="title"> Jump to results </CText>
             <CText tag="p" variant="helper" tone="muted">
               {{ sectionsGroupSummary }}
             </CText>
@@ -186,13 +190,16 @@
       <div
         class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow)]"
       >
-        <div class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]" aria-hidden="true" />
+        <div
+          class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]"
+          aria-hidden="true"
+        />
         <div class="flex items-start justify-between gap-3">
           <div class="space-y-1">
             <CText :id="sheetTitleId" tag="p" variant="eyebrow" tone="muted">
-              Commander workbench
+              Commander controls
             </CText>
-            <CText tag="p" variant="title"> Browse and refine </CText>
+            <CText tag="p" variant="title"> Search and filters </CText>
           </div>
           <CButton type="button" variant="soft" size="sm" @click="emit('close')"> Close </CButton>
         </div>
@@ -234,9 +241,9 @@
 
           <div v-else-if="activeBrowseTab === 'filters'" class="space-y-4">
             <CSurface variant="dense" size="sm" class="space-y-3">
-              <CText tag="p" variant="eyebrow" tone="muted"> Collection lens </CText>
+              <CText tag="p" variant="label" tone="muted"> Collection </CText>
               <CText tag="p" variant="body" weight="semibold">
-                {{ hasCsvData ? "Collection overlays active" : "CSV pending" }}
+                {{ hasCsvData ? "Collection loaded" : "No collection uploaded" }}
               </CText>
               <CText tag="p" variant="helper" tone="muted">
                 {{ inventorySummary }}
@@ -244,7 +251,7 @@
             </CSurface>
 
             <CSurface variant="dense" size="sm" class="space-y-3">
-              <CText tag="p" variant="eyebrow" tone="muted"> Ownership view </CText>
+              <CText tag="p" variant="label" tone="muted"> Ownership view </CText>
               <div
                 class="inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
                 role="group"
@@ -275,10 +282,13 @@
                 :modifier="modifier"
                 :page-type="pageType"
                 :companion="companion"
+                :deck-tag="deckTag"
+                :deck-tag-options="deckTagOptions"
                 @update:bracket="emit('update:bracket', $event)"
                 @update:modifier="emit('update:modifier', $event)"
                 @update:page-type="emit('update:page-type', $event)"
                 @update:companion="emit('update:companion', $event)"
+                @update:deck-tag="emit('update:deck-tag', $event)"
               />
             </CSurface>
           </div>
@@ -341,6 +351,8 @@ const props = withDefaults(
     modifier: string;
     pageType: string;
     companion: string;
+    deckTag: string;
+    deckTagOptions: Array<{ value: string; label: string; description?: string }>;
     sections: Array<{
       id: string;
       label: string;
@@ -354,9 +366,11 @@ const props = withDefaults(
     inventorySummary: string;
     filterOptions: OwnedFilterOption[];
     showSectionNavigation?: boolean;
+    showDesktopRail?: boolean;
   }>(),
   {
     showSectionNavigation: true,
+    showDesktopRail: true,
   }
 );
 
@@ -370,6 +384,7 @@ const emit = defineEmits<{
   "update:modifier": [value: string | number];
   "update:page-type": [value: string | number];
   "update:companion": [value: string | number];
+  "update:deck-tag": [value: string | number];
 }>();
 
 const commanderSearchRef = ref<InstanceType<typeof CommanderSearch> | null>(null);
@@ -378,8 +393,12 @@ const mobileSheetRef = ref<HTMLElement | null>(null);
 const fallbackIconPath = mdiCardsOutline;
 const openRailGroup = ref<"search" | "collection" | "sections">("search");
 const activeBrowseTab = ref<BrowseTab>("search");
-const isMobileViewport = ref(typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false);
-const mobileSheetOpen = computed(() => props.open && isMobileViewport.value);
+const isMobileViewport = ref(
+  typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false
+);
+const mobileSheetOpen = computed(
+  () => props.open && (isMobileViewport.value || !props.showDesktopRail)
+);
 const { activate, deactivate } = useFocusTrap(mobileSheetRef, mobileSheetOpen);
 const sheetTitleId = `browse-sheet-${Math.random().toString(36).slice(2, 9)}`;
 
@@ -401,7 +420,7 @@ const activeFilterLabel = computed(
 );
 const searchGroupSummary = computed(() => {
   if (!props.selection?.primary) {
-    return "Search for the route anchor, then add a partner when the deck needs one.";
+    return "Search for a commander, then add a partner when the deck needs one.";
   }
   if (props.selection.hasPartner && props.selection.partner) {
     return `${props.selection.primary} + ${props.selection.partner}`;
@@ -411,7 +430,7 @@ const searchGroupSummary = computed(() => {
 const collectionGroupSummary = computed(() =>
   props.hasCsvData
     ? `${activeFilterLabel.value} view active. Route filters stay synced to the URL.`
-    : "Add a CSV in Settings when you want owned and unowned overlays."
+    : "Upload a CSV when you want owned and missing views."
 );
 const sectionsGroupSummary = computed(() => {
   if (!props.sections.length) {

@@ -198,6 +198,7 @@ export const useDashboardState = () => {
 
   const clearUploadedCollection = () => {
     clearCsvData();
+    setOwnedFilter(null);
     controlPanelOpen.value = false;
     utilityTrayOpen.value = false;
     focusWorkspace();
@@ -290,9 +291,9 @@ export const useDashboardState = () => {
   });
 
   const filterOptions = computed<OwnedFilterOption[]>(() => [
+    { label: "All", value: null, active: showOwned.value === null },
     { label: "Owned", value: true, active: showOwned.value === true },
     { label: "Missing", value: false, active: showOwned.value === false },
-    { label: "All cards", value: null, active: showOwned.value === null },
   ]);
 
   const clearDecklistCopiedState = () => {

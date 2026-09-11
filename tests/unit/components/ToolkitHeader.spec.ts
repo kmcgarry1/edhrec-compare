@@ -58,7 +58,7 @@ describe("ToolkitHeader", () => {
 
     await wrapper.get("button[aria-label='Hide toolkit']").trigger("click");
     await wrapper.get("button[aria-label='Switch to light theme']").trigger("click");
-    await wrapper.get("button[aria-label='Hide nebula background']").trigger("click");
+    await wrapper.get("button[aria-label='Hide background texture']").trigger("click");
     await wrapper.get("button[aria-label='Upload CSV collection file']").trigger("click");
 
     expect(wrapper.emitted("collapse")).toBeTruthy();

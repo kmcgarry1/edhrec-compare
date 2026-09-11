@@ -13,7 +13,8 @@ describe('CText', () => {
         expect(wrapper.text()).toBe('Test content');
         expect(wrapper.element.tagName).toBe('P');
         expect(wrapper.classes()).toContain('c-text');
-        expect(wrapper.classes()).toContain('text-sm');
+        expect(wrapper.classes()).toContain('text-base');
+        expect(wrapper.classes()).toContain('leading-normal');
         expect(wrapper.classes()).toContain('text-[color:var(--text)]');
     });
 

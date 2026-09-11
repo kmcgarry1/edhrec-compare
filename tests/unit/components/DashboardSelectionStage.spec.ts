@@ -121,19 +121,22 @@ describe("DashboardSelectionStage", () => {
       .findAll("button")
       .filter((button) => button.attributes("aria-label")?.startsWith("Open commander "));
 
-    expect(randomCardButtons).toHaveLength(2);
+    expect(randomCardButtons).toHaveLength(3);
 
     await randomCardButtons[0]!.trigger("click");
 
-    expect(selectPrimaryCommanderSpy).toHaveBeenCalledWith("Miirym, Sentinel Wyrm");
+    expect(selectPrimaryCommanderSpy).toHaveBeenCalledWith("Atraxa, Grand Unifier");
   });
 
-  it("emits a utility tray event from the landing shell", async () => {
+  it("emits an upload event from the landing shell", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
-    await wrapper.get('[data-testid="dashboard-utility-trigger"]').trigger("click");
+    await wrapper
+      .findAll("button")
+      .find((button) => button.text() === "Upload collection")
+      ?.trigger("click");
 
-    expect(wrapper.emitted("open-utilities")?.[0]).toEqual([]);
+    expect(wrapper.emitted("open-upload")?.[0]).toEqual([]);
   });
 });

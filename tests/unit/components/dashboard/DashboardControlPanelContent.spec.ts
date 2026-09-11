@@ -19,7 +19,8 @@ const baseProps = {
   collectionSourceName: "collection.csv",
   collectionImportedAt: new Date("2026-03-25T12:00:00Z"),
   collectionModeLabel: "Commander compare",
-  collectionModeHint: "This upload is active for owned and missing deck views in the compare workflow.",
+  collectionModeHint:
+    "This upload is active for owned and missing deck views in the compare workflow.",
   filterOptions: [
     { label: "Owned", value: true, active: true, count: 128 },
     { label: "Missing", value: false, active: false, count: 243 },
@@ -94,7 +95,9 @@ describe("DashboardControlPanelContent", () => {
     const wrapper = mountComponent();
 
     expect(wrapper.find(".commander-filters-stub").exists()).toBe(false);
-    expect(wrapper.text()).toContain("Average Decks • All brackets • Any budget • No companion");
+    expect(wrapper.text()).toContain(
+      "Average Decks | All brackets | Any budget | No companion | Any tag"
+    );
 
     const toggleButton = wrapper
       .findAll("button")

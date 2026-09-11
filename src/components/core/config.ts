@@ -88,15 +88,15 @@ export const wrapClasses: Record<Wrap, string> = {
 };
 
 export const textVariantClasses: Record<TextVariant, string> = {
-  body: "text-sm",
+  body: "text-base leading-normal",
   helper: "text-[0.76rem] leading-relaxed",
-  label: "text-xs font-semibold uppercase tracking-wide",
-  caption: "text-[11px]",
+  label: "text-xs font-semibold leading-normal",
+  caption: "text-xs leading-normal",
   title: "text-[1.06rem] font-semibold leading-[1.15] tracking-[-0.01em]",
   metric: "text-2xl font-semibold tracking-tight sm:text-[1.8rem]",
-  overline: "text-[10px] font-semibold uppercase tracking-[0.24em]",
-  eyebrow: "text-[0.64rem] font-semibold uppercase tracking-[0.34em]",
-  display: "text-[clamp(2.2rem,4vw,3.8rem)] font-semibold leading-[0.94] tracking-[-0.03em]",
+  overline: "text-[10px] font-semibold uppercase tracking-[0.16em]",
+  eyebrow: "text-[0.68rem] font-semibold uppercase tracking-[0.16em]",
+  display: "font-display text-[clamp(2rem,4vw,3.4rem)] font-semibold leading-[0.96]",
 };
 
 export const textToneClasses: Record<TextTone, string> = {
@@ -140,7 +140,7 @@ export const textLeadingClasses = {
 } as const;
 
 export const buttonBase =
-  "inline-flex items-center justify-center rounded-full font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex min-h-11 items-center justify-center rounded-lg font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonSizeClasses = {
   sm: "gap-1 px-3 py-1 text-xs",
@@ -150,12 +150,12 @@ export const buttonSizeClasses = {
 
 export const buttonVariantClasses = {
   primary:
-    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
+    "border border-[color:var(--accent)] bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:border-[color:var(--accent-strong)] hover:brightness-105",
   secondary:
-    "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+    "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
   ghost:
     "border border-transparent bg-transparent text-[color:var(--muted)] hover:bg-[color:var(--surface-muted)] hover:text-[color:var(--text)]",
-  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] shadow-[var(--shadow-soft)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
+  soft: "border border-[color:var(--border)] bg-[color:var(--surface-muted)] text-[color:var(--text)] hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]",
 } as const;
 
 export const buttonToneClasses = {
@@ -194,8 +194,8 @@ export const surfaceToneClasses: Record<SurfaceTone, string> = {
 export const surfaceRadiusClasses: Record<SurfaceRadius, string> = {
   lg: "rounded-xl",
   xl: "rounded-2xl",
-  "2xl": "rounded-[28px]",
-  "3xl": "rounded-[32px]",
+  "2xl": "rounded-3xl",
+  "3xl": "rounded-[28px]",
   pill: "rounded-full",
 };
 

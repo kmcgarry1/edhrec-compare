@@ -6,39 +6,6 @@
       helper="Your deck data stays in this browser session only and clears automatically on refresh."
     />
 
-    <CFieldShell label="Use this CSV for" label-as="div">
-      <CGrid
-        variant="halves"
-        gap="sm"
-        role="radiogroup"
-        aria-label="CSV usage mode"
-      >
-        <CSurface
-          v-for="option in modeOptions"
-          :key="option.value"
-          as="button"
-          type="button"
-          role="radio"
-          size="sm"
-          radius="xl"
-          class="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
-          :background="mode === option.value ? 'bg-[color:var(--accent-soft)]' : 'bg-[color:var(--surface)]'"
-          :border="mode === option.value ? 'border border-[color:var(--accent)]' : 'border border-[color:var(--border)]'"
-          :aria-checked="mode === option.value"
-          @click="setMode(option.value)"
-        >
-          <CStack gap="xs">
-            <CText tag="p" variant="body" weight="semibold">
-              {{ option.label }}
-            </CText>
-            <CText tag="p" variant="helper" tone="muted">
-              {{ option.description }}
-            </CText>
-          </CStack>
-        </CSurface>
-      </CGrid>
-    </CFieldShell>
-
     <CSurface
       as="div"
       variant="dashed"
@@ -119,7 +86,7 @@
       <CNotice
         v-if="validationSummary"
         tone="success"
-        title="Valid CSV"
+        title="Collection ready"
         :message="validationSummary"
       >
         <template #icon>
@@ -136,7 +103,7 @@
     <CNotice
       v-if="validationResult?.warnings.length"
       tone="warn"
-      title="Warnings"
+      :title="pendingFallbackImport ? 'Confirm name column' : 'Warnings'"
     >
       <template #default>
         <ul class="mt-2 list-disc space-y-1 pl-5">
@@ -147,6 +114,14 @@
             {{ warning }}
           </li>
         </ul>
+        <div v-if="pendingFallbackImport" class="mt-3 flex flex-wrap gap-2">
+          <CButton type="button" variant="primary" size="sm" @click="confirmFallbackImport">
+            Use first column
+          </CButton>
+          <CButton type="button" variant="secondary" size="sm" @click="cancelPendingFallback">
+            Choose another file
+          </CButton>
+        </div>
       </template>
     </CNotice>
 
@@ -167,6 +142,15 @@
         </ul>
       </template>
     </CNotice>
+
+    <div v-if="validationSummary" class="flex flex-col gap-2 sm:flex-row">
+      <CButton type="button" variant="primary" size="lg" class="flex-1" @click="emit('done')">
+        Done - use collection
+      </CButton>
+      <CButton as="a" href="/top-commanders" variant="secondary" size="lg" class="flex-1">
+        Find commanders
+      </CButton>
+    </div>
 
     <CNotice
       v-if="errorMessage"
@@ -257,7 +241,6 @@ import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
 import {
   CButton,
   CFieldShell,
-  CGrid,
   CNotice,
   CStack,
   CSurface,
@@ -265,16 +248,15 @@ import {
 } from "./core";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
-import { useCsvUploadMode, type CsvUploadMode } from "../composables/useCsvUploadMode";
 import { useGlobalNotices } from "../composables/useGlobalNotices";
 import { handleError } from "../utils/errorHandler";
 import { validateCsv, type CsvValidationResult } from "../utils/csvValidator";
+import { buildCardNameSet, getNameColumnIndex } from "../utils/cardName";
 
 const fileInput = ref<HTMLInputElement>();
 const file = ref<File | null>(null);
 const errorMessage = ref<string | null>(null);
 const { rows: csvRows, headers: csvHeaders, setCsvData, clearCsvData } = useCsvUpload();
-const { mode, setMode } = useCsvUploadMode();
 const csvScope = "csv-upload";
 
 const { withLoading, getScopeLoading } = useGlobalLoading();
@@ -282,25 +264,20 @@ const csvLoading = getScopeLoading(csvScope);
 const { notifyError, notifySuccess } = useGlobalNotices();
 const validationResult = ref<CsvValidationResult | null>(null);
 const importedCardCount = ref(0);
+const uniqueMatchedNameCount = ref(0);
+const mappedNameColumn = ref("");
+const pendingFallbackImport = ref<{
+  rows: string[][];
+  headers: string[];
+  sourceName: string;
+} | null>(null);
 
 const invalidCsvMessage = "We couldn't process that CSV. Fix the errors below and try again.";
-
-const modeOptions: Array<{ value: CsvUploadMode; label: string; description: string }> = [
-  {
-    value: "compare",
-    label: "Compare commander decks",
-    description: "Use owned/unowned filters against any EDHREC commander.",
-  },
-  {
-    value: "top-50",
-    label: "Top 50 scan",
-    description: "Match your collection against average decks for top commanders.",
-  },
-];
 
 const emit = defineEmits<{
   upload: [data: string[][], headers: string[]];
   "file-uploaded": [data: string[][], headers: string[]];
+  done: [];
 }>();
 
 const triggerFileInput = () => {
@@ -384,6 +361,9 @@ const templateCsvUrl = new URL("../assets/inventory-template.csv", import.meta.u
 const resetValidation = () => {
   validationResult.value = null;
   importedCardCount.value = 0;
+  uniqueMatchedNameCount.value = 0;
+  mappedNameColumn.value = "";
+  pendingFallbackImport.value = null;
 };
 
 const formatCardCount = (count: number) => {
@@ -395,8 +375,29 @@ const validationSummary = computed(() => {
   if (!validationResult.value || validationResult.value.errors.length) {
     return null;
   }
-  return formatCardCount(importedCardCount.value);
+  return [
+    file.value?.name ? `File: ${file.value.name}` : null,
+    `${importedCardCount.value} parsed row${importedCardCount.value === 1 ? "" : "s"}`,
+    `${uniqueMatchedNameCount.value} unique matched name${uniqueMatchedNameCount.value === 1 ? "" : "s"}`,
+    mappedNameColumn.value ? `Name column: ${mappedNameColumn.value}` : null,
+  ]
+    .filter(Boolean)
+    .join(". ");
 });
+
+const applyCsvData = (usableRows: string[][], headerRow: string[], sourceName: string) => {
+  importedCardCount.value = usableRows.length;
+  const nameIndex = getNameColumnIndex(headerRow);
+  mappedNameColumn.value = headerRow[nameIndex] || "First column";
+  uniqueMatchedNameCount.value = buildCardNameSet(usableRows, nameIndex).size;
+  setCsvData(usableRows, headerRow, {
+    sourceName,
+    importedAt: new Date(),
+  });
+  emit("upload", csvRows.value, csvHeaders.value);
+  emit("file-uploaded", csvRows.value, csvHeaders.value);
+  notifySuccess(formatCardCount(importedCardCount.value));
+};
 
 const parseCSV = (csv: string, overrideSourceName?: string) => {
   resetValidation();
@@ -407,7 +408,6 @@ const parseCSV = (csv: string, overrideSourceName?: string) => {
     const message = "That CSV doesn't appear to contain any card rows.";
     errorMessage.value = message;
     notifyError(message);
-    clearCsvData();
     return;
   }
 
@@ -419,7 +419,6 @@ const parseCSV = (csv: string, overrideSourceName?: string) => {
   if (!validation.valid) {
     errorMessage.value = invalidCsvMessage;
     notifyError("CSV validation failed. Check the errors below.");
-    clearCsvData();
     return;
   }
 
@@ -432,17 +431,22 @@ const parseCSV = (csv: string, overrideSourceName?: string) => {
     };
     errorMessage.value = invalidCsvMessage;
     notifyError("CSV validation failed. Check the errors below.");
-    clearCsvData();
     return;
   }
-  importedCardCount.value = usableRows.length;
-  setCsvData(usableRows, headerRow, {
-    sourceName: overrideSourceName ?? file.value?.name ?? "collection.csv",
-    importedAt: new Date(),
-  });
-  emit("upload", csvRows.value, csvHeaders.value);
-  emit("file-uploaded", csvRows.value, csvHeaders.value);
-  notifySuccess(formatCardCount(importedCardCount.value));
+
+  const sourceName = overrideSourceName ?? file.value?.name ?? "collection.csv";
+  const fallbackToFirstColumn = validation.warnings.some((warning) =>
+    warning.includes('No "Name" column found')
+  );
+  if (fallbackToFirstColumn) {
+    pendingFallbackImport.value = { rows: usableRows, headers: headerRow, sourceName };
+    importedCardCount.value = usableRows.length;
+    mappedNameColumn.value = headerRow[0] || "First column";
+    uniqueMatchedNameCount.value = buildCardNameSet(usableRows, 0).size;
+    return;
+  }
+
+  applyCsvData(usableRows, headerRow, sourceName);
 };
 
 const parseCSVContent = (csv: string): string[][] => {
@@ -518,6 +522,22 @@ const removeFile = () => {
   }
 };
 
+const confirmFallbackImport = () => {
+  if (!pendingFallbackImport.value) {
+    return;
+  }
+  const pending = pendingFallbackImport.value;
+  pendingFallbackImport.value = null;
+  applyCsvData(pending.rows, pending.headers, pending.sourceName);
+};
+
+const cancelPendingFallback = () => {
+  pendingFallbackImport.value = null;
+  if (fileInput.value) {
+    fileInput.value.value = "";
+  }
+};
+
 const loadSampleInventory = async () => {
   try {
     await withLoading(
@@ -555,6 +575,8 @@ const __templateBindings = {
   handleDrop,
   removeFile,
   loadSampleInventory,
+  confirmFallbackImport,
+  cancelPendingFallback,
 };
 void __templateBindings;
 </script>

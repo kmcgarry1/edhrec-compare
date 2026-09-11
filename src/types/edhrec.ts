@@ -32,8 +32,15 @@ export type EdhrecCardlist = {
   cardviews: EdhrecCardview[];
 };
 
+export type EdhrecDeckTag = {
+  count: number;
+  slug: string;
+  value: string;
+};
+
 export type EdhrecData = {
   header?: string;
+  tag_counts?: EdhrecDeckTag[];
   container?: {
     json_dict?: {
       card?: EdhrecCommanderCard;
@@ -54,8 +61,9 @@ export type CardlistSectionMeta = {
   expanded: boolean;
   summaryCounts: {
     totalCards: number;
-    ownedCount: number;
-    unownedCount: number;
-    ownedPercent: number;
+    visibleCards: number;
+    ownedCount: number | null;
+    unownedCount: number | null;
+    ownedPercent: number | null;
   };
 };

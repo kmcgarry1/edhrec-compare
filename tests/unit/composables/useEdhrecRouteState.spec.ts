@@ -45,6 +45,7 @@ describe("useEdhrecRouteState", () => {
       expect(composable.chosenBracket.value).toBe("");
       expect(composable.chosenModifier.value).toBe("");
       expect(composable.chosenCompanion.value).toBe("");
+      expect(composable.chosenDeckTag.value).toBe("");
       expect(composable.currentCommanderSlug.value).toBeNull();
     });
 
@@ -57,8 +58,10 @@ describe("useEdhrecRouteState", () => {
           bracket: "cedh",
           modifier: "budget",
           companion: "lurrus-companion",
+          deckTag: "infect",
         },
-        fullPath: "/?pageType=average-decks&bracket=cedh&modifier=budget&companion=lurrus-companion",
+        fullPath:
+          "/?pageType=average-decks&bracket=cedh&modifier=budget&companion=lurrus-companion&deckTag=infect",
       };
 
       const composable = useEdhrecRouteState();
@@ -67,6 +70,7 @@ describe("useEdhrecRouteState", () => {
       expect(composable.chosenBracket.value).toBe("cedh");
       expect(composable.chosenModifier.value).toBe("budget");
       expect(composable.chosenCompanion.value).toBe("lurrus-companion");
+      expect(composable.chosenDeckTag.value).toBe("infect");
     });
 
     it("should hydrate commander slug from route params", async () => {
@@ -91,9 +95,10 @@ describe("useEdhrecRouteState", () => {
       composable.setBracket("high");
       composable.setModifier("cheap");
       composable.setCompanion("lurrus");
+      composable.setDeckTag("artifacts");
 
       const expectedUrl =
-        "https://json.edhrec.com/pages/commanders/atraxa-praetors-voice/high/lurrus/cheap.json";
+        "https://json.edhrec.com/pages/commanders/atraxa-praetors-voice/high/lurrus/cheap/artifacts.json";
       expect(composable.commanderUrl.value).toBe(expectedUrl);
     });
 
@@ -176,14 +181,24 @@ describe("useEdhrecRouteState", () => {
       expect(composable.chosenCompanion.value).toBe("lurrus");
     });
 
+    it("should update deck tag", () => {
+      const composable = useEdhrecRouteState();
+
+      composable.setDeckTag("infect");
+
+      expect(composable.chosenDeckTag.value).toBe("infect");
+    });
+
     it("should convert numeric values to strings", () => {
       const composable = useEdhrecRouteState();
 
       composable.setBracket(1 as unknown as string);
       composable.setModifier(2 as unknown as string);
+      composable.setDeckTag(3 as unknown as string);
 
       expect(composable.chosenBracket.value).toBe("1");
       expect(composable.chosenModifier.value).toBe("2");
+      expect(composable.chosenDeckTag.value).toBe("3");
     });
   });
 
@@ -269,6 +284,7 @@ describe("useEdhrecRouteState", () => {
 
       composable.setBracket("cedh");
       composable.setModifier("budget");
+      composable.setDeckTag("infect");
       await nextTick();
 
       expect(mockPush).toHaveBeenCalledWith({
@@ -276,6 +292,7 @@ describe("useEdhrecRouteState", () => {
         query: {
           bracket: "cedh",
           modifier: "budget",
+          deckTag: "infect",
         },
       });
     });
@@ -321,9 +338,7 @@ describe("useEdhrecRouteState", () => {
       const module = await import("../../../src/composables/useEdhrecRouteState");
       const composable2 = module.useEdhrecRouteState();
 
-      expect(composable2.currentCommanderSlug.value).toBe(
-        "thrasios-triton-hero-tymna-the-weaver"
-      );
+      expect(composable2.currentCommanderSlug.value).toBe("thrasios-triton-hero-tymna-the-weaver");
       expect(composable2.chosenBracket.value).toBe("cedh");
     });
   });
@@ -365,6 +380,7 @@ describe("useEdhrecRouteState", () => {
       expect(composable.chosenBracket.value).toBe("");
       expect(composable.chosenModifier.value).toBe("");
       expect(composable.chosenCompanion.value).toBe("");
+      expect(composable.chosenDeckTag.value).toBe("");
     });
   });
 
@@ -375,6 +391,7 @@ describe("useEdhrecRouteState", () => {
       composable.setBracket("cedh");
       composable.setModifier("budget");
       composable.setCompanion("lurrus-companion");
+      composable.setDeckTag("infect");
       await nextTick();
 
       // Should have pushed only once with all changes
@@ -385,6 +402,7 @@ describe("useEdhrecRouteState", () => {
           bracket: "cedh",
           modifier: "budget",
           companion: "lurrus-companion",
+          deckTag: "infect",
         },
       });
     });

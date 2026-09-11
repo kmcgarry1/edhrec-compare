@@ -8,6 +8,7 @@ const setBracket = vi.fn();
 const setModifier = vi.fn();
 const setPageType = vi.fn();
 const setCompanion = vi.fn();
+const setDeckTag = vi.fn();
 const scrollToSection = vi.fn();
 const handleCopyDecklist = vi.fn();
 const handleDownloadDecklist = vi.fn();
@@ -37,6 +38,7 @@ const chosenPageType = ref("commander");
 const chosenBracket = ref("all");
 const chosenModifier = ref("budget");
 const chosenCompanion = ref("");
+const chosenDeckTag = ref("infect");
 const currentCommanderSlug = ref("atraxa-grand-unifier");
 const commanderUrl = ref("https://json.edhrec.com/pages/commanders/atraxa-grand-unifier.json");
 
@@ -45,6 +47,10 @@ const cardlists = ref([
     header: "New Cards",
     cardviews: [{ id: "sol-ring", name: "Sol Ring" }],
   },
+]);
+const deckTags = ref([
+  { slug: "infect", value: "Infect", count: 4164 },
+  { slug: "artifacts", value: "Artifacts", count: 109 },
 ]);
 const error = ref("");
 const readerLoading = ref(false);
@@ -89,6 +95,7 @@ vi.mock("../../../src/composables/useEdhrecRouteState", () => ({
     chosenBracket,
     chosenModifier,
     chosenCompanion,
+    chosenDeckTag,
     currentCommanderSlug,
     commanderUrl,
     setCommanderSlug,
@@ -96,6 +103,7 @@ vi.mock("../../../src/composables/useEdhrecRouteState", () => ({
     setModifier,
     setPageType,
     setCompanion,
+    setDeckTag,
   }),
 }));
 
@@ -158,6 +166,7 @@ vi.mock("../../../src/composables/useDashboardState", () => ({
 vi.mock("../../../src/composables/useEdhrecData", () => ({
   useEdhrecData: () => ({
     cardlists,
+    deckTags,
     error,
     readerLoading,
   }),
@@ -195,7 +204,7 @@ vi.mock("../../../src/composables/useScryfallCardData", () => ({
 
 const DashboardBrowseRailStub = defineComponent({
   name: "DashboardBrowseRail",
-  props: ["showSectionNavigation"],
+  props: ["showSectionNavigation", "showDesktopRail"],
   emits: [
     "close",
     "navigate",
@@ -213,53 +222,61 @@ const DashboardBrowseRailStub = defineComponent({
     });
 
     return () =>
-      h("aside", { class: "browse-rail-stub", "data-show-sections": String(props.showSectionNavigation) }, [
-        h(
-          "button",
-          {
-            class: "browse-rail-close",
-            onClick: () => emit("close"),
-          },
-          "Close"
-        ),
-        h(
-          "button",
-          {
-            class: "browse-rail-filter",
-            onClick: () => emit("filter-change", true),
-          },
-          "Filter"
-        ),
-        h(
-          "button",
-          {
-            class: "browse-rail-nav",
-            onClick: () => emit("navigate", "new-cards"),
-          },
-          "Navigate"
-        ),
-        h(
-          "button",
-          {
-            class: "browse-rail-selection",
-            onClick: () =>
-              emit("selection-change", {
-                primary: "Atraxa, Grand Unifier",
-                partner: "",
-                hasPartner: false,
-              }),
-          },
-          "Selection"
-        ),
-        h(
-          "button",
-          {
-            class: "browse-rail-commander",
-            onClick: () => emit("commander-selected", "edgar-markov"),
-          },
-          "Commander"
-        ),
-      ]);
+      h(
+        "aside",
+        {
+          class: "browse-rail-stub",
+          "data-show-sections": String(props.showSectionNavigation),
+          "data-show-desktop-rail": String(props.showDesktopRail),
+        },
+        [
+          h(
+            "button",
+            {
+              class: "browse-rail-close",
+              onClick: () => emit("close"),
+            },
+            "Close"
+          ),
+          h(
+            "button",
+            {
+              class: "browse-rail-filter",
+              onClick: () => emit("filter-change", true),
+            },
+            "Filter"
+          ),
+          h(
+            "button",
+            {
+              class: "browse-rail-nav",
+              onClick: () => emit("navigate", "new-cards"),
+            },
+            "Navigate"
+          ),
+          h(
+            "button",
+            {
+              class: "browse-rail-selection",
+              onClick: () =>
+                emit("selection-change", {
+                  primary: "Atraxa, Grand Unifier",
+                  partner: "",
+                  hasPartner: false,
+                }),
+            },
+            "Selection"
+          ),
+          h(
+            "button",
+            {
+              class: "browse-rail-commander",
+              onClick: () => emit("commander-selected", "edgar-markov"),
+            },
+            "Commander"
+          ),
+        ]
+      );
   },
 });
 
@@ -300,6 +317,7 @@ describe("CommanderRoutePage", () => {
     setModifier.mockClear();
     setPageType.mockClear();
     setCompanion.mockClear();
+    setDeckTag.mockClear();
     scrollToSection.mockClear();
     handleCopyDecklist.mockClear();
     handleDownloadDecklist.mockClear();
@@ -321,12 +339,17 @@ describe("CommanderRoutePage", () => {
     showPreviousCommanderPrinting.mockClear();
     setOwnedFilter.mockClear();
     browseRailFocusPrimarySearch.mockClear();
+    chosenDeckTag.value = "infect";
+    deckTags.value = [
+      { slug: "infect", value: "Infect", count: 4164 },
+      { slug: "artifacts", value: "Artifacts", count: 109 },
+    ];
     error.value = "";
     readerLoading.value = false;
     allSectionsExpanded.value = false;
   });
 
-  it("renders the dedicated commander page shell and hides section navigation in the browse rail", async () => {
+  it("renders the dedicated commander page shell and uses overlay-only browse controls", async () => {
     const wrapper = mountComponent();
     await flushPromises();
 
@@ -334,6 +357,7 @@ describe("CommanderRoutePage", () => {
     expect(wrapper.find(".results-command-bar-stub").exists()).toBe(true);
     expect(wrapper.find(".dashboard-utility-tray-stub").exists()).toBe(true);
     expect(wrapper.get(".browse-rail-stub").attributes("data-show-sections")).toBe("false");
+    expect(wrapper.get(".browse-rail-stub").attributes("data-show-desktop-rail")).toBe("false");
     expect(handleDecklistUpdate).toHaveBeenCalledWith(decklistPayload.value);
   });
 
@@ -391,5 +415,15 @@ describe("CommanderRoutePage", () => {
     await wrapper.get(".results-expand").trigger("click");
 
     expect(collapseAllSections).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears stale deck tags after commander tag metadata loads", async () => {
+    chosenDeckTag.value = "stale-tag";
+    deckTags.value = [{ slug: "infect", value: "Infect", count: 4164 }];
+
+    mountComponent();
+    await flushPromises();
+
+    expect(setDeckTag).toHaveBeenCalledWith("");
   });
 });

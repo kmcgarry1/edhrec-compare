@@ -93,14 +93,14 @@
           <button
             type="button"
             class="inline-flex items-center gap-1.5 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1.5 text-[0.7rem] font-semibold text-[color:var(--text)] shadow-sm transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
-            :aria-label="`${backgroundEnabled ? 'Hide' : 'Show'} nebula background`"
+            :aria-label="`${backgroundEnabled ? 'Hide' : 'Show'} background texture`"
             :aria-pressed="backgroundEnabled"
             @click="$emit('toggle-background')"
           >
             <svg :viewBox="'0 0 24 24'" class="h-4 w-4" fill="currentColor" aria-hidden="true">
               <path :d="backgroundEnabled ? mdiPalette : mdiPaletteOutline" />
             </svg>
-            <span>{{ backgroundEnabled ? "Hide BG" : "Show BG" }}</span>
+            <span>{{ backgroundEnabled ? "Hide texture" : "Show texture" }}</span>
           </button>
           <AccessibilityControls />
           <button

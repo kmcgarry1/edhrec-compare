@@ -39,6 +39,8 @@ export type DisplayCard = {
   prices?: CardPriceSummary;
   faces?: CardFaceSummary[];
   scryfall_uri?: string;
+  image_url?: string | null;
+  full_image_url?: string | null;
   display?: DisplayCardMeta;
 };
 

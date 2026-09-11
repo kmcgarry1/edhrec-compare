@@ -69,7 +69,7 @@ The following content is announced to screen readers:
 All icon-only buttons include descriptive aria-labels:
 
 - Theme toggle: "Switch to light/dark theme"
-- Background toggle: "Show/Hide nebula background"
+- Background toggle: "Show/Hide background texture"
 - Upload button: "Upload CSV collection file"
 - Hide toolkit: "Hide toolkit"
 - Close buttons: "Close [dialog name]"

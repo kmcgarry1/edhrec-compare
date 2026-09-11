@@ -60,6 +60,7 @@ export const useEdhrecData = (url: Ref<string | null>) => {
   const cardlists = computed<EdhrecCardlist[]>(
     () => data.value?.container?.json_dict?.cardlists || []
   );
+  const deckTags = computed(() => data.value?.tag_counts ?? []);
 
   const totalCardCount = computed(() =>
     cardlists.value.reduce((total, cardlist) => total + cardlist.cardviews.length, 0)
@@ -69,6 +70,7 @@ export const useEdhrecData = (url: Ref<string | null>) => {
     data,
     error,
     cardlists,
+    deckTags,
     totalCardCount,
     readerLoading,
     refresh,

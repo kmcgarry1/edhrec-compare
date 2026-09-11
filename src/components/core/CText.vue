@@ -42,7 +42,7 @@ const props = withDefaults(
     weight: "normal",
     align: "left",
     wrap: "normal",
-    leading: "normal",
+    leading: undefined,
   }
 );
 
@@ -56,13 +56,7 @@ const classes = computed(() =>
     textWeightClasses[props.weight],
     textAlignClasses[props.align],
     textWrapClasses[props.wrap],
-    textLeadingClasses[props.leading]
+    props.leading ? textLeadingClasses[props.leading] : undefined
   )
 );
 </script>
-
-<style scoped>
-.c-text {
-  font-family: inherit;
-}
-</style>

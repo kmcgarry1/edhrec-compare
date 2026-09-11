@@ -33,6 +33,7 @@ const baseProps = {
     expanded: true,
     summaryCounts: {
       totalCards: 2,
+      visibleCards: 2,
       ownedCount: 1,
       unownedCount: 1,
       ownedPercent: 50,

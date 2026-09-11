@@ -11,6 +11,7 @@ export type FilterRouteState = {
   bracket: string;
   modifier: string;
   companion: string;
+  deckTag: string;
 };
 
 export const defaultFilterRouteState: FilterRouteState = {
@@ -18,6 +19,7 @@ export const defaultFilterRouteState: FilterRouteState = {
   bracket: EDHRECBracket.ALL.value,
   modifier: EDHRECPageModifier.ANY.value,
   companion: EDHRECCompanion.NONE.value,
+  deckTag: "",
 };
 
 const allowedFilterValues = {
@@ -41,20 +43,20 @@ export const parseFilterQuery = (query: LocationQuery): FilterRouteState => {
   const bracket = normalizeQueryValue(query.bracket);
   const modifier = normalizeQueryValue(query.modifier);
   const companion = normalizeQueryValue(query.companion);
+  const deckTag = normalizeQueryValue(query.deckTag);
 
   return {
     pageType: allowedFilterValues.pageType.has(pageType)
       ? pageType
       : defaultFilterRouteState.pageType,
-    bracket: allowedFilterValues.bracket.has(bracket)
-      ? bracket
-      : defaultFilterRouteState.bracket,
+    bracket: allowedFilterValues.bracket.has(bracket) ? bracket : defaultFilterRouteState.bracket,
     modifier: allowedFilterValues.modifier.has(modifier)
       ? modifier
       : defaultFilterRouteState.modifier,
     companion: allowedFilterValues.companion.has(companion)
       ? companion
       : defaultFilterRouteState.companion,
+    deckTag,
   };
 };
 
@@ -72,6 +74,9 @@ export const buildFilterQuery = (state: FilterRouteState): Record<string, string
   }
   if (state.companion) {
     query.companion = state.companion;
+  }
+  if (state.deckTag) {
+    query.deckTag = state.deckTag;
   }
 
   return query;

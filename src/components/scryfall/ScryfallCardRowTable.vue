@@ -1,6 +1,5 @@
 <template>
   <tr
-    class="cursor-pointer"
     :class="tableRowClass"
     @mouseenter="emit('hover', $event)"
     @mouseleave="emit('leave')"
@@ -9,7 +8,6 @@
     @pointerup="emit('pointerup', $event)"
     @pointerleave="emit('pointerleave', $event)"
     @pointercancel="emit('pointerleave', $event)"
-    @click="emit('activate')"
   >
     <td :class="tableCellClasses.checkbox">
       <input
@@ -27,17 +25,29 @@
         class="name-clamp max-w-[clamp(16rem,40vw,32rem)]"
         :title="cardName"
       >
-        <span class="block leading-snug">{{ primaryName }}</span>
-        <span class="block text-xs leading-snug text-[color:var(--muted)]">
-          {{ secondaryName }}
-        </span>
+        <button
+          type="button"
+          class="block w-full rounded-md text-left font-semibold leading-snug text-[color:var(--text)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          @click="emit('activate')"
+        >
+          <span class="block">{{ primaryName }}</span>
+          <span class="block text-xs leading-snug text-[color:var(--muted)]">
+            {{ secondaryName }}
+          </span>
+        </button>
       </div>
       <div
         v-else
         class="flex h-full max-w-[clamp(16rem,40vw,32rem)] items-center"
         :title="cardName"
       >
-        <span class="block truncate leading-snug">{{ cardName }}</span>
+        <button
+          type="button"
+          class="block truncate rounded-md text-left font-semibold leading-snug text-[color:var(--text)] underline-offset-2 hover:text-[color:var(--accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          @click="emit('activate')"
+        >
+          {{ cardName }}
+        </button>
       </div>
     </td>
     <td :class="tableCellClasses.mana">
@@ -75,6 +85,7 @@
       <span v-if="isCardLoading" :class="statusLabelClass">Loading preview...</span>
     </td>
     <PriceColour
+      v-if="priceMode !== 'eur'"
       tag="td"
       :pill="false"
       :price="usdPrice"
@@ -82,6 +93,7 @@
       :class="tableCellClasses.price"
     />
     <PriceColour
+      v-if="priceMode !== 'usd'"
       tag="td"
       :pill="false"
       :price="eurPrice"
@@ -128,6 +140,7 @@ defineProps<{
   have: boolean;
   usdPrice: string | null;
   eurPrice: string | null;
+  priceMode: "both" | "usd" | "eur";
 }>();
 
 const emit = defineEmits<{
