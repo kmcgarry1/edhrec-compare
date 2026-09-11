@@ -21,7 +21,7 @@
         <img
           :src="hoveredCardImage"
           alt="Card preview"
-          class="max-h-[80vh] w-auto rounded shadow-2xl shadow-black/60"
+          class="max-h-[80vh] w-auto rounded border border-white/15 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]"
         />
       </div>
     </div>
@@ -45,7 +45,7 @@
       <img
         :src="hoveredCardImage"
         alt="Card preview"
-        class="w-56 rounded shadow-[var(--shadow-soft)]"
+        class="w-56 rounded border border-[color:var(--border)]"
       />
     </Card>
   </Teleport>

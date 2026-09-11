@@ -276,7 +276,7 @@ defineExpose({
 
 .selection-stage-search :deep(.commander-search-minimal-field > .flex > div:focus-within) {
   border-color: color-mix(in srgb, var(--accent) 84%, white 16%);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-soft) 68%, transparent);
+  box-shadow: none;
 }
 
 .selection-stage-search :deep(.commander-search-minimal-field input) {
@@ -365,7 +365,7 @@ defineExpose({
 .selection-stage-random-card-placeholder {
   border-color: color-mix(in srgb, var(--border) 44%, transparent);
   background: var(--surface-strong);
-  box-shadow: var(--shadow-soft);
+  box-shadow: none;
 }
 
 @media (max-width: 639px) {
