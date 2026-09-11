@@ -45,9 +45,7 @@ const interceptNetwork = async (page: Page) => {
 
   await page.route("**/api.scryfall.com/cards/named**", (route) => {
     const url = route.request().url();
-    const body = url.includes("Atraxa")
-      ? SCRYFALL_COMMANDER_RESPONSE
-      : SCRYFALL_CARD_IMAGE;
+    const body = url.includes("Atraxa") ? SCRYFALL_COMMANDER_RESPONSE : SCRYFALL_CARD_IMAGE;
 
     return route.fulfill({
       status: 200,
@@ -102,12 +100,21 @@ const getLandingCommanderSearch = (page: Page) =>
   page.getByRole("combobox", { name: /Search commanders/i });
 
 const getLandingUploadButton = (page: Page) =>
-  page.getByRole("button", { name: /Upload collection CSV/i }).first();
+  page.getByRole("button", { name: /^Upload collection$/i }).first();
 
 const ensureDecklistActionsVisible = async (page: Page) => {
   const copyButton = page.getByTestId("header-copy-decklist");
   if (await copyButton.isVisible().catch(() => false)) {
     return copyButton;
+  }
+
+  const commandBarCopyButton = page
+    .getByTestId("commander-results-command-bar")
+    .getByRole("button", {
+      name: /^Copy$/,
+    });
+  if (await commandBarCopyButton.isVisible().catch(() => false)) {
+    return commandBarCopyButton;
   }
 
   const utilityTrigger = page.getByTestId("dashboard-utility-trigger");
@@ -160,7 +167,15 @@ test.describe("Commander workflow", () => {
       .toContain("Sol Ring");
 
     const downloadPromise = page.waitForEvent("download");
-    await page.getByTestId("header-download-decklist").click();
+    const downloadButton = page.getByTestId("header-download-decklist");
+    if (await downloadButton.isVisible().catch(() => false)) {
+      await downloadButton.click();
+    } else {
+      await page
+        .getByTestId("commander-results-command-bar")
+        .getByRole("button", { name: /^Export \d+$/ })
+        .click();
+    }
     const download = await downloadPromise;
     await assertDownloadContains(download, "Lightning Greaves");
   });
@@ -172,7 +187,7 @@ test.describe("Commander workflow", () => {
 
     await expect(page.getByTestId("commander-results-command-bar")).toBeVisible();
     await expect(page.getByRole("heading", { name: /Atraxa, Grand Unifier/i })).toBeVisible();
-    await expect(page.getByText("Commander destination", { exact: false })).toBeVisible();
+    await expect(page.getByText("Showing all recommendations", { exact: false })).toBeVisible();
     await expect(page.locator("#new-cards")).toContainText("Sol Ring");
   });
 });
@@ -180,7 +195,9 @@ test.describe("Commander workflow", () => {
 test.describe("Mobile card modal", () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
-  test("keeps browse controls and utilities in separate mobile sheets", async ({ page }, testInfo) => {
+  test("keeps browse controls in a mobile sheet and exposes export actions", async ({
+    page,
+  }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile-chromium", "Only run on the mobile project");
     await setupApp(page);
     await expectLandingReady(page);
@@ -193,12 +210,9 @@ test.describe("Mobile card modal", () => {
     await browseSheet.getByRole("button", { name: "Close" }).click();
     await expect(browseSheet).toBeHidden();
 
-    await page.getByTestId("dashboard-utility-trigger").click();
-    const utilitySheet = page.getByTestId("dashboard-utility-sheet");
-    await expect(utilitySheet).toBeVisible();
-    await expect(page.getByTestId("header-copy-decklist")).toBeVisible();
-    await utilitySheet.getByRole("button", { name: "Close" }).click();
-    await expect(utilitySheet).toBeHidden();
+    const commandBar = page.getByTestId("commander-results-command-bar");
+    await expect(commandBar.getByRole("button", { name: /^Copy$/ })).toBeVisible();
+    await expect(commandBar.getByRole("button", { name: /^Export \d+$/ })).toBeVisible();
   });
 
   test("opens modal with details and links to Scryfall", async ({ page }, testInfo) => {
@@ -215,10 +229,10 @@ test.describe("Mobile card modal", () => {
     await expect(mobileRow).toBeVisible();
     await mobileRow.click();
 
-    const cardPreviewLabel = page.getByText("Card Preview", { exact: true });
+    const cardPreviewLabel = page.getByRole("dialog", { name: /Sol Ring/i });
     await expect(cardPreviewLabel).toBeVisible();
     const popupPromise = page.waitForEvent("popup");
-    await page.getByRole("button", { name: "View on Scryfall" }).click();
+    await page.getByRole("button", { name: "Scryfall" }).click();
     const popup = await popupPromise;
     expect(popup.url()).toContain("scryfall.com");
     await popup.close();

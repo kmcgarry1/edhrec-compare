@@ -41,10 +41,7 @@ import type { Ref } from "vue";
  * @param isActive - Ref to control when focus trap is active
  * @returns Object with activate and deactivate methods
  */
-export const useFocusTrap = (
-  containerRef: Ref<HTMLElement | null>,
-  isActive: Ref<boolean>
-) => {
+export const useFocusTrap = (containerRef: Ref<HTMLElement | null>, isActive: Ref<boolean>) => {
   let previouslyFocusedElement: HTMLElement | null = null;
 
   /**
@@ -56,11 +53,11 @@ export const useFocusTrap = (
     if (!containerRef.value) return [];
 
     const focusableSelectors = [
-      'a[href]',
-      'button:not([disabled])',
-      'textarea:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
+      "a[href]",
+      "button:not([disabled])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
       '[tabindex]:not([tabindex="-1"])',
     ];
 
@@ -82,9 +79,7 @@ export const useFocusTrap = (
     if (event.key === "Escape") {
       event.preventDefault();
       // Emit a close event - handled by parent component
-      containerRef.value.dispatchEvent(
-        new CustomEvent("escape-pressed", { bubbles: true })
-      );
+      containerRef.value.dispatchEvent(new CustomEvent("escape-pressed", { bubbles: true }));
       return;
     }
 
@@ -95,16 +90,23 @@ export const useFocusTrap = (
 
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
+      const activeElement = document.activeElement;
+
+      if (activeElement && !containerRef.value.contains(activeElement)) {
+        event.preventDefault();
+        firstElement?.focus();
+        return;
+      }
 
       if (event.shiftKey) {
         // Shift + Tab - moving backward
-        if (document.activeElement === firstElement && lastElement) {
+        if (activeElement === firstElement && lastElement) {
           event.preventDefault();
           lastElement.focus();
         }
       } else {
         // Tab - moving forward
-        if (document.activeElement === lastElement && firstElement) {
+        if (activeElement === lastElement && firstElement) {
           event.preventDefault();
           firstElement.focus();
         }
@@ -128,6 +130,11 @@ export const useFocusTrap = (
       if (containerRef.value) {
         if (!containerRef.value.hasAttribute("tabindex")) {
           containerRef.value.setAttribute("tabindex", "-1");
+        }
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length > 0) {
+          focusableElements[0]?.focus({ preventScroll: true });
+          return;
         }
         containerRef.value.focus({ preventScroll: true });
         return;
