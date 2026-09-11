@@ -3,7 +3,7 @@
     <button
       ref="buttonRef"
       type="button"
-      class="w-full rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-left shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+      class="w-full rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-4 py-2 text-left shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
       :class="isOpen ? 'border-[color:var(--accent)] ring-2 ring-[color:var(--accent)]' : ''"
       :disabled="disabled"
       :aria-expanded="isOpen"
@@ -13,12 +13,7 @@
     >
       <CInline justify="between" gap="md" wrap="nowrap" class="min-w-0">
         <CInline gap="sm" wrap="nowrap" class="min-w-0 flex-1">
-          <CInline
-            v-if="selectedColorSymbols.length"
-            gap="2xs"
-            wrap="nowrap"
-            aria-hidden="true"
-          >
+          <CInline v-if="selectedColorSymbols.length" gap="2xs" wrap="nowrap" aria-hidden="true">
             <template
               v-for="(symbol, index) in selectedColorSymbols"
               :key="`selected-${symbol.color}-${index}`"
@@ -96,7 +91,7 @@
           ref="listRef"
           role="listbox"
           tabindex="-1"
-          class="max-h-64 w-full overflow-auto rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 shadow-[var(--shadow)] ring-1 ring-black/5 focus:outline-none"
+          class="max-h-64 w-full overflow-auto rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 shadow-[var(--shadow)] ring-1 ring-black/5 focus:outline-none"
           :aria-activedescendant="highlightedOptionId"
         >
           <li
@@ -106,7 +101,7 @@
             :ref="(el) => setOptionRef(el, index)"
             role="option"
             :aria-selected="selectedIndex === index"
-            class="cursor-pointer select-none rounded-xl px-3 py-2 text-sm transition"
+            class="cursor-pointer select-none rounded-[3px] px-3 py-2 text-sm transition"
             :class="getOptionClasses(index)"
             @click="selectOption(option)"
             @mouseenter="highlightedIndex = index"
@@ -184,14 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { ComponentPublicInstance } from "vue";
 import { useScryfallSymbols } from "../composables/useScryfallSymbols";
 import { CInline, CStack, CSurface, CText } from "./core";
@@ -243,8 +231,7 @@ const hasColorOptions = computed(() =>
 
 type ColorSymbol = { color: string; svg: string | null };
 
-const normalizeColorKey = (color: string) =>
-  color.replace(/[{}]/g, "").trim().toUpperCase();
+const normalizeColorKey = (color: string) => color.replace(/[{}]/g, "").trim().toUpperCase();
 
 const toSymbolToken = (color: string) => {
   const normalized = normalizeColorKey(color);
@@ -269,9 +256,7 @@ const buildColorSymbols = (colors?: ReadonlyArray<string>): ColorSymbol[] =>
     })
     .filter((entry): entry is ColorSymbol => entry !== null);
 
-const selectedColorSymbols = computed(() =>
-  buildColorSymbols(selectedOption.value?.colors)
-);
+const selectedColorSymbols = computed(() => buildColorSymbols(selectedOption.value?.colors));
 
 const getOptionColorSymbols = (option: Option) => buildColorSymbols(option.colors);
 
@@ -288,10 +273,8 @@ const highlightedOptionId = computed(() =>
   highlightedIndex.value >= 0 ? getOptionId(highlightedIndex.value) : undefined
 );
 
-const optionHighlightClass =
-  "bg-[color:var(--accent-soft)] text-[color:var(--text)]";
-const optionDefaultClass =
-  "text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]";
+const optionHighlightClass = "bg-[color:var(--accent-soft)] text-[color:var(--text)]";
+const optionDefaultClass = "text-[color:var(--text)] hover:bg-[color:var(--surface-muted)]";
 
 const getOptionClasses = (index: number) => [
   highlightedIndex.value === index ? optionHighlightClass : optionDefaultClass,
@@ -300,10 +283,7 @@ const getOptionClasses = (index: number) => [
 
 const getOptionId = (index: number) => `${listboxId}-option-${index}`;
 
-const setOptionRef = (
-  el: Element | ComponentPublicInstance | null,
-  index: number
-) => {
+const setOptionRef = (el: Element | ComponentPublicInstance | null, index: number) => {
   optionRefs.value[index] = el as HTMLElement | null;
 };
 

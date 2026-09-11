@@ -23,11 +23,15 @@
 
     <div v-else class="space-y-4">
       <div v-if="primarySelection" class="grid gap-3">
-        <div class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow-soft)]">
+        <div
+          class="rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow-soft)]"
+        >
           <div class="flex items-start justify-between gap-3">
             <div class="grid flex-1 gap-3 sm:grid-cols-2">
               <div class="space-y-1">
-                <p class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+                <p
+                  class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+                >
                   Commander
                 </p>
                 <p class="text-base font-semibold text-[color:var(--text)]">
@@ -38,7 +42,9 @@
                 </p>
               </div>
               <div class="space-y-1">
-                <p class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]">
+                <p
+                  class="text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-[color:var(--muted)]"
+                >
                   Partner slot
                 </p>
                 <p class="text-base font-semibold text-[color:var(--text)]">
@@ -51,7 +57,7 @@
             </div>
             <button
               type="button"
-              class="inline-flex items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
+              class="inline-flex items-center rounded-[3px] border border-[color:var(--border-strong)] bg-transparent px-3 py-1 text-xs font-semibold text-[color:var(--text)] transition hover:border-[color:var(--danger)] hover:text-[color:var(--danger)]"
               aria-label="Clear commander selection"
               @click="handleResetPrimary"
             >
@@ -187,11 +193,7 @@ const partnerSupportText = computed(() => {
   return "Partner decks stay visible in the compare summary and results.";
 });
 
-const containerClasses = computed(() =>
-  isMinimal.value
-    ? "w-full"
-    : "w-full"
-);
+const containerClasses = computed(() => (isMinimal.value ? "w-full" : "w-full"));
 
 const focusField = async (fieldId: string) => {
   await nextTick();

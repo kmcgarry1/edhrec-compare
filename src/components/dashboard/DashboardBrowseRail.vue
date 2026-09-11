@@ -61,9 +61,7 @@
           v-if="openRailGroup === 'collection'"
           class="space-y-4 border-t border-[color:var(--border)] pt-3"
         >
-          <div
-            class="rounded-[24px] border border-[color:var(--border)] bg-[color:var(--surface)] p-4"
-          >
+          <div class="rounded border border-[color:var(--border)] bg-[color:var(--surface)] p-4">
             <CText tag="p" variant="label" tone="muted"> Collection status </CText>
             <CText tag="p" variant="body" weight="semibold" class="mt-1">
               {{ hasCsvData ? "Collection loaded" : "No collection uploaded" }}
@@ -76,7 +74,7 @@
           <div class="space-y-2">
             <CText tag="p" variant="label" tone="muted"> Ownership view </CText>
             <div
-              class="inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
+              class="inline-flex w-full items-center gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
               role="group"
               aria-label="Filter decklists by ownership"
             >
@@ -84,7 +82,7 @@
                 v-for="option in filterOptions"
                 :key="`rail-filter-${option.label}`"
                 type="button"
-                class="flex-1 rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                class="flex-1 rounded-[2px] px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
                 :class="
                   option.active
                     ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
@@ -188,12 +186,9 @@
       @escape-pressed="emit('close')"
     >
       <div
-        class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow)]"
+        class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--shadow)]"
       >
-        <div
-          class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]"
-          aria-hidden="true"
-        />
+        <div class="mx-auto mb-3 h-px w-14 bg-[color:var(--border-strong)]" aria-hidden="true" />
         <div class="flex items-start justify-between gap-3">
           <div class="space-y-1">
             <CText :id="sheetTitleId" tag="p" variant="eyebrow" tone="muted">
@@ -205,7 +200,7 @@
         </div>
 
         <div
-          class="mt-4 inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
+          class="mt-4 inline-flex w-full items-center gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
           role="tablist"
           aria-label="Browse workbench tabs"
         >
@@ -213,7 +208,7 @@
             v-for="tab in browseTabs"
             :key="tab.value"
             type="button"
-            class="flex-1 rounded-full px-3 py-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            class="flex-1 rounded-[2px] px-3 py-2 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
             :class="
               activeBrowseTab === tab.value
                 ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
@@ -253,7 +248,7 @@
             <CSurface variant="dense" size="sm" class="space-y-3">
               <CText tag="p" variant="label" tone="muted"> Ownership view </CText>
               <div
-                class="inline-flex w-full items-center gap-1 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
+                class="inline-flex w-full items-center gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface-muted)] p-1 text-[0.72rem] font-semibold text-[color:var(--muted)]"
                 role="group"
                 aria-label="Filter decklists by ownership"
               >
@@ -261,7 +256,7 @@
                   v-for="option in filterOptions"
                   :key="`sheet-filter-${option.label}`"
                   type="button"
-                  class="flex-1 rounded-full px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+                  class="flex-1 rounded-[2px] px-2.5 py-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
                   :class="
                     option.active
                       ? 'bg-[color:var(--accent-soft)] text-[color:var(--text)]'
@@ -487,7 +482,7 @@ const focusPrimarySearch = () => {
 
 const sectionButtonClass = (active: boolean) =>
   [
-    "flex items-center gap-2 rounded-2xl border px-3 py-2 text-left text-[0.76rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]",
+    "flex items-center gap-2 rounded border px-3 py-2 text-left text-[0.76rem] font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]",
     active
       ? "border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]"
       : "border-[color:var(--border)] bg-[color:var(--surface)] text-[color:var(--muted)] hover:border-[color:var(--accent)] hover:text-[color:var(--text)]",
