@@ -80,7 +80,7 @@
                 :aria-pressed="backgroundEnabled"
                 @click="toggleBackground"
               >
-                <span class="block text-xs font-semibold text-[color:var(--muted)]">Artwork backdrop</span>
+                <span class="block text-xs font-semibold text-[color:var(--muted)]">Background texture</span>
                 <span class="mt-1 block text-sm font-semibold">
                   {{ backgroundEnabled ? "On" : "Off" }}
                 </span>

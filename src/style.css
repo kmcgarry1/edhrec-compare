@@ -7,11 +7,11 @@
     color-scheme: light;
     --font-body: "Manrope";
     --font-display: "Fraunces";
-    --bg: #f2eadc;
-    --bg-strong: #e6d9c7;
-    --surface: #fbf4ea;
-    --surface-strong: #fffaf3;
-    --surface-muted: #efe5d6;
+    --bg: #f4efe6;
+    --bg-strong: #ebe2d5;
+    --surface: #fbf6ee;
+    --surface-strong: #fffaf4;
+    --surface-muted: #eee5d8;
     --border: #cbbda8;
     --text: #211913;
     --muted: #695c4d;
@@ -19,8 +19,8 @@
     --accent-strong: #510c53;
     --accent-soft: #d7ece8;
     --accent-contrast: #fefbf7;
-    --accent-glow: rgba(21, 110, 104, 0.08);
-    --accent-glow-strong: rgba(21, 110, 104, 0.12);
+    --accent-glow: rgba(69, 88, 75, 0.06);
+    --accent-glow-strong: rgba(69, 88, 75, 0.08);
     --tier-blue: #963aa8;
     --tier-blue-soft: rgba(58, 123, 168, 0.18);
     --tier-green: #2f8f5b;
@@ -49,7 +49,7 @@
     --danger-soft: rgba(184, 50, 92, 0.16);
     --warn: #c96b2c;
     --warn-soft: rgba(201, 107, 44, 0.16);
-    --pattern-line: rgba(31, 27, 22, 0.08);
+    --pattern-line: rgba(41, 35, 28, 0.08);
     --shadow: 0 18px 34px rgba(33, 24, 18, 0.12);
     --shadow-soft: 0 6px 14px rgba(33, 24, 18, 0.08);
     --surface-sheen:
@@ -74,20 +74,20 @@
 
   .dark {
     color-scheme: dark;
-    --bg: #101519;
-    --bg-strong: #151d22;
-    --surface: #162026;
-    --surface-strong: #1a252b;
-    --surface-muted: #11181f;
-    --border: #2b3945;
+    --bg: #171513;
+    --bg-strong: #211d19;
+    --surface: #211d19;
+    --surface-strong: #2a241f;
+    --surface-muted: #191613;
+    --border: #40362d;
     --text: #f5eee5;
     --muted: #a59684;
     --accent: #32c0b4;
     --accent-strong: #9ce6db;
     --accent-soft: rgba(47, 198, 184, 0.22);
     --accent-contrast: #0b1413;
-    --accent-glow: rgba(50, 192, 180, 0.12);
-    --accent-glow-strong: rgba(50, 192, 180, 0.18);
+    --accent-glow: rgba(147, 124, 92, 0.08);
+    --accent-glow-strong: rgba(147, 124, 92, 0.12);
     --tier-blue: #7fb8e1;
     --tier-blue-soft: rgba(127, 184, 225, 0.2);
     --tier-green: #76c08f;
@@ -116,7 +116,7 @@
     --danger-soft: rgba(255, 125, 168, 0.22);
     --warn: #e2b266;
     --warn-soft: rgba(226, 178, 102, 0.24);
-    --pattern-line: rgba(243, 237, 229, 0.09);
+    --pattern-line: rgba(243, 237, 229, 0.08);
     --shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
     --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.24);
     --surface-sheen:
@@ -129,9 +129,15 @@
     overflow-x: hidden;
     background-color: var(--bg);
     background-image:
-      radial-gradient(circle at 15% 10%, var(--accent-glow-strong), transparent 34%),
-      radial-gradient(circle at 85% 16%, var(--warn-soft), transparent 28%),
-      linear-gradient(180deg, var(--bg), var(--bg-strong));
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--bg) 94%, var(--bg-strong) 6%),
+        var(--bg-strong)
+      ),
+      radial-gradient(circle, var(--pattern-line) 0.45px, transparent 0.45px);
+    background-size:
+      100% 100%,
+      6px 6px;
     color: var(--text);
     line-height: var(--a11y-line-height);
     letter-spacing: var(--a11y-letter-spacing);
