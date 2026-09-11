@@ -71,7 +71,7 @@
           aria-live="assertive"
         />
 
-        <CGrid v-else variant="thirds" gap="md">
+        <CGrid v-else variant="cards" gap="md">
           <TopCommanderCard
             v-for="commander in sortedCommanders"
             :key="commander.slug"

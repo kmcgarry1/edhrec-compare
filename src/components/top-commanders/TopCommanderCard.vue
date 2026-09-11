@@ -7,16 +7,17 @@
       shadow="none"
       :background="highlightBackground"
       :border="highlightBorder"
+      :style="{ borderColor: ownershipBorderColor }"
       class="h-full overflow-hidden transition hover:border-[color:var(--accent)]"
     >
-      <div class="relative aspect-[16/10] bg-[color:var(--surface-muted)]">
+      <div class="relative aspect-[63/88] bg-[color:var(--surface-muted)]">
         <div v-if="imageStack.length" class="relative h-full w-full">
-          <img :src="imageStack[0]" :alt="commander.name" class="h-full w-full object-cover" />
+          <img :src="imageStack[0]" :alt="commander.name" class="h-full w-full object-contain" />
           <img
             v-if="imageStack.length > 1"
             :src="imageStack[1]"
             :alt="`${commander.name} partner`"
-            class="absolute bottom-3 right-3 h-24 w-16 rounded border border-[color:var(--surface)] object-cover"
+            class="absolute bottom-3 right-3 h-28 w-20 rounded border border-[color:var(--surface)] object-contain"
           />
         </div>
         <span
@@ -159,10 +160,24 @@ const highlightBackground = computed(() => {
 
 const highlightBorder = computed(() => {
   const value = percentValue.value;
-  if (value !== null && value >= 70) {
-    return "border border-[color:var(--accent)]";
+  if (value !== null) {
+    return "border-2";
   }
   return "border border-[color:var(--border)]";
+});
+
+const ownershipBorderColor = computed(() => {
+  const value = percentValue.value;
+  if (value === null) {
+    return undefined;
+  }
+  if (value < 34) {
+    return "var(--danger)";
+  }
+  if (value < 67) {
+    return "var(--warn)";
+  }
+  return "var(--accent)";
 });
 
 const commanderLink = computed(() => ({

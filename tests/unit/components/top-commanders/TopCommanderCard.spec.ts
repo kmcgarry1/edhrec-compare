@@ -62,8 +62,45 @@ describe("TopCommanderCard", () => {
     expect(wrapper.text()).toContain("80% owned");
     expect(wrapper.text()).toContain("72 of 90");
     expect(wrapper.findAll("img")).toHaveLength(2);
+    expect(wrapper.get("img").classes()).toContain("object-contain");
     expect(wrapper.findAll("[aria-label='White']")).toHaveLength(1);
-    expect(wrapper.html()).toContain("border-[color:var(--accent)]");
+    expect(wrapper.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--accent)"
+    );
+  });
+
+  it("colors the card border by ownership percentage bands", () => {
+    const low = mountComponent({
+      hasCsvData: true,
+      scanResult: {
+        slug: "atraxa-grand-unifier",
+        name: "Atraxa, Grand Unifier",
+        rank: 1,
+        deckCount: 12345,
+        ownedCards: 20,
+        totalCards: 100,
+        ownedPercent: 20,
+      },
+    });
+    const medium = mountComponent({
+      hasCsvData: true,
+      scanResult: {
+        slug: "atraxa-grand-unifier",
+        name: "Atraxa, Grand Unifier",
+        rank: 1,
+        deckCount: 12345,
+        ownedCards: 50,
+        totalCards: 100,
+        ownedPercent: 50,
+      },
+    });
+
+    expect(low.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--danger)"
+    );
+    expect(medium.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--warn)"
+    );
   });
 
   it("shows loading and scanning states before scan results arrive", () => {
