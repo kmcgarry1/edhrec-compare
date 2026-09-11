@@ -13,6 +13,8 @@ updates:
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: "vue-router"
+      # Keep TypeScript within the range supported by vue-tsc and typescript-eslint.
+      - dependency-name: "typescript"
     groups:
       development-dependencies:
         dependency-type: development
