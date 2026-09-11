@@ -29,7 +29,7 @@ describe("CButton", () => {
     });
     const button = wrapper.find("button");
 
-    expect(button.classes()).toContain("border-[color:var(--border)]");
+    expect(button.classes()).toContain("border-[color:var(--border-strong)]");
   });
 
   it("applies ghost variant styles when specified", () => {

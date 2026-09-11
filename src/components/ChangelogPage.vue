@@ -17,7 +17,7 @@
       <details
         v-for="(release, releaseIndex) in releases"
         :key="release.version"
-        class="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)]"
+        class="rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)]"
         :open="releaseIndex === 0"
       >
         <summary class="flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4 py-3">
@@ -82,16 +82,11 @@
 <script setup lang="ts">
 import changelogSource from "../../CHANGELOG.md?raw";
 import { CNotice, CText } from "./core";
-import {
-  formatReleaseDate,
-  parseChangelog,
-  splitChangelogReferences,
-} from "../utils/changelog";
+import { formatReleaseDate, parseChangelog, splitChangelogReferences } from "../utils/changelog";
 
 const releases = parseChangelog(changelogSource);
 
-const sectionSummary = (count: number) =>
-  `${count} update section${count === 1 ? "" : "s"}`;
+const sectionSummary = (count: number) => `${count} update section${count === 1 ? "" : "s"}`;
 </script>
 
 <style scoped>

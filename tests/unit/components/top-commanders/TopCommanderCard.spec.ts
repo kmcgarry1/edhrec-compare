@@ -1,7 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { mount, RouterLinkStub } from "@vue/test-utils";
 import TopCommanderCard from "../../../../src/components/top-commanders/TopCommanderCard.vue";
 import type { CommanderColor } from "../../../../src/utils/colorIdentity";
+
+vi.mock("../../../../src/composables/useScryfallSymbols", () => ({
+  useScryfallSymbols: () => ({
+    ensureSymbolsLoaded: vi.fn(),
+    getSvgForSymbol: (token: string) => `${token}.svg`,
+  }),
+}));
 
 const commander = {
   slug: "atraxa-grand-unifier",
@@ -61,9 +68,46 @@ describe("TopCommanderCard", () => {
 
     expect(wrapper.text()).toContain("80% owned");
     expect(wrapper.text()).toContain("72 of 90");
-    expect(wrapper.findAll("img")).toHaveLength(2);
-    expect(wrapper.findAll("[aria-label='White']")).toHaveLength(1);
-    expect(wrapper.html()).toContain("border-[color:var(--accent)]");
+    expect(wrapper.findAll("img.object-contain")).toHaveLength(2);
+    expect(wrapper.get("img").classes()).toContain("object-contain");
+    expect(wrapper.find("img[alt='White']").exists()).toBe(true);
+    expect(wrapper.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--accent)"
+    );
+  });
+
+  it("colors the card border by ownership percentage bands", () => {
+    const low = mountComponent({
+      hasCsvData: true,
+      scanResult: {
+        slug: "atraxa-grand-unifier",
+        name: "Atraxa, Grand Unifier",
+        rank: 1,
+        deckCount: 12345,
+        ownedCards: 20,
+        totalCards: 100,
+        ownedPercent: 20,
+      },
+    });
+    const medium = mountComponent({
+      hasCsvData: true,
+      scanResult: {
+        slug: "atraxa-grand-unifier",
+        name: "Atraxa, Grand Unifier",
+        rank: 1,
+        deckCount: 12345,
+        ownedCards: 50,
+        totalCards: 100,
+        ownedPercent: 50,
+      },
+    });
+
+    expect(low.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--danger)"
+    );
+    expect(medium.getComponent({ name: "CSurface" }).attributes("style")).toContain(
+      "border-color: var(--warn)"
+    );
   });
 
   it("shows loading and scanning states before scan results arrive", () => {

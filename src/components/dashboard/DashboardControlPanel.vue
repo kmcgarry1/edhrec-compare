@@ -57,13 +57,10 @@
       @escape-pressed="emit('close')"
     >
       <div
-        class="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
+        class="absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col overflow-hidden border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
       >
         <div class="px-4 pt-4">
-          <div
-            class="mx-auto mb-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]"
-            aria-hidden="true"
-          />
+          <div class="mx-auto mb-3 h-px w-14 bg-[color:var(--border-strong)]" aria-hidden="true" />
           <div class="flex items-start justify-between gap-3">
             <div class="space-y-1">
               <CText :id="sheetTitleId" tag="p" variant="eyebrow" tone="muted">

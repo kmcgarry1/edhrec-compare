@@ -159,4 +159,15 @@ describe("CommanderCardlistSection", () => {
     expect(wrapper.text()).toContain("Ownership unknown");
     expect(wrapper.text()).not.toContain("0% owned");
   });
+
+  it("makes gallery ownership states visually distinct", () => {
+    const wrapper = mountComponent({ displayMode: "gallery" });
+    const cards = wrapper.findAll("[data-testid='commander-gallery-card']");
+
+    expect(cards).toHaveLength(2);
+    expect(cards[0]?.classes().join(" ")).toContain("border-[color:var(--accent)]");
+    expect(cards[0]?.text()).toContain("Owned");
+    expect(cards[1]?.classes().join(" ")).toContain("border-[color:var(--danger)]");
+    expect(cards[1]?.text()).toContain("Missing");
+  });
 });

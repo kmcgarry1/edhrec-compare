@@ -11,7 +11,7 @@
 
         <div class="flex flex-wrap items-center gap-2 xl:justify-end">
           <div
-            class="inline-flex items-center gap-1 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 text-xs font-semibold"
+            class="inline-flex items-center gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 text-xs font-semibold"
             role="group"
             aria-label="Filter cards by ownership"
           >
@@ -19,7 +19,7 @@
               v-for="option in filterOptions"
               :key="`results-filter-${option.label}`"
               type="button"
-              class="min-h-9 rounded-md px-3 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
+              class="min-h-9 rounded-[2px] px-3 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
               :class="
                 option.active
                   ? 'bg-[color:var(--accent)] text-[color:var(--accent-contrast)]'
@@ -41,7 +41,7 @@
           </CButton>
 
           <div
-            class="inline-flex items-center gap-1 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 text-xs font-semibold"
+            class="inline-flex items-center gap-1 rounded-[3px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-1 text-xs font-semibold"
             role="group"
             aria-label="Choose card display"
           >
@@ -49,7 +49,7 @@
               v-for="option in displayOptions"
               :key="option.value"
               type="button"
-              class="min-h-9 rounded-md px-3 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+              class="min-h-9 rounded-[2px] px-3 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
               :class="
                 displayMode === option.value
                   ? 'bg-[color:var(--accent)] text-[color:var(--accent-contrast)]'
@@ -65,7 +65,7 @@
           <label class="sr-only" :for="priceSelectId">Price display</label>
           <select
             :id="priceSelectId"
-            class="min-h-11 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-sm font-semibold text-[color:var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            class="min-h-11 rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-3 text-sm font-semibold text-[color:var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
             :value="priceMode"
             @change="
               emit(
@@ -83,7 +83,7 @@
           <select
             v-if="sections.length"
             :id="sectionSelectId"
-            class="min-h-11 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3 text-sm font-semibold text-[color:var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+            class="min-h-11 rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-3 text-sm font-semibold text-[color:var(--text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
             :value="activeId ?? ''"
             @change="handleSectionSelect"
           >

@@ -7,72 +7,71 @@
       shadow="none"
       :background="highlightBackground"
       :border="highlightBorder"
-      class="flex flex-col gap-3 p-3 transition hover:border-[color:var(--accent)] sm:flex-row sm:items-center sm:gap-4"
+      :style="{ borderColor: ownershipBorderColor }"
+      class="h-full overflow-hidden transition hover:border-[color:var(--accent)]"
     >
-      <div class="flex items-center justify-between gap-3 sm:w-12 sm:shrink-0 sm:block">
-        <CText tag="p" variant="caption" tone="muted">Rank</CText>
-        <CText tag="p" variant="title" class="text-lg">#{{ commander.rank }}</CText>
-      </div>
-
-      <div
-        class="h-16 w-12 shrink-0 overflow-hidden rounded-md border border-[color:var(--border)] bg-[color:var(--surface-muted)]"
-      >
+      <div class="relative aspect-[63/88] bg-[color:var(--surface-muted)]">
         <div v-if="imageStack.length" class="relative h-full w-full">
-          <img
-            :src="imageStack[0]"
-            :alt="commander.name"
-            class="absolute inset-0 h-full w-full object-cover"
-          />
+          <img :src="imageStack[0]" :alt="commander.name" class="h-full w-full object-contain" />
           <img
             v-if="imageStack.length > 1"
             :src="imageStack[1]"
             :alt="`${commander.name} partner`"
-            class="absolute bottom-1 right-1 h-7 w-5 rounded-sm object-cover ring-1 ring-[color:var(--surface-strong)]"
+            class="absolute bottom-3 right-3 h-28 w-20 rounded border border-[color:var(--surface)] object-contain"
           />
         </div>
         <span
           v-else
-          class="flex h-full items-center justify-center px-1 text-center text-xs text-[color:var(--muted)]"
+          class="flex h-full items-center justify-center px-4 text-center text-sm text-[color:var(--muted)]"
         >
           {{ imageLoading ? "Loading" : "No image" }}
         </span>
-      </div>
 
-      <div class="min-w-0 flex-1 space-y-1">
-        <CText
-          tag="p"
-          variant="title"
-          class="truncate text-lg group-hover:text-[color:var(--accent)]"
+        <div
+          class="absolute left-3 top-3 rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-2 py-1"
         >
-          {{ commander.name }}
-        </CText>
-        <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
-          <span
-            v-for="color in colors"
-            :key="`${commander.slug}-${color}`"
-            class="inline-flex h-2.5 w-2.5 rounded-full ring-1 ring-white/20"
-            :class="colorDotClass(color)"
-            :title="colorLabel(color)"
-            :aria-label="colorLabel(color)"
-          />
+          <CText tag="p" variant="caption" tone="muted">Rank</CText>
+          <CText tag="p" variant="title" class="text-lg leading-none">#{{ commander.rank }}</CText>
         </div>
       </div>
 
-      <div class="text-sm sm:w-28 sm:shrink-0 sm:text-right">
-        <CText tag="p" variant="caption" tone="muted">Decks</CText>
-        <CText tag="p" variant="body" weight="semibold">
-          {{ detailLabel }}
-        </CText>
-      </div>
+      <div class="space-y-4 p-4">
+        <div class="min-w-0 space-y-2">
+          <CText
+            tag="p"
+            variant="title"
+            class="text-xl leading-tight group-hover:text-[color:var(--accent)]"
+          >
+            {{ commander.name }}
+          </CText>
+          <div v-if="colors.length" class="flex flex-wrap items-center gap-1.5">
+            <ManaSymbolIcon
+              v-for="color in colors"
+              :key="`${commander.slug}-${color}`"
+              :color="color"
+              icon-class="h-5 w-5"
+            />
+          </div>
+        </div>
 
-      <div class="text-sm sm:w-32 sm:shrink-0 sm:text-right">
-        <CText tag="p" variant="caption" tone="muted">Ownership</CText>
-        <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
-          {{ percentLabel }}
-        </CText>
-        <CText tag="p" variant="caption" tone="muted">
-          {{ ownedSummary }}
-        </CText>
+        <div class="grid grid-cols-2 gap-3 border-t border-[color:var(--border)] pt-3">
+          <div>
+            <CText tag="p" variant="caption" tone="muted">Decks</CText>
+            <CText tag="p" variant="body" weight="semibold">
+              {{ detailLabel }}
+            </CText>
+          </div>
+
+          <div>
+            <CText tag="p" variant="caption" tone="muted">Ownership</CText>
+            <CText tag="p" variant="body" weight="semibold" :class="percentToneClass">
+              {{ percentLabel }}
+            </CText>
+            <CText tag="p" variant="caption" tone="muted">
+              {{ ownedSummary }}
+            </CText>
+          </div>
+        </div>
       </div>
     </CSurface>
   </RouterLink>
@@ -81,10 +80,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import ManaSymbolIcon from "../ManaSymbolIcon.vue";
 import { CSurface, CText } from "../core";
 import type { TopCommander } from "../../api/edhrecApi";
 import type { CommanderScanResult } from "../../composables/useTopCommanderScan";
-import { COLOR_IDENTITY_META, type CommanderColor } from "../../utils/colorIdentity";
+import type { CommanderColor } from "../../utils/colorIdentity";
 
 type ScanResult = CommanderScanResult | null;
 
@@ -157,10 +157,24 @@ const highlightBackground = computed(() => {
 
 const highlightBorder = computed(() => {
   const value = percentValue.value;
-  if (value !== null && value >= 70) {
-    return "border border-[color:var(--accent)]";
+  if (value !== null) {
+    return "border-2";
   }
   return "border border-[color:var(--border)]";
+});
+
+const ownershipBorderColor = computed(() => {
+  const value = percentValue.value;
+  if (value === null) {
+    return undefined;
+  }
+  if (value < 34) {
+    return "var(--danger)";
+  }
+  if (value < 67) {
+    return "var(--warn)";
+  }
+  return "var(--accent)";
 });
 
 const commanderLink = computed(() => ({
@@ -168,7 +182,4 @@ const commanderLink = computed(() => ({
   params: { slug: props.commander.slug },
   query: { pageType: "average-decks" },
 }));
-
-const colorDotClass = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.dot ?? "";
-const colorLabel = (color: CommanderColor) => COLOR_IDENTITY_META[color]?.label ?? color;
 </script>

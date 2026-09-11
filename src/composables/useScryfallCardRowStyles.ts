@@ -1,10 +1,7 @@
 import { computed, type Ref } from "vue";
 import { useLayoutDensity } from "./useLayoutDensity";
 
-export const useScryfallCardRowStyles = (
-  have: Ref<boolean>,
-  isCardLoading: Ref<boolean>
-) => {
+export const useScryfallCardRowStyles = (have: Ref<boolean>, isCardLoading: Ref<boolean>) => {
   const { density } = useLayoutDensity();
 
   const checkboxClass =
@@ -41,7 +38,7 @@ export const useScryfallCardRowStyles = (
 
   const cardRowClass = computed(() => {
     const base =
-      "flex items-center gap-3 rounded-2xl border px-3 py-2.5 text-xs text-[color:var(--text)] transition";
+      "flex items-center gap-3 rounded border px-3 py-2.5 text-xs text-[color:var(--text)] transition";
     const state = have.value
       ? "border-[color:var(--accent)] bg-[color:var(--accent-soft)]"
       : "border-[color:var(--border)] bg-[color:var(--surface)]";

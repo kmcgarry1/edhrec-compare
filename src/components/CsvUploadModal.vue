@@ -19,16 +19,20 @@
           shadow="shadow-[var(--shadow)]"
           class="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden text-center text-[color:var(--text)]"
         >
-          <header class="flex items-start justify-between gap-4 border-b border-[color:var(--border)] px-4 py-4 text-left sm:px-6">
+          <header
+            class="flex items-start justify-between gap-4 border-b border-[color:var(--border)] px-4 py-4 text-left sm:px-6"
+          >
             <div>
-              <h2 id="csv-upload-title" class="text-xl font-semibold text-[color:var(--text)]">Import collection</h2>
+              <h2 id="csv-upload-title" class="text-xl font-semibold text-[color:var(--text)]">
+                Import collection
+              </h2>
               <p id="csv-upload-description" class="mt-1 text-sm text-[color:var(--muted)]">
                 Collection data stays in this browser session and clears on refresh.
               </p>
             </div>
             <button
               type="button"
-              class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] shadow-[var(--shadow-soft)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="inline-flex min-h-11 items-center gap-2 rounded-[3px] border border-[color:var(--border-strong)] bg-transparent px-4 py-1.5 text-sm font-semibold text-[color:var(--text)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
               aria-label="Close upload dialog"
               @click="handleClose"
             >

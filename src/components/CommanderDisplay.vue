@@ -3,15 +3,10 @@
     v-if="shouldRenderCard"
     as="div"
     padding="p-4"
-    rounded="rounded-2xl"
+    rounded="rounded"
     class="w-full bg-[color:var(--surface)] text-[color:var(--text)]"
   >
-    <CInline
-      align="center"
-      justify="between"
-      gap="lg"
-      class="flex-col sm:flex-row"
-    >
+    <CInline align="center" justify="between" gap="lg" class="flex-col sm:flex-row">
       <CStack gap="md" class="flex-1">
         <CStack gap="2xs">
           <CText
@@ -31,6 +26,7 @@
           v-if="currentPrinting"
           variant="muted"
           size="sm"
+          radius="lg"
           class="text-sm text-[color:var(--muted)]"
         >
           <CStack gap="md">
@@ -109,35 +105,15 @@
               </CStack>
             </CGrid>
 
-            <CInline
-              v-if="printingsLoading"
-              gap="md"
-              class="pt-2"
-            >
-              <CText variant="helper" tone="muted">
-                Loading other printings...
-              </CText>
+            <CInline v-if="printingsLoading" gap="md" class="pt-2">
+              <CText variant="helper" tone="muted"> Loading other printings... </CText>
             </CInline>
 
-            <CInline
-              v-else-if="canCyclePrintings"
-              gap="md"
-              class="pt-2"
-            >
-              <CButton
-                type="button"
-                variant="secondary"
-                size="sm"
-                @click="showPreviousPrinting"
-              >
+            <CInline v-else-if="canCyclePrintings" gap="md" class="pt-2">
+              <CButton type="button" variant="secondary" size="sm" @click="showPreviousPrinting">
                 &lt; Prev
               </CButton>
-              <CButton
-                type="button"
-                variant="secondary"
-                size="sm"
-                @click="showNextPrinting"
-              >
+              <CButton type="button" variant="secondary" size="sm" @click="showNextPrinting">
                 Next &gt;
               </CButton>
               <CText variant="helper" tone="muted">
@@ -149,18 +125,12 @@
       </CStack>
 
       <CInline align="center" justify="center" class="shrink-0">
-        <CSurface
-          v-if="isLoading"
-          variant="muted"
-          size="none"
-          radius="xl"
-          class="h-40 w-28"
-        />
+        <CSurface v-if="isLoading" variant="muted" size="none" radius="lg" class="h-40 w-28" />
         <img
           v-else-if="cardImageUrl"
           :src="cardImageUrl"
           :alt="commanderName"
-          class="h-80 w-auto rounded-xl shadow-[var(--shadow)]"
+          class="h-80 w-auto rounded shadow-[var(--shadow)]"
         />
       </CInline>
     </CInline>
@@ -168,21 +138,10 @@
 </template>
 <script setup lang="ts">
 import { ref, watch, computed, onBeforeUnmount } from "vue";
-import {
-  getCard,
-  getCardPrintings,
-  type ScryfallCard,
-} from "../api/scryfallApi";
+import { getCard, getCardPrintings, type ScryfallCard } from "../api/scryfallApi";
 import Card from "./Card.vue";
 import PriceColour from "./PriceColour.vue";
-import {
-  CButton,
-  CGrid,
-  CInline,
-  CStack,
-  CSurface,
-  CText,
-} from "./core";
+import { CButton, CGrid, CInline, CStack, CSurface, CText } from "./core";
 import { useCommanderColors } from "../composables/useCommanderColors";
 
 const props = defineProps<{

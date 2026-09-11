@@ -9,7 +9,7 @@
     </label>
     <div class="flex">
       <div
-        class="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-2 text-base text-[color:var(--text)] shadow-[var(--shadow-soft)] focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
+        class="flex min-w-0 flex-1 items-center gap-2 rounded border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-3 py-2 text-base text-[color:var(--text)] shadow-[var(--shadow-soft)] focus-within:border-[color:var(--accent)] focus-within:ring-2 focus-within:ring-[color:var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
         :class="containerClass"
       >
         <svg
@@ -42,7 +42,7 @@
         <button
           v-if="showClear"
           type="button"
-          class="rounded-lg px-2 py-1 text-xs font-semibold text-[color:var(--muted)] transition hover:text-[color:var(--danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+          class="rounded-[3px] px-2 py-1 text-xs font-semibold text-[color:var(--muted)] transition hover:text-[color:var(--danger)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
           :aria-label="`Clear ${label.toLowerCase()} search`"
           @click="emit('clear')"
         >
@@ -69,7 +69,7 @@
       v-if="showListbox"
       as="div"
       padding="p-0"
-      rounded="rounded-xl"
+      rounded="rounded"
       border="border border-[color:var(--border)]"
       background="bg-[color:var(--surface-strong)]"
       shadow="shadow-[var(--shadow-soft)]"
@@ -180,9 +180,7 @@ const resultTypeLabel = computed(() => {
   return props.searchResultsLabel;
 });
 const activeDescendant = computed(() =>
-  showListbox.value && highlightedIndex.value >= 0
-    ? optionDomId(highlightedIndex.value)
-    : undefined
+  showListbox.value && highlightedIndex.value >= 0 ? optionDomId(highlightedIndex.value) : undefined
 );
 
 const describedBy = computed(() => {
@@ -267,9 +265,7 @@ const handleKeydown = async (event: KeyboardEvent) => {
       return;
     }
     highlightedIndex.value =
-      highlightedIndex.value >= displayedResults.value.length - 1
-        ? 0
-        : highlightedIndex.value + 1;
+      highlightedIndex.value >= displayedResults.value.length - 1 ? 0 : highlightedIndex.value + 1;
     await focusHighlightedOption();
     return;
   }
@@ -281,9 +277,7 @@ const handleKeydown = async (event: KeyboardEvent) => {
       return;
     }
     highlightedIndex.value =
-      highlightedIndex.value <= 0
-        ? displayedResults.value.length - 1
-        : highlightedIndex.value - 1;
+      highlightedIndex.value <= 0 ? displayedResults.value.length - 1 : highlightedIndex.value - 1;
     await focusHighlightedOption();
     return;
   }

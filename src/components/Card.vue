@@ -16,22 +16,10 @@
   >
     <div v-if="hasHeader" class="mb-4">
       <slot name="header">
-        <CText
-          v-if="title"
-          :tag="titleTag"
-          variant="title"
-          :tone="titleTone"
-          class="leading-snug"
-        >
+        <CText v-if="title" :tag="titleTag" variant="title" :tone="titleTone" class="leading-snug">
           {{ title }}
         </CText>
-        <CText
-          v-if="subtitle"
-          tag="p"
-          variant="helper"
-          :tone="subtitleTone"
-          class="mt-1"
-        >
+        <CText v-if="subtitle" tag="p" variant="helper" :tone="subtitleTone" class="mt-1">
           {{ subtitle }}
         </CText>
       </slot>
@@ -50,15 +38,7 @@ import { computed, useSlots } from "vue";
 import { CSurface, CText } from "./core";
 import type { SurfaceShadow, SurfaceSize, SurfaceVariant } from "./core/config";
 
-type Tone =
-  | "default"
-  | "muted"
-  | "subtle"
-  | "inverse"
-  | "danger"
-  | "success"
-  | "warn"
-  | "inherit";
+type Tone = "default" | "muted" | "subtle" | "inverse" | "danger" | "success" | "warn" | "inherit";
 
 const props = withDefaults(
   defineProps<{
@@ -81,7 +61,7 @@ const props = withDefaults(
     as: "div",
     variant: "panel" as SurfaceVariant,
     padding: null,
-    rounded: "rounded-2xl",
+    rounded: "rounded",
     shadow: "shadow-[var(--shadow-soft)]",
     border: "border border-[color:var(--border)]",
     background: "bg-[color:var(--surface)]",
@@ -97,9 +77,7 @@ const props = withDefaults(
 
 const slots = useSlots();
 
-const hasHeader = computed(
-  () => !!props.title || !!props.subtitle || !!slots.header
-);
+const hasHeader = computed(() => !!props.title || !!props.subtitle || !!slots.header);
 
 const surfaceSheen = computed(() => {
   if (props.variant === "masthead") {

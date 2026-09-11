@@ -55,14 +55,14 @@
 
     <div v-if="detailsOpen" class="mt-4 border-t border-[color:var(--border)] pt-4">
       <template v-if="spotlightLoading && !hasProfiles">
-        <div class="h-20 animate-pulse rounded-lg bg-[color:var(--surface-muted)]" />
+        <div class="h-20 animate-pulse rounded bg-[color:var(--surface-muted)]" />
       </template>
 
       <div v-else-if="profilesToRender.length" class="space-y-3">
         <article
           v-for="(profile, index) in profilesToRender"
           :key="`${profile.id}-profile`"
-          class="space-y-3 rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] p-3"
+          class="space-y-3 rounded border border-[color:var(--border)] bg-[color:var(--surface)] p-3"
         >
           <img
             v-if="profile.imageUrl"
@@ -113,7 +113,7 @@
 
       <div
         v-else
-        class="rounded-lg border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-4"
+        class="rounded border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-4"
       >
         <CText tag="p" variant="title">Commander details unavailable</CText>
         <CText tag="p" variant="helper" tone="muted" class="mt-2">

@@ -430,7 +430,9 @@ test.describe("Top Commanders Page - CSV Upload Integration", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
 
     // Verify CSV was loaded
-    await expect(page.getByText(/cards loaded/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#main-content").getByText(/cards loaded/i)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });
 
@@ -451,7 +453,9 @@ test.describe("Top Commanders Page - Scan Functionality", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
 
     // CSV status should show cards loaded
-    await expect(page.getByText(/cards loaded/i).first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#main-content").getByText(/cards loaded/i)).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test("shows last updated timestamp", async ({ page }) => {
