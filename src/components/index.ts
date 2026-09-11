@@ -11,13 +11,11 @@ export { default as CardTable } from "./CardTable.vue";
 export { default as DropdownSelect } from "./DropdownSelect.vue";
 export { default as SiteNotice } from "./SiteNotice.vue";
 export { default as CommanderDisplay } from "./CommanderDisplay.vue";
-export { default as CommanderDataPanel } from "./CommanderDataPanel.vue";
 export { default as TopCommanderScanPanel } from "./TopCommanderScanPanel.vue";
 export { default as FloatingCardlistNav } from "./FloatingCardlistNav.vue";
 export { default as GlobalNoticeStack } from "./GlobalNoticeStack.vue";
 export { default as PriceColour } from "./PriceColour.vue";
 export { default as CardlistSection } from "./CardlistSection.vue";
-export { default as ToolkitHeader } from "./ToolkitHeader.vue";
 export { default as EdhrecEmptyState } from "./EdhrecEmptyState.vue";
 // Lazy-loaded components are not exported from index.ts to enable code splitting
 // export { default as Dashboard } from "./Dashboard.vue";
