@@ -3,7 +3,7 @@
     <div
       v-if="open"
       class="fixed inset-0 z-50 bg-black/70"
-      :class="isMobileViewport ? 'p-0' : 'backdrop-blur-[2px]'"
+      :class="isMobileViewport ? 'p-0' : ''"
       role="dialog"
       aria-modal="true"
       :aria-labelledby="dialogTitleId"
@@ -42,10 +42,10 @@
       <div
         v-else
         ref="dialogRef"
-        class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden rounded-t-[32px] border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
+        class="absolute inset-x-0 bottom-0 max-h-[88vh] overflow-hidden border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--shadow)]"
         data-testid="dashboard-utility-sheet"
       >
-        <div class="mx-auto mt-3 h-1.5 w-14 rounded-full bg-[color:var(--border)]" aria-hidden="true" />
+        <div class="mx-auto mt-3 h-px w-14 bg-[color:var(--border-strong)]" aria-hidden="true" />
         <header class="border-b border-[color:var(--border)] px-4 pb-4 pt-3">
           <div class="flex items-start justify-between gap-3">
             <div class="space-y-1">
@@ -95,7 +95,9 @@ const emit = defineEmits<{
 }>();
 
 const dialogRef = ref<HTMLElement | null>(null);
-const isMobileViewport = ref(typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false);
+const isMobileViewport = ref(
+  typeof window !== "undefined" ? window.innerWidth < MOBILE_BREAKPOINT_PX : false
+);
 const trapOpen = computed(() => props.open);
 const { activate, deactivate } = useFocusTrap(dialogRef, trapOpen);
 const idBase = `dashboard-utility-${Math.random().toString(36).slice(2, 9)}`;

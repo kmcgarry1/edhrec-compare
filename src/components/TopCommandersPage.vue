@@ -48,7 +48,6 @@
         <TopCommandersColorFilter
           :color-options="colorOptions"
           :selected-colors="selectedColors"
-          :color-dot-class="colorDotClass"
           :color-pill-class="colorPillClass"
           :color-label="colorLabel"
           @toggle-color="toggleColor"
@@ -71,7 +70,7 @@
           aria-live="assertive"
         />
 
-        <CGrid v-else variant="single" gap="sm">
+        <CGrid v-else variant="cards" gap="md">
           <TopCommanderCard
             v-for="commander in sortedCommanders"
             :key="commander.slug"
@@ -142,7 +141,6 @@ const {
   toggleColor,
   clearColors,
   selectedColorPath,
-  colorDotClass,
   colorPillClass,
   colorLabel,
   matchesColorFilter,

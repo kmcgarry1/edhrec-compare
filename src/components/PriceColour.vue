@@ -47,11 +47,11 @@ const componentClass = computed(() => {
     props.align === "start"
       ? "justify-start"
       : props.align === "center"
-      ? "justify-center"
-      : "justify-end";
+        ? "justify-center"
+        : "justify-end";
 
   if (props.pill) {
-    return `inline-flex min-w-[74px] items-center ${alignment} rounded-lg px-3 py-1 font-mono tabular-nums text-sm whitespace-nowrap`;
+    return `inline-flex min-w-[74px] items-center ${alignment} rounded px-3 py-1 font-mono tabular-nums text-sm whitespace-nowrap`;
   }
   return "font-mono tabular-nums text-sm whitespace-nowrap";
 });
@@ -77,12 +77,9 @@ const colorClass = computed(() => {
   const pillClasses: Record<string, string> = {
     muted:
       "bg-[color:var(--surface-muted)] text-[color:var(--muted)] border border-[color:var(--border)]",
-    low:
-      "bg-[color:var(--tier-blue-soft)] text-[color:var(--tier-blue)] border border-[color:var(--tier-blue)]",
-    mid:
-      "bg-[color:var(--tier-green-soft)] text-[color:var(--tier-green)] border border-[color:var(--tier-green)]",
-    high:
-      "bg-[color:var(--tier-orange-soft)] text-[color:var(--tier-orange)] border border-[color:var(--tier-orange)]",
+    low: "bg-[color:var(--tier-blue-soft)] text-[color:var(--tier-blue)] border border-[color:var(--tier-blue)]",
+    mid: "bg-[color:var(--tier-green-soft)] text-[color:var(--tier-green)] border border-[color:var(--tier-green)]",
+    high: "bg-[color:var(--tier-orange-soft)] text-[color:var(--tier-orange)] border border-[color:var(--tier-orange)]",
     premium:
       "bg-[color:var(--tier-red-soft)] text-[color:var(--tier-red)] border border-[color:var(--tier-red)]",
   };

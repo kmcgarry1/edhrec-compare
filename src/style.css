@@ -6,21 +6,23 @@
   :root {
     color-scheme: light;
     --font-body: "Manrope";
-    --font-display: "Fraunces";
-    --bg: #f4efe6;
-    --bg-strong: #ebe2d5;
-    --surface: #fbf6ee;
-    --surface-strong: #fffaf4;
-    --surface-muted: #eee5d8;
-    --border: #cbbda8;
-    --text: #211913;
-    --muted: #695c4d;
-    --accent: #6e1558;
-    --accent-strong: #510c53;
-    --accent-soft: #d7ece8;
-    --accent-contrast: #fefbf7;
-    --accent-glow: rgba(69, 88, 75, 0.06);
-    --accent-glow-strong: rgba(69, 88, 75, 0.08);
+    --font-display: Georgia, "Times New Roman", Times, serif;
+    --bg: #efedf6;
+    --bg-strong: #e8e3f2;
+    --surface: #faf9fd;
+    --surface-strong: #f3f0f9;
+    --surface-muted: #e8e3f2;
+    --surface-raised: #ffffff;
+    --border: rgba(47, 37, 70, 0.16);
+    --border-strong: rgba(47, 37, 70, 0.32);
+    --text: #241e31;
+    --muted: #665e74;
+    --accent: #087b83;
+    --accent-strong: #056269;
+    --accent-soft: rgba(8, 123, 131, 0.1);
+    --accent-contrast: #f7ffff;
+    --accent-glow: rgba(8, 123, 131, 0.08);
+    --accent-glow-strong: rgba(8, 123, 131, 0.12);
     --tier-blue: #963aa8;
     --tier-blue-soft: rgba(58, 123, 168, 0.18);
     --tier-green: #2f8f5b;
@@ -45,16 +47,14 @@
     --rarity-uncommon: #8c8173;
     --rarity-rare: #b68932;
     --rarity-mythic: #c05f2e;
-    --danger: #b8325c;
-    --danger-soft: rgba(184, 50, 92, 0.16);
-    --warn: #c96b2c;
-    --warn-soft: rgba(201, 107, 44, 0.16);
-    --pattern-line: rgba(41, 35, 28, 0.08);
-    --shadow: 0 18px 34px rgba(33, 24, 18, 0.12);
-    --shadow-soft: 0 6px 14px rgba(33, 24, 18, 0.08);
-    --surface-sheen:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.7), transparent 40%),
-      radial-gradient(circle at 85% 10%, var(--accent-glow), transparent 45%);
+    --danger: #a43855;
+    --danger-soft: rgba(164, 56, 85, 0.08);
+    --warn: #76539a;
+    --warn-soft: rgba(118, 83, 154, 0.09);
+    --pattern-line: rgba(47, 37, 70, 0.08);
+    --shadow: 0 0 0 1px var(--border);
+    --shadow-soft: 0 0 0 1px var(--border);
+    --surface-sheen: none;
     font-family:
       var(--font-body),
       "Space Grotesk",
@@ -74,20 +74,22 @@
 
   .dark {
     color-scheme: dark;
-    --bg: #171513;
-    --bg-strong: #211d19;
-    --surface: #211d19;
-    --surface-strong: #2a241f;
-    --surface-muted: #191613;
-    --border: #40362d;
-    --text: #f5eee5;
-    --muted: #a59684;
-    --accent: #32c0b4;
-    --accent-strong: #9ce6db;
-    --accent-soft: rgba(47, 198, 184, 0.22);
-    --accent-contrast: #0b1413;
-    --accent-glow: rgba(147, 124, 92, 0.08);
-    --accent-glow-strong: rgba(147, 124, 92, 0.12);
+    --bg: #110e19;
+    --bg-strong: #17131f;
+    --surface: #17131f;
+    --surface-strong: #1d1828;
+    --surface-muted: #272036;
+    --surface-raised: #211b2e;
+    --border: rgba(226, 218, 244, 0.13);
+    --border-strong: rgba(226, 218, 244, 0.27);
+    --text: #f0edf8;
+    --muted: #aaa2ba;
+    --accent: #65d4d0;
+    --accent-strong: #82e3df;
+    --accent-soft: rgba(101, 212, 208, 0.1);
+    --accent-contrast: #0d2426;
+    --accent-glow: rgba(101, 212, 208, 0.08);
+    --accent-glow-strong: rgba(101, 212, 208, 0.12);
     --tier-blue: #7fb8e1;
     --tier-blue-soft: rgba(127, 184, 225, 0.2);
     --tier-green: #76c08f;
@@ -112,32 +114,21 @@
     --rarity-uncommon: #b3a69a;
     --rarity-rare: #e6c27a;
     --rarity-mythic: #f1955d;
-    --danger: #ff7da8;
-    --danger-soft: rgba(255, 125, 168, 0.22);
-    --warn: #e2b266;
-    --warn-soft: rgba(226, 178, 102, 0.24);
-    --pattern-line: rgba(243, 237, 229, 0.08);
-    --shadow: 0 18px 34px rgba(0, 0, 0, 0.34);
-    --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.24);
-    --surface-sheen:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 45%),
-      radial-gradient(circle at 85% 10%, var(--accent-glow), transparent 50%);
+    --danger: #e17b98;
+    --danger-soft: rgba(225, 123, 152, 0.08);
+    --warn: #b698d3;
+    --warn-soft: rgba(182, 152, 211, 0.09);
+    --pattern-line: rgba(226, 218, 244, 0.08);
+    --shadow: 0 0 0 1px var(--border);
+    --shadow-soft: 0 0 0 1px var(--border);
+    --surface-sheen: none;
   }
 
   body {
     min-height: 100vh;
     overflow-x: hidden;
     background-color: var(--bg);
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--bg) 94%, var(--bg-strong) 6%),
-        var(--bg-strong)
-      ),
-      radial-gradient(circle, var(--pattern-line) 0.45px, transparent 0.45px);
-    background-size:
-      100% 100%,
-      6px 6px;
+    background-image: none;
     color: var(--text);
     line-height: var(--a11y-line-height);
     letter-spacing: var(--a11y-letter-spacing);
@@ -160,7 +151,7 @@
   h6,
   .font-display {
     font-family: var(--font-display), var(--font-body), theme("fontFamily.sans"), serif;
-    letter-spacing: -0.01em;
+    letter-spacing: 0;
   }
 
   ::selection {
@@ -174,7 +165,7 @@
     top: 0.75rem;
     z-index: 10000;
     transform: translateY(-150%);
-    border-radius: 999px;
+    border-radius: 3px;
     background: var(--surface-strong);
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
@@ -233,8 +224,8 @@
     --warn: #7a3a07;
     --warn-soft: rgba(122, 58, 7, 0.16);
     --pattern-line: rgba(0, 0, 0, 0.18);
-    --shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
-    --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.12);
+    --shadow: 0 0 0 1px var(--border);
+    --shadow-soft: 0 0 0 1px var(--border);
     --surface-sheen: none;
   }
 
@@ -258,8 +249,8 @@
     --warn: #ffc078;
     --warn-soft: rgba(255, 192, 120, 0.22);
     --pattern-line: rgba(255, 255, 255, 0.16);
-    --shadow: 0 20px 46px rgba(0, 0, 0, 0.65);
-    --shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.55);
+    --shadow: 0 0 0 1px var(--border);
+    --shadow-soft: 0 0 0 1px var(--border);
     --surface-sheen: none;
   }
 
@@ -269,86 +260,63 @@
 
   .surface-sheen {
     background-image: var(--surface-sheen);
-    background-blend-mode: soft-light;
+    background-blend-mode: normal;
+  }
+
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl,
+  .rounded-\[1\.15rem\],
+  .rounded-\[1\.25rem\],
+  .rounded-\[1\.5rem\],
+  .rounded-\[28px\] {
+    border-radius: 4px !important;
   }
 
   .surface-role-panel {
-    background-color: color-mix(in srgb, var(--surface) 94%, transparent);
+    background-color: var(--surface);
   }
 
   .surface-role-masthead {
-    background-image:
-      linear-gradient(
-        145deg,
-        color-mix(in srgb, var(--surface-strong) 94%, transparent),
-        color-mix(in srgb, var(--surface) 78%, transparent) 44%,
-        color-mix(in srgb, var(--surface-muted) 62%, transparent)
-      ),
-      radial-gradient(circle at 84% 14%, var(--accent-glow-strong), transparent 42%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 58%);
+    background-color: transparent;
+    background-image: none;
     box-shadow: var(--shadow-soft);
+    border-top: 3px solid var(--accent);
   }
 
   .surface-role-command {
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-strong) 96%, transparent),
-        color-mix(in srgb, var(--surface) 86%, transparent)
-      ),
-      linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--accent-soft) 42%, transparent),
-        transparent 50%
-      );
+    background-color: var(--surface-strong);
+    background-image: none;
     box-shadow: none;
   }
 
   .surface-role-toolbar {
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 92%, transparent),
-      color-mix(in srgb, var(--surface) 90%, transparent)
-    );
+    background-color: var(--surface-strong);
+    background-image: none;
     box-shadow: var(--shadow-soft);
   }
 
   .surface-role-rail {
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-muted) 54%, var(--surface-strong) 46%),
-        color-mix(in srgb, var(--surface) 92%, transparent)
-      ),
-      radial-gradient(circle at top right, var(--accent-glow), transparent 48%);
+    background-color: var(--surface-strong);
+    background-image: none;
     box-shadow: none;
   }
 
   .surface-role-dense {
-    background-color: color-mix(in srgb, var(--surface-muted) 68%, var(--surface-strong) 32%);
+    background-color: var(--surface-muted);
     box-shadow: none;
   }
 
   .surface-role-content {
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-strong) 98%, transparent),
-        color-mix(in srgb, var(--surface) 94%, transparent) 36%,
-        color-mix(in srgb, var(--surface-muted) 28%, var(--surface) 72%)
-      ),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 62%);
+    background-color: var(--surface);
+    background-image: none;
     box-shadow: var(--shadow-soft);
   }
 
   .surface-role-utility {
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-muted) 58%, var(--surface-strong) 42%),
-        color-mix(in srgb, var(--surface-muted) 78%, transparent)
-      ),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 68%);
+    background-color: var(--surface-strong);
+    background-image: none;
     box-shadow: none;
   }
 
@@ -357,14 +325,9 @@
     max-height: calc(100vh - 7.25rem);
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid color-mix(in srgb, var(--border) 92%, transparent);
-    background-image:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--surface-strong) 90%, transparent),
-        color-mix(in srgb, var(--surface) 96%, transparent)
-      ),
-      radial-gradient(circle at top right, var(--accent-glow), transparent 34%);
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    background-image: none;
   }
 
   .dashboard-control-panel-scroll {
@@ -381,11 +344,8 @@
 
   .dashboard-control-panel-footer {
     border-top: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
-    background-image: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface-strong) 95%, transparent),
-      color-mix(in srgb, var(--surface-muted) 88%, transparent)
-    );
+    background-color: var(--surface-strong);
+    background-image: none;
     padding: 1rem 1.15rem 1.15rem;
   }
 
@@ -395,7 +355,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    border-radius: 1.15rem;
+    border-radius: 4px;
     border: 1px solid var(--border);
     padding: 0.85rem 0.95rem;
     transition:

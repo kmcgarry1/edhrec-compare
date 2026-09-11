@@ -34,9 +34,7 @@
       />
 
       <CStack v-if="!file" gap="xs">
-        <CText tag="p" variant="title" class="text-lg">
-          Upload your collection
-        </CText>
+        <CText tag="p" variant="title" class="text-lg"> Upload your collection </CText>
         <CText id="csv-upload-helper" tag="p" variant="body" tone="muted">
           Drag and drop or click to browse files. CSV only.
         </CText>
@@ -56,9 +54,7 @@
           <CText tag="p" variant="body" weight="semibold">
             {{ file.name }}
           </CText>
-          <CText tag="p" variant="helper" tone="muted">
-            {{ csvRows.length }} rows detected
-          </CText>
+          <CText tag="p" variant="helper" tone="muted"> {{ csvRows.length }} rows detected </CText>
         </CStack>
 
         <CButton
@@ -107,10 +103,7 @@
     >
       <template #default>
         <ul class="mt-2 list-disc space-y-1 pl-5">
-          <li
-            v-for="(warning, index) in validationResult?.warnings"
-            :key="`${warning}-${index}`"
-          >
+          <li v-for="(warning, index) in validationResult?.warnings" :key="`${warning}-${index}`">
             {{ warning }}
           </li>
         </ul>
@@ -133,10 +126,7 @@
     >
       <template #default>
         <ul class="mt-2 list-disc space-y-1 pl-5">
-          <li
-            v-for="(error, index) in validationResult?.errors"
-            :key="`${error}-${index}`"
-          >
+          <li v-for="(error, index) in validationResult?.errors" :key="`${error}-${index}`">
             {{ error }}
           </li>
         </ul>
@@ -161,24 +151,24 @@
     />
 
     <CStack gap="md">
-      <details class="rounded-2xl border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-left">
-        <summary class="cursor-pointer text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--muted)]">
+      <details
+        class="rounded border border-[color:var(--border)] bg-[color:var(--surface)] p-4 text-left"
+      >
+        <summary
+          class="cursor-pointer text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[color:var(--muted)]"
+        >
           CSV format
         </summary>
         <CStack gap="md" class="mt-3 text-sm text-[color:var(--muted)]">
           <CStack gap="xs">
-            <CText tag="p" variant="body" weight="semibold">
-              Required column
-            </CText>
+            <CText tag="p" variant="body" weight="semibold"> Required column </CText>
             <CText tag="p" variant="body" tone="muted">
               Name (or Card Name) - the card name we match against EDHREC lists.
             </CText>
           </CStack>
 
           <CStack gap="xs">
-            <CText tag="p" variant="body" weight="semibold">
-              Optional columns
-            </CText>
+            <CText tag="p" variant="body" weight="semibold"> Optional columns </CText>
             <ul class="mt-1 list-disc space-y-1 pl-5">
               <li>Quantity - number of copies</li>
               <li>Foil - Yes/No</li>
@@ -188,10 +178,11 @@
           </CStack>
 
           <CStack gap="xs">
-            <CText tag="p" variant="body" weight="semibold">
-              Example
-            </CText>
-            <pre class="mt-2 rounded-2xl bg-[color:var(--surface-muted)] p-3 text-xs font-mono text-[color:var(--text)]">Name,Quantity,Foil,Set
+            <CText tag="p" variant="body" weight="semibold"> Example </CText>
+            <pre
+              class="mt-2 rounded bg-[color:var(--surface-muted)] p-3 text-xs font-mono text-[color:var(--text)]"
+            >
+Name,Quantity,Foil,Set
 Sol Ring,1,No,C21
 Lightning Greaves,1,Yes,M19</pre>
           </CStack>
@@ -202,9 +193,7 @@ Lightning Greaves,1,Yes,M19</pre>
             radius="xl"
             class="flex flex-wrap items-center gap-2 px-3 py-2 text-[0.75rem] text-[color:var(--muted)]"
           >
-            <CText tag="span" variant="body" weight="semibold">
-              Need an example?
-            </CText>
+            <CText tag="span" variant="body" weight="semibold"> Need an example? </CText>
             <CButton
               type="button"
               variant="ghost"
@@ -217,14 +206,14 @@ Lightning Greaves,1,Yes,M19</pre>
             <a
               :href="templateCsvUrl"
               download="inventory-template.csv"
-              class="rounded-full border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="rounded-[3px] border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               Download template
             </a>
             <a
               :href="sampleCsvUrl"
               download="inventory.csv"
-              class="rounded-full border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
+              class="rounded-[3px] border border-transparent px-3 py-1 font-semibold text-[color:var(--text)] underline decoration-dotted decoration-[color:var(--accent)] hover:text-[color:var(--accent)]"
             >
               Download full sample
             </a>
@@ -238,14 +227,7 @@ Lightning Greaves,1,Yes,M19</pre>
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import GlobalLoadingBanner from "./GlobalLoadingBanner.vue";
-import {
-  CButton,
-  CFieldShell,
-  CNotice,
-  CStack,
-  CSurface,
-  CText,
-} from "./core";
+import { CButton, CFieldShell, CNotice, CStack, CSurface, CText } from "./core";
 import { useGlobalLoading } from "../composables/useGlobalLoading";
 import { useCsvUpload } from "../composables/useCsvUpload";
 import { useGlobalNotices } from "../composables/useGlobalNotices";

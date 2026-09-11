@@ -157,7 +157,7 @@
     <section class="dashboard-control-panel-section space-y-3">
       <button
         type="button"
-        class="flex w-full items-start justify-between gap-3 rounded-[22px] border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 text-left transition hover:border-[color:var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
+        class="flex w-full items-start justify-between gap-3 rounded border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-3 text-left transition hover:border-[color:var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]"
         :aria-expanded="advancedFiltersOpen"
         @click="advancedFiltersOpen = !advancedFiltersOpen"
       >

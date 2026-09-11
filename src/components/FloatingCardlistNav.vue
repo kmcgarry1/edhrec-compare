@@ -1,14 +1,16 @@
 <template>
   <nav
     v-if="sectionsWithIcons.length"
-    class="sticky top-24 z-20 rounded-[24px] border border-[color:color-mix(in_srgb,var(--border)_88%,transparent)] bg-[color:color-mix(in_srgb,var(--surface-muted)_76%,var(--surface-strong)_24%)] px-3 py-3 shadow-[var(--shadow-soft)] backdrop-blur-sm"
+    class="sticky top-24 z-20 rounded border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-3 py-3 shadow-[var(--shadow-soft)]"
     aria-label="Cardlist navigation"
   >
     <div class="flex flex-col gap-2">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <CText tag="p" variant="eyebrow" tone="muted"> Section navigation </CText>
         <CText tag="p" variant="helper" tone="muted">
-          {{ sectionsWithIcons.length }} active section{{ sectionsWithIcons.length === 1 ? "" : "s" }}
+          {{ sectionsWithIcons.length }} active section{{
+            sectionsWithIcons.length === 1 ? "" : "s"
+          }}
         </CText>
       </div>
 
@@ -20,7 +22,7 @@
           :title="section.label"
           :aria-label="section.label"
           :class="[
-            'inline-flex shrink-0 items-center gap-1.5 rounded-2xl border px-2.5 py-1.5 text-left text-[0.72rem] font-semibold transition focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]',
+            'inline-flex shrink-0 items-center gap-1.5 rounded border px-2.5 py-1.5 text-left text-[0.72rem] font-semibold transition focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]',
             section.id === activeId
               ? 'border-[color:var(--accent)] bg-[color:var(--accent-soft)] text-[color:var(--text)]'
               : 'border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted)] hover:border-[color:var(--accent)] hover:text-[color:var(--text)]',
